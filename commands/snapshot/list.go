@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"log"
 	"strings"
-	"errors"
 	"io/ioutil"
 	"encoding/json"
 )
@@ -68,16 +67,18 @@ func createRequest(c *cli.Context) (*http.Request, error) {
 	port := c.String("port")
 	scheme := c.String("scheme")
 
+	if auth == "" {
+		log.Fatal("required parameter -a is missing")
+	}
+
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s://%s:%s/api/repo/snapshot/list", scheme, host, port), nil)
-	if err == nil && auth != "" {
+	if err == nil {
 		splitAuth := strings.Split(auth, ":")
 		if len(splitAuth) != 2 {
-			return nil, errors.New("parameter -a must have the following format `user:password`")
+			log.Fatal("parameter -a must have the following format `user:password`")
 		} else {
 			req.SetBasicAuth(splitAuth[0], splitAuth[1])
 		}
-	} else if auth == "" {
-		err = errors.New("required parameter -a is missing")
 	}
 	return req, err
 }
