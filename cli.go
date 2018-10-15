@@ -13,14 +13,6 @@ func main() {
 	app.Usage = "Manage XP instances, home folders and projects"
 	app.EnableBashCompletion = true
 	app.Commands = commands.All()
-	app.Flags = []cli.Flag {
-		cli.StringFlag{
-			Name: "lang, l",
-			Value: "english",
-			Usage: "language for the greeting",
-			EnvVar: "APP_LANG",
-		},
-	}
 
 	err := app.Run(os.Args)
 	if err != nil {
