@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 	"io/ioutil"
+	"bytes"
 	"encoding/json"
 )
 
@@ -84,13 +85,15 @@ func createRequest(c *cli.Context) (*http.Request, error) {
 }
 
 func parseResponse(bytes []byte) string {
-	list := ListResponse{}
-	if err := json.Unmarshal(bytes, &list); err != nil {
-		log.Fatal("JSON Error: ", err)
+	prettyBytes, err := prettyPrintJSON(bytes)
+	if err != nil {
+		prettyBytes = bytes
 	}
-	return fmt.Sprintf("Snapshots:\n%s", strings.Join(list.Results, "\n"))
+	return string(prettyBytes)
 }
 
-type ListResponse struct {
-	Results []string `json:"results"`
+func prettyPrintJSON(b []byte) ([]byte, error) {
+	var out bytes.Buffer
+	err := json.Indent(&out, b, "", "    ")
+	return out.Bytes(), err
 }
