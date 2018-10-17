@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"fmt"
 	"bytes"
-	"io"
+	"encoding/json"
 )
 
 var New = cli.Command{
@@ -30,11 +30,12 @@ var New = cli.Command{
 }
 
 func createNewRequest(c *cli.Context) *http.Request {
-	var body io.Reader
+	body := new(bytes.Buffer)
+	params := map[string]interface{}{}
 	if repo := c.String("repo"); repo != "" {
-		bodyText := fmt.Sprintf(`{"repositoryId": "%s"}`, repo)
-		body = bytes.NewBuffer([]byte(bodyText))
+		params["repositoryId"] = repo
 	}
+	json.NewEncoder(body).Encode(params)
 
 	req := createRequest(c, "POST", "api/repo/snapshot", body)
 	req.Header.Set("Content-Type", "application/json")
