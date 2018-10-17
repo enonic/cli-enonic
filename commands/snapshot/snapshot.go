@@ -3,12 +3,13 @@ package snapshot
 import (
 	"github.com/urfave/cli"
 	"net/http"
-	"log"
 	"fmt"
 	"strings"
 	"enonic.com/xp-cli/util"
 	"io"
 	"io/ioutil"
+	"os"
+	"bufio"
 )
 
 func All() []cli.Command {
@@ -47,23 +48,28 @@ func createRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	host := c.String("host")
 	port := c.String("port")
 	scheme := c.String("scheme")
+	var splitAuth []string
 
-	if auth == "" {
-		log.Fatal("required parameter -a is missing")
+	for len(splitAuth) != 2 {
+		if auth == "" {
+			reader := bufio.NewScanner(os.Stdin)
+			fmt.Print("Enter authentication token (user:password): ")
+			reader.Scan()
+			auth = reader.Text()
+		}
+		splitAuth = strings.Split(auth, ":")
+		if len(splitAuth) != 2 {
+			fmt.Fprintln(os.Stderr, "Authentication token must have the following format `user:password`")
+			auth = ""
+		}
 	}
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
 	if err != nil {
-		log.Fatal("Params error: ", err)
+		fmt.Fprintln(os.Stderr, "Params error: ", err)
+		os.Exit(1)
 	}
-
-	splitAuth := strings.Split(auth, ":")
-	if len(splitAuth) != 2 {
-		log.Fatal("parameter -a must have the following format `user:password`")
-	} else {
-		req.SetBasicAuth(splitAuth[0], splitAuth[1])
-	}
-
+	req.SetBasicAuth(splitAuth[0], splitAuth[1])
 	return req
 }
 
@@ -72,7 +78,8 @@ func sendRequest(req *http.Request) *http.Response {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatal("Request error: ", err)
+		fmt.Fprintln(os.Stderr, "Request error: ", err)
+		os.Exit(1)
 	}
 	return resp
 }
@@ -81,7 +88,8 @@ func parseResponse(resp *http.Response) string {
 	defer resp.Body.Close()
 	var text string
 	if bodyBytes, err := ioutil.ReadAll(resp.Body); err != nil {
-		log.Fatal("Response error: ", err)
+		fmt.Fprintln(os.Stderr, "Response error: ", err)
+		os.Exit(1)
 	} else if resp.StatusCode == http.StatusOK {
 		prettyBytes, err := util.PrettyPrintJSON(bodyBytes)
 		if err != nil {
