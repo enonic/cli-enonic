@@ -3,9 +3,10 @@ package snapshot
 import (
 	"github.com/urfave/cli"
 	"net/http"
-	"fmt"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"os"
 )
 
 var New = cli.Command{
@@ -21,9 +22,13 @@ var New = cli.Command{
 
 		req := createNewRequest(c)
 
+		fmt.Fprint(os.Stderr, "Creating snapshot...")
 		resp := sendRequest(req)
 
-		fmt.Println(parseResponse(resp))
+		var snap Snapshot
+		if parseResponse(resp, &snap); snap.State == "SUCCESS" {
+			fmt.Fprintln(os.Stderr, "Done")
+		}
 
 		return nil
 	},
@@ -38,7 +43,6 @@ func createNewRequest(c *cli.Context) *http.Request {
 	json.NewEncoder(body).Encode(params)
 
 	req := createRequest(c, "POST", "api/repo/snapshot", body)
-	req.Header.Set("Content-Type", "application/json")
 
 	return req
 }

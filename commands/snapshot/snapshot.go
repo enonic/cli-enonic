@@ -7,9 +7,9 @@ import (
 	"strings"
 	"enonic.com/xp-cli/util"
 	"io"
-	"io/ioutil"
 	"os"
-	"bufio"
+	"encoding/json"
+	"io/ioutil"
 )
 
 func All() []cli.Command {
@@ -27,7 +27,7 @@ var SNAPSHOT_FLAGS = []cli.Flag{
 		Usage: "Authentication token for basic authentication (user:password)",
 	},
 	cli.StringFlag{
-		Name:  "host, t",
+		Name:  "host",
 		Value: "localhost",
 		Usage: "Host name for server",
 	},
@@ -50,19 +50,19 @@ func createRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	scheme := c.String("scheme")
 	var splitAuth []string
 
-	for len(splitAuth) != 2 {
-		if auth == "" {
-			reader := bufio.NewScanner(os.Stdin)
-			fmt.Print("Enter authentication token (user:password): ")
-			reader.Scan()
-			auth = reader.Text()
+	util.PromptUntilTrue(auth, func(val string, ind byte) string {
+		if val == "" {
+			return "Enter authentication token (user:password): "
+		} else {
+			splitAuth = strings.Split(val, ":")
+			if len(splitAuth) != 2 {
+				return "Authentication token must have the following format `user:password`: "
+			} else {
+				c.Set("auth", val)
+				return ""
+			}
 		}
-		splitAuth = strings.Split(auth, ":")
-		if len(splitAuth) != 2 {
-			fmt.Fprintln(os.Stderr, "Authentication token must have the following format `user:password`")
-			auth = ""
-		}
-	}
+	})
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
 	if err != nil {
@@ -70,6 +70,7 @@ func createRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		os.Exit(1)
 	}
 	req.SetBasicAuth(splitAuth[0], splitAuth[1])
+	req.Header.Set("Content-Type", "application/json")
 	return req
 }
 
@@ -84,20 +85,43 @@ func sendRequest(req *http.Request) *http.Response {
 	return resp
 }
 
-func parseResponse(resp *http.Response) string {
+func debugResponse(resp *http.Response) {
 	defer resp.Body.Close()
-	var text string
-	if bodyBytes, err := ioutil.ReadAll(resp.Body); err != nil {
-		fmt.Fprintln(os.Stderr, "Response error: ", err)
-		os.Exit(1)
-	} else if resp.StatusCode == http.StatusOK {
-		prettyBytes, err := util.PrettyPrintJSON(bodyBytes)
-		if err != nil {
-			prettyBytes = bodyBytes
+	if resp.StatusCode == http.StatusOK {
+		var bytes, prettyBytes []byte
+		var err error
+		if bytes, err = ioutil.ReadAll(resp.Body); err == nil {
+			if prettyBytes, err = util.PrettyPrintJSONBytes(bytes); err == nil {
+				fmt.Fprintln(os.Stderr, string(prettyBytes))
+			}
 		}
-		text = string(prettyBytes)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error reading response", err)
+			os.Exit(1)
+		}
 	} else {
-		text = fmt.Sprintf("Response: [%d] %s", resp.StatusCode, resp.Status)
+		fmt.Fprintf(os.Stderr, "Response status %d: %s", resp.StatusCode, resp.Status)
+		os.Exit(1)
 	}
-	return text
+}
+
+func parseResponse(resp *http.Response, target interface{}) {
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusOK {
+		if err := json.NewDecoder(resp.Body).Decode(target); err != nil {
+			fmt.Fprint(os.Stderr, "Error parsing response", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Fprintf(os.Stderr, "Response status %d: %s", resp.StatusCode, resp.Status)
+		os.Exit(1)
+	}
+}
+
+type Snapshot struct {
+	Name      string   `json:name`
+	Reason    string   `json:reason`
+	State     string   `json:state`
+	Timestamp string   `json:timestamp`
+	Indices   []string `json:indices`
 }
