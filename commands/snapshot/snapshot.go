@@ -9,7 +9,7 @@ import (
 	"io"
 	"os"
 	"encoding/json"
-	"io/ioutil"
+	"time"
 )
 
 func All() []cli.Command {
@@ -50,7 +50,7 @@ func createRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	scheme := c.String("scheme")
 	var splitAuth []string
 
-	util.PromptUntilTrue(auth, func(val string, ind byte) string {
+	auth = util.PromptUntilTrue(auth, func(val string, ind byte) string {
 		if val == "" {
 			return "Enter authentication token (user:password): "
 		} else {
@@ -58,11 +58,11 @@ func createRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 			if len(splitAuth) != 2 {
 				return "Authentication token must have the following format `user:password`: "
 			} else {
-				c.Set("auth", val)
 				return ""
 			}
 		}
 	})
+	c.Set("auth", auth)
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
 	if err != nil {
@@ -85,26 +85,6 @@ func sendRequest(req *http.Request) *http.Response {
 	return resp
 }
 
-func debugResponse(resp *http.Response) {
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		var bytes, prettyBytes []byte
-		var err error
-		if bytes, err = ioutil.ReadAll(resp.Body); err == nil {
-			if prettyBytes, err = util.PrettyPrintJSONBytes(bytes); err == nil {
-				fmt.Fprintln(os.Stderr, string(prettyBytes))
-			}
-		}
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error reading response", err)
-			os.Exit(1)
-		}
-	} else {
-		fmt.Fprintf(os.Stderr, "Response status %d: %s", resp.StatusCode, resp.Status)
-		os.Exit(1)
-	}
-}
-
 func parseResponse(resp *http.Response, target interface{}) {
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusOK {
@@ -119,9 +99,9 @@ func parseResponse(resp *http.Response, target interface{}) {
 }
 
 type Snapshot struct {
-	Name      string   `json:name`
-	Reason    string   `json:reason`
-	State     string   `json:state`
-	Timestamp string   `json:timestamp`
-	Indices   []string `json:indices`
+	Name      string    `json:name`
+	Reason    string    `json:reason`
+	State     string    `json:state`
+	Timestamp time.Time `json:timestamp`
+	Indices   []string  `json:indices`
 }

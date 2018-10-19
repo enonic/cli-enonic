@@ -22,7 +22,7 @@ func PrettyPrintJSON(data interface{}) (string, error) {
 	return out.String(), err
 }
 
-func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) {
+func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) string {
 	index := byte(0)
 	text := assessFunc(val, index)
 	for text != "" {
@@ -33,4 +33,5 @@ func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) {
 		index += 1
 		text = assessFunc(val, index)
 	}
+	return val
 }

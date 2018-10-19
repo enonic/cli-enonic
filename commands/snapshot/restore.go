@@ -74,10 +74,7 @@ func createRestoreRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	req := createRequest(c, "POST", "api/repo/snapshot/restore", body)
-	req.Header.Set("Content-Type", "application/json")
-
-	return req
+	return createRequest(c, "POST", "api/repo/snapshot/restore", body)
 }
 
 func getSnapshotNames(list *SnapshotList) []string {

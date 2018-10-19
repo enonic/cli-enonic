@@ -42,7 +42,5 @@ func createNewRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	req := createRequest(c, "POST", "api/repo/snapshot", body)
-
-	return req
+	return createRequest(c, "POST", "api/repo/snapshot", body)
 }
