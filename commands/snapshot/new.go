@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"enonic.com/xp-cli/commands/common"
 )
 
 var New = cli.Command{
@@ -17,16 +18,16 @@ var New = cli.Command{
 			Name:  "repo, r",
 			Usage: "The name of the repository to snapshot",
 		},
-	}, SNAPSHOT_FLAGS...),
+	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		req := createNewRequest(c)
 
 		fmt.Fprint(os.Stderr, "Creating snapshot...")
-		resp := sendRequest(req)
+		resp := common.SendRequest(req)
 
 		var snap Snapshot
-		if parseResponse(resp, &snap); snap.State == "SUCCESS" {
+		if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {
 			fmt.Fprintln(os.Stderr, "Done")
 		}
 
@@ -42,5 +43,5 @@ func createNewRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return createRequest(c, "POST", "api/repo/snapshot", body)
+	return common.CreateRequest(c, "POST", "api/repo/snapshot", body)
 }

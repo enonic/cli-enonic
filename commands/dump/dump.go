@@ -1,4 +1,4 @@
-package snapshot
+package dump
 
 import (
 	"github.com/urfave/cli"
@@ -7,14 +7,13 @@ import (
 
 func All() []cli.Command {
 	return []cli.Command{
-		List,
 		New,
-		Restore,
-		Delete,
+		Upgrade,
+		Load,
 	}
 }
 
-type Snapshot struct {
+type Dump struct {
 	Name      string    `json:name`
 	Reason    string    `json:reason`
 	State     string    `json:state`

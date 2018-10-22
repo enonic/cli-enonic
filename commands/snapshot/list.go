@@ -5,13 +5,14 @@ import (
 	"github.com/urfave/cli"
 	"enonic.com/xp-cli/util"
 	"os"
+	"enonic.com/xp-cli/commands/common"
 )
 
 var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "Returns a list of existing snapshots with name and status.",
-	Flags:   SNAPSHOT_FLAGS,
+	Flags:   common.FLAGS,
 	Action: func(c *cli.Context) error {
 
 		snapshots := listSnapshots(c)
@@ -24,13 +25,13 @@ var List = cli.Command{
 }
 
 func listSnapshots(c *cli.Context) *SnapshotList {
-	req := createRequest(c, "GET", "api/repo/snapshot/list", nil)
+	req := common.CreateRequest(c, "GET", "api/repo/snapshot/list", nil)
 
 	fmt.Fprint(os.Stderr, "Loading snapshots...")
-	resp := sendRequest(req)
+	resp := common.SendRequest(req)
 
 	var list SnapshotList
-	parseResponse(resp, &list)
+	common.ParseResponse(resp, &list)
 
 	fmt.Fprintln(os.Stderr, "Done")
 

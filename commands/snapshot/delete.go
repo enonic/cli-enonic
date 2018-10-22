@@ -12,6 +12,7 @@ import (
 	"errors"
 	"enonic.com/xp-cli/util"
 	"strings"
+	"enonic.com/xp-cli/commands/common"
 )
 
 const DATE_FORMAT = "2 Jan 06"
@@ -29,7 +30,7 @@ var Delete = cli.Command{
 			Name:  "snapshot, snap",
 			Usage: "The name of the snapshot to delete",
 		},
-	}, SNAPSHOT_FLAGS...),
+	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		ensureSnapshotOrBeforeFlag(c)
@@ -37,11 +38,11 @@ var Delete = cli.Command{
 		req := createDeleteRequest(c)
 
 		fmt.Fprint(os.Stderr, "Deleting snapshot(s)...")
-		resp := sendRequest(req)
+		resp := common.SendRequest(req)
 
 		var response DeleteResponse
 		//debugResponse(resp)
-		parseResponse(resp, &response)
+		common.ParseResponse(resp, &response)
 		fmt.Fprintf(os.Stderr, "%d Deleted\n", len(response.DeletedSnapshots))
 
 		return nil
@@ -112,7 +113,7 @@ func createDeleteRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return createRequest(c, "POST", "api/repo/snapshot/delete", body)
+	return common.CreateRequest(c, "POST", "api/repo/snapshot/delete", body)
 }
 
 type DeleteResponse struct {

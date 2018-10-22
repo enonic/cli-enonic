@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"github.com/manifoldco/promptui"
 	"os"
+	"enonic.com/xp-cli/commands/common"
 )
 
 var Restore = cli.Command{
@@ -22,7 +23,7 @@ var Restore = cli.Command{
 			Name:  "snapshot, snap",
 			Usage: "The name of the snapshot to restore",
 		},
-	}, SNAPSHOT_FLAGS...),
+	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		ensureSnapshotFlag(c)
@@ -30,10 +31,10 @@ var Restore = cli.Command{
 		req := createRestoreRequest(c)
 
 		fmt.Fprint(os.Stderr, "Restoring snapshot...")
-		resp := sendRequest(req)
+		resp := common.SendRequest(req)
 
 		var response RestoreResponse
-		if parseResponse(resp, &response); !response.Failed {
+		if common.ParseResponse(resp, &response); !response.Failed {
 			fmt.Fprintln(os.Stderr, "Done")
 		} else {
 			fmt.Fprintln(os.Stderr, response.Message)
@@ -74,7 +75,7 @@ func createRestoreRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return createRequest(c, "POST", "api/repo/snapshot/restore", body)
+	return common.CreateRequest(c, "POST", "api/repo/snapshot/restore", body)
 }
 
 func getSnapshotNames(list *SnapshotList) []string {
