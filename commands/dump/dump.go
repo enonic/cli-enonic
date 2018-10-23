@@ -2,7 +2,6 @@ package dump
 
 import (
 	"github.com/urfave/cli"
-	"time"
 )
 
 func All() []cli.Command {
@@ -13,10 +12,20 @@ func All() []cli.Command {
 	}
 }
 
+type Branch struct {
+	Branch     string `json:branch`
+	Successful int64  `json:successful`
+	Errors []struct {
+		message string `json:message`
+	} `json:errors`
+}
+
+type Repo struct {
+	RepositoryId string   `json:repositoryId`
+	Versions     int64    `json:versions`
+	Branches     []Branch `json:branches`
+}
+
 type Dump struct {
-	Name      string    `json:name`
-	Reason    string    `json:reason`
-	State     string    `json:state`
-	Timestamp time.Time `json:timestamp`
-	Indices   []string  `json:indices`
+	Repositories []Repo `json:repositories`
 }
