@@ -40,9 +40,9 @@ var New = cli.Command{
 		fmt.Fprint(os.Stderr, "Creating dump (this may take few minutes)...")
 		resp := common.SendRequest(req)
 
-		var dump Dump
-		common.ParseResponse(resp, &dump)
-		fmt.Fprintf(os.Stderr, "Done %d repositories", len(dump.Repositories))
+		var result NewDumpResponse
+		common.ParseResponse(resp, &result)
+		fmt.Fprintf(os.Stderr, "Dumped %d repositories", len(result.Repositories))
 
 		return nil
 	},
@@ -66,4 +66,18 @@ func createNewRequest(c *cli.Context) *http.Request {
 	json.NewEncoder(body).Encode(params)
 
 	return common.CreateRequest(c, "POST", "api/system/dump", body)
+}
+
+type NewDumpResponse struct {
+	Repositories []struct {
+		RepositoryId string `json:repositoryId`
+		Versions     int64  `json:versions`
+		Branches []struct {
+			Branch     string `json:branch`
+			Successful int64  `json:successful`
+			Errors []struct {
+				message string `json:message`
+			} `json:errors`
+		} `json:branches`
+	} `json:repositories`
 }
