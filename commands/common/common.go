@@ -68,7 +68,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 
 func SendRequest(req *http.Request) *http.Response {
 	client := &http.Client{
-		Timeout: time.Duration(3 * time.Minute),
+		Timeout: time.Duration(5 * time.Minute),
 	}
 	resp, err := client.Do(req)
 
@@ -81,13 +81,19 @@ func SendRequest(req *http.Request) *http.Response {
 
 func ParseResponse(resp *http.Response, target interface{}) {
 	defer resp.Body.Close()
+	decoder := json.NewDecoder(resp.Body)
 	if resp.StatusCode == http.StatusOK {
-		if err := json.NewDecoder(resp.Body).Decode(target); err != nil {
-			fmt.Fprint(os.Stderr, "Error parsing response", err)
+		if err := decoder.Decode(target); err != nil {
+			fmt.Fprint(os.Stderr, "Error parsing response ", err)
 			os.Exit(1)
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, "Response status %d: %s", resp.StatusCode, resp.Status)
+		var enonicError EnonicError
+		if err := decoder.Decode(&enonicError); err == nil && enonicError.Message != "" {
+			fmt.Fprintf(os.Stderr, "%d %s\n", enonicError.Status, enonicError.Message)
+		} else {
+			fmt.Fprintln(os.Stderr, resp.Status)
+		}
 		os.Exit(1)
 	}
 }
@@ -96,11 +102,20 @@ func DebugResponse(resp *http.Response) {
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading response", err)
+		fmt.Fprintln(os.Stderr, "Error reading response ", err)
 	}
 	prettyBytes, err := util.PrettyPrintJSONBytes(bodyBytes)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error formatting response", err)
+		fmt.Fprintln(os.Stderr, "Error formatting response ", err)
 	}
 	fmt.Fprintln(os.Stderr, string(prettyBytes))
+}
+
+type EnonicError struct {
+	Status  uint16 `json:status`
+	Message string `json:message`
+	Context struct {
+		Authenticated bool     `json:authenticated`
+		Principals    []string `json:principals`
+	} `json:context`
 }

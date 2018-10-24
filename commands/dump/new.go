@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"enonic.com/xp-cli/util"
-	"strings"
 )
 
 var New = cli.Command{
@@ -17,7 +15,7 @@ var New = cli.Command{
 	Usage: "Export data from every repository.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "t",
+			Name:  "d",
 			Usage: "Dump name.",
 		},
 		cli.StringFlag{
@@ -39,7 +37,7 @@ var New = cli.Command{
 
 		req := createNewRequest(c)
 
-		fmt.Fprint(os.Stderr, "Creating dump...")
+		fmt.Fprint(os.Stderr, "Creating dump (this may take few minutes)...")
 		resp := common.SendRequest(req)
 
 		var dump Dump
@@ -50,31 +48,10 @@ var New = cli.Command{
 	},
 }
 
-func ensureNameFlag(c *cli.Context) {
-	if c.String("t") == "" {
-
-		var name string
-		name = util.PromptUntilTrue(name, func(val string, ind byte) string {
-			if len(strings.TrimSpace(val)) == 0 {
-				switch ind {
-				case 0:
-					return "Enter dump name: "
-				default:
-					return "Dump name can not be empty: "
-				}
-			} else {
-				return ""
-			}
-		})
-
-		c.Set("snapshot", name)
-	}
-}
-
 func createNewRequest(c *cli.Context) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"name": c.String("t"),
+		"name": c.String("d"),
 	}
 
 	if includeVersions := c.String("skip-versions"); includeVersions != "" {
