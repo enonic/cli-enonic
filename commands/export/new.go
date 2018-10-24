@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"enonic.com/xp-cli/util"
+	"strings"
 )
 
 var New = cli.Command{
@@ -15,34 +17,39 @@ var New = cli.Command{
 	Usage: "Export data from every repository.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "d",
-			Usage: "Dump name.",
+			Name:  "t",
+			Usage: "Target name to save export.",
 		},
 		cli.StringFlag{
+			Name:  "path",
+			Usage: "Path of data to export. Format: <repo-name>:<branch-name>:<node-path>.",
+		},
+		cli.BoolFlag{
+			Name:  "skip-ids",
+			Usage: "Flag that skips ids in data when exporting.",
+		},
+		cli.BoolFlag{
 			Name:  "skip-versions",
-			Usage: "Don't dump version-history, only current versions included.",
+			Usage: "Flag that skips versions in data when exporting.",
 		},
-		cli.StringFlag{
-			Name:  "max-version-age",
-			Usage: "Max age of versions to include, in days, in addition to current version.",
-		},
-		cli.StringFlag{
-			Name:  "max-versions",
-			Usage: "Max number of versions to dump in addition to current version.",
+		cli.BoolFlag{
+			Name:  "dry",
+			Usage: "Don't modify anything when exporting.",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)
+		ensurePathFlag(c)
 
 		req := createNewRequest(c)
 
-		fmt.Fprint(os.Stderr, "Creating dump (this may take few minutes)...")
+		fmt.Fprint(os.Stderr, "Exporting data (this may take few minutes)...")
 		resp := common.SendRequest(req)
 
-		var result NewDumpResponse
+		var result NewExportResponse
 		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Dumped %d repositories", len(result.Repositories))
+		fmt.Fprintf(os.Stderr, "Exported %d nodes and %d binaries with %d errors\n", len(result.ExportedNodes), len(result.ExportedBinaries), len(result.Errors))
 
 		return nil
 	},
@@ -51,33 +58,55 @@ var New = cli.Command{
 func createNewRequest(c *cli.Context) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"name": c.String("d"),
+		"exportName": c.String("t"),
 	}
 
-	if includeVersions := c.String("skip-versions"); includeVersions != "" {
-		params["includeVersions"] = includeVersions
+	if path := c.String("path"); path != "" {
+		params["sourceRepoPath"] = path
 	}
-	if maxAge := c.String("max-version-age"); maxAge != "" {
-		params["maxAge"] = maxAge
+	if skipIds := c.Bool("skip-ids"); skipIds {
+		params["exportWithIds"] = !skipIds
 	}
-	if maxVersions := c.String("max-versions"); maxVersions != "" {
-		params["maxVersions"] = maxVersions
+	if skipVersions := c.Bool("skip-versions"); skipVersions {
+		params["includeVersions"] = !skipVersions
+	}
+	if dry := c.Bool("dry"); dry {
+		params["dryRun"] = dry
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/system/dump", body)
+	return common.CreateRequest(c, "POST", "api/repo/export", body)
 }
 
-type NewDumpResponse struct {
-	Repositories []struct {
-		RepositoryId string `json:repositoryId`
-		Versions     int64  `json:versions`
-		Branches []struct {
-			Branch     string `json:branch`
-			Successful int64  `json:successful`
-			Errors []struct {
-				message string `json:message`
-			} `json:errors`
-		} `json:branches`
-	} `json:repositories`
+func ensurePathFlag(c *cli.Context) {
+	var name = c.String("path")
+
+	name = util.PromptUntilTrue(name, func(val string, ind byte) string {
+		if len(strings.TrimSpace(val)) == 0 {
+			switch ind {
+			case 0:
+				return "Enter source repo path (<repo-name>:<branch-name>:<node-path>): "
+			default:
+				return "Source repo path can not be empty (<repo-name>:<branch-name>:<node-path>): "
+			}
+		} else {
+			splitPathLen := len(strings.Split(val, ":"))
+			if splitPathLen != 3 {
+				return "Source repo path must have the following format <repo-name>:<branch-name>:<node-path>: "
+			} else {
+				return ""
+			}
+		}
+	})
+
+	c.Set("path", name)
+}
+
+type NewExportResponse struct {
+	DryRun           bool     `json:dryRun`
+	ExportedBinaries []string `json:exportedBinaries`
+	ExportedNodes    []string `json:exportedNodes`
+	Errors []struct {
+		message string `json:message`
+	} `json:exportErrors`
 }

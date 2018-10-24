@@ -43,12 +43,17 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	var splitAuth []string
 
 	auth = util.PromptUntilTrue(auth, func(val string, ind byte) string {
-		if val == "" {
-			return "Enter authentication token (user:password): "
+		if len(strings.TrimSpace(val)) == 0 {
+			switch ind {
+			case 0:
+				return "Enter authentication token (<user>:<password>): "
+			default:
+				return "Authentication token can not be empty (<user>:<password>): "
+			}
 		} else {
 			splitAuth = strings.Split(val, ":")
 			if len(splitAuth) != 2 {
-				return "Authentication token must have the following format `user:password`: "
+				return "Authentication token must have the following format <user>:<password>: "
 			} else {
 				return ""
 			}
