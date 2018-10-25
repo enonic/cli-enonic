@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"enonic.com/xp-cli/util"
-	"strings"
 )
 
 var New = cli.Command{
@@ -22,7 +20,7 @@ var New = cli.Command{
 		},
 		cli.StringFlag{
 			Name:  "path",
-			Usage: "Path of data to export. Format: <repo-name>:<branch-name>:<node-path>.",
+			Usage: "Path of data to export. Format: <repo-name>:<branch-name>:<node-path> e.g. 'cms-repo:draft:/'",
 		},
 		cli.BoolFlag{
 			Name:  "skip-ids",
@@ -34,7 +32,7 @@ var New = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "dry",
-			Usage: "Don't modify anything when exporting.",
+			Usage: "Show the result without making actual changes.",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
@@ -58,12 +56,10 @@ var New = cli.Command{
 func createNewRequest(c *cli.Context) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"exportName": c.String("t"),
+		"exportName":     c.String("t"),
+		"sourceRepoPath": c.String("path"),
 	}
 
-	if path := c.String("path"); path != "" {
-		params["sourceRepoPath"] = path
-	}
 	if skipIds := c.Bool("skip-ids"); skipIds {
 		params["exportWithIds"] = !skipIds
 	}
@@ -76,30 +72,6 @@ func createNewRequest(c *cli.Context) *http.Request {
 	json.NewEncoder(body).Encode(params)
 
 	return common.CreateRequest(c, "POST", "api/repo/export", body)
-}
-
-func ensurePathFlag(c *cli.Context) {
-	var name = c.String("path")
-
-	name = util.PromptUntilTrue(name, func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
-			switch ind {
-			case 0:
-				return "Enter source repo path (<repo-name>:<branch-name>:<node-path>): "
-			default:
-				return "Source repo path can not be empty (<repo-name>:<branch-name>:<node-path>): "
-			}
-		} else {
-			splitPathLen := len(strings.Split(val, ":"))
-			if splitPathLen != 3 {
-				return "Source repo path must have the following format <repo-name>:<branch-name>:<node-path>: "
-			} else {
-				return ""
-			}
-		}
-	})
-
-	c.Set("path", name)
 }
 
 type NewExportResponse struct {

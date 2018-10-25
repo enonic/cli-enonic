@@ -53,7 +53,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		} else {
 			splitAuth = strings.Split(val, ":")
 			if len(splitAuth) != 2 {
-				return "Authentication token must have the following format <user>:<password>: "
+				return fmt.Sprintf("Authentication token '%s' must have the following format <user>:<password>: ", val)
 			} else {
 				return ""
 			}

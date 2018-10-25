@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"enonic.com/xp-cli/util"
 )
 
 var Load = cli.Command{
@@ -29,19 +30,38 @@ var Load = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		ensureNameFlag(c)
+		if c.Bool("y") || acceptToDeleteExistingRepos() {
+			ensureNameFlag(c)
 
-		req := createLoadRequest(c)
+			req := createLoadRequest(c)
 
-		fmt.Fprint(os.Stderr, "Loading a dump (this may take few minutes)...")
-		resp := common.SendRequest(req)
+			fmt.Fprint(os.Stderr, "Loading a dump (this may take few minutes)...")
+			resp := common.SendRequest(req)
 
-		var result LoadDumpResponse
-		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Loaded %d repositories", len(result.Repositories))
+			var result LoadDumpResponse
+			common.ParseResponse(resp, &result)
+			fmt.Fprintf(os.Stderr, "Loaded %d repositories", len(result.Repositories))
+		}
 
 		return nil
 	},
+}
+
+func acceptToDeleteExistingRepos() bool {
+	fmt.Fprintln(os.Stderr, "WARNING: This will delete all existing repositories that also present in the system-dump.")
+	answer := util.PromptUntilTrue("", func(val string, ind byte) string {
+		if ind == 0 {
+			return "Continue ? [Y/n] "
+		} else {
+			switch val {
+			case "Y", "n":
+				return ""
+			default:
+				return "Please type 'Y' for yes, or 'n' for no: "
+			}
+		}
+	})
+	return answer == "Y"
 }
 
 func createLoadRequest(c *cli.Context) *http.Request {
@@ -50,9 +70,6 @@ func createLoadRequest(c *cli.Context) *http.Request {
 		"name": c.String("d"),
 	}
 
-	if autoYes := c.Bool("y"); autoYes {
-		params["y"] = autoYes
-	}
 	if upgrade := c.Bool("upgrade"); upgrade {
 		params["upgrade"] = upgrade
 	}

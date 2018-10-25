@@ -8,74 +8,113 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"enonic.com/xp-cli/util"
+	"strings"
 )
+
+var xslParams map[string]string
 
 var Load = cli.Command{
 	Name:  "load",
-	Usage: "Import data from a dump.",
+	Usage: "Import data from a named export.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "d",
-			Usage: "Dump name.",
+			Name:  "t",
+			Usage: "A named export to import.",
+		},
+		cli.StringFlag{
+			Name:  "path",
+			Usage: "Target path for import. Format: <repo-name>:<branch-name>:<node-path> e.g. 'cms-repo:draft:/'",
+		},
+		cli.StringFlag{
+			Name:  "xsl-source",
+			Usage: "Path to xsl file (relative to <XP_HOME>/data/export) for applying transformations to node.xml before importing.",
+		},
+		cli.StringSliceFlag{
+			Name:  "xsl-param",
+			Usage: "Parameters to pass to the XSL transformations before importing nodes. Format: <parameter-name>=<parameter-value> e.g. 'applicationId=com.enonic.myapp'",
 		},
 		cli.BoolFlag{
-			Name:  "y",
-			Usage: "Automatic yes to prompts; assume “Yes” as answer to all prompts and run non-interactively.",
+			Name:  "skip-ids",
+			Usage: "Flag that skips ids.",
 		},
 		cli.BoolFlag{
-			Name:  "upgrade",
-			Usage: "Upgrade the dump if necessary (default is false)",
+			Name:  "skip-permissions",
+			Usage: "Flag that skips permissions.",
+		},
+		cli.BoolFlag{
+			Name:  "dry",
+			Usage: "Show the result without making actual changes.",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)
+		ensurePathFlag(c)
+		ensureXSLParamsFlagFormat(c)
 
 		req := createLoadRequest(c)
 
-		fmt.Fprint(os.Stderr, "Loading a dump (this may take few minutes)...")
+		fmt.Fprint(os.Stderr, "Importing data (this may take few minutes)...")
 		resp := common.SendRequest(req)
 
 		var result LoadDumpResponse
 		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Loaded %d repositories", len(result.Repositories))
+		fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors))
 
 		return nil
 	},
 }
 
+func ensureXSLParamsFlagFormat(c *cli.Context) {
+	params := c.StringSlice("xsl-param")
+	xslParams = make(map[string]string)
+
+	for _, param := range params {
+		var splitParam []string
+		param = util.PromptUntilTrue(param, func(val string, ind byte) string {
+			splitParam = strings.Split(val, "=")
+			if len(strings.TrimSpace(val)) == 0 || len(splitParam) == 2 {
+				return ""
+			} else {
+				return fmt.Sprintf("Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>: ", param)
+			}
+		})
+		xslParams[splitParam[0]] = splitParam[1]
+	}
+}
+
 func createLoadRequest(c *cli.Context) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"name": c.String("d"),
+		"exportName":     c.String("t"),
+		"targetRepoPath": c.String("path"),
 	}
 
-	if autoYes := c.Bool("y"); autoYes {
-		params["y"] = autoYes
+	if xslSource := c.String("xsl-source"); xslSource != "" {
+		params["xslSource"] = xslSource
 	}
-	if upgrade := c.Bool("upgrade"); upgrade {
-		params["upgrade"] = upgrade
+	if len(xslParams) > 0 {
+		params["xslParams"] = xslParams
+	}
+	if skipIds := c.Bool("skip-ids"); skipIds {
+		params["importWithIds"] = !skipIds
+	}
+	if skipPermissions := c.Bool("skip-permissions"); skipPermissions {
+		params["importWithPermissions"] = !skipPermissions
+	}
+	if dry := c.Bool("dry"); dry {
+		params["dryRun"] = dry
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/system/load", body)
+	return common.CreateRequest(c, "POST", "api/repo/import", body)
 }
 
 type LoadDumpResponse struct {
-	Repositories []struct {
-		Repository string `json:repository`
-		Versions struct {
-			Errors []struct {
-				message string `json:message`
-			} `json:errors`
-			Successful int64 `json:successful`
-		} `json:versions`
-		Branches []struct {
-			Branch     string `json:branch`
-			Successful int64  `json:successful`
-			Errors []struct {
-				message string `json:message`
-			} `json:errors`
-		} `json:branches`
-	} `json:repositories`
+	AddedNodes       []string `json:addedNodes`
+	UpdateNodes      []string `json:updateNodes`
+	ImportedBinaries []string `json:importedBinaries`
+	ImportErrors     []string `json:importErrors`
+	DryRun           bool     `dryRun`
 }
