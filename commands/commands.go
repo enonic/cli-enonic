@@ -7,6 +7,7 @@ import (
 	"enonic.com/xp-cli/commands/export"
 	"enonic.com/xp-cli/commands/app"
 	"enonic.com/xp-cli/commands/repo"
+	"enonic.com/xp-cli/commands/cms"
 )
 
 func All() []cli.Command {
@@ -35,6 +36,11 @@ func All() []cli.Command {
 			Name:        "repo",
 			Usage:       "Repository commands",
 			Subcommands: repo.All(),
+		},
+		{
+			Name:        "cms",
+			Usage:       "CMS commands",
+			Subcommands: cms.All(),
 		},
 	}
 }
