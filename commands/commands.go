@@ -9,6 +9,7 @@ import (
 	"enonic.com/xp-cli/commands/repo"
 	"enonic.com/xp-cli/commands/cms"
 	"enonic.com/xp-cli/commands/cluster"
+	"enonic.com/xp-cli/commands/vacuum"
 )
 
 func All() []cli.Command {
@@ -48,5 +49,6 @@ func All() []cli.Command {
 			Usage:       "Cluster commands",
 			Subcommands: cluster.All(),
 		},
+		vacuum.Vacuum,
 	}
 }
