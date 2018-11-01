@@ -1,11 +1,17 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
+
+project_name: enonic
+
 before:
   hooks:
     # you may remove this if you don't use vgo
     # - go mod download
     # you may remove this if you don't need go generate
     # - go generate ./...
+
+env_files:
+  github_token: ./goreleaser.github.token
 
 builds:
  # You can have multiple builds defined as a yaml list
@@ -45,13 +51,40 @@ archive:
     windows: Windows
     386: i386
     amd64: x86_64
+
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
   name_template: "{{ .Tag }}-next"
+
 changelog:
   sort: asc
   filters:
     exclude:
     - '^docs:'
     - '^test:'
+
+release:
+  # Repo in which the release will be created.
+  # Default is extracted from the origin remote URL.
+  github:
+    owner: enonic
+    name: xp-cli
+
+  # If set to true, will not auto-publish the release.
+  # Default is false.
+  draft: true
+
+  # If set to true, will mark the release as not ready for production.
+  # Default is false.
+  prerelease: true
+
+  # You can change the name of the GitHub release.
+  # Default is ``
+  name_template: "{{.ProjectName}}-v{{.Version}}"
+
+  # You can disable this pipe in order to not upload any artifacts to
+  # GitHub.
+  # Defaults to false.
+  disable: false
