@@ -52,6 +52,12 @@ archive:
     386: i386
     amd64: x86_64
 
+  format: tar.gz  # set to binary to omit archiving
+
+  format_overrides:
+    - goos: windows
+      format: zip
+
 checksum:
   name_template: 'checksums.txt'
 
@@ -70,11 +76,11 @@ release:
   # Default is extracted from the origin remote URL.
   github:
     owner: enonic
-    name: xp-cli
+    name: xp-cli-scoop
 
   # If set to true, will not auto-publish the release.
   # Default is false.
-  draft: true
+  draft: false
 
   # If set to true, will mark the release as not ready for production.
   # Default is false.
@@ -88,3 +94,36 @@ release:
   # GitHub.
   # Defaults to false.
   disable: false
+
+scoop:
+  # Template for the url.
+  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+#  url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+
+  # Repository to push the app manifest to.
+  bucket:
+    owner: enonic
+    name: xp-cli-scoop
+
+  # Git author used to commit to the repository.
+  # Defaults are shown.
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+
+  # Your app's homepage.
+  # Default is empty.
+  homepage: "http://enonic.com/"
+
+  # Your app's description.
+  # Default is empty.
+  description: "Enonic XP command line interface."
+
+  # Your app's license
+  # Default is empty.
+  license: GPLv3
+
+  # Persist data between application updates
+#  persist:
+#  - "data"
+#  - "config.toml"
