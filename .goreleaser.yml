@@ -127,3 +127,36 @@ scoop:
 #  persist:
 #  - "data"
 #  - "config.toml"
+
+brew:
+
+  # Repository to push the tap to.
+  github:
+    owner: enonic
+    name: xp-cli-brew
+
+  # Template for the url.
+  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+#  url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+
+  # Allows you to set a custom download strategy.
+  # Default is empty.
+#  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
+
+  # Git author used to commit to the repository.
+  # Defaults are shown.
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+
+  # Folder inside the repository to put the formula.
+  # Default is the root folder.
+  folder: Formula
+
+  # Your app's homepage.
+  # Default is empty.
+  homepage: "http://enonic.com/"
+
+  # Your app's description.
+  # Default is empty.
+  description: "Enonic XP command line interface."
