@@ -3,9 +3,9 @@ package snapshot
 import (
 	"fmt"
 	"github.com/urfave/cli"
-	"enonic.com/xp-cli/util"
+	"github.com/enonic/xp-cli/internal/app/util"
 	"os"
-	"enonic.com/xp-cli/commands/common"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 )
 
 var List = cli.Command{

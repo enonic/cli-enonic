@@ -2,8 +2,8 @@ package repo
 
 import (
 	"github.com/urfave/cli"
-	"enonic.com/xp-cli/commands/common"
-	"enonic.com/xp-cli/util"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/xp-cli/internal/app/util"
 	"strconv"
 	"encoding/json"
 	"bytes"

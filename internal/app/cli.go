@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"github.com/urfave/cli"
-	"enonic.com/xp-cli/commands"
+	"github.com/enonic/xp-cli/internal/app/commands"
 )
 
 func main() {

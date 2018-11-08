@@ -2,13 +2,13 @@ package app
 
 import (
 	"github.com/urfave/cli"
-	"enonic.com/xp-cli/commands/common"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 	"fmt"
 	"os"
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"enonic.com/xp-cli/util"
+	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
 	"net/url"
 	"mime/multipart"

@@ -3,7 +3,7 @@ package common
 import (
 	"io"
 	"net/http"
-	"enonic.com/xp-cli/util"
+	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
 	"fmt"
 	"os"

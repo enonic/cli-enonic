@@ -2,14 +2,14 @@ package commands
 
 import (
 	"github.com/urfave/cli"
-	"enonic.com/xp-cli/commands/snapshot"
-	"enonic.com/xp-cli/commands/dump"
-	"enonic.com/xp-cli/commands/export"
-	"enonic.com/xp-cli/commands/app"
-	"enonic.com/xp-cli/commands/repo"
-	"enonic.com/xp-cli/commands/cms"
-	"enonic.com/xp-cli/commands/cluster"
-	"enonic.com/xp-cli/commands/vacuum"
+	"github.com/enonic/xp-cli/internal/app/commands/snapshot"
+	"github.com/enonic/xp-cli/internal/app/commands/dump"
+	"github.com/enonic/xp-cli/internal/app/commands/export"
+	"github.com/enonic/xp-cli/internal/app/commands/app"
+	"github.com/enonic/xp-cli/internal/app/commands/repo"
+	"github.com/enonic/xp-cli/internal/app/commands/cms"
+	"github.com/enonic/xp-cli/internal/app/commands/cluster"
+	"github.com/enonic/xp-cli/internal/app/commands/vacuum"
 )
 
 func All() []cli.Command {

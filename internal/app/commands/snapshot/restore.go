@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"github.com/manifoldco/promptui"
 	"os"
-	"enonic.com/xp-cli/commands/common"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 )
 
 var Restore = cli.Command{

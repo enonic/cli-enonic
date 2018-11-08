@@ -2,7 +2,7 @@ package export
 
 import (
 	"github.com/urfave/cli"
-	"enonic.com/xp-cli/commands/common"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 	"fmt"
 	"os"
 	"net/http"
