@@ -49,8 +49,8 @@ archive:
     darwin: Mac
     linux: Linux
     windows: Windows
-    386: i386
-    amd64: x86_64
+    amd64: 64-bit
+    386: 32-bit
 
   format: tar.gz  # set to binary to omit archiving
 
@@ -160,3 +160,43 @@ brew:
   # Your app's description.
   # Default is empty.
   description: "Enonic XP command line interface."
+
+nfpm:
+  # You can change the name of the package.
+  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  # Replacements for GOOS and GOARCH in the package name.
+  # Keys should be valid GOOSs or GOARCHs.
+  # Values are the respective replacements.
+  # Default is empty.
+  replacements:
+    darwin: Mac
+    linux: Linux
+    windows: Windows
+    amd64: 64-bit
+    386: 32-bit
+
+  # Your app's vendor.
+  # Default is empty.
+  vendor: Enonic AS.
+  # Your app's homepage.
+  # Default is empty.
+  homepage: http://enonic.com/
+
+  # Your app's maintainer (probably you).
+  # Default is empty.
+  maintainer: Pavel Milkevich <pmi@enonic.com>
+
+  # Your app's description.
+  # Default is empty.
+  description: Enonic XP command line interface.
+
+  # Your app's license.
+  # Default is empty.
+  license: GPLv3
+
+  # Formats to be generated.
+  formats:
+    - deb
+#    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
