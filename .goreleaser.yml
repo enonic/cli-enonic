@@ -11,7 +11,7 @@ before:
     # - go generate ./...
 
 env_files:
-  github_token: ./goreleaser.github.token
+  github_token: ./configs/goreleaser.github.token
 
 builds:
  # You can have multiple builds defined as a yaml list
@@ -19,7 +19,7 @@ builds:
 
 # Path to main.go file or main package.
 # Default is `.`.
-  main: ./cli.go
+  main: ./internal/app/cli.go
 
 # Name template for the binary final name.
 # Default is the name of the project directory.

@@ -10,9 +10,9 @@ import (
 	"github.com/manifoldco/promptui"
 	"time"
 	"errors"
-	"enonic.com/xp-cli/util"
+	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
-	"enonic.com/xp-cli/commands/common"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 )
 
 const DATE_FORMAT = "2 Jan 06"
