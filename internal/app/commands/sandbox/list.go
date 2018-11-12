@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"fmt"
 	"os"
-	"regexp"
-	"github.com/Masterminds/semver"
 )
 
 var List = cli.Command{
@@ -15,47 +13,53 @@ var List = cli.Command{
 	Aliases: []string{"ls"},
 	Usage:   "List all sandboxes",
 	Action: func(c *cli.Context) error {
-		activeDistro := GetActiveDistro()
-		for _, d := range ListDistros() {
-			if activeDistro == d {
-				fmt.Fprintf(os.Stderr, "* %s\n", d)
+		activeBox := GetActiveSandbox()
+		for _, b := range ListSandboxes() {
+			if activeBox == b {
+				fmt.Fprintf(os.Stderr, "* %s\n", b)
 			} else {
-				fmt.Fprintf(os.Stderr, "  %s\n", d)
+				fmt.Fprintf(os.Stderr, "  %s\n", b)
 			}
 		}
 		return nil
 	},
 }
 
-func GetActiveDistro() string {
+func GetActiveSandbox() string {
 	//TODO
 	return ""
 }
 
-func ListDistros() []string {
-	distrosDir := filepath.Join(getHomeDir(), ".enonic", "distributions")
-	files, err := ioutil.ReadDir(distrosDir)
+func ListSandboxes() []string {
+	sandboxDir := filepath.Join(getHomeDir(), ".enonic", "sandboxes")
+	files, err := ioutil.ReadDir(sandboxDir)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not list distros: ", err)
+		fmt.Fprintln(os.Stderr, "Could not list sandboxes: ", err)
 	}
-	return filterDistros(files, distrosDir)
+	return filterSandboxes(files, sandboxDir)
 }
 
-func filterDistros(vs []os.FileInfo, distrosDir string) []string {
+func filterSandboxes(vs []os.FileInfo, sandboxDir string) []string {
 	vsf := make([]string, 0)
 	for _, v := range vs {
-		if isDistro(v) {
+		if isSandbox(v, sandboxDir) {
 			vsf = append(vsf, v.Name())
 		} else {
-			if err := os.RemoveAll(filepath.Join(distrosDir, v.Name())); err != nil {
-				fmt.Fprintln(os.Stderr, "Could not remove invalid distro: ", err)
-			}
+			fmt.Fprintf(os.Stderr, "Warning: '%s' is not a valid sandbox folder.\n", v.Name())
 		}
 	}
 	return vsf
 }
 
-func isDistro(v os.FileInfo) bool {
-	distroRegexp := regexp.MustCompile(semver.SemVerRegex)
-	return v.IsDir() && distroRegexp.MatchString(v.Name())
+func isSandbox(v os.FileInfo, sandboxDir string) bool {
+	if v.IsDir() {
+		descriptorPath := filepath.Join(sandboxDir, v.Name(), ".enonic")
+		if _, err := os.Stat(descriptorPath); err == nil {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
 }
