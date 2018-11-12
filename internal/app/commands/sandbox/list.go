@@ -25,11 +25,6 @@ var List = cli.Command{
 	},
 }
 
-func GetActiveSandbox() string {
-	//TODO
-	return ""
-}
-
 func ListSandboxes() []string {
 	sandboxDir := filepath.Join(getHomeDir(), ".enonic", "sandboxes")
 	files, err := ioutil.ReadDir(sandboxDir)
@@ -42,6 +37,9 @@ func ListSandboxes() []string {
 func filterSandboxes(vs []os.FileInfo, sandboxDir string) []string {
 	vsf := make([]string, 0)
 	for _, v := range vs {
+		if v.Name() == ".enonic" {
+			continue
+		}
 		if isSandbox(v, sandboxDir) {
 			vsf = append(vsf, v.Name())
 		} else {
