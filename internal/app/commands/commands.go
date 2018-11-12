@@ -10,6 +10,7 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/cms"
 	"github.com/enonic/xp-cli/internal/app/commands/cluster"
 	"github.com/enonic/xp-cli/internal/app/commands/vacuum"
+	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 )
 
 func All() []cli.Command {
@@ -48,6 +49,11 @@ func All() []cli.Command {
 			Name:        "cluster",
 			Usage:       "Cluster commands",
 			Subcommands: cluster.All(),
+		},
+		{
+			Name:        "sandbox",
+			Usage:       "Sandbox commands",
+			Subcommands: sandbox.All(),
 		},
 		vacuum.Vacuum,
 	}
