@@ -4,13 +4,10 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"os"
-	"github.com/mitchellh/go-homedir"
 	"path/filepath"
-	"io/ioutil"
-	"regexp"
-	"github.com/Masterminds/semver"
 	"github.com/BurntSushi/toml"
 	"bufio"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 func All() []cli.Command {
@@ -25,83 +22,72 @@ func All() []cli.Command {
 	}
 }
 
-type SandboxDesc struct {
-	Running string
+type SandboxesData struct {
+	Running string `toml:"running"`
+	Latest  string `toml:"latest"`
 }
 
-func getSandboxDescriptor() SandboxDesc {
-	var file *os.File
-	sandboxDescriptor := filepath.Join(getHomeDir(), ".enonic", "sandboxes", ".enonic")
-	if _, err := os.Stat(sandboxDescriptor); os.IsNotExist(err) {
-		if file, err = os.Create(sandboxDescriptor); err != nil {
-			fmt.Fprintln(os.Stderr, "Could not create sandboxes descriptor: ", err)
-			os.Exit(1)
-		}
-	} else {
-		if file, err = os.Open(sandboxDescriptor); err != nil {
-			fmt.Fprintln(os.Stderr, "Could not open sandboxes descriptor: ", err)
-			os.Exit(1)
-		}
-	}
+type SandboxData struct {
+	Distro string `toml:"distro"`
+}
+
+func createSandbox(name string, version string) {
+	dir := createFolderIfNotExist(util.GetHomeDir(), ".enonic", "sandboxes", name)
+
+	file := openOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
-	var config SandboxDesc
-	if _, err := toml.DecodeReader(bufio.NewReader(file), &config); err != nil {
-		fmt.Fprintln(os.Stderr, "Could not parse sandboxes descriptor: ", err)
-		os.Exit(1)
-	}
-	return config
+
+	data := SandboxData{version}
+	encodeTomlFile(file, data)
+
+	fmt.Fprintf(os.Stderr, "Sandbox '%s' created\n", name)
 }
 
-func GetActiveSandbox() string {
-	desc := getSandboxDescriptor()
-	return desc.Running
+func readSandboxesData() SandboxesData {
+	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", ".enonic")
+	file := openOrCreateDataFile(path, true)
+	defer file.Close()
+
+	var data SandboxesData
+	decodeTomlFile(file, &data)
+	return data
 }
 
-func ListDistros() []string {
-	distrosDir := filepath.Join(getHomeDir(), ".enonic", "distributions")
-	files, err := ioutil.ReadDir(distrosDir)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not list distros: ", err)
-	}
-	return filterDistros(files, distrosDir)
+func writeSandboxesData(data SandboxesData) {
+	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", ".enonic")
+	file := openOrCreateDataFile(path, false)
+	defer file.Close()
+
+	encodeTomlFile(file, data)
 }
 
-func filterDistros(vs []os.FileInfo, distrosDir string) []string {
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if isDistro(v) {
-			vsf = append(vsf, v.Name())
-		} else {
-			if err := os.RemoveAll(filepath.Join(distrosDir, v.Name())); err != nil {
-				fmt.Fprintln(os.Stderr, "Could not remove invalid distro: ", err)
-			}
-		}
-	}
-	return vsf
+func readSandboxData(name string) SandboxData {
+	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", name, ".enonic")
+	file := openOrCreateDataFile(path, true)
+	defer file.Close()
+
+	var data SandboxData
+	decodeTomlFile(file, &data)
+	return data
 }
 
-func isDistro(v os.FileInfo) bool {
-	distroRegexp := regexp.MustCompile(semver.SemVerRegex)
-	return v.IsDir() && distroRegexp.MatchString(v.Name())
+func writeSandboxData(name string, data SandboxData) {
+	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", name, ".enonic")
+	file := openOrCreateDataFile(path, false)
+	defer file.Close()
+
+	encodeTomlFile(file, data)
 }
 
 func ensureDirStructure() {
 	// Using go-homedir instead of user.Current()
 	// because of https://github.com/golang/go/issues/6376
-	home := getHomeDir()
+	home := util.GetHomeDir()
 	createFolderIfNotExist(home, ".enonic", "distributions")
 	createFolderIfNotExist(home, ".enonic", "sandboxes")
 }
-func getHomeDir() string {
-	home, err := homedir.Dir()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not get user home dir: ", err)
-		os.Exit(1)
-	}
-	return home
-}
 
-func createFolderIfNotExist(paths ...string) {
+func createFolderIfNotExist(paths ...string) string {
 	fullPath := filepath.Join(paths...)
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		err = os.MkdirAll(fullPath, 0755)
@@ -109,5 +95,35 @@ func createFolderIfNotExist(paths ...string) {
 			fmt.Fprintln(os.Stderr, "Could not create dir: ", err)
 			os.Exit(1)
 		}
+	}
+	return fullPath
+}
+
+func openOrCreateDataFile(path string, readOnly bool) *os.File {
+	flags := os.O_CREATE
+	if readOnly {
+		flags |= os.O_RDONLY
+	} else {
+		flags |= os.O_WRONLY | os.O_TRUNC
+	}
+	file, err := os.OpenFile(path, flags, 0640)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not open file: ", err)
+		os.Exit(1)
+	}
+	return file
+}
+
+func decodeTomlFile(file *os.File, data interface{}) {
+	if _, err := toml.DecodeReader(bufio.NewReader(file), data); err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse toml file: ", err)
+		os.Exit(1)
+	}
+}
+
+func encodeTomlFile(file *os.File, data interface{}) {
+	if err := toml.NewEncoder(bufio.NewWriter(file)).Encode(data); err != nil {
+		fmt.Fprintln(os.Stderr, "Could not encode toml file: ", err)
+		os.Exit(1)
 	}
 }

@@ -6,6 +6,11 @@ import (
 	"bufio"
 	"os"
 	"fmt"
+	"runtime"
+	"github.com/mitchellh/go-homedir"
+	"archive/zip"
+	"path/filepath"
+	"io"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -34,4 +39,70 @@ func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) str
 		text = assessFunc(val, index)
 	}
 	return val
+}
+
+func checkError(err error, msg string, fatal bool) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, msg, err)
+		if fatal {
+			os.Exit(1)
+		}
+	}
+}
+
+func Warn(err error, msg string) {
+	checkError(err, msg, false)
+}
+
+func Fatal(err error, msg string) {
+	checkError(err, msg, true)
+}
+
+func GetCurrentOs() string {
+	osName := runtime.GOOS
+	if osName == "darwin" {
+		osName = "mac"
+	}
+	return osName
+}
+
+func GetHomeDir() string {
+	home, err := homedir.Dir()
+	Fatal(err, "Could not get user home dir: ")
+	return home
+}
+
+func Unzip(zipFile, destFolder string) []string {
+	reader, err := zip.OpenReader(zipFile)
+	Fatal(err, "Could not open zip file: ")
+	defer reader.Close()
+
+	unzipped := make([]string, 0)
+	for _, f := range reader.File {
+		cloneZipItem(f, destFolder)
+		unzipped = append(unzipped, f.Name)
+	}
+
+	return unzipped
+}
+
+func cloneZipItem(f *zip.File, destFolder string) {
+	destPath := filepath.Join(destFolder, f.Name)
+	err := os.MkdirAll(filepath.Dir(destPath), os.ModeDir|os.ModePerm)
+	Fatal(err, fmt.Sprintf("Could not create folder '%s': ", destPath))
+
+	// Clone if item is a file
+	reader, err := f.Open()
+	Fatal(err, fmt.Sprintf("Could not read file '%s'", f.Name))
+
+	if !f.FileInfo().IsDir() {
+		// Use os.Create() since Zip don't store file permissions.
+		fileCopy, err := os.Create(destPath)
+		Fatal(err, fmt.Sprintf("Could not create file '%s", f.Name))
+
+		_, err = io.Copy(fileCopy, reader)
+		fileCopy.Close()
+		Fatal(err, fmt.Sprintf("Could not write file '%s", f.Name))
+	}
+	reader.Close()
 }

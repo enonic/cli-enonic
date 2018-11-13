@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"os"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 var List = cli.Command{
@@ -13,9 +14,10 @@ var List = cli.Command{
 	Aliases: []string{"ls"},
 	Usage:   "List all sandboxes",
 	Action: func(c *cli.Context) error {
-		activeBox := GetActiveSandbox()
+		data := readSandboxesData()
+
 		for _, b := range ListSandboxes() {
-			if activeBox == b {
+			if data.Running == b {
 				fmt.Fprintf(os.Stderr, "* %s\n", b)
 			} else {
 				fmt.Fprintf(os.Stderr, "  %s\n", b)
@@ -26,7 +28,7 @@ var List = cli.Command{
 }
 
 func ListSandboxes() []string {
-	sandboxDir := filepath.Join(getHomeDir(), ".enonic", "sandboxes")
+	sandboxDir := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes")
 	files, err := ioutil.ReadDir(sandboxDir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not list sandboxes: ", err)

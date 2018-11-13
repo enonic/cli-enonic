@@ -10,14 +10,6 @@
   version = "v0.3.1"
 
 [[projects]]
-  digest = "1:55388fd080150b9a072912f97b1f5891eb0b50df43401f8b75fb4273d3fec9fc"
-  name = "github.com/Masterminds/semver"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
-  version = "v1.4.2"
-
-[[projects]]
   branch = "master"
   digest = "1:454adc7f974228ff789428b6dc098638c57a64aa0718f0bd61e53d3cd39d7a75"
   name = "github.com/chzyer/readline"
@@ -101,7 +93,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/BurntSushi/toml",
-    "github.com/Masterminds/semver",
     "github.com/manifoldco/promptui",
     "github.com/mitchellh/go-homedir",
     "github.com/urfave/cli",
