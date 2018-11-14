@@ -31,8 +31,8 @@ type SandboxData struct {
 	Distro string `toml:"distro"`
 }
 
-func createSandbox(name string, version string) {
-	dir := createFolderIfNotExist(util.GetHomeDir(), ".enonic", "sandboxes", name)
+func createSandbox(name string, version string) string {
+	dir := createFolderIfNotExist(getSandboxesDir(), name)
 
 	file := openOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
@@ -40,11 +40,11 @@ func createSandbox(name string, version string) {
 	data := SandboxData{version}
 	encodeTomlFile(file, data)
 
-	fmt.Fprintf(os.Stderr, "Sandbox '%s' created\n", name)
+	return dir
 }
 
 func readSandboxesData() SandboxesData {
-	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", ".enonic")
+	path := filepath.Join(getSandboxesDir(), ".enonic")
 	file := openOrCreateDataFile(path, true)
 	defer file.Close()
 
@@ -54,7 +54,7 @@ func readSandboxesData() SandboxesData {
 }
 
 func writeSandboxesData(data SandboxesData) {
-	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", ".enonic")
+	path := filepath.Join(getSandboxesDir(), ".enonic")
 	file := openOrCreateDataFile(path, false)
 	defer file.Close()
 
@@ -62,7 +62,7 @@ func writeSandboxesData(data SandboxesData) {
 }
 
 func readSandboxData(name string) SandboxData {
-	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", name, ".enonic")
+	path := filepath.Join(getSandboxesDir(), name, ".enonic")
 	file := openOrCreateDataFile(path, true)
 	defer file.Close()
 
@@ -72,11 +72,15 @@ func readSandboxData(name string) SandboxData {
 }
 
 func writeSandboxData(name string, data SandboxData) {
-	path := filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes", name, ".enonic")
+	path := filepath.Join(getSandboxesDir(), name, ".enonic")
 	file := openOrCreateDataFile(path, false)
 	defer file.Close()
 
 	encodeTomlFile(file, data)
+}
+
+func getSandboxesDir() string {
+	return filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes")
 }
 
 func ensureDirStructure() {

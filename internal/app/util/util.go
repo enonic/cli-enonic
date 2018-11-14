@@ -43,7 +43,7 @@ func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) str
 
 func checkError(err error, msg string, fatal bool) {
 	if err != nil {
-		fmt.Fprintln(os.Stderr, msg, err)
+		fmt.Fprintln(os.Stderr, msg, err.Error())
 		if fatal {
 			os.Exit(1)
 		}

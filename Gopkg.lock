@@ -73,6 +73,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:c1072f27d5b8be1032af14ed7776f475bc58d35723a753c4b92c953d92e3eb33"
+  name = "github.com/otiai10/copy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7e9a647135a142c2669943d4a4d29be015ce9392"
+
+[[projects]]
   digest = "1:b24d38b282bacf9791408a080f606370efa3d364e4b5fd9ba0f7b87786d3b679"
   name = "github.com/urfave/cli"
   packages = ["."]
@@ -95,6 +103,7 @@
     "github.com/BurntSushi/toml",
     "github.com/manifoldco/promptui",
     "github.com/mitchellh/go-homedir",
+    "github.com/otiai10/copy",
     "github.com/urfave/cli",
   ]
   solver-name = "gps-cdcl"

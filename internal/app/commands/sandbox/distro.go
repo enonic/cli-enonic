@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"github.com/enonic/xp-cli/internal/app/util"
+	"time"
 )
 
 const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
@@ -17,7 +18,7 @@ const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/distro-%s
 const REMOTE_DISTRO_NAME = "distro-%s-jdk-%s.zip"
 const REMOTE_DISTRO_HASH = "distro-%s-jdk-%s.zip.md5"
 
-func ensureDistroPresent(version string) {
+func ensureDistroPresent(version string) string {
 	var (
 		latestHash string
 		data       SandboxesData
@@ -27,7 +28,7 @@ func ensureDistroPresent(version string) {
 
 	if version == "latest" {
 		fmt.Fprint(os.Stderr, "Checking remote latest distro version...")
-		latestHash = downloadLatestHash(osName, "latest")
+		latestHash = downloadDistroHash(osName, "latest")
 		data = readSandboxesData()
 		if data.Latest == latestHash {
 			fmt.Fprintln(os.Stderr, "Up to date")
@@ -42,21 +43,29 @@ func ensureDistroPresent(version string) {
 		for _, distro := range listDistros() {
 			if distroVer := getDistroVersion(distro); distroVer == version {
 				fmt.Fprintln(os.Stderr, "Found")
-				return
+				return filepath.Join(getDistrosDir(), distro)
 			}
 		}
 		fmt.Fprintln(os.Stderr, "Not found")
 	}
 
-	downloadDistro(osName, version)
+	zipPath := downloadDistro(osName, version)
+
+	distroPath := unzipDistro(zipPath, version)
+
+	err := os.Remove(zipPath)
+	util.Warn(err, "Could not delete distro zip file: ")
 
 	if outdated {
+		// save latest hash after everything's done
 		data.Latest = latestHash
 		writeSandboxesData(data)
 	}
+
+	return distroPath
 }
 
-func downloadLatestHash(osName, version string) string {
+func downloadDistroHash(osName, version string) string {
 	hashName := fmt.Sprintf(REMOTE_DISTRO_HASH, osName, version)
 	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, hashName)
 
@@ -75,10 +84,32 @@ func downloadLatestHash(osName, version string) string {
 	return string(bodyBytes)
 }
 
-func downloadDistro(osName, version string) {
+func printDownloadProgress(path string, total int64) {
+	for {
+		file, err := os.Open(path)
+		util.Fatal(err, "Could not open download file: ")
+
+		fi, err2 := file.Stat()
+		util.Fatal(err2, "Could not read download file: ")
+
+		size := fi.Size()
+		if total <= size {
+			fmt.Fprintln(os.Stderr, "Done")
+			break
+		}
+
+		var percent = float64(size) / float64(total) * 100
+
+		fmt.Fprintf(os.Stderr, "\rDownloading distro (%.0f %% of %d bytes)...", percent, total)
+
+		time.Sleep(time.Second)
+	}
+}
+
+func downloadDistro(osName, version string) string {
 	distroName := fmt.Sprintf(REMOTE_DISTRO_NAME, osName, version)
 
-	fullPath := filepath.Join(util.GetHomeDir(), ".enonic", "distributions", distroName)
+	fullPath := filepath.Join(getDistrosDir(), distroName)
 
 	zipFile, err := os.Create(fullPath)
 	util.Fatal(err, "Could not save distro: ")
@@ -87,40 +118,44 @@ func downloadDistro(osName, version string) {
 	// Get the data
 
 	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, distroName)
+
 	resp, err := http.Get(url)
 	util.Fatal(err, "Could not load distro: ")
 
-	fmt.Fprint(os.Stderr, "Downloading distro (it may take several minutes)...")
+	go printDownloadProgress(fullPath, resp.ContentLength)
 	defer resp.Body.Close()
 
 	// Write the body to file
 	_, err = io.Copy(zipFile, resp.Body)
 	util.Fatal(err, "Could not save distro: ")
 
-	fmt.Fprintln(os.Stderr, "Done")
-
-	unzipDistro(fullPath, version)
+	return fullPath
 }
 
-func unzipDistro(zipFile, version string) {
+func unzipDistro(zipFile, version string) string {
 	fmt.Fprint(os.Stderr, "Unzipping distro...")
 
 	zipDir := filepath.Dir(zipFile)
-	unzipped := util.Unzip(zipFile, zipDir)
+	unzippedFiles := util.Unzip(zipFile, zipDir)
 
-	sourceName := unzipped[0]
+	sourceName := unzippedFiles[0] // distro zip contains only 1 root dir which is the first unzipped file
 	targetName := fmt.Sprintf(DISTRO_TEMPLATE, version)
-	err := os.Rename(filepath.Join(zipDir, unzipped[0]), filepath.Join(zipDir, targetName))
+	targetPath := filepath.Join(zipDir, targetName)
+
+	if _, err := os.Stat(targetPath); !os.IsNotExist(err) {
+		os.RemoveAll(targetPath)
+	}
+
+	err := os.Rename(filepath.Join(zipDir, unzippedFiles[0]), targetPath)
 	util.Fatal(err, fmt.Sprintf("Could not rename '%s' to '%s'", sourceName, targetName))
 
 	fmt.Fprintln(os.Stderr, "Done")
 
-	err2 := os.Remove(zipFile)
-	util.Warn(err2, "Could not delete distro zip file: ")
+	return targetPath
 }
 
 func listDistros() []string {
-	distrosDir := filepath.Join(util.GetHomeDir(), ".enonic", "distributions")
+	distrosDir := getDistrosDir()
 	files, err := ioutil.ReadDir(distrosDir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not list distros: ", err)
@@ -147,7 +182,6 @@ func isDistro(v os.FileInfo) bool {
 	return v.IsDir() && distroRegexp.MatchString(v.Name())
 }
 
-// Returns os and version
 func getDistroVersion(distro string) string {
 	distroRegexp := regexp.MustCompile(DISTRO_REGEXP)
 	match := distroRegexp.FindStringSubmatch(distro)
@@ -156,4 +190,8 @@ func getDistroVersion(distro string) string {
 	} else {
 		return ""
 	}
+}
+
+func getDistrosDir() string {
+	return filepath.Join(util.GetHomeDir(), ".enonic", "distributions")
 }
