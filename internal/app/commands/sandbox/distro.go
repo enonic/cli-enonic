@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"time"
+	"runtime"
+	"os/exec"
 )
 
 const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
@@ -152,6 +154,24 @@ func unzipDistro(zipFile, version string) string {
 	fmt.Fprintln(os.Stderr, "Done")
 
 	return targetPath
+}
+
+func startDistro(version, sandbox string) *exec.Cmd {
+	executable := "server.sh"
+	if runtime.GOOS == "windows" {
+		executable = "server.bat"
+	}
+	appPath := filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "bin", executable)
+	homePath := filepath.Join(getSandboxesDir(), sandbox, "home")
+
+	cmd := exec.Command(appPath, fmt.Sprintf("-Dxp.home=%s", homePath))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	err := cmd.Start()
+	util.Fatal(err, fmt.Sprintf("Could not start distro '%s': ", version))
+
+	return cmd
 }
 
 func listDistros() []string {

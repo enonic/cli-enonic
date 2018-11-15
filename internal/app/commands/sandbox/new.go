@@ -22,7 +22,7 @@ var New = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		name := ensureNameArg(c)
+		name := ensureNewNameArg(c)
 		ver := ensureVersionFlag(c)
 		distroPath := ensureDistroPresent(ver)
 		sandPath := createSandbox(name, ver)
@@ -47,7 +47,7 @@ func ensureVersionFlag(c *cli.Context) string {
 	return version
 }
 
-func ensureNameArg(c *cli.Context) string {
+func ensureNewNameArg(c *cli.Context) string {
 	var name string
 	if c.NArg() > 0 {
 		name = c.Args().First()

@@ -39,7 +39,7 @@ func ListSandboxes() []string {
 func filterSandboxes(vs []os.FileInfo, sandboxDir string) []string {
 	vsf := make([]string, 0)
 	for _, v := range vs {
-		if v.Name() == ".enonic" {
+		if !v.IsDir() {
 			continue
 		}
 		if isSandbox(v, sandboxDir) {

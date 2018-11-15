@@ -11,6 +11,7 @@ import (
 	"archive/zip"
 	"path/filepath"
 	"io"
+	"net"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -105,4 +106,12 @@ func cloneZipItem(f *zip.File, destFolder string) {
 		Fatal(err, fmt.Sprintf("Could not write file '%s", f.Name))
 	}
 	reader.Close()
+}
+
+func IsPortAvailable(port uint16) bool {
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err == nil {
+		defer ln.Close()
+	}
+	return err == nil
 }
