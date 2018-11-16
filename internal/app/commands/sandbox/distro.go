@@ -174,6 +174,17 @@ func startDistro(version, sandbox string) *exec.Cmd {
 	return cmd
 }
 
+func deleteDistro(version string) {
+	err := os.RemoveAll(filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version)))
+	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", version))
+
+	if version == "latest" {
+		data := readSandboxesData()
+		data.Latest = ""
+		writeSandboxesData(data)
+	}
+}
+
 func listDistros() []string {
 	distrosDir := getDistrosDir()
 	files, err := ioutil.ReadDir(distrosDir)

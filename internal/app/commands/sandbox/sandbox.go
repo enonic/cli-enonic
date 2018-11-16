@@ -8,6 +8,8 @@ import (
 	"github.com/BurntSushi/toml"
 	"bufio"
 	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/AlecAivazis/survey"
+	"io/ioutil"
 )
 
 func All() []cli.Command {
@@ -81,6 +83,79 @@ func writeSandboxData(name string, data SandboxData) {
 
 func getSandboxesDir() string {
 	return filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes")
+}
+
+func getSandboxesUsingDistro(distro string) []string {
+	usedBy := make([]string, 0)
+	for _, box := range listSandboxes() {
+		if data := readSandboxData(box); data.Distro == distro {
+			usedBy = append(usedBy, box)
+		}
+	}
+	return usedBy
+}
+
+func deleteSandbox(name string) {
+	err := os.RemoveAll(filepath.Join(getSandboxesDir(), name))
+	util.Warn(err, fmt.Sprintf("Could not delete sandbox '%s' folder: ", name))
+}
+
+func listSandboxes() []string {
+	sandboxesDir := getSandboxesDir()
+	files, err := ioutil.ReadDir(sandboxesDir)
+	util.Fatal(err, "Could not list sandboxes: ")
+	return filterSandboxes(files, sandboxesDir)
+}
+
+func filterSandboxes(vs []os.FileInfo, sandboxDir string) []string {
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if !v.IsDir() {
+			continue
+		}
+		if isSandbox(v, sandboxDir) {
+			vsf = append(vsf, v.Name())
+		} else {
+			fmt.Fprintf(os.Stderr, "Warning: '%s' is not a valid sandbox folder.\n", v.Name())
+		}
+	}
+	return vsf
+}
+
+func isSandbox(v os.FileInfo, sandboxDir string) bool {
+	if v.IsDir() {
+		descriptorPath := filepath.Join(sandboxDir, v.Name(), ".enonic")
+		if _, err := os.Stat(descriptorPath); err == nil {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+}
+
+func ensureSandboxNameArg(c *cli.Context, message string) string {
+	existingBoxes := listSandboxes()
+
+	if c.NArg() > 0 {
+		name := c.Args().First()
+		for _, existingBox := range existingBoxes {
+			if existingBox == name {
+				return name
+			}
+		}
+	}
+
+	var name string
+	prompt := &survey.Select{
+		Message: message,
+		Options: existingBoxes,
+	}
+	err := survey.AskOne(prompt, &name, nil)
+	util.Fatal(err, "Select failed: ")
+
+	return name
 }
 
 func ensureDirStructure() {

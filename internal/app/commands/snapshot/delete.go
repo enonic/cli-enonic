@@ -7,9 +7,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"bytes"
-	"github.com/manifoldco/promptui"
 	"time"
-	"errors"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
 	"github.com/enonic/xp-cli/internal/app/commands/common"
@@ -73,28 +71,25 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 	}
 }
 func ensureBeforeFlag(c *cli.Context) {
-	if c.String("before") == "" {
 
-		validate := func(input string) error {
-			if _, err := time.Parse(DATE_FORMAT, input); err != nil {
-				return errors.New("not a valid date")
+	before := util.PromptUntilTrue(c.String("before"), func(val string, ind byte) string {
+		if len(strings.TrimSpace(val)) == 0 {
+			switch ind {
+			case 0:
+				return fmt.Sprintf("Enter date in the format %s: ", time.Now().Format(DATE_FORMAT))
+			default:
+				return fmt.Sprintf("Before date can not be empty. Format %s: ", time.Now().Format(DATE_FORMAT))
 			}
-			return nil
+		} else {
+			if _, err := time.Parse(DATE_FORMAT, val); err != nil {
+				return "Not a valid date: "
+			} else {
+				return ""
+			}
 		}
+	})
 
-		prompt := promptui.Prompt{
-			Label:    fmt.Sprintf("Enter date in the format %s: ", time.Now().Format(DATE_FORMAT)),
-			Validate: validate,
-		}
-
-		result, err := prompt.Run()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Prompt failed %v\n", err)
-			return
-		}
-
-		c.Set("before", result)
-	}
+	c.Set("before", before)
 }
 
 func createDeleteRequest(c *cli.Context) *http.Request {

@@ -34,13 +34,13 @@
   unused-packages = true
 
 [[constraint]]
-  name = "github.com/manifoldco/promptui"
-  version = "0.3.1"
-
-[[constraint]]
   name = "github.com/mitchellh/go-homedir"
   version = "1.0.0"
 
 [[constraint]]
   branch = "master"
   name = "github.com/otiai10/copy"
+
+[[constraint]]
+  name = "github.com/AlecAivazis/survey"
+  version = "1.6.4"

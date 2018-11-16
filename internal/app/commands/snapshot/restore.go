@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"bytes"
 	"encoding/json"
-	"github.com/manifoldco/promptui"
 	"os"
 	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/AlecAivazis/survey"
 )
 
 var Restore = cli.Command{
@@ -49,19 +49,14 @@ func ensureSnapshotFlag(c *cli.Context) {
 
 		snapshotList := listSnapshots(c)
 
-		prompt := promptui.Select{
-			Label: "Select snapshot to restore",
-			Items: getSnapshotNames(snapshotList),
-			Size:  10,
+		var name string
+		prompt := &survey.Select{
+			Message: "Select snapshot to restore",
+			Options: getSnapshotNames(snapshotList),
 		}
+		survey.AskOne(prompt, &name, nil)
 
-		_, promptResult, err := prompt.Run()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Prompt failed %v\n", err)
-			os.Exit(1)
-		}
-
-		c.Set("snapshot", promptResult)
+		c.Set("snapshot", name)
 	}
 }
 

@@ -22,13 +22,13 @@ var New = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		name := ensureNewNameArg(c)
+		name := ensureUniqueNameArg(c)
 		ver := ensureVersionFlag(c)
 		distroPath := ensureDistroPresent(ver)
 		sandPath := createSandbox(name, ver)
 		copyHomeFolder(distroPath, sandPath)
 
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' created\n", name)
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", name, ver)
 
 		return nil
 	},
@@ -47,12 +47,12 @@ func ensureVersionFlag(c *cli.Context) string {
 	return version
 }
 
-func ensureNewNameArg(c *cli.Context) string {
+func ensureUniqueNameArg(c *cli.Context) string {
 	var name string
 	if c.NArg() > 0 {
 		name = c.Args().First()
 	}
-	existingBoxes := ListSandboxes()
+	existingBoxes := listSandboxes()
 	return util.PromptUntilTrue(name, func(val string, i byte) string {
 		if len(strings.TrimSpace(val)) == 0 {
 			if i == 0 {
