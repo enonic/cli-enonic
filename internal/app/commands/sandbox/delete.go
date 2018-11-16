@@ -13,21 +13,20 @@ var Delete = cli.Command{
 	Aliases: []string{"del"},
 	Action: func(c *cli.Context) error {
 
-		name := ensureSandboxNameArg(c, "Select sandbox to delete:")
+		sandbox := ensureSandboxNameExists(c, "Select sandbox to delete:")
 
-		if boxesData := readSandboxesData(); boxesData.Running == name {
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' is currently running, stop it first!", name)
+		if boxesData := readSandboxesData(); boxesData.Running == sandbox.Name {
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' is currently running, stop it first!", sandbox.Name)
 			os.Exit(1)
 		}
 
-		data := readSandboxData(name)
-		boxes := getSandboxesUsingDistro(data.Distro)
-		if len(boxes) == 1 && boxes[0] == name && acceptToDeleteDistro(data.Distro) {
-			deleteDistro(data.Distro)
+		boxes := getSandboxesUsingDistro(sandbox.Distro)
+		if len(boxes) == 1 && boxes[0].Name == sandbox.Name && acceptToDeleteDistro(sandbox.Distro) {
+			deleteDistro(sandbox.Distro)
 		}
 
-		deleteSandbox(name)
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' deleted", name)
+		deleteSandbox(sandbox.Name)
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' deleted", sandbox.Name)
 
 		return nil
 	},

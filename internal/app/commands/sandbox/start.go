@@ -14,13 +14,12 @@ var Start = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		ensurePortAvailable(8080)
-		name := ensureSandboxNameArg(c, "Select sandbox to start:")
-		data := readSandboxData(name)
-		ensureDistroPresent(data.Distro)
+		sandbox := ensureSandboxNameExists(c, "Select sandbox to start:")
+		ensureDistroPresent(sandbox.Distro)
 
-		cmd := startDistro(data.Distro, name)
-		writeRunningSandbox(name)
-		listenForInterrupt(name)
+		cmd := startDistro(sandbox.Distro, sandbox.Name)
+		writeRunningSandbox(sandbox.Name)
+		listenForInterrupt(sandbox.Name)
 
 		cmd.Wait()
 		return nil

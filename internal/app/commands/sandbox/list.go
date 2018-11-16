@@ -13,11 +13,11 @@ var List = cli.Command{
 	Action: func(c *cli.Context) error {
 		data := readSandboxesData()
 
-		for _, b := range listSandboxes() {
-			if data.Running == b {
-				fmt.Fprintf(os.Stderr, "* %s\n", b)
+		for _, box := range listSandboxes() {
+			if data.Running == box.Name {
+				fmt.Fprintf(os.Stderr, "* %s ( %s )\n", box.Name, box.Distro)
 			} else {
-				fmt.Fprintf(os.Stderr, "  %s\n", b)
+				fmt.Fprintf(os.Stderr, "  %s ( %s )\n", box.Name, box.Distro)
 			}
 		}
 		return nil

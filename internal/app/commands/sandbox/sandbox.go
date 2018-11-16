@@ -33,6 +33,11 @@ type SandboxData struct {
 	Distro string `toml:"distro"`
 }
 
+type Sandbox struct {
+	Name   string
+	Distro string
+}
+
 func createSandbox(name string, version string) string {
 	dir := createFolderIfNotExist(getSandboxesDir(), name)
 
@@ -85,10 +90,10 @@ func getSandboxesDir() string {
 	return filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes")
 }
 
-func getSandboxesUsingDistro(distro string) []string {
-	usedBy := make([]string, 0)
+func getSandboxesUsingDistro(distro string) []Sandbox {
+	usedBy := make([]Sandbox, 0)
 	for _, box := range listSandboxes() {
-		if data := readSandboxData(box); data.Distro == distro {
+		if data := readSandboxData(box.Name); data.Distro == distro {
 			usedBy = append(usedBy, box)
 		}
 	}
@@ -100,21 +105,22 @@ func deleteSandbox(name string) {
 	util.Warn(err, fmt.Sprintf("Could not delete sandbox '%s' folder: ", name))
 }
 
-func listSandboxes() []string {
+func listSandboxes() []Sandbox {
 	sandboxesDir := getSandboxesDir()
 	files, err := ioutil.ReadDir(sandboxesDir)
 	util.Fatal(err, "Could not list sandboxes: ")
 	return filterSandboxes(files, sandboxesDir)
 }
 
-func filterSandboxes(vs []os.FileInfo, sandboxDir string) []string {
-	vsf := make([]string, 0)
+func filterSandboxes(vs []os.FileInfo, sandboxDir string) []Sandbox {
+	vsf := make([]Sandbox, 0)
 	for _, v := range vs {
 		if !v.IsDir() {
 			continue
 		}
 		if isSandbox(v, sandboxDir) {
-			vsf = append(vsf, v.Name())
+			data := readSandboxData(v.Name())
+			vsf = append(vsf, Sandbox{v.Name(), data.Distro})
 		} else {
 			fmt.Fprintf(os.Stderr, "Warning: '%s' is not a valid sandbox folder.\n", v.Name())
 		}
@@ -135,27 +141,33 @@ func isSandbox(v os.FileInfo, sandboxDir string) bool {
 	}
 }
 
-func ensureSandboxNameArg(c *cli.Context, message string) string {
+func ensureSandboxNameExists(c *cli.Context, message string) Sandbox {
 	existingBoxes := listSandboxes()
 
 	if c.NArg() > 0 {
 		name := c.Args().First()
 		for _, existingBox := range existingBoxes {
-			if existingBox == name {
-				return name
+			if existingBox.Name == name {
+				return existingBox
 			}
 		}
+	}
+
+	selectOptions := make([]string, 0)
+	for _, box := range existingBoxes {
+		selectOptions = append(selectOptions, fmt.Sprintf("%s ( %s )", box.Name, box.Distro))
 	}
 
 	var name string
 	prompt := &survey.Select{
 		Message: message,
-		Options: existingBoxes,
+		Options: selectOptions,
 	}
+
 	err := survey.AskOne(prompt, &name, nil)
 	util.Fatal(err, "Select failed: ")
 
-	return name
+	return existingBoxes[util.IndexOf(name, selectOptions)]
 }
 
 func ensureDirStructure() {

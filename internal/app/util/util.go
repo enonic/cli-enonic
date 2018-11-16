@@ -115,3 +115,12 @@ func IsPortAvailable(port uint16) bool {
 	}
 	return err == nil
 }
+
+func IndexOf(element string, data []string) (int) {
+	for k, v := range data {
+		if element == v {
+			return k
+		}
+	}
+	return -1
+}

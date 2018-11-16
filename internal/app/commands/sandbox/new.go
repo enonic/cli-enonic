@@ -62,7 +62,7 @@ func ensureUniqueNameArg(c *cli.Context) string {
 			}
 		} else {
 			for _, existingBox := range existingBoxes {
-				if existingBox == val {
+				if existingBox.Name == val {
 					return fmt.Sprintf("Sandbox with the name '%s' already exists: ", val)
 				}
 			}

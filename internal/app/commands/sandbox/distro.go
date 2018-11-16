@@ -131,6 +131,8 @@ func downloadDistro(osName, version string) string {
 	_, err = io.Copy(zipFile, resp.Body)
 	util.Fatal(err, "Could not save distro: ")
 
+	time.Sleep(time.Second) // Make sure printDownloadProgress finished because it refreshes every 1 sec
+
 	return fullPath
 }
 
@@ -141,15 +143,18 @@ func unzipDistro(zipFile, version string) string {
 	unzippedFiles := util.Unzip(zipFile, zipDir)
 
 	sourceName := unzippedFiles[0] // distro zip contains only 1 root dir which is the first unzipped file
+	sourcePath := filepath.Join(zipDir, sourceName)
 	targetName := fmt.Sprintf(DISTRO_TEMPLATE, version)
 	targetPath := filepath.Join(zipDir, targetName)
 
-	if _, err := os.Stat(targetPath); !os.IsNotExist(err) {
-		os.RemoveAll(targetPath)
-	}
+	if sourcePath != targetPath {
+		if _, err := os.Stat(targetPath); !os.IsNotExist(err) {
+			os.RemoveAll(targetPath)
+		}
 
-	err := os.Rename(filepath.Join(zipDir, unzippedFiles[0]), targetPath)
-	util.Fatal(err, fmt.Sprintf("Could not rename '%s' to '%s'", sourceName, targetName))
+		err := os.Rename(sourcePath, targetPath)
+		util.Fatal(err, fmt.Sprintf("Could not rename '%s' to '%s'", sourceName, targetName))
+	}
 
 	fmt.Fprintln(os.Stderr, "Done")
 
