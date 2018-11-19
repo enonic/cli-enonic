@@ -44,7 +44,7 @@ func ensureVersionFlag(c *cli.Context) string {
 	if version == "" {
 		version = "latest"
 	}
-	return version
+	return ensureVersionCorrect(version)
 }
 
 func ensureUniqueNameArg(c *cli.Context) string {

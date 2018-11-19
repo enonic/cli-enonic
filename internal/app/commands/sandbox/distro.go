@@ -12,6 +12,8 @@ import (
 	"time"
 	"runtime"
 	"os/exec"
+	"strings"
+	"github.com/Masterminds/semver"
 )
 
 const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
@@ -122,7 +124,14 @@ func downloadDistro(osName, version string) string {
 	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, distroName)
 
 	resp, err := http.Get(url)
-	util.Fatal(err, "Could not load distro: ")
+	if err != nil || resp.StatusCode != 200 {
+		message := resp.Status
+		if err != nil {
+			message = err.Error()
+		}
+		fmt.Fprintf(os.Stderr, "Could not load distro '%s' from remote server: %s\n", version, message)
+		os.Exit(1)
+	}
 
 	go printDownloadProgress(fullPath, resp.ContentLength)
 	defer resp.Body.Close()
@@ -226,6 +235,25 @@ func getDistroVersion(distro string) string {
 	} else {
 		return ""
 	}
+}
+
+func ensureVersionCorrect(version string) string {
+	return util.PromptUntilTrue(version, func(val string, i byte) string {
+		if len(strings.TrimSpace(val)) == 0 {
+			if i == 0 {
+				return "Enter distro version for this sandbox: "
+			} else {
+				return "Distro version can not be empty: "
+			}
+		} else {
+			if val != "latest" {
+				if version, err := semver.NewVersion(val); err != nil || version == nil {
+					return fmt.Sprintf("Version '%s' does not seem to be a valid version: ", val)
+				}
+			}
+			return ""
+		}
+	})
 }
 
 func getDistrosDir() string {

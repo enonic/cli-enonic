@@ -18,6 +18,14 @@
   version = "v0.3.1"
 
 [[projects]]
+  digest = "1:55388fd080150b9a072912f97b1f5891eb0b50df43401f8b75fb4273d3fec9fc"
+  name = "github.com/Masterminds/semver"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
+  version = "v1.4.2"
+
+[[projects]]
   branch = "master"
   digest = "1:400e113a367b511b9b09ca642ee11d9885485a93838526d697033af334a2fdde"
   name = "github.com/kballard/go-shellquote"
@@ -98,6 +106,7 @@
   input-imports = [
     "github.com/AlecAivazis/survey",
     "github.com/BurntSushi/toml",
+    "github.com/Masterminds/semver",
     "github.com/mitchellh/go-homedir",
     "github.com/otiai10/copy",
     "github.com/urfave/cli",
