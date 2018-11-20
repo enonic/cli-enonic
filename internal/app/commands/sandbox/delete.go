@@ -15,6 +15,10 @@ var Delete = cli.Command{
 
 		sandbox := ensureSandboxNameExists(c, "Select sandbox to delete:")
 
+		if !acceptToDeleteSandbox(sandbox.Name) {
+			os.Exit(1)
+		}
+
 		if boxesData := readSandboxesData(); boxesData.Running == sandbox.Name {
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' is currently running, stop it first!", sandbox.Name)
 			os.Exit(1)
@@ -32,18 +36,10 @@ var Delete = cli.Command{
 	},
 }
 
+func acceptToDeleteSandbox(name string) bool {
+	return util.YesNoPrompt(fmt.Sprintf("WARNING: This can not be undone ! Do you still want to delete sandbox '%s' ?", name))
+}
+
 func acceptToDeleteDistro(distro string) bool {
-	answer := util.PromptUntilTrue("", func(val string, ind byte) string {
-		if ind == 0 {
-			return fmt.Sprintf("Distro '%s' is not used any more, would you like to delete it ? [Y/n] ", distro)
-		} else {
-			switch val {
-			case "Y", "n":
-				return ""
-			default:
-				return "Please type 'Y' for yes, or 'n' for no: "
-			}
-		}
-	})
-	return answer == "Y"
+	return util.YesNoPrompt(fmt.Sprintf("Distro '%s' is not used any more. Do you want to delete it ?", distro))
 }

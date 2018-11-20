@@ -42,6 +42,22 @@ func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) str
 	return val
 }
 
+func YesNoPrompt(question string) bool {
+	answer := PromptUntilTrue("", func(val string, ind byte) string {
+		if ind == 0 {
+			return question + " [y/n]: "
+		} else {
+			switch val {
+			case "Y", "y", "N", "n":
+				return ""
+			default:
+				return "Please type 'Y' for yes, or 'N' for no: "
+			}
+		}
+	})
+	return answer == "Y" || answer == "y"
+}
+
 func checkError(err error, msg string, fatal bool) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, msg, err.Error())

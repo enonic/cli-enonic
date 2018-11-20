@@ -48,20 +48,7 @@ var Load = cli.Command{
 }
 
 func acceptToDeleteExistingRepos() bool {
-	fmt.Fprintln(os.Stderr, "WARNING: This will delete all existing repositories that also present in the system-dump.")
-	answer := util.PromptUntilTrue("", func(val string, ind byte) string {
-		if ind == 0 {
-			return "Continue ? [Y/n] "
-		} else {
-			switch val {
-			case "Y", "n":
-				return ""
-			default:
-				return "Please type 'Y' for yes, or 'n' for no: "
-			}
-		}
-	})
-	return answer == "Y"
+	return util.YesNoPrompt("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?")
 }
 
 func createLoadRequest(c *cli.Context) *http.Request {
