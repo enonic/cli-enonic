@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 )
 
-var New = cli.Command{
-	Name:  "new",
+var Create = cli.Command{
+	Name:  "create",
 	Usage: "Create a new sandbox.",
 	Flags: []cli.Flag{
 		cli.StringFlag{

@@ -18,7 +18,7 @@ func All() []cli.Command {
 	return []cli.Command{
 		List,
 		Start,
-		New,
+		Create,
 		Delete,
 		Version,
 	}

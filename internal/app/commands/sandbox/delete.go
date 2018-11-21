@@ -10,7 +10,7 @@ import (
 var Delete = cli.Command{
 	Name:    "delete",
 	Usage:   "Delete a sandbox",
-	Aliases: []string{"del"},
+	Aliases: []string{"del", "rm"},
 	Action: func(c *cli.Context) error {
 
 		sandbox := ensureSandboxNameExists(c, "Select sandbox to delete:")
