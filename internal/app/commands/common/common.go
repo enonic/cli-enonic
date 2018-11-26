@@ -4,13 +4,13 @@ import (
 	"io"
 	"net/http"
 	"github.com/enonic/xp-cli/internal/app/util"
-	"strings"
 	"fmt"
 	"os"
 	"encoding/json"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"time"
+	"strings"
 )
 
 var FLAGS = []cli.Flag{
@@ -35,14 +35,9 @@ var FLAGS = []cli.Flag{
 	},
 }
 
-func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	auth := c.String("auth")
-	host := c.String("host")
-	port := c.String("port")
-	scheme := c.String("scheme")
+func EnsureAuth(c *cli.Context) (string, string) {
 	var splitAuth []string
-
-	auth = util.PromptUntilTrue(auth, func(val string, ind byte) string {
+	util.PromptUntilTrue(c.String("auth"), func(val string, ind byte) string {
 		if len(strings.TrimSpace(val)) == 0 {
 			switch ind {
 			case 0:
@@ -59,14 +54,21 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 			}
 		}
 	})
-	c.Set("auth", auth)
+	return splitAuth[0], splitAuth[1]
+}
+
+func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
+	host := c.String("host")
+	port := c.String("port")
+	scheme := c.String("scheme")
+	user, pass := EnsureAuth(c)
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Params error: ", err)
 		os.Exit(1)
 	}
-	req.SetBasicAuth(splitAuth[0], splitAuth[1])
+	req.SetBasicAuth(user, pass)
 	req.Header.Set("Content-Type", "application/json")
 	return req
 }
