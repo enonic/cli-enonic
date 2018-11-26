@@ -54,10 +54,7 @@ var Create = cli.Command{
 
 		name := ensureNameArg(c)
 		gitUrl := ensureGitRepositoryUri(c)
-		dest := c.String("destination")
-		if dest == "" {
-			dest = "./" + name
-		}
+		dest := verifyDestinationNotExists(c, name)
 		hash := c.String("hash")
 		branch := c.String("branch")
 
@@ -75,6 +72,18 @@ var Create = cli.Command{
 	},
 }
 
+func verifyDestinationNotExists(c *cli.Context, name string) string {
+	if dest := c.String("destination"); dest != "" {
+		return util.PromptUntilTrue(dest, func(val string, i byte) string {
+			if _, err := os.Stat(val); !os.IsNotExist(err) {
+				return fmt.Sprintf("Destination folder '%s' already exists: ", val)
+			}
+			return ""
+		})
+	}
+	return name
+}
+
 func ensureNameArg(c *cli.Context) string {
 	var name string
 	if c.NArg() > 0 {
@@ -89,8 +98,8 @@ func ensureNameArg(c *cli.Context) string {
 				return "Project name can not be empty: "
 			}
 		} else {
-			if _, err := os.Stat("./" + val); !os.IsNotExist(err) {
-				return fmt.Sprintf("Folder '%s' already exists", val)
+			if _, err := os.Stat(val); !os.IsNotExist(err) {
+				return fmt.Sprintf("Folder named '%s' already exists: ", val)
 			}
 			return ""
 		}
