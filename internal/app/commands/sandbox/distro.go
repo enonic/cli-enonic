@@ -237,6 +237,10 @@ func getDistroVersion(distro string) string {
 	}
 }
 
+func GetDistroJdkPath(version string) string {
+	return filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "jdk")
+}
+
 func ensureVersionCorrect(version string) string {
 	return util.PromptUntilTrue(version, func(val string, i byte) string {
 		if len(strings.TrimSpace(val)) == 0 {

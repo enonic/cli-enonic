@@ -3,7 +3,6 @@ package project
 import (
 	"github.com/urfave/cli"
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
-	"github.com/enonic/xp-cli/internal/app/util"
 	"fmt"
 	"os"
 )
@@ -23,24 +22,4 @@ var Sandbox = cli.Command{
 
 		return nil
 	},
-}
-
-type ProjectData struct {
-	Sandbox string `toml:"sandbox"`
-}
-
-func readProjectData() ProjectData {
-	file := util.OpenOrCreateDataFile(".enonic", true)
-	defer file.Close()
-
-	var data ProjectData
-	util.DecodeTomlFile(file, &data)
-	return data
-}
-
-func writeProjectData(data ProjectData) {
-	file := util.OpenOrCreateDataFile(".enonic", false)
-	defer file.Close()
-
-	util.EncodeTomlFile(file, data)
 }

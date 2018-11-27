@@ -66,7 +66,7 @@ func writeSandboxesData(data SandboxesData) {
 	util.EncodeTomlFile(file, data)
 }
 
-func readSandboxData(name string) SandboxData {
+func ReadSandboxData(name string) SandboxData {
 	path := filepath.Join(getSandboxesDir(), name, ".enonic")
 	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
@@ -91,7 +91,7 @@ func getSandboxesDir() string {
 func getSandboxesUsingDistro(distro string) []Sandbox {
 	usedBy := make([]Sandbox, 0)
 	for _, box := range listSandboxes() {
-		if data := readSandboxData(box.Name); data.Distro == distro {
+		if data := ReadSandboxData(box.Name); data.Distro == distro {
 			usedBy = append(usedBy, box)
 		}
 	}
@@ -117,7 +117,7 @@ func filterSandboxes(vs []os.FileInfo, sandboxDir string) []Sandbox {
 			continue
 		}
 		if isSandbox(v, sandboxDir) {
-			data := readSandboxData(v.Name())
+			data := ReadSandboxData(v.Name())
 			vsf = append(vsf, Sandbox{v.Name(), data.Distro})
 		} else {
 			fmt.Fprintf(os.Stderr, "Warning: '%s' is not a valid sandbox folder.\n", v.Name())
@@ -142,7 +142,7 @@ func isSandbox(v os.FileInfo, sandboxDir string) bool {
 func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 	existingBoxes := listSandboxes()
 
-	if c.NArg() > 0 {
+	if c != nil && c.NArg() > 0 {
 		name := c.Args().First()
 		for _, existingBox := range existingBoxes {
 			if existingBox.Name == name {
