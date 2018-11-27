@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"github.com/BurntSushi/toml"
-	"bufio"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"github.com/AlecAivazis/survey"
 	"io/ioutil"
@@ -41,49 +39,49 @@ type Sandbox struct {
 func createSandbox(name string, version string) string {
 	dir := createFolderIfNotExist(getSandboxesDir(), name)
 
-	file := openOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
+	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
 
 	data := SandboxData{version}
-	encodeTomlFile(file, data)
+	util.EncodeTomlFile(file, data)
 
 	return dir
 }
 
 func readSandboxesData() SandboxesData {
 	path := filepath.Join(getSandboxesDir(), ".enonic")
-	file := openOrCreateDataFile(path, true)
+	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
 
 	var data SandboxesData
-	decodeTomlFile(file, &data)
+	util.DecodeTomlFile(file, &data)
 	return data
 }
 
 func writeSandboxesData(data SandboxesData) {
 	path := filepath.Join(getSandboxesDir(), ".enonic")
-	file := openOrCreateDataFile(path, false)
+	file := util.OpenOrCreateDataFile(path, false)
 	defer file.Close()
 
-	encodeTomlFile(file, data)
+	util.EncodeTomlFile(file, data)
 }
 
 func readSandboxData(name string) SandboxData {
 	path := filepath.Join(getSandboxesDir(), name, ".enonic")
-	file := openOrCreateDataFile(path, true)
+	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
 
 	var data SandboxData
-	decodeTomlFile(file, &data)
+	util.DecodeTomlFile(file, &data)
 	return data
 }
 
 func writeSandboxData(name string, data SandboxData) {
 	path := filepath.Join(getSandboxesDir(), name, ".enonic")
-	file := openOrCreateDataFile(path, false)
+	file := util.OpenOrCreateDataFile(path, false)
 	defer file.Close()
 
-	encodeTomlFile(file, data)
+	util.EncodeTomlFile(file, data)
 }
 
 func getSandboxesDir() string {
@@ -141,7 +139,7 @@ func isSandbox(v os.FileInfo, sandboxDir string) bool {
 	}
 }
 
-func ensureSandboxNameExists(c *cli.Context, message string) Sandbox {
+func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 	existingBoxes := listSandboxes()
 
 	if c.NArg() > 0 {
@@ -188,33 +186,4 @@ func createFolderIfNotExist(paths ...string) string {
 		}
 	}
 	return fullPath
-}
-
-func openOrCreateDataFile(path string, readOnly bool) *os.File {
-	flags := os.O_CREATE
-	if readOnly {
-		flags |= os.O_RDONLY
-	} else {
-		flags |= os.O_WRONLY | os.O_TRUNC
-	}
-	file, err := os.OpenFile(path, flags, 0640)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not open file: ", err)
-		os.Exit(1)
-	}
-	return file
-}
-
-func decodeTomlFile(file *os.File, data interface{}) {
-	if _, err := toml.DecodeReader(bufio.NewReader(file), data); err != nil {
-		fmt.Fprintln(os.Stderr, "Could not parse toml file: ", err)
-		os.Exit(1)
-	}
-}
-
-func encodeTomlFile(file *os.File, data interface{}) {
-	if err := toml.NewEncoder(bufio.NewWriter(file)).Encode(data); err != nil {
-		fmt.Fprintln(os.Stderr, "Could not encode toml file: ", err)
-		os.Exit(1)
-	}
 }

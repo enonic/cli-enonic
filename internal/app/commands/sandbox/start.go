@@ -14,7 +14,7 @@ var Start = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		ensurePortAvailable(8080)
-		sandbox := ensureSandboxNameExists(c, "Select sandbox to start:")
+		sandbox := EnsureSandboxNameExists(c, "Select sandbox to start:")
 		ensureDistroPresent(sandbox.Distro)
 
 		cmd := startDistro(sandbox.Distro, sandbox.Name)

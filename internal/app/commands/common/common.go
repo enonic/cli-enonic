@@ -8,7 +8,6 @@ import (
 	"os"
 	"encoding/json"
 	"github.com/urfave/cli"
-	"io/ioutil"
 	"time"
 	"strings"
 )
@@ -103,19 +102,6 @@ func ParseResponse(resp *http.Response, target interface{}) {
 		}
 		os.Exit(1)
 	}
-}
-
-func DebugResponse(resp *http.Response) {
-	defer resp.Body.Close()
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading response ", err)
-	}
-	prettyBytes, err := util.PrettyPrintJSONBytes(bodyBytes)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error formatting response ", err)
-	}
-	fmt.Fprintln(os.Stderr, string(prettyBytes))
 }
 
 type EnonicError struct {

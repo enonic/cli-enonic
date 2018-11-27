@@ -12,7 +12,7 @@ var Version = cli.Command{
 	Usage:   "Updates the distribution version.",
 	Action: func(c *cli.Context) error {
 
-		sandbox := ensureSandboxNameExists(c, "Select sandbox:")
+		sandbox := EnsureSandboxNameExists(c, "Select sandbox:")
 		version := ensureVersionArg(c)
 
 		ensureDistroPresent(version)

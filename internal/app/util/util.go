@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"io"
 	"net"
+	"github.com/BurntSushi/toml"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -139,4 +140,33 @@ func IndexOf(element string, data []string) (int) {
 		}
 	}
 	return -1
+}
+
+func OpenOrCreateDataFile(path string, readOnly bool) *os.File {
+	flags := os.O_CREATE
+	if readOnly {
+		flags |= os.O_RDONLY
+	} else {
+		flags |= os.O_WRONLY | os.O_TRUNC
+	}
+	file, err := os.OpenFile(path, flags, 0640)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not open file: ", err)
+		os.Exit(1)
+	}
+	return file
+}
+
+func DecodeTomlFile(file *os.File, data interface{}) {
+	if _, err := toml.DecodeReader(bufio.NewReader(file), data); err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse toml file: ", err)
+		os.Exit(1)
+	}
+}
+
+func EncodeTomlFile(file *os.File, data interface{}) {
+	if err := toml.NewEncoder(bufio.NewWriter(file)).Encode(data); err != nil {
+		fmt.Fprintln(os.Stderr, "Could not encode toml file: ", err)
+		os.Exit(1)
+	}
 }
