@@ -9,6 +9,8 @@ var Build = cli.Command{
 	Usage: "Build current project",
 	Action: func(c *cli.Context) error {
 
+		runGradleTask("build", "Building...")
+
 		return nil
 	},
 }

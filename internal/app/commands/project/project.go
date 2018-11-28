@@ -6,6 +6,7 @@ import (
 	"os"
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 	"fmt"
+	"os/exec"
 )
 
 func All() []cli.Command {
@@ -51,10 +52,23 @@ func ensureProjectFolder() ProjectData {
 			fmt.Fprintln(os.Stderr, "Aborted")
 			os.Exit(1)
 		}
-		sbox := sandbox.EnsureSandboxNameExists(nil, "Select a sandbox to associate with project:")
+		sbox := sandbox.EnsureSandboxNameExists(nil, "Select a sandbox to associate with the project:")
 		data.Sandbox = sbox.Name
 		writeProjectData(data)
 	}
 	return data
+}
+
+func runGradleTask(task, message string) {
+	projectData := ensureProjectFolder()
+	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
+	distroJdk := sandbox.GetDistroJdkPath(sandboxData.Distro)
+	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", distroJdk)
+
+	fmt.Fprint(os.Stderr, message)
+	err := exec.Command("gradlew", task, javaHome).Run()
+	util.Fatal(err, fmt.Sprintf("Could not %s the project", task))
+
+	fmt.Fprintln(os.Stderr, "Done")
 }
 
