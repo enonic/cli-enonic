@@ -48,7 +48,7 @@ func writeProjectData(data ProjectData) {
 func ensureProjectFolder() ProjectData {
 	data := readProjectData()
 	if data.Sandbox == "" {
-		if !util.YesNoPrompt("Current folder is not a project, do you to create one ?") {
+		if !util.YesNoPrompt("Current folder is not a project, do you want to create one ?") {
 			fmt.Fprintln(os.Stderr, "Aborted")
 			os.Exit(1)
 		}
@@ -59,14 +59,15 @@ func ensureProjectFolder() ProjectData {
 	return data
 }
 
-func runGradleTask(task, message string) {
-	projectData := ensureProjectFolder()
+func runGradleTask(projectData ProjectData, task, message string) {
+
 	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
-	distroJdk := sandbox.GetDistroJdkPath(sandboxData.Distro)
-	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", distroJdk)
+
+	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", sandbox.GetDistroJdkPath(sandboxData.Distro))
+	xpHome := fmt.Sprintf("-Dxp.home=%s", sandbox.GetSandboxHomePath(projectData.Sandbox))
 
 	fmt.Fprint(os.Stderr, message)
-	err := exec.Command("gradlew", task, javaHome).Run()
+	err := exec.Command("gradlew", task, javaHome, xpHome).Run()
 	util.Fatal(err, fmt.Sprintf("Could not %s the project", task))
 
 	fmt.Fprintln(os.Stderr, "Done")

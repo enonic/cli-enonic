@@ -9,7 +9,8 @@ var Build = cli.Command{
 	Usage: "Build current project",
 	Action: func(c *cli.Context) error {
 
-		runGradleTask("build", "Building...")
+		projectData := ensureProjectFolder()
+		runGradleTask(projectData, "build", "Building...")
 
 		return nil
 	},

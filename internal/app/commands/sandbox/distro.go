@@ -176,7 +176,7 @@ func startDistro(version, sandbox string) *exec.Cmd {
 		executable = "server.bat"
 	}
 	appPath := filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "bin", executable)
-	homePath := filepath.Join(getSandboxesDir(), sandbox, "home")
+	homePath := GetSandboxHomePath(sandbox)
 
 	cmd := exec.Command(appPath, fmt.Sprintf("-Dxp.home=%s", homePath))
 	cmd.Stdout = os.Stdout

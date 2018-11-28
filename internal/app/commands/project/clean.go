@@ -9,7 +9,8 @@ var Clean = cli.Command{
 	Usage: "Clean current project",
 	Action: func(c *cli.Context) error {
 
-		runGradleTask("clean", "Cleaning...")
+		projectData := ensureProjectFolder()
+		runGradleTask(projectData, "clean", "Cleaning...")
 
 		return nil
 	},
