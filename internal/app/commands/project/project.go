@@ -7,6 +7,7 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 	"fmt"
 	"os/exec"
+	"bytes"
 )
 
 func All() []cli.Command {
@@ -62,9 +63,14 @@ func runGradleTask(projectData ProjectData, task, message string) {
 	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", sandbox.GetDistroJdkPath(sandboxData.Distro))
 	xpHome := fmt.Sprintf("-Dxp.home=%s", sandbox.GetSandboxHomePath(projectData.Sandbox))
 
+	var stderr bytes.Buffer
 	fmt.Fprint(os.Stderr, message)
-	err := exec.Command("gradlew", task, javaHome, xpHome).Run()
-	util.Fatal(err, fmt.Sprintf("Could not %s the project", task))
+	cmd := exec.Command("gradlew", task, javaHome, xpHome)
+	cmd.Stderr = &stderr
 
-	fmt.Fprintln(os.Stderr, "Done")
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, stderr.String())
+	} else {
+		fmt.Fprintln(os.Stderr, "Done")
+	}
 }
