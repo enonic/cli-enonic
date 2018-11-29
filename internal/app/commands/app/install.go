@@ -23,11 +23,11 @@ var Install = cli.Command{
 	Usage:   "Install an application from URL or file",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "u",
+			Name:  "url, u",
 			Usage: "The URL of the application",
 		},
 		cli.StringFlag{
-			Name:  "f",
+			Name:  "file, f",
 			Usage: "Application file",
 		},
 	}, common.FLAGS...),
@@ -35,21 +35,34 @@ var Install = cli.Command{
 
 		ensureURLOrFileFlag(c)
 
-		req := createInstallRequest(c)
-
-		fmt.Fprint(os.Stderr, "Installing...")
-		resp := common.SendRequest(req)
-
-		var result InstallResult
-		common.ParseResponse(resp, &result)
-		if fail := result.ApplicationInstalledJson.Failure; fail != "" {
-			fmt.Fprintf(os.Stderr, "Error occurred: %s", fail)
-		} else {
-			fmt.Fprintf(os.Stderr, "Installed '%s' v.%s", result.ApplicationInstalledJson.Application.DisplayName, result.ApplicationInstalledJson.Application.Version)
-		}
+		installApp(c, c.String("file"), c.String("url"))
 
 		return nil
 	},
+}
+
+func installApp(c *cli.Context, file, url string) InstallResult {
+	req := createInstallRequest(c, file, url)
+
+	fmt.Fprint(os.Stderr, "Installing...")
+	resp := common.SendRequest(req)
+
+	var result InstallResult
+	common.ParseResponse(resp, &result)
+	if fail := result.ApplicationInstalledJson.Failure; fail != "" {
+		fmt.Fprintf(os.Stderr, "Error occurred: %s", fail)
+	} else {
+		fmt.Fprintf(os.Stderr, "Installed '%s' v.%s", result.ApplicationInstalledJson.Application.DisplayName, result.ApplicationInstalledJson.Application.Version)
+	}
+	return result
+}
+
+func InstallFromFile(c *cli.Context, file string) InstallResult {
+	return installApp(c, file, "")
+}
+
+func InstallFromUrl(c *cli.Context, url string) InstallResult {
+	return installApp(c, "", url)
 }
 
 func ensureURLOrFileFlag(c *cli.Context) {
@@ -117,11 +130,11 @@ func ensureFileFlag(c *cli.Context) {
 	c.Set("f", val)
 }
 
-func createInstallRequest(c *cli.Context) *http.Request {
+func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Request {
 	body := new(bytes.Buffer)
 	var baseUrl, contentType string
 
-	if filePath := c.String("f"); filePath != "" {
+	if filePath != "" {
 		baseUrl = "api/app/install"
 		file, _ := os.Open(filePath)
 		defer file.Close()
@@ -131,13 +144,15 @@ func createInstallRequest(c *cli.Context) *http.Request {
 		io.Copy(part, file)
 		contentType = writer.FormDataContentType()
 		writer.Close()
-	} else if urlParam := c.String("u"); urlParam != "" {
+	} else if urlParam != "" {
 		baseUrl = "api/app/installUrl"
 		contentType = "application/json"
 		params := map[string]string{
 			"URL": urlParam,
 		}
 		json.NewEncoder(body).Encode(params)
+	} else {
+		panic("Either file or URL is required")
 	}
 
 	req := common.CreateRequest(c, "POST", baseUrl, body)

@@ -146,7 +146,7 @@ func isSandbox(v os.FileInfo, sandboxDir string) bool {
 func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 	existingBoxes := listSandboxes()
 
-	if c.NArg() > 0 {
+	if c != nil && c.NArg() > 0 {
 		name := c.Args().First()
 		for _, existingBox := range existingBoxes {
 			if existingBox.Name == name {

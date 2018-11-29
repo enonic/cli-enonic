@@ -13,12 +13,10 @@ var Sandbox = cli.Command{
 	Usage:   "Set the default sandbox associated with the current project",
 	Action: func(c *cli.Context) error {
 
-		sandbox := sandbox.EnsureSandboxNameExists(c, "Select sandbox to attach to:")
-		data := readProjectData()
-		data.Sandbox = sandbox.Name
-		writeProjectData(data)
+		sandbox := sandbox.EnsureSandboxNameExists(c, "Select sandbox to use as default for this project:")
+		writeProjectData(ProjectData{sandbox.Name})
 
-		fmt.Fprintf(os.Stderr, "Attached current project to sandbox '%s'", sandbox.Name)
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default", sandbox.Name)
 
 		return nil
 	},

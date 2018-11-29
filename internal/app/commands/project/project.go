@@ -24,11 +24,6 @@ type ProjectData struct {
 	Sandbox string `toml:"sandbox"`
 }
 
-func isProject() bool {
-	_, err := os.Stat(".enonic")
-	return !os.IsNotExist(err)
-}
-
 func readProjectData() ProjectData {
 	file := util.OpenOrCreateDataFile(".enonic", true)
 	defer file.Close()
@@ -45,18 +40,19 @@ func writeProjectData(data ProjectData) {
 	util.EncodeTomlFile(file, data)
 }
 
-func ensureProjectFolder() ProjectData {
-	data := readProjectData()
-	if data.Sandbox == "" {
-		if !util.YesNoPrompt("Current folder is not a project, do you want to create one ?") {
-			fmt.Fprintln(os.Stderr, "Aborted")
-			os.Exit(1)
+func ensureProjectDataExists(c *cli.Context) ProjectData {
+	projectData := readProjectData()
+	noSandbox := projectData.Sandbox == ""
+	argExist := c != nil && c.NArg() > 0
+	if noSandbox || argExist {
+		sbox := sandbox.EnsureSandboxNameExists(c, "Select a sandbox to use:")
+		projectData.Sandbox = sbox.Name
+		if noSandbox {
+			writeProjectData(projectData)
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default. You can change it using 'project sandbox command' at any time.\n", projectData.Sandbox)
 		}
-		sbox := sandbox.EnsureSandboxNameExists(nil, "Select a sandbox to associate with the project:")
-		data.Sandbox = sbox.Name
-		writeProjectData(data)
 	}
-	return data
+	return projectData
 }
 
 func runGradleTask(projectData ProjectData, task, message string) {
@@ -72,4 +68,3 @@ func runGradleTask(projectData ProjectData, task, message string) {
 
 	fmt.Fprintln(os.Stderr, "Done")
 }
-

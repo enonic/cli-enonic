@@ -2,6 +2,7 @@ package project
 
 import (
 	"github.com/urfave/cli"
+	"fmt"
 )
 
 var Clean = cli.Command{
@@ -9,8 +10,8 @@ var Clean = cli.Command{
 	Usage: "Clean current project",
 	Action: func(c *cli.Context) error {
 
-		projectData := ensureProjectFolder()
-		runGradleTask(projectData, "clean", "Cleaning...")
+		projectData := ensureProjectDataExists(c)
+		runGradleTask(projectData, "clean", fmt.Sprintf("Cleaning using '%s'...", projectData.Sandbox))
 
 		return nil
 	},

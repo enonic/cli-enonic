@@ -2,6 +2,7 @@ package project
 
 import (
 	"github.com/urfave/cli"
+	"fmt"
 )
 
 var Build = cli.Command{
@@ -9,9 +10,13 @@ var Build = cli.Command{
 	Usage: "Build current project",
 	Action: func(c *cli.Context) error {
 
-		projectData := ensureProjectFolder()
-		runGradleTask(projectData, "build", "Building...")
+		buildProject(c)
 
 		return nil
 	},
+}
+
+func buildProject(c *cli.Context) {
+	projectData := ensureProjectDataExists(c)
+	runGradleTask(projectData, "build", fmt.Sprintf("Building using '%s'...", projectData.Sandbox))
 }
