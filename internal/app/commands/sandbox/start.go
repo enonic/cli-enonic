@@ -9,19 +9,30 @@ import (
 )
 
 var Start = cli.Command{
-	Name:  "start",
+	Name: "start",
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:  "detach,d",
+			Usage: "Run in the background even after console is closed",
+		},
+	},
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
 
 		ensurePortAvailable(8080)
 		sandbox := EnsureSandboxNameExists(c, "Select sandbox to start:")
 		ensureDistroPresent(sandbox.Distro)
+		detach := c.Bool("detach")
 
-		cmd := startDistro(sandbox.Distro, sandbox.Name)
-		writeRunningSandbox(sandbox.Name)
-		listenForInterrupt(sandbox.Name)
+		cmd := startDistro(sandbox.Distro, sandbox.Name, detach)
+		writeRunningSandbox(sandbox.Name, cmd.Process.Pid)
 
-		cmd.Wait()
+		if !detach {
+			listenForInterrupt(sandbox.Name)
+			cmd.Wait()
+		} else {
+			fmt.Fprintf(os.Stderr, "Started sandbox '%s' in detached mode.", sandbox.Name)
+		}
 		return nil
 	},
 }
@@ -46,13 +57,14 @@ func listenForInterrupt(name string) {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", name)
 		fmt.Fprintln(os.Stderr)
-		writeRunningSandbox("")
+		writeRunningSandbox("", 0)
 	}()
 }
 
-func writeRunningSandbox(name string) {
+func writeRunningSandbox(name string, pid int) {
 	data := readSandboxesData()
 	data.Running = name
+	data.PID = pid
 	writeSandboxesData(data)
 }
 

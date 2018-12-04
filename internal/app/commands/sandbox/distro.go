@@ -11,9 +11,10 @@ import (
 	"github.com/enonic/xp-cli/internal/app/util"
 	"time"
 	"runtime"
-	"os/exec"
 	"strings"
 	"github.com/Masterminds/semver"
+	"os/exec"
+	"github.com/enonic/xp-cli/internal/app/util/system"
 )
 
 const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
@@ -170,22 +171,21 @@ func unzipDistro(zipFile, version string) string {
 	return targetPath
 }
 
-func startDistro(version, sandbox string) *exec.Cmd {
+func startDistro(version, sandbox string, detach bool) *exec.Cmd {
 	executable := "server.sh"
 	if runtime.GOOS == "windows" {
 		executable = "server.bat"
 	}
 	appPath := filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
+	args := []string{fmt.Sprintf("-Dxp.home=%s", homePath)}
 
-	cmd := exec.Command(appPath, fmt.Sprintf("-Dxp.home=%s", homePath))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	err := cmd.Start()
-	util.Fatal(err, fmt.Sprintf("Could not start distro '%s': ", version))
+	return system.Start(appPath, args, detach)
+}
 
-	return cmd
+func stopDistro(pid int) {
+	err := system.KillAll(pid)
+	util.Fatal(err, fmt.Sprintf("Could not stop process %d", pid))
 }
 
 func deleteDistro(version string) {

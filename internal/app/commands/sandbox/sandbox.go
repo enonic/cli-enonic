@@ -16,6 +16,7 @@ func All() []cli.Command {
 	return []cli.Command{
 		List,
 		Start,
+		Stop,
 		Create,
 		Delete,
 		Version,
@@ -25,6 +26,7 @@ func All() []cli.Command {
 type SandboxesData struct {
 	Running string `toml:"running"`
 	Latest  string `toml:"latest"`
+	PID     int    `toml:"PID"`
 }
 
 type SandboxData struct {
