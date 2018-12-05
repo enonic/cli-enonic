@@ -75,8 +75,10 @@ var Create = cli.Command{
 func verifyDestinationNotExists(c *cli.Context, name string) string {
 	if dest := c.String("destination"); dest != "" {
 		return util.PromptUntilTrue(dest, func(val string, i byte) string {
-			if _, err := os.Stat(val); !os.IsNotExist(err) {
+			if _, err := os.Stat(val); !os.IsExist(err) {
 				return fmt.Sprintf("Destination folder '%s' already exists: ", val)
+			} else if err != nil {
+				return fmt.Sprintf("Folder '%s' could not be created", val)
 			}
 			return ""
 		})

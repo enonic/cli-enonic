@@ -43,14 +43,21 @@ func writeProjectData(data ProjectData) {
 
 func ensureProjectDataExists(c *cli.Context) ProjectData {
 	projectData := readProjectData()
+	wrongSandbox := !sandbox.Exists(projectData.Sandbox)
+	if wrongSandbox {
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' could not be found.\n", projectData.Sandbox)
+	}
 	noSandbox := projectData.Sandbox == ""
+	if noSandbox {
+		fmt.Fprintln(os.Stderr, "No default sandbox is set for the project.")
+	}
 	argExist := c != nil && c.NArg() > 0
-	if noSandbox || argExist {
+	if noSandbox || wrongSandbox || argExist {
 		sbox := sandbox.EnsureSandboxNameExists(c, "Select a sandbox to use:")
 		projectData.Sandbox = sbox.Name
 		if noSandbox {
 			writeProjectData(projectData)
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default. You can change it using 'project sandbox command' at any time.\n", projectData.Sandbox)
+			fmt.Fprintf(os.Stderr, "Set '%s' as default. You can change it using 'project sandbox command' at any time.\n", projectData.Sandbox)
 		}
 	}
 	return projectData

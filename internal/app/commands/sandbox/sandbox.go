@@ -143,8 +143,25 @@ func isSandbox(v os.FileInfo, sandboxDir string) bool {
 	}
 }
 
+func Exists(name string) bool {
+	dir := getSandboxesDir()
+	if info, err := os.Stat(filepath.Join(dir, name)); os.IsNotExist(err) {
+		return false
+	} else {
+		return isSandbox(info, dir)
+	}
+}
+
 func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 	existingBoxes := listSandboxes()
+
+	if len(existingBoxes) == 0 {
+		fmt.Fprint(os.Stderr, "No sandboxes found, creating default one...")
+		newBox := Sandbox{"default", "latest"}
+		createSandbox(newBox.Name, newBox.Distro)
+		fmt.Fprintln(os.Stderr, "Done")
+		return newBox
+	}
 
 	if c != nil && c.NArg() > 0 {
 		name := c.Args().First()
@@ -153,6 +170,11 @@ func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 				return existingBox
 			}
 		}
+	}
+
+	if len(existingBoxes) == 1 {
+		// no point in selecting from just 1 item
+		return existingBoxes[0]
 	}
 
 	selectOptions := make([]string, 0)
