@@ -55,7 +55,7 @@ func ensureProjectDataExists(c *cli.Context) ProjectData {
 	if noSandbox || wrongSandbox || argExist {
 		sbox := sandbox.EnsureSandboxNameExists(c, "Select a sandbox to use:")
 		projectData.Sandbox = sbox.Name
-		if noSandbox {
+		if noSandbox || wrongSandbox {
 			writeProjectData(projectData)
 			fmt.Fprintf(os.Stderr, "Set '%s' as default. You can change it using 'project sandbox command' at any time.\n", projectData.Sandbox)
 		}
