@@ -63,6 +63,7 @@ type RemoteData struct {
 }
 
 type RemotesData struct {
+	Active  string
 	Remotes map[string]RemoteData
 }
 
@@ -98,13 +99,13 @@ func getRemoteByName(name string, remotes map[string]RemoteData) (*RemoteData, b
 func ensureDefaultRemoteExists() {
 	data := readRemotesData()
 	defaultUrl, _ := ParseMarshalledUrl("http://localhost:8080")
-	if remote, exists := getRemoteByName(DEFAULT, data.Remotes); !exists || remote.Url != defaultUrl {
-		if !exists {
-			remote = &RemoteData{defaultUrl, "", ""}
-		} else {
-			remote.Url = defaultUrl
+	if remote, exists := getRemoteByName(DEFAULT, data.Remotes); !exists || remote.Url != defaultUrl || data.Active == "" {
+		if !exists || remote.Url != defaultUrl {
+			data.Remotes[DEFAULT] = RemoteData{defaultUrl, "", ""}
 		}
-		data.Remotes[DEFAULT] = *remote
+		if data.Active == "" {
+			data.Active = DEFAULT
+		}
 		writeRemotesData(data)
 	}
 }
