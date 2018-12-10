@@ -8,6 +8,8 @@ import (
 	"bytes"
 )
 
+const DEFAULT = "default"
+
 func All() []cli.Command {
 	ensureDefaultRemoteExists()
 
@@ -96,13 +98,13 @@ func getRemoteByName(name string, remotes map[string]RemoteData) (*RemoteData, b
 func ensureDefaultRemoteExists() {
 	data := readRemotesData()
 	defaultUrl, _ := ParseMarshalledUrl("http://localhost:8080")
-	if remote, exists := getRemoteByName("default", data.Remotes); !exists || remote.Url != defaultUrl {
+	if remote, exists := getRemoteByName(DEFAULT, data.Remotes); !exists || remote.Url != defaultUrl {
 		if !exists {
 			remote = &RemoteData{defaultUrl, "", ""}
 		} else {
 			remote.Url = defaultUrl
 		}
-		data.Remotes["default"] = *remote
+		data.Remotes[DEFAULT] = *remote
 		writeRemotesData(data)
 	}
 }

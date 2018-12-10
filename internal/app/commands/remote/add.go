@@ -20,7 +20,7 @@ var Add = cli.Command{
 	Usage: "Add a new remote to list. Format: [name] [scheme]://[user:password]@[host]:[port]",
 	Action: func(c *cli.Context) error {
 
-		name := ensureNameArg(c)
+		name := ensureUniqueNameArg(c)
 		remoteUrl := ensureUrlFlag(c)
 
 		userName := remoteUrl.User.Username()
@@ -70,7 +70,7 @@ func ensureUrlFlag(c *cli.Context) *MarshalledUrl {
 	return parsedUrl
 }
 
-func ensureNameArg(c *cli.Context) string {
+func ensureUniqueNameArg(c *cli.Context) string {
 	var name string
 	if c.NArg() > 0 {
 		name = c.Args().First()
