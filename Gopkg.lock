@@ -151,9 +151,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9f79783fbed381eae1a46d4a1f759e57063ffa4bcbd254d3ccc544115d0db06b"
+  digest = "1:f5d5b4e41d2d13490a3f9a7b0812b1ace7cab55d21608f97503ea0887be5a048"
   name = "golang.org/x/crypto"
   packages = [
+    "bcrypt",
+    "blowfish",
     "cast5",
     "curve25519",
     "ed25519",
@@ -300,6 +302,7 @@
     "github.com/mitchellh/go-homedir",
     "github.com/otiai10/copy",
     "github.com/urfave/cli",
+    "golang.org/x/crypto/bcrypt",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-git.v4/plumbing",
     "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
