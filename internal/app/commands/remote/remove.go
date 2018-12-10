@@ -14,7 +14,7 @@ var Remove = cli.Command{
 	Usage:   "Remove a remote from list.",
 	Action: func(c *cli.Context) error {
 
-		name := ensureExistingNameArg(c)
+		name := ensureExistingNameArg(c, true)
 		if name == DEFAULT {
 			fmt.Fprintln(os.Stderr, "Default remote can not be deleted.")
 			os.Exit(0)
@@ -29,7 +29,7 @@ var Remove = cli.Command{
 	},
 }
 
-func ensureExistingNameArg(c *cli.Context) string {
+func ensureExistingNameArg(c *cli.Context, allowActive bool) string {
 	var name string
 	if c.NArg() > 0 {
 		name = c.Args().First()
@@ -43,6 +43,9 @@ func ensureExistingNameArg(c *cli.Context) string {
 				return "Remote name can not be empty: "
 			}
 		} else {
+			if !allowActive && remotes.Active == val {
+				return fmt.Sprintf("Remote '%s' is already set active: ", val)
+			}
 			if _, exists := getRemoteByName(val, remotes.Remotes); !exists {
 				return fmt.Sprintf("Remote '%s' does not exist: ", val)
 			}
