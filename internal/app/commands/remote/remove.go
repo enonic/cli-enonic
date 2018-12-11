@@ -21,6 +21,9 @@ var Remove = cli.Command{
 		}
 		data := readRemotesData()
 		delete(data.Remotes, name)
+		if data.Active == name {
+			data.Active = DEFAULT
+		}
 		writeRemotesData(data)
 
 		fmt.Fprintf(os.Stderr, "Deleted remote '%s'.\n", name)

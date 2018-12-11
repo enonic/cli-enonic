@@ -6,6 +6,8 @@ import (
 	"github.com/enonic/xp-cli/internal/app/util"
 	"path/filepath"
 	"bytes"
+	"fmt"
+	"os"
 )
 
 const DEFAULT = "default"
@@ -94,6 +96,16 @@ func getRemoteByName(name string, remotes map[string]RemoteData) (*RemoteData, b
 	}
 	rm, prs := remotes[name]
 	return &rm, prs
+}
+
+func GetActiveRemote() *RemoteData {
+	data := readRemotesData()
+	active, ok := data.Remotes[data.Active]
+	if !ok {
+		fmt.Fprintf(os.Stderr, "Could not load active remote '%s'", data.Active)
+		os.Exit(0)
+	}
+	return &active
 }
 
 func ensureDefaultRemoteExists() {

@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli"
 	"time"
 	"strings"
+	"github.com/enonic/xp-cli/internal/app/commands/remote"
 )
 
 var FLAGS = []cli.Flag{
@@ -17,7 +18,7 @@ var FLAGS = []cli.Flag{
 		Name:  "auth, a",
 		Usage: "Authentication token for basic authentication (user:password)",
 	},
-	cli.StringFlag{
+	/*cli.StringFlag{
 		Name:  "host",
 		Value: "localhost",
 		Usage: "Host name for server",
@@ -31,7 +32,7 @@ var FLAGS = []cli.Flag{
 		Name:  "scheme, s",
 		Value: "http",
 		Usage: "Scheme",
-	},
+	},*/
 }
 
 func EnsureAuth(c *cli.Context) (string, string) {
@@ -57,9 +58,14 @@ func EnsureAuth(c *cli.Context) (string, string) {
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	host := c.String("host")
-	port := c.String("port")
-	scheme := c.String("scheme")
+	activeRemote := remote.GetActiveRemote()
+
+	host := activeRemote.Url.Hostname() // c.String("host")
+	port := activeRemote.Url.Port()     // c.String("port")
+	scheme := activeRemote.Url.Scheme   // c.String("scheme")
+	// hashed pass is not accepted by backend yet
+	// user := activeRemote.User
+	// pass := activeRemote.Pass
 	user, pass := EnsureAuth(c)
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
