@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"time"
 )
 
 var Upgrade = cli.Command{
@@ -25,16 +26,18 @@ var Upgrade = cli.Command{
 		ensureNameFlag(c)
 
 		req := createUpgradeRequest(c)
-
-		fmt.Fprint(os.Stderr, "Upgrading dump...")
-		resp := common.SendRequest(req)
-
 		var result UpgradeResult
-		common.ParseResponse(resp, &result)
-		if result.InitialVersion != result.UpgradedVersion {
-			fmt.Fprintf(os.Stderr, "Upgraded from version '%s' to '%s'\n", result.InitialVersion, result.UpgradedVersion)
-		} else {
-			fmt.Fprintf(os.Stderr, "You already have the latest version '%s'\n", result.InitialVersion)
+		status := common.RunTask(c, req, "Upgrading dump...", &result)
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			if result.InitialVersion != result.UpgradedVersion {
+				fmt.Fprintf(os.Stderr, "Upgraded from version '%s' to '%s' in %v\n", result.InitialVersion, result.UpgradedVersion, time.Now().Sub(status.StartTime))
+			} else {
+				fmt.Fprintf(os.Stderr, "You already have the latest version '%s'\n", result.InitialVersion)
+			}
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Failed to upgrade dump: %s", status.Progress.Info)
 		}
 
 		return nil

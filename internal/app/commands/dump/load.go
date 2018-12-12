@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/enonic/xp-cli/internal/app/util"
+	"time"
 )
 
 var Load = cli.Command{
@@ -34,13 +35,15 @@ var Load = cli.Command{
 			ensureNameFlag(c)
 
 			req := createLoadRequest(c)
-
-			fmt.Fprint(os.Stderr, "Loading a dump (this may take few minutes)...")
-			resp := common.SendRequest(req)
-
 			var result LoadDumpResponse
-			common.ParseResponse(resp, &result)
-			fmt.Fprintf(os.Stderr, "Loaded %d repositories", len(result.Repositories))
+			status := common.RunTask(c, req, "Loading dump...", &result)
+
+			switch status.State {
+			case common.TASK_FINISHED:
+				fmt.Fprintf(os.Stderr, "Loaded %d repositories in %v", len(result.Repositories), time.Now().Sub(status.StartTime))
+			case common.TASK_FAILED:
+				fmt.Fprintf(os.Stderr, "Failed to load dump: %s", status.Progress.Info)
+			}
 		}
 
 		return nil

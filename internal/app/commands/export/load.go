@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
+	"time"
 )
 
 var xslParams map[string]string
@@ -55,12 +56,15 @@ var Load = cli.Command{
 
 		req := createLoadRequest(c)
 
-		fmt.Fprint(os.Stderr, "Importing data (this may take few minutes)...")
-		resp := common.SendRequest(req)
-
 		var result LoadDumpResponse
-		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors))
+		status := common.RunTask(c, req, "Importing data...", &result)
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors in %v", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors), time.Now().Sub(status.StartTime))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Import failed: %s", status.Progress.Info)
+		}
 
 		return nil
 	},

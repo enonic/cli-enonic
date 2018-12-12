@@ -5,6 +5,7 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/common"
 	"fmt"
 	"os"
+	"time"
 )
 
 var Vacuum = cli.Command{
@@ -24,12 +25,15 @@ var Vacuum = cli.Command{
 
 		req := common.CreateRequest(c, "POST", "api/system/vacuum", nil)
 
-		fmt.Fprint(os.Stderr, "Vacuuming...")
-		resp := common.SendRequest(req)
-
 		var result VacuumResponse
-		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Done %d tasks", len(result.TaskResults))
+		status := common.RunTask(c, req, "Vacuuming...", &result)
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			fmt.Fprintf(os.Stderr, "Done %d tasks in %v", len(result.TaskResults), time.Now().Sub(status.StartTime))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Failed: %s", status.Progress.Info)
+		}
 
 		return nil
 	},

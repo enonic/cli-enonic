@@ -18,21 +18,6 @@ var FLAGS = []cli.Flag{
 		Name:  "auth, a",
 		Usage: "Authentication token for basic authentication (user:password)",
 	},
-	/*cli.StringFlag{
-		Name:  "host",
-		Value: "localhost",
-		Usage: "Host name for server",
-	},
-	cli.StringFlag{
-		Name:  "port, p",
-		Value: "8080",
-		Usage: "Port number for server",
-	},
-	cli.StringFlag{
-		Name:  "scheme, s",
-		Value: "http",
-		Usage: "Scheme",
-	},*/
 }
 
 func EnsureAuth(c *cli.Context) (string, string) {
@@ -58,23 +43,27 @@ func EnsureAuth(c *cli.Context) (string, string) {
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	activeRemote := remote.GetActiveRemote()
+	user, pass := EnsureAuth(c)
 
-	host := activeRemote.Url.Hostname() // c.String("host")
-	port := activeRemote.Url.Port()     // c.String("port")
-	scheme := activeRemote.Url.Scheme   // c.String("scheme")
+	return doCreateRequest(method, url, user, pass, body)
+}
+
+func doCreateRequest(method, url, user, pass string, body io.Reader) *http.Request {
+	activeRemote := remote.GetActiveRemote()
+	host := activeRemote.Url.Hostname()
+	port := activeRemote.Url.Port()
+	scheme := activeRemote.Url.Scheme
 	// hashed pass is not accepted by backend yet
 	// user := activeRemote.User
 	// pass := activeRemote.Pass
-	user, pass := EnsureAuth(c)
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Params error: ", err)
 		os.Exit(1)
 	}
-	req.SetBasicAuth(user, pass)
 	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(user, pass)
 	return req
 }
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"time"
 )
 
 var New = cli.Command{
@@ -37,12 +38,15 @@ var New = cli.Command{
 
 		req := createNewRequest(c)
 
-		fmt.Fprint(os.Stderr, "Creating dump (this may take few minutes)...")
-		resp := common.SendRequest(req)
-
 		var result NewDumpResponse
-		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Dumped %d repositories", len(result.Repositories))
+		status := common.RunTask(c, req, "Creating dump...", &result)
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			fmt.Fprintf(os.Stderr, "Dumped %d repositories in %v", len(result.Repositories), time.Now().Sub(status.StartTime))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Failed to dump repository: %s", status.Progress.Info)
+		}
 
 		return nil
 	},

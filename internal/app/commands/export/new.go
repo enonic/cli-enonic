@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"time"
 )
 
 var New = cli.Command{
@@ -41,13 +42,15 @@ var New = cli.Command{
 		ensurePathFlag(c)
 
 		req := createNewRequest(c)
-
-		fmt.Fprint(os.Stderr, "Exporting data (this may take few minutes)...")
-		resp := common.SendRequest(req)
-
 		var result NewExportResponse
-		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Exported %d nodes and %d binaries with %d errors\n", len(result.ExportedNodes), len(result.ExportedBinaries), len(result.Errors))
+		status := common.RunTask(c, req, "Exporting data...", &result)
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			fmt.Fprintf(os.Stderr, "Exported %d nodes and %d binaries with %d errors in %v\n", len(result.ExportedNodes), len(result.ExportedBinaries), len(result.Errors), time.Now().Sub(status.StartTime))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Export failed: %s", status.Progress.Info)
+		}
 
 		return nil
 	},
