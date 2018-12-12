@@ -200,3 +200,9 @@ nfpm:
   formats:
     - deb
 #    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
+
+artifactories:
+  - name: repo
+    target: http://repo.enonic.com/public/com/enonic/tools/{{ .ProjectName }}/{{ .Version }}/
+#    http://<Your-Instance>:8081/artifactory/example-repo-local/{{ .ProjectName }}/{{ .Version }}/
+    username: ci
