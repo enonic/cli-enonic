@@ -7,6 +7,8 @@ In order to build and develop the XP CLI, you need to have the go environment av
 1. `brew install goreleaser`
 1. `brew install dep` - This is the Go dependency management tool.
 
+For other OSes, please see [Goreleaser](https://goreleaser.com).
+
 ## Building project
 
 1. Check out [XP CLI](https://github.com/enonic/xp-cli) from GitHub
