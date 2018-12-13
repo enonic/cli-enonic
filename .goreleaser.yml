@@ -93,12 +93,12 @@ release:
   # You can disable this pipe in order to not upload any artifacts to
   # GitHub.
   # Defaults to false.
-  disable: false
+  disable: true
 
 scoop:
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#  url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+  url_template: http://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
 
   # Repository to push the app manifest to.
   bucket:
