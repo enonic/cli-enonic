@@ -137,7 +137,7 @@ brew:
 
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#  url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+  url_template: http://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
 
   # Allows you to set a custom download strategy.
   # Default is empty.
