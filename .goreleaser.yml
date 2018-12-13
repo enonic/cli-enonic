@@ -203,6 +203,5 @@ nfpm:
 
 artifactories:
   - name: repo
-    target: http://repo.enonic.com/public/com/enonic/tools/{{ .ProjectName }}/{{ .Version }}/
-#    http://<Your-Instance>:8081/artifactory/example-repo-local/{{ .ProjectName }}/{{ .Version }}/
+    target: http://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
     username: ci
