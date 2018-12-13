@@ -2,10 +2,33 @@
 
 In order to build and develop the XP CLI, you need to have the go environment available.
 
-## Installing Go build and release environment on Mac:
+## Installing Go build and release environment:
+
+##### Mac OS
 
 1. `brew install goreleaser`
 1. `brew install dep` - This is the Go dependency management tool.
+
+##### Windows
+
+Recommended way is to use [scoop](https://scoop.sh/) command line installer 
+
+1. Install scoop if needed
+
+    *Make sure Powershell 3 (or later) and .NET Framework 4.5 (or later) are installed. Then run:*
+
+    `iex (new-object net.webclient).downloadstring('https://get.scoop.sh')`
+1. Install go
+
+    `scoop install go`
+1. Install goreleaser
+    
+    `scoop bucket add goreleaser https://github.com/goreleaser/scoop-bucket.git`
+    
+    `scoop install goreleaser`
+1.  Install Go dependency management tool
+
+    `scoop install dep`
 
 For other OSes, please see [Goreleaser](https://goreleaser.com).
 
