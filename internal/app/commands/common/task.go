@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 	"github.com/urfave/cli"
-	"encoding/json"
 	"strings"
+	"encoding/json"
 )
 
 const TASK_FINISHED = "FINISHED"
@@ -29,7 +29,8 @@ func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) 
 	status := <-doneCh
 	close(doneCh)
 
-	if status.State == TASK_FINISHED {
+	if (status.State == TASK_FINISHED || status.State == TASK_FAILED) && status.Progress.Info != "" {
+		fmt.Fprintf(os.Stderr, "Task ended:\n%v\n", status)
 		decoder := json.NewDecoder(strings.NewReader(status.Progress.Info))
 		if err := decoder.Decode(target); err != nil {
 			fmt.Fprint(os.Stderr, "Error parsing response ", err)
