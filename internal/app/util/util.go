@@ -13,6 +13,7 @@ import (
 	"io"
 	"net"
 	"github.com/BurntSushi/toml"
+	"time"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -169,4 +170,8 @@ func EncodeTomlFile(file *os.File, data interface{}) {
 		fmt.Fprintln(os.Stderr, "Could not encode toml file: ", err)
 		os.Exit(1)
 	}
+}
+
+func TimeFromNow(start time.Time) time.Duration {
+	return time.Now().Round(time.Second).Sub(start.Round(time.Second))
 }

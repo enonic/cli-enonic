@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/enonic/xp-cli/internal/app/util"
-	"time"
 )
 
 var Load = cli.Command{
@@ -40,7 +39,7 @@ var Load = cli.Command{
 
 			switch status.State {
 			case common.TASK_FINISHED:
-				fmt.Fprintf(os.Stderr, "Loaded %d repositories in %v", len(result.Repositories), time.Now().Sub(status.StartTime))
+				fmt.Fprintf(os.Stderr, "Loaded %d repositories in %s", len(result.Repositories), util.TimeFromNow(status.StartTime))
 			case common.TASK_FAILED:
 				fmt.Fprintf(os.Stderr, "Failed to load dump: %s", status.Progress.Info)
 			}

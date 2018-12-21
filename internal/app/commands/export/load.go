@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
-	"time"
 )
 
 var xslParams map[string]string
@@ -61,7 +60,7 @@ var Load = cli.Command{
 
 		switch status.State {
 		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors in %v", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors), time.Now().Sub(status.StartTime))
+			fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors in %s", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
 			fmt.Fprintf(os.Stderr, "Import failed: %s", status.Progress.Info)
 		}

@@ -5,7 +5,7 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/common"
 	"fmt"
 	"os"
-	"time"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 var Vacuum = cli.Command{
@@ -30,7 +30,7 @@ var Vacuum = cli.Command{
 
 		switch status.State {
 		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "Done %d tasks in %v", len(result.TaskResults), time.Now().Sub(status.StartTime))
+			fmt.Fprintf(os.Stderr, "Done %d tasks in %s", len(result.TaskResults), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
 			fmt.Fprintf(os.Stderr, "Failed: %s", status.Progress.Info)
 		}

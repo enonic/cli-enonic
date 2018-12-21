@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"time"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 var New = cli.Command{
@@ -43,7 +43,7 @@ var New = cli.Command{
 
 		switch status.State {
 		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "Dumped %d repositories in %v", len(result.Repositories), time.Now().Sub(status.StartTime))
+			fmt.Fprintf(os.Stderr, "Dumped %d repositories in %s", len(result.Repositories), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
 			fmt.Fprintf(os.Stderr, "Failed to dump repository: %s", status.Progress.Info)
 		}

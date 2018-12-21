@@ -30,7 +30,6 @@ func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) 
 	close(doneCh)
 
 	if status.State == TASK_FINISHED && status.Progress.Info != "" {
-		fmt.Fprintf(os.Stderr, "Task ended:\n%v\n", status)
 		decoder := json.NewDecoder(strings.NewReader(status.Progress.Info))
 		if err := decoder.Decode(target); err != nil {
 			fmt.Fprint(os.Stderr, "Error parsing response ", err)
@@ -42,8 +41,9 @@ func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) 
 }
 
 func displayTaskProgress(c *cli.Context, taskId, msg, user, pass string, doneCh chan<- *TaskStatus) {
-	var exitFlag bool
 	fmt.Fprint(os.Stderr, msg)
+	time.Sleep(time.Second)
+	var exitFlag bool
 	for {
 		status := fetchTaskStatus(taskId, user, pass)
 		switch status.State {
@@ -66,9 +66,7 @@ func displayTaskProgress(c *cli.Context, taskId, msg, user, pass string, doneCh 
 			fmt.Fprintf(os.Stderr, "\r%s%.0f %%", msg, percent)
 		}
 
-		if !exitFlag {
-			time.Sleep(time.Second)
-		} else {
+		if exitFlag {
 			doneCh <- status
 			break
 		}

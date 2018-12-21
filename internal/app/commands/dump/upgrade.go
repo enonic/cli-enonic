@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"time"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 var Upgrade = cli.Command{
@@ -32,7 +32,7 @@ var Upgrade = cli.Command{
 		switch status.State {
 		case common.TASK_FINISHED:
 			if result.InitialVersion != result.UpgradedVersion {
-				fmt.Fprintf(os.Stderr, "Upgraded from version '%s' to '%s' in %v\n", result.InitialVersion, result.UpgradedVersion, time.Now().Sub(status.StartTime))
+				fmt.Fprintf(os.Stderr, "Upgraded from version '%s' to '%s' in %s\n", result.InitialVersion, result.UpgradedVersion, util.TimeFromNow(status.StartTime))
 			} else {
 				fmt.Fprintf(os.Stderr, "You already have the latest version '%s'\n", result.InitialVersion)
 			}
