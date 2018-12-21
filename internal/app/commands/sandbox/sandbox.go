@@ -18,7 +18,7 @@ func All() []cli.Command {
 		Start,
 		Create,
 		Delete,
-		Version,
+		Upgrade,
 	}
 }
 

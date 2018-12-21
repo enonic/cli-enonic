@@ -8,10 +8,10 @@ import (
 	"github.com/Masterminds/semver"
 )
 
-var Version = cli.Command{
-	Name:    "version",
-	Aliases: []string{"ver"},
-	Usage:   "Updates the distribution version.",
+var Upgrade = cli.Command{
+	Name:    "upgrade",
+	Aliases: []string{"up"},
+	Usage:   "Upgrades the distribution version.",
 	Action: func(c *cli.Context) error {
 
 		sandbox := EnsureSandboxNameExists(c, "Select sandbox:")
