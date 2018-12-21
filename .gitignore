@@ -1,3 +1,14 @@
+### Go template
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/vendor
+/dist
+goreleaser.github.token
+
 # Gradle
 .gradle
 build/
