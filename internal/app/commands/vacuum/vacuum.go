@@ -26,7 +26,7 @@ var Vacuum = cli.Command{
 		req := common.CreateRequest(c, "POST", "api/system/vacuum", nil)
 
 		var result VacuumResponse
-		status := common.RunTask(c, req, "Vacuuming...", &result)
+		status := common.RunTask(req, "Vacuuming", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

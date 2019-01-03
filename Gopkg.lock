@@ -81,6 +81,14 @@
   version = "v0.0.4"
 
 [[projects]]
+  digest = "1:0356f3312c9bd1cbeda81505b7fd437501d8e778ab66998ef69f00d7f9b3a0d7"
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3ee7d812e62a0804a7d0a324e0249ca2db3476d3"
+  version = "v0.0.4"
+
+[[projects]]
   branch = "master"
   digest = "1:2b32af4d2a529083275afc192d1067d8126b578c7a9613b26600e4df9c735155"
   name = "github.com/mgutz/ansi"
@@ -222,6 +230,14 @@
   version = "v1.6.4"
 
 [[projects]]
+  digest = "1:94cad6e2359d57da6652e689189c5b6ef19f99db6304d2c41de54f6632e15143"
+  name = "gopkg.in/cheggaaa/pb.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1cc5bbe20449079337944d56292c7383510c534c"
+  version = "v1.0.27"
+
+[[projects]]
   digest = "1:866df945fc92cd221d2b384dca7de5f3131a6113b9f72a7a8019ae5046abe828"
   name = "gopkg.in/src-d/go-billy.v4"
   packages = [
@@ -303,6 +319,7 @@
     "github.com/otiai10/copy",
     "github.com/urfave/cli",
     "golang.org/x/crypto/bcrypt",
+    "gopkg.in/cheggaaa/pb.v1",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-git.v4/plumbing",
     "gopkg.in/src-d/go-git.v4/plumbing/transport/http",

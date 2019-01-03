@@ -5,9 +5,9 @@ import (
 	"time"
 	"fmt"
 	"os"
-	"github.com/urfave/cli"
 	"strings"
 	"encoding/json"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 const TASK_FINISHED = "FINISHED"
@@ -15,7 +15,7 @@ const TASK_FAILED = "FAILED"
 const TASK_WAITING = "WAITING"
 const TASK_RUNNING = "RUNNING"
 
-func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) *TaskStatus {
+func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
 	resp := SendRequest(req)
 
 	var result TaskResponse
@@ -24,7 +24,7 @@ func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) 
 	doneCh := make(chan *TaskStatus)
 
 	user, pass, _ := req.BasicAuth()
-	go displayTaskProgress(c, result.TaskId, msg, user, pass, doneCh)
+	go displayTaskProgress(result.TaskId, msg, user, pass, doneCh)
 
 	status := <-doneCh
 	close(doneCh)
@@ -40,33 +40,43 @@ func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) 
 	return status
 }
 
-func displayTaskProgress(c *cli.Context, taskId, msg, user, pass string, doneCh chan<- *TaskStatus) {
-	fmt.Fprint(os.Stderr, msg)
-	time.Sleep(time.Second)
+func displayTaskProgress(taskId, msg, user, pass string, doneCh chan<- *TaskStatus) {
+	bar := pb.New(100)
+	bar.ShowSpeed = false
+	bar.ShowCounters = false
+	bar.ShowPercent = true
+	bar.ShowTimeLeft = false
+	bar.ShowElapsedTime = false
+	bar.ShowFinalTime = false
+	bar.Prefix(msg + " ").SetRefreshRate(time.Second).Start()
 	var exitFlag bool
 	for {
+		time.Sleep(time.Second)
 		status := fetchTaskStatus(taskId, user, pass)
 		switch status.State {
 		case TASK_WAITING:
-			if time.Now().Sub(status.StartTime).Minutes() > 5 {
+			if time.Now().Sub(status.StartTime).Seconds() > 120 {
 				fmt.Fprintf(os.Stderr, "Timeout waiting for a task\n")
 				exitFlag = true
 			}
 		case TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "\r%s%d %%\n", msg, 100)
+			bar.Set(100)
 			exitFlag = true
 		case TASK_FAILED:
 			fmt.Fprintln(os.Stderr, "")
 			exitFlag = true
 		case TASK_RUNNING:
-			var percent float64
+			var percent int64
 			if status.Progress.Total != 0 {
-				percent = float64(status.Progress.Current) / float64(status.Progress.Total) * 100
+				percent = int64(float64(status.Progress.Current) / float64(status.Progress.Total) * 100)
 			}
-			fmt.Fprintf(os.Stderr, "\r%s%.0f %%", msg, percent)
+			if percent != bar.Get() {
+				bar.Set64(percent)
+			}
 		}
 
 		if exitFlag {
+			bar.Finish()
 			doneCh <- status
 			break
 		}
