@@ -16,6 +16,10 @@ const TASK_WAITING = "WAITING"
 const TASK_RUNNING = "RUNNING"
 
 func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
+	return RunTaskWithParams(req, msg, target, make(map[string]string))
+}
+
+func RunTaskWithParams(req *http.Request, msg string, target interface{}, params map[string]string) *TaskStatus {
 	resp := SendRequest(req)
 
 	var result TaskResponse
@@ -23,7 +27,17 @@ func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
 
 	doneCh := make(chan *TaskStatus)
 
-	user, pass, _ := req.BasicAuth()
+	user := params["user"]
+	pass := params["pass"]
+	if user == "" || pass == "" {
+		originalUser, originalPass, _ := req.BasicAuth()
+		if user == "" {
+			user = originalUser
+		}
+		if pass == "" {
+			pass = originalPass
+		}
+	}
 	go displayTaskProgress(result.TaskId, msg, user, pass, doneCh)
 
 	status := <-doneCh

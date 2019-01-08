@@ -19,6 +19,10 @@ var Load = cli.Command{
 			Name:  "d",
 			Usage: "Dump name.",
 		},
+		cli.StringFlag{
+			Name:  "new-auth, na",
+			Usage: "Dump name.",
+		},
 		cli.BoolFlag{
 			Name:  "y",
 			Usage: "Automatic yes to prompts; assume “Yes” as answer to all prompts and run non-interactively.",
@@ -35,7 +39,13 @@ var Load = cli.Command{
 
 			req := createLoadRequest(c)
 			var result LoadDumpResponse
-			status := common.RunTask(req, "Loading dump", &result)
+			params := make(map[string]string)
+			if newAuth := c.String("new-auth"); newAuth != "" {
+				user, pass := common.EnsureAuth(newAuth)
+				params["user"] = user
+				params["pass"] = pass
+			}
+			status := common.RunTaskWithParams(req, "Loading dump", &result, params)
 
 			switch status.State {
 			case common.TASK_FINISHED:

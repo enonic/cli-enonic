@@ -20,9 +20,9 @@ var FLAGS = []cli.Flag{
 	},
 }
 
-func EnsureAuth(c *cli.Context) (string, string) {
+func EnsureAuth(authString string) (string, string) {
 	var splitAuth []string
-	util.PromptUntilTrue(c.String("auth"), func(val string, ind byte) string {
+	util.PromptUntilTrue(authString, func(val string, ind byte) string {
 		if len(strings.TrimSpace(val)) == 0 {
 			switch ind {
 			case 0:
@@ -43,7 +43,7 @@ func EnsureAuth(c *cli.Context) (string, string) {
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	user, pass := EnsureAuth(c)
+	user, pass := EnsureAuth(c.String("auth"))
 
 	return doCreateRequest(method, url, user, pass, body)
 }

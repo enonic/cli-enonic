@@ -59,8 +59,8 @@ var Create = cli.Command{
 		branch := c.String("branch")
 
 		var user, pass string
-		if c.String("auth") != "" {
-			user, pass = common.EnsureAuth(c)
+		if authString := c.String("auth"); authString != "" {
+			user, pass = common.EnsureAuth(authString)
 		}
 
 		cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
