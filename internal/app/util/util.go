@@ -14,6 +14,7 @@ import (
 	"net"
 	"github.com/BurntSushi/toml"
 	"time"
+	"strings"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -82,7 +83,7 @@ func GetCurrentOs() string {
 	if osName == "darwin" {
 		osName = "mac"
 	}
-	return osName
+	return strings.ToLower(osName)
 }
 
 func GetHomeDir() string {

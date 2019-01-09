@@ -14,44 +14,46 @@ import (
 	"os/exec"
 	"strings"
 	"github.com/Masterminds/semver"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
 const DISTRO_TEMPLATE = "enonic-xp-%s"
-const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/distro-%s-jdk/%s/%s"
-const REMOTE_DISTRO_NAME = "distro-%s-jdk-%s.zip"
-const REMOTE_DISTRO_HASH = "distro-%s-jdk-%s.zip.md5"
+const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
+const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
+const REMOTE_DISTRO_NAME = "enonic-xp-%s-sdk-%s.zip"
+const VERSION_LATEST = "latest"
 
-func ensureDistroPresent(version string) string {
-	var (
-		latestHash string
-		data       SandboxesData
-		outdated   bool
-	)
+type VersionResult struct {
+	Version     string `json:version`
+	Integration bool   `json:integration`
+}
+
+type VersionsResult struct {
+	Results []VersionResult `json:results`
+}
+
+func ensureDistroPresent(askedVersion string) (string, string) {
+	var version string
 	osName := util.GetCurrentOs()
 
-	if version == "latest" {
-		fmt.Fprint(os.Stderr, "Checking remote latest distro version...")
-		latestHash = downloadDistroHash(osName, "latest")
-		data = readSandboxesData()
-		if data.Latest == latestHash {
-			fmt.Fprintln(os.Stderr, "Up to date")
-		} else {
-			fmt.Fprintln(os.Stderr, "Outdated")
-			outdated = true
-		}
+	if askedVersion == VERSION_LATEST {
+		fmt.Fprint(os.Stderr, "Checking latest remote distro version...")
+		version = getLatestVersion(osName)
+		fmt.Fprintln(os.Stderr, version)
+	} else {
+		version = askedVersion
 	}
 
-	if !outdated {
-		fmt.Fprintf(os.Stderr, "Looking for local distro '%s'...", version)
-		for _, distro := range listDistros() {
-			if distroVer := getDistroVersion(distro); distroVer == version {
-				fmt.Fprintln(os.Stderr, "Found")
-				return filepath.Join(getDistrosDir(), distro)
-			}
+	fmt.Fprintf(os.Stderr, "Looking for local distro '%s'...", version)
+	for _, distro := range listDistros() {
+		if distroVer := getDistroVersion(distro); distroVer == version {
+			fmt.Fprintln(os.Stderr, "Found")
+			return filepath.Join(getDistrosDir(), distro), version
 		}
-		fmt.Fprintln(os.Stderr, "Not found")
 	}
+	fmt.Fprintln(os.Stderr, "Not found")
 
 	zipPath := downloadDistro(osName, version)
 
@@ -60,54 +62,40 @@ func ensureDistroPresent(version string) string {
 	err := os.Remove(zipPath)
 	util.Warn(err, "Could not delete distro zip file: ")
 
-	if outdated {
-		// save latest hash after everything's done
-		data.Latest = latestHash
-		writeSandboxesData(data)
-	}
-
-	return distroPath
+	return distroPath, version
 }
 
-func downloadDistroHash(osName, version string) string {
-	hashName := fmt.Sprintf(REMOTE_DISTRO_HASH, osName, version)
-	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, hashName)
+func getLatestVersion(osName string) string {
+	resp, err := http.Get(fmt.Sprintf(REMOTE_VERSION_URL, osName))
+	util.Fatal(err, "Could not load latest version for os: "+osName)
 
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not access remote server: ", err)
-		os.Exit(1)
-	}
-	defer resp.Body.Close()
+	var latestVer *semver.Version
+	var versions VersionsResult
+	common.ParseResponse(resp, &versions)
 
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		fmt.Fprintln(os.Stderr, "Could not read hash from remote server: ", err)
-		os.Exit(1)
-	}
-	return string(bodyBytes)
-}
-
-func printDownloadProgress(path string, total int64) {
-	for {
-		file, err := os.Open(path)
-		util.Fatal(err, "Could not open download file: ")
-
-		fi, err2 := file.Stat()
-		util.Fatal(err2, "Could not read download file: ")
-
-		size := fi.Size()
-		if total <= size {
-			fmt.Fprintln(os.Stderr, "Done")
-			break
+	for _, version := range versions.Results {
+		if tempVer, err := semver.NewVersion(version.Version); err == nil {
+			if latestVer == nil || latestVer.LessThan(tempVer) {
+				latestVer = tempVer
+			}
+		} else {
+			util.Warn(err, "Could not parse remote distro version: ")
 		}
-
-		var percent = float64(size) / float64(total) * 100
-
-		fmt.Fprintf(os.Stderr, "\rDownloading distro (%.0f %% of %d bytes)...", percent, total)
-
-		time.Sleep(time.Second)
 	}
+
+	return latestVer.String()
+}
+
+func createProgressBar(total int64) *pb.ProgressBar {
+	bar := pb.New(int(total))
+	bar.ShowSpeed = false
+	bar.ShowCounters = false
+	bar.ShowPercent = true
+	bar.ShowTimeLeft = false
+	bar.ShowElapsedTime = false
+	bar.ShowFinalTime = false
+	bar.Prefix("Downloading distro ").SetUnits(pb.U_BYTES_DEC).SetRefreshRate(200 * time.Millisecond).Start()
+	return bar
 }
 
 func downloadDistro(osName, version string) string {
@@ -133,14 +121,14 @@ func downloadDistro(osName, version string) string {
 		os.Exit(1)
 	}
 
-	go printDownloadProgress(fullPath, resp.ContentLength)
+	pBar := createProgressBar(resp.ContentLength)
 	defer resp.Body.Close()
 
 	// Write the body to file
-	_, err = io.Copy(zipFile, resp.Body)
+	_, err = io.Copy(zipFile, pBar.NewProxyReader(resp.Body))
 	util.Fatal(err, "Could not save distro: ")
 
-	time.Sleep(time.Second) // Make sure printDownloadProgress finished because it refreshes every 1 sec
+	pBar.Finish()
 
 	return fullPath
 }
@@ -191,12 +179,6 @@ func startDistro(version, sandbox string) *exec.Cmd {
 func deleteDistro(version string) {
 	err := os.RemoveAll(filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version)))
 	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", version))
-
-	if version == "latest" {
-		data := readSandboxesData()
-		data.Latest = ""
-		writeSandboxesData(data)
-	}
 }
 
 func listDistros() []string {
@@ -250,7 +232,7 @@ func ensureVersionCorrect(version string) string {
 				return "Distro version can not be empty: "
 			}
 		} else {
-			if val != "latest" {
+			if val != VERSION_LATEST {
 				if version, err := semver.NewVersion(val); err != nil || version == nil {
 					return fmt.Sprintf("Version '%s' does not seem to be a valid version: ", val)
 				}

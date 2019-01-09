@@ -17,18 +17,18 @@ var Create = cli.Command{
 		cli.StringFlag{
 			Name:  "version, v",
 			Usage: "Use specific distro version.",
-			Value: "latest",
+			Value: VERSION_LATEST,
 		},
 	},
 	Action: func(c *cli.Context) error {
 
 		name := ensureUniqueNameArg(c)
 		ver := ensureVersionFlag(c)
-		distroPath := ensureDistroPresent(ver)
-		sandPath := createSandbox(name, ver)
+		distroPath, distroVer := ensureDistroPresent(ver)
+		sandPath := createSandbox(name, distroVer)
 		copyHomeFolder(distroPath, sandPath)
 
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", name, ver)
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", name, distroVer)
 
 		return nil
 	},
@@ -42,7 +42,7 @@ func copyHomeFolder(src, dst string) {
 func ensureVersionFlag(c *cli.Context) string {
 	version := c.String("version")
 	if version == "" {
-		version = "latest"
+		version = VERSION_LATEST
 	}
 	return ensureVersionCorrect(version)
 }

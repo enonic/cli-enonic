@@ -15,23 +15,23 @@ var Upgrade = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		sandbox := EnsureSandboxNameExists(c, "Select sandbox:")
-		if "latest" == sandbox.Distro {
+		if VERSION_LATEST == sandbox.Distro {
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' already has the latest distro version.\n", sandbox.Name)
 			os.Exit(0)
 		}
 		version := ensureVersionArg(c)
 		preventVersionDowngrade(sandbox, version)
 
-		ensureDistroPresent(version)
-		writeSandboxData(sandbox.Name, SandboxData{version})
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' distro set to: %s", sandbox.Name, version)
+		_, distroVer := ensureDistroPresent(version)
+		writeSandboxData(sandbox.Name, SandboxData{distroVer})
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' distro set to: %s", sandbox.Name, distroVer)
 
 		return nil
 	},
 }
 
 func preventVersionDowngrade(sandbox Sandbox, newString string) {
-	if "latest" != newString {
+	if VERSION_LATEST != newString {
 		oldVer, err := semver.NewVersion(sandbox.Distro)
 		util.Fatal(err, fmt.Sprintf("Could not parse sandbox distro version from: %s", sandbox.Distro))
 		newVer, err2 := semver.NewVersion(newString)

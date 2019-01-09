@@ -24,7 +24,6 @@ func All() []cli.Command {
 
 type SandboxesData struct {
 	Running string `toml:"running"`
-	Latest  string `toml:"latest"`
 }
 
 type SandboxData struct {
@@ -157,7 +156,7 @@ func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 
 	if len(existingBoxes) == 0 {
 		fmt.Fprint(os.Stderr, "No sandboxes found, creating default one...")
-		newBox := Sandbox{"default", "latest"}
+		newBox := Sandbox{"default", VERSION_LATEST}
 		createSandbox(newBox.Name, newBox.Distro)
 		fmt.Fprintln(os.Stderr, "Done")
 		return newBox
