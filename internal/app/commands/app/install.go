@@ -50,10 +50,12 @@ func installApp(c *cli.Context, file, url string) InstallResult {
 	var result InstallResult
 	common.ParseResponse(resp, &result)
 	if fail := result.ApplicationInstalledJson.Failure; fail != "" {
-		fmt.Fprintf(os.Stderr, "Error occurred: %s", fail)
+		fmt.Fprintf(os.Stderr, "Error occurred: %s\n", fail)
 	} else {
-		fmt.Fprintf(os.Stderr, "Installed '%s' v.%s", result.ApplicationInstalledJson.Application.DisplayName, result.ApplicationInstalledJson.Application.Version)
+		fmt.Fprintf(os.Stderr, "Installed '%s' v.%s\n", result.ApplicationInstalledJson.Application.DisplayName, result.ApplicationInstalledJson.Application.Version)
 	}
+	fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+
 	return result
 }
 

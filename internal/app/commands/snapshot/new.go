@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 var New = cli.Command{
@@ -29,6 +30,7 @@ var New = cli.Command{
 		var snap Snapshot
 		if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {
 			fmt.Fprintln(os.Stderr, "Done")
+			fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(snap))
 		}
 
 		return nil

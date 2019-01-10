@@ -60,10 +60,11 @@ var Load = cli.Command{
 
 		switch status.State {
 		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors in %s", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors), util.TimeFromNow(status.StartTime))
+			fmt.Fprintf(os.Stderr, "Added %d nodes, updated %d nodes, imported %d binaries with %d errors in %s\n", len(result.AddedNodes), len(result.UpdateNodes), len(result.ImportedBinaries), len(result.ImportErrors), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
-			fmt.Fprintf(os.Stderr, "Import failed: %s", status.Progress.Info)
+			fmt.Fprintf(os.Stderr, "Import failed: %s\n", status.Progress.Info)
 		}
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},

@@ -37,8 +37,9 @@ var Upgrade = cli.Command{
 				fmt.Fprintf(os.Stderr, "You already have the latest version '%s'\n", result.InitialVersion)
 			}
 		case common.TASK_FAILED:
-			fmt.Fprintf(os.Stderr, "Failed to upgrade dump: %s", status.Progress.Info)
+			fmt.Fprintf(os.Stderr, "Failed to upgrade dump: %s\n", status.Progress.Info)
 		}
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},

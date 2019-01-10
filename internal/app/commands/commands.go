@@ -9,7 +9,6 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/repo"
 	"github.com/enonic/xp-cli/internal/app/commands/cms"
 	"github.com/enonic/xp-cli/internal/app/commands/cluster"
-	"github.com/enonic/xp-cli/internal/app/commands/vacuum"
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 	"github.com/enonic/xp-cli/internal/app/commands/project"
 	"github.com/enonic/xp-cli/internal/app/commands/remote"
@@ -67,6 +66,6 @@ func All() []cli.Command {
 			Usage:       "Remote commands",
 			Subcommands: remote.All(),
 		},
-		vacuum.Vacuum,
+		//vacuum.Vacuum,
 	}
 }

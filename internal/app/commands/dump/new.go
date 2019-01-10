@@ -43,10 +43,11 @@ var New = cli.Command{
 
 		switch status.State {
 		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "Dumped %d repositories in %s", len(result.Repositories), util.TimeFromNow(status.StartTime))
+			fmt.Fprintf(os.Stderr, "Dumped %d repositories in %s:\n", len(result.Repositories), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
-			fmt.Fprintf(os.Stderr, "Failed to dump repository: %s", status.Progress.Info)
+			fmt.Fprintf(os.Stderr, "Failed to dump repository: %s\n", status.Progress.Info)
 		}
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},

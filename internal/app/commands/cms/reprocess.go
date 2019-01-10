@@ -37,6 +37,7 @@ var Reprocess = cli.Command{
 		var result ReprocessResponse
 		common.ParseResponse(res, &result)
 		fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},

@@ -38,10 +38,10 @@ var Delete = cli.Command{
 		fmt.Fprint(os.Stderr, "Deleting snapshot(s)...")
 		resp := common.SendRequest(req)
 
-		var response DeleteResponse
-		//debugResponse(resp)
-		common.ParseResponse(resp, &response)
-		fmt.Fprintf(os.Stderr, "%d Deleted\n", len(response.DeletedSnapshots))
+		var result DeleteResult
+		common.ParseResponse(resp, &result)
+		fmt.Fprintf(os.Stderr, "%d Deleted\n", len(result.DeletedSnapshots))
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},
@@ -111,6 +111,6 @@ func createDeleteRequest(c *cli.Context) *http.Request {
 	return common.CreateRequest(c, "POST", "api/repo/snapshot/delete", body)
 }
 
-type DeleteResponse struct {
+type DeleteResult struct {
 	DeletedSnapshots []string `json:deletedSnapshots`
 }

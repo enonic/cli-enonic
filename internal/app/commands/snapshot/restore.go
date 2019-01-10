@@ -9,6 +9,7 @@ import (
 	"os"
 	"github.com/enonic/xp-cli/internal/app/commands/common"
 	"github.com/AlecAivazis/survey"
+	"github.com/enonic/xp-cli/internal/app/util"
 )
 
 var Restore = cli.Command{
@@ -33,12 +34,13 @@ var Restore = cli.Command{
 		fmt.Fprint(os.Stderr, "Restoring snapshot...")
 		resp := common.SendRequest(req)
 
-		var response RestoreResponse
-		if common.ParseResponse(resp, &response); !response.Failed {
+		var result RestoreResult
+		if common.ParseResponse(resp, &result); !result.Failed {
 			fmt.Fprintln(os.Stderr, "Done")
 		} else {
-			fmt.Fprintln(os.Stderr, response.Message)
+			fmt.Fprintln(os.Stderr, result.Message)
 		}
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},
@@ -81,7 +83,7 @@ func getSnapshotNames(list *SnapshotList) []string {
 	return names
 }
 
-type RestoreResponse struct {
+type RestoreResult struct {
 	Message string   `json:message`
 	Name    string   `json:name`
 	Failed  bool     `json:failed`

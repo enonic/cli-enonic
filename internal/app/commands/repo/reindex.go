@@ -41,7 +41,8 @@ var Reindex = cli.Command{
 		resp := common.SendRequest(req)
 		var result ReindexResponse
 		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Done %d nodes", result.NumberReindexed)
+		fmt.Fprintf(os.Stderr, "Done %d nodes\n", result.NumberReindexed)
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},

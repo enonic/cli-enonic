@@ -23,12 +23,14 @@ func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
 	return out.Bytes(), err
 }
 
-func PrettyPrintJSON(data interface{}) (string, error) {
+func PrettyPrintJSON(data interface{}) string {
 	var out = new(bytes.Buffer)
 	enc := json.NewEncoder(out)
 	enc.SetIndent("", "    ")
-	err := enc.Encode(data)
-	return out.String(), err
+	if err := enc.Encode(data); err != nil {
+		return "Not a valid JSON: " + err.Error()
+	}
+	return out.String()
 }
 
 func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) string {

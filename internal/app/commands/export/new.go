@@ -49,8 +49,9 @@ var New = cli.Command{
 		case common.TASK_FINISHED:
 			fmt.Fprintf(os.Stderr, "Exported %d nodes and %d binaries with %d errors in %s\n", len(result.ExportedNodes), len(result.ExportedBinaries), len(result.Errors), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
-			fmt.Fprintf(os.Stderr, "Export failed: %s", status.Progress.Info)
+			fmt.Fprintf(os.Stderr, "Export failed: %s\n", status.Progress.Info)
 		}
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},

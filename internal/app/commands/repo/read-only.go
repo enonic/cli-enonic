@@ -36,6 +36,7 @@ var ReadOnly = cli.Command{
 		var result ReadOnlyResponse
 		common.ParseResponse(res, &result)
 		fmt.Fprintln(os.Stderr, "Done")
+		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
 		return nil
 	},
