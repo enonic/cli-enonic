@@ -75,7 +75,7 @@ func createNewRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/export", body)
+	return common.CreateRequest(c, "POST", "repo/export", body)
 }
 
 type NewExportResponse struct {

@@ -112,7 +112,7 @@ func createLoadRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/import", body)
+	return common.CreateRequest(c, "POST", "repo/import", body)
 }
 
 type LoadDumpResponse struct {

@@ -23,7 +23,7 @@ var Vacuum = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		req := common.CreateRequest(c, "POST", "api/system/vacuum", nil)
+		req := common.CreateRequest(c, "POST", "system/vacuum", nil)
 
 		var result VacuumResponse
 		status := common.RunTask(req, "Vacuuming", &result)

@@ -45,7 +45,7 @@ func createReprocessRequest(c *cli.Context, replicasNum int64) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/index/updateSettings", body)
+	return common.CreateRequest(c, "POST", "repo/index/updateSettings", body)
 }
 
 func ensureReplicasNumberArg(c *cli.Context) int64 {

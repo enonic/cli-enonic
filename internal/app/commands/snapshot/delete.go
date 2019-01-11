@@ -108,7 +108,7 @@ func createDeleteRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/snapshot/delete", body)
+	return common.CreateRequest(c, "POST", "repo/snapshot/delete", body)
 }
 
 type DeleteResult struct {

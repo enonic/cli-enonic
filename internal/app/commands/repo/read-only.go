@@ -57,7 +57,7 @@ func createReadOnlyRequest(c *cli.Context, readOnly bool) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/index/updateSettings", body)
+	return common.CreateRequest(c, "POST", "repo/index/updateSettings", body)
 }
 
 func ensureReadOnlyArg(c *cli.Context) bool {

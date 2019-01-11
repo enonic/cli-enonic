@@ -72,7 +72,7 @@ func createRestoreRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/snapshot/restore", body)
+	return common.CreateRequest(c, "POST", "repo/snapshot/restore", body)
 }
 
 func getSnapshotNames(list *SnapshotList) []string {

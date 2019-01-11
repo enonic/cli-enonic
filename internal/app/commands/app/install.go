@@ -137,7 +137,7 @@ func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Reque
 	var baseUrl, contentType string
 
 	if filePath != "" {
-		baseUrl = "api/app/install"
+		baseUrl = "app/install"
 		file, _ := os.Open(filePath)
 		defer file.Close()
 
@@ -147,7 +147,7 @@ func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Reque
 		contentType = writer.FormDataContentType()
 		writer.Close()
 	} else if urlParam != "" {
-		baseUrl = "api/app/installUrl"
+		baseUrl = "app/installUrl"
 		contentType = "application/json"
 		params := map[string]string{
 			"URL": urlParam,

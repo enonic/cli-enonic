@@ -75,7 +75,7 @@ func createLoadRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/system/load", body)
+	return common.CreateRequest(c, "POST", "system/load", body)
 }
 
 type LoadDumpResponse struct {

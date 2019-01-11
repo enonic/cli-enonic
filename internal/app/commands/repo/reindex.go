@@ -105,7 +105,7 @@ func createNewRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/repo/index/reindex", body)
+	return common.CreateRequest(c, "POST", "repo/index/reindex", body)
 }
 
 type ReindexResponse struct {

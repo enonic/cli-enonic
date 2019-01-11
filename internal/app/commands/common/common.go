@@ -11,6 +11,7 @@ import (
 	"time"
 	"strings"
 	"github.com/enonic/xp-cli/internal/app/commands/remote"
+	"net/url"
 )
 
 var FLAGS = []cli.Flag{
@@ -48,16 +49,41 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	return doCreateRequest(method, url, user, pass, body)
 }
 
-func doCreateRequest(method, url, user, pass string, body io.Reader) *http.Request {
-	activeRemote := remote.GetActiveRemote()
-	host := activeRemote.Url.Hostname()
-	port := activeRemote.Url.Port()
-	scheme := activeRemote.Url.Scheme
+func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Request {
+	var (
+		host, scheme, port, path string
+	)
+
+	parsedUrl, err := url.Parse(reqUrl)
+	util.Fatal(err, "Not a valid url: "+reqUrl)
+
+	if parsedUrl.IsAbs() {
+		host = parsedUrl.Hostname()
+		port = parsedUrl.Port()
+		scheme = parsedUrl.Scheme
+		path = parsedUrl.Path
+	} else {
+		activeRemote := remote.GetActiveRemote()
+		host = activeRemote.Url.Hostname()
+		port = activeRemote.Url.Port()
+		scheme = activeRemote.Url.Scheme
+
+		runeUrl := []rune(reqUrl)
+		if runeUrl[0] == '/' {
+			// absolute path
+			path = reqUrl
+		} else {
+			// relative path
+			path = activeRemote.Url.Path + "/" + reqUrl
+		}
+		// remove leading slash
+		path = path[1:]
+	}
 	// hashed pass is not accepted by backend yet
 	// user := activeRemote.User
 	// pass := activeRemote.Pass
 
-	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, url), body)
+	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, path), body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Params error: ", err)
 		os.Exit(1)

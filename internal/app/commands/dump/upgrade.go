@@ -52,7 +52,7 @@ func createUpgradeRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "api/system/upgrade", body)
+	return common.CreateRequest(c, "POST", "system/upgrade", body)
 }
 
 type UpgradeResult struct {
