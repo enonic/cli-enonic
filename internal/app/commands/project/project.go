@@ -7,6 +7,7 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 	"fmt"
 	"os/exec"
+	"path"
 	"bytes"
 )
 
@@ -41,23 +42,41 @@ func writeProjectData(data ProjectData) {
 	util.EncodeTomlFile(file, data)
 }
 
-func ensureProjectDataExists(c *cli.Context) ProjectData {
+func getOsGradlewFile() string {
+	gradlewFile := "gradlew"
+	switch util.GetCurrentOs() {
+	case "windows":
+		gradlewFile += ".bat"
+	case "mac", "linux":
+		gradlewFile = "./" + gradlewFile
+
+	}
+	return gradlewFile
+}
+
+func ensureDirHasGradleFile() {
+	dir, err := os.Getwd()
+	util.Fatal(err, "Could not get current dir")
+
+	if _, err := os.Stat(path.Join(dir, getOsGradlewFile())); os.IsNotExist(err) {
+		fmt.Fprintln(os.Stderr, "Not a valid project folder")
+		os.Exit(0)
+	}
+}
+
+func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
+
+	ensureDirHasGradleFile()
+
 	projectData := readProjectData()
-	wrongSandbox := !sandbox.Exists(projectData.Sandbox)
-	if wrongSandbox {
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' could not be found.\n", projectData.Sandbox)
-	}
-	noSandbox := projectData.Sandbox == ""
-	if noSandbox {
-		fmt.Fprintln(os.Stderr, "No default sandbox is set for the project.")
-	}
+	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
-	if noSandbox || wrongSandbox || argExist {
-		sbox := sandbox.EnsureSandboxNameExists(c, "Select a sandbox to use:")
+	if badSandbox || argExist {
+		sbox := sandbox.EnsureSandboxNameExists(c, noBoxMessage, "Select a sandbox to use:")
 		projectData.Sandbox = sbox.Name
-		if noSandbox || wrongSandbox {
+		if badSandbox {
 			writeProjectData(projectData)
-			fmt.Fprintf(os.Stderr, "Set '%s' as default. You can change it using 'project sandbox command' at any time.\n", projectData.Sandbox)
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default for this project. You can change it using 'project sandbox' command at any time.\n", projectData.Sandbox)
 		}
 	}
 	return projectData
@@ -72,11 +91,12 @@ func runGradleTask(projectData ProjectData, task, message string) {
 
 	var stderr bytes.Buffer
 	fmt.Fprint(os.Stderr, message)
-	cmd := exec.Command("gradlew", task, javaHome, xpHome)
+	command := getOsGradlewFile()
+	cmd := exec.Command(command, task, javaHome, xpHome)
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintln(os.Stderr, stderr.String())
+		fmt.Fprintln(os.Stderr, "\n"+stderr.String())
 	} else {
 		fmt.Fprintln(os.Stderr, "Done")
 	}

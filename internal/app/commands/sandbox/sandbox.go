@@ -151,14 +151,15 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
+func EnsureSandboxNameExists(c *cli.Context, noBoxMessage, selectBoxMessage string) Sandbox {
 	existingBoxes := listSandboxes()
 
 	if len(existingBoxes) == 0 {
-		fmt.Fprint(os.Stderr, "No sandboxes found, creating default one...")
+		if !util.YesNoPrompt(noBoxMessage) {
+			os.Exit(0)
+		}
 		newBox := Sandbox{"default", VERSION_LATEST}
 		createSandbox(newBox.Name, newBox.Distro)
-		fmt.Fprintln(os.Stderr, "Done")
 		return newBox
 	}
 
@@ -183,7 +184,7 @@ func EnsureSandboxNameExists(c *cli.Context, message string) Sandbox {
 
 	var name string
 	prompt := &survey.Select{
-		Message: message,
+		Message: selectBoxMessage,
 		Options: selectOptions,
 	}
 

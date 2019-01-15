@@ -14,7 +14,7 @@ var Upgrade = cli.Command{
 	Usage:   "Upgrades the distribution version.",
 	Action: func(c *cli.Context) error {
 
-		sandbox := EnsureSandboxNameExists(c, "Select sandbox:")
+		sandbox := EnsureSandboxNameExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:")
 		if VERSION_LATEST == sandbox.Distro {
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' already has the latest distro version.\n", sandbox.Name)
 			os.Exit(0)
