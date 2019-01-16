@@ -14,16 +14,17 @@ var Upgrade = cli.Command{
 	Usage:   "Upgrades the distribution version.",
 	Action: func(c *cli.Context) error {
 
-		sandbox := EnsureSandboxNameExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:")
+		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:")
 		if VERSION_LATEST == sandbox.Distro {
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' already has the latest distro version.\n", sandbox.Name)
 			os.Exit(0)
 		}
-		version := ensureVersionArg(c)
-		preventVersionDowngrade(sandbox, version)
+		ver := ensureVersionArg(c)
+		distroVer := parseDistroVersion(ver)
+		preventVersionDowngrade(sandbox, distroVer)
 
-		_, distroVer := ensureDistroPresent(version)
-		writeSandboxData(sandbox.Name, SandboxData{distroVer})
+		sandbox.Distro = distroVer
+		writeSandboxData(sandbox)
 		fmt.Fprintf(os.Stderr, "Sandbox '%s' distro set to: %s", sandbox.Name, distroVer)
 
 		return nil
@@ -31,16 +32,14 @@ var Upgrade = cli.Command{
 }
 
 func preventVersionDowngrade(sandbox Sandbox, newString string) {
-	if VERSION_LATEST != newString {
-		oldVer, err := semver.NewVersion(sandbox.Distro)
-		util.Fatal(err, fmt.Sprintf("Could not parse sandbox distro version from: %s", sandbox.Distro))
-		newVer, err2 := semver.NewVersion(newString)
-		util.Fatal(err2, fmt.Sprintf("Could not parse new distro version from: %s", newString))
+	oldVer, err := semver.NewVersion(sandbox.Distro)
+	util.Fatal(err, fmt.Sprintf("Could not parse sandbox distro version from: %s", sandbox.Distro))
+	newVer, err2 := semver.NewVersion(newString)
+	util.Fatal(err2, fmt.Sprintf("Could not parse new distro version from: %s", newString))
 
-		if oldVer.Compare(newVer) > 0 {
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' already has newer distro version: %s\n", sandbox.Name, sandbox.Distro)
-			os.Exit(0)
-		}
+	if oldVer.Compare(newVer) > 0 {
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' already has newer distro version: %s\n", sandbox.Name, sandbox.Distro)
+		os.Exit(0)
 	}
 }
 

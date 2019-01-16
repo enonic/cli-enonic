@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"path"
 	"bytes"
+	"path/filepath"
+	"github.com/otiai10/copy"
 )
 
 func All() []cli.Command {
@@ -65,6 +67,8 @@ func ensureDirHasGradleFile() {
 }
 
 func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
+	var newBox bool
+	var sBox sandbox.Sandbox
 
 	ensureDirHasGradleFile()
 
@@ -72,13 +76,22 @@ func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
-		sbox := sandbox.EnsureSandboxNameExists(c, noBoxMessage, "Select a sandbox to use:")
-		projectData.Sandbox = sbox.Name
+		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "Select a sandbox to use:")
+		projectData.Sandbox = sBox.Name
 		if badSandbox {
 			writeProjectData(projectData)
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default for this project. You can change it using 'project sandbox' command at any time.\n", projectData.Sandbox)
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default for this project. You can change it using 'project sandbox' command.\n", projectData.Sandbox)
 		}
+	} else {
+		sBox = sandbox.ReadSandboxData(projectData.Sandbox)
 	}
+	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
+
+	if newBox || newDistro {
+		err := copy.Copy(filepath.Join(distroPath, "home"), sandbox.GetSandboxHomePath(projectData.Sandbox))
+		util.Fatal(err, "Could not copy home folder from distro: ")
+	}
+
 	return projectData
 }
 

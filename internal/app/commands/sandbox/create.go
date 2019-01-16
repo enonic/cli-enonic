@@ -2,12 +2,10 @@ package sandbox
 
 import (
 	"github.com/urfave/cli"
-	"github.com/otiai10/copy"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"strings"
 	"fmt"
 	"os"
-	"path/filepath"
 )
 
 var Create = cli.Command{
@@ -24,19 +22,13 @@ var Create = cli.Command{
 
 		name := ensureUniqueNameArg(c)
 		ver := ensureVersionFlag(c)
-		distroPath, distroVer := ensureDistroPresent(ver)
-		sandPath := createSandbox(name, distroVer)
-		copyHomeFolder(distroPath, sandPath)
+		distroVer := parseDistroVersion(ver)
+		createSandbox(name, distroVer)
 
 		fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", name, distroVer)
 
 		return nil
 	},
-}
-
-func copyHomeFolder(src, dst string) {
-	err := copy.Copy(filepath.Join(src, "home"), filepath.Join(dst, "home"))
-	util.Fatal(err, "Could not copy home folder from distro: ")
 }
 
 func ensureVersionFlag(c *cli.Context) string {

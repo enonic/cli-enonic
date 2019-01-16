@@ -34,26 +34,24 @@ type VersionsResult struct {
 	Results []VersionResult `json:results`
 }
 
-func ensureDistroPresent(askedVersion string) (string, string) {
+func parseDistroVersion(askedVersion string) string {
 	var version string
-	osName := util.GetCurrentOs()
-
 	if askedVersion == VERSION_LATEST {
-		fmt.Fprint(os.Stderr, "Checking latest remote distro version...")
-		version = getLatestVersion(osName)
-		fmt.Fprintln(os.Stderr, version)
+		version = getLatestVersion()
 	} else {
 		version = askedVersion
 	}
+	return version
+}
 
-	fmt.Fprintf(os.Stderr, "Looking for local distro '%s'...", version)
+func EnsureDistroExists(version string) (string, bool) {
+	osName := util.GetCurrentOs()
+
 	for _, distro := range listDistros() {
 		if distroVer := getDistroVersion(distro); distroVer == version {
-			fmt.Fprintln(os.Stderr, "Found")
-			return filepath.Join(getDistrosDir(), distro), version
+			return filepath.Join(getDistrosDir(), distro), false
 		}
 	}
-	fmt.Fprintln(os.Stderr, "Not found")
 
 	zipPath := downloadDistro(osName, version)
 
@@ -62,10 +60,11 @@ func ensureDistroPresent(askedVersion string) (string, string) {
 	err := os.Remove(zipPath)
 	util.Warn(err, "Could not delete distro zip file: ")
 
-	return distroPath, version
+	return distroPath, true
 }
 
-func getLatestVersion(osName string) string {
+func getLatestVersion() string {
+	osName := util.GetCurrentOs()
 	resp, err := http.Get(fmt.Sprintf(REMOTE_VERSION_URL, osName))
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 

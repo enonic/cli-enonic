@@ -65,22 +65,22 @@ func writeSandboxesData(data SandboxesData) {
 	util.EncodeTomlFile(file, data)
 }
 
-func ReadSandboxData(name string) SandboxData {
+func ReadSandboxData(name string) Sandbox {
 	path := filepath.Join(getSandboxesDir(), name, ".enonic")
 	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
 
 	var data SandboxData
 	util.DecodeTomlFile(file, &data)
-	return data
+	return Sandbox{name, data.Distro}
 }
 
-func writeSandboxData(name string, data SandboxData) {
-	path := filepath.Join(getSandboxesDir(), name, ".enonic")
+func writeSandboxData(data Sandbox) {
+	path := filepath.Join(getSandboxesDir(), data.Name, ".enonic")
 	file := util.OpenOrCreateDataFile(path, false)
 	defer file.Close()
 
-	util.EncodeTomlFile(file, data)
+	util.EncodeTomlFile(file, SandboxData{data.Distro})
 }
 
 func getSandboxesDir() string {
@@ -121,7 +121,7 @@ func filterSandboxes(vs []os.FileInfo, sandboxDir string) []Sandbox {
 		}
 		if isSandbox(v, sandboxDir) {
 			data := ReadSandboxData(v.Name())
-			vsf = append(vsf, Sandbox{v.Name(), data.Distro})
+			vsf = append(vsf, data)
 		} else {
 			fmt.Fprintf(os.Stderr, "Warning: '%s' is not a valid sandbox folder.\n", v.Name())
 		}
@@ -151,30 +151,25 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxNameExists(c *cli.Context, noBoxMessage, selectBoxMessage string) Sandbox {
+func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string) (Sandbox, bool) {
 	existingBoxes := listSandboxes()
 
 	if len(existingBoxes) == 0 {
 		if !util.YesNoPrompt(noBoxMessage) {
 			os.Exit(0)
 		}
-		newBox := Sandbox{"default", VERSION_LATEST}
+		newBox := Sandbox{"default", getLatestVersion()}
 		createSandbox(newBox.Name, newBox.Distro)
-		return newBox
+		return newBox, true
 	}
 
 	if c != nil && c.NArg() > 0 {
 		name := c.Args().First()
 		for _, existingBox := range existingBoxes {
 			if existingBox.Name == name {
-				return existingBox
+				return existingBox, false
 			}
 		}
-	}
-
-	if len(existingBoxes) == 1 {
-		// no point in selecting from just 1 item
-		return existingBoxes[0]
 	}
 
 	selectOptions := make([]string, 0)
@@ -191,7 +186,7 @@ func EnsureSandboxNameExists(c *cli.Context, noBoxMessage, selectBoxMessage stri
 	err := survey.AskOne(prompt, &name, nil)
 	util.Fatal(err, "Select failed: ")
 
-	return existingBoxes[util.IndexOf(name, selectOptions)]
+	return existingBoxes[util.IndexOf(name, selectOptions)], false
 }
 
 func ensureDirStructure() {
