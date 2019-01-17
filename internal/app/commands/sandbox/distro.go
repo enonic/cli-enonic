@@ -16,6 +16,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/enonic/xp-cli/internal/app/commands/common"
 	"gopkg.in/cheggaaa/pb.v1"
+	"github.com/AlecAivazis/survey"
 )
 
 const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
@@ -32,16 +33,6 @@ type VersionResult struct {
 
 type VersionsResult struct {
 	Results []VersionResult `json:results`
-}
-
-func parseDistroVersion(askedVersion string) string {
-	var version string
-	if askedVersion == VERSION_LATEST {
-		version = getLatestVersion()
-	} else {
-		version = askedVersion
-	}
-	return version
 }
 
 func EnsureDistroExists(version string) (string, bool) {
@@ -63,16 +54,20 @@ func EnsureDistroExists(version string) (string, bool) {
 	return distroPath, true
 }
 
-func getLatestVersion() string {
+func getAllVersions() []VersionResult {
 	osName := util.GetCurrentOs()
 	resp, err := http.Get(fmt.Sprintf(REMOTE_VERSION_URL, osName))
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 
-	var latestVer *semver.Version
 	var versions VersionsResult
 	common.ParseResponse(resp, &versions)
+	return versions.Results
+}
 
-	for _, version := range versions.Results {
+func findLatestVersion(versions []VersionResult) string {
+
+	var latestVer *semver.Version
+	for _, version := range versions {
 		if tempVer, err := semver.NewVersion(version.Version); err == nil {
 			if latestVer == nil || latestVer.LessThan(tempVer) {
 				latestVer = tempVer
@@ -222,23 +217,45 @@ func GetDistroJdkPath(version string) string {
 	return filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "jdk")
 }
 
-func ensureVersionCorrect(version string) string {
-	return util.PromptUntilTrue(version, func(val string, i byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
-			if i == 0 {
-				return "Enter distro version for this sandbox: "
-			} else {
-				return "Distro version can not be empty: "
-			}
-		} else {
-			if val != VERSION_LATEST {
-				if version, err := semver.NewVersion(val); err != nil || version == nil {
-					return fmt.Sprintf("Version '%s' does not seem to be a valid version: ", val)
-				}
-			}
-			return ""
+func ensureVersionCorrect(versionStr string) string {
+	var (
+		version       *semver.Version
+		versionErr    error
+		versionExists bool
+	)
+
+	if len(strings.TrimSpace(versionStr)) > 0 {
+		if version, versionErr = semver.NewVersion(versionStr); versionErr != nil {
+			fmt.Fprintf(os.Stderr, "'%s' is not a valid distro version.", versionStr)
 		}
-	})
+	}
+
+	versions := getAllVersions()
+	textVersions := make([]string, len(versions))
+	for key, value := range versions {
+		textVersions[key] = value.Version
+		if version != nil && version.String() == value.Version {
+			versionExists = true
+		}
+	}
+
+	if version != nil || versionExists {
+
+		return version.String()
+	} else {
+
+		defaultVersion := findLatestVersion(versions)
+		var distro string
+		err := survey.AskOne(&survey.Select{
+			Message:  "Distro version:",
+			Options:  textVersions,
+			Default:  defaultVersion,
+			PageSize: 10,
+		}, &distro, nil)
+		util.Fatal(err, "Distro select error: ")
+		return distro
+	}
+
 }
 
 func getDistrosDir() string {

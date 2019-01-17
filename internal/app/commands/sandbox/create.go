@@ -15,43 +15,40 @@ var Create = cli.Command{
 		cli.StringFlag{
 			Name:  "version, v",
 			Usage: "Use specific distro version.",
-			Value: VERSION_LATEST,
 		},
 	},
 	Action: func(c *cli.Context) error {
 
-		name := ensureUniqueNameArg(c)
-		ver := ensureVersionFlag(c)
-		distroVer := parseDistroVersion(ver)
-		createSandbox(name, distroVer)
+		var name string
+		if c.NArg() > 0 {
+			name = c.Args().First()
+		}
 
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", name, distroVer)
+		SandboxCreateWizard(name, c.String("version"))
 
 		return nil
 	},
 }
 
-func ensureVersionFlag(c *cli.Context) string {
-	version := c.String("version")
-	if version == "" {
-		version = VERSION_LATEST
-	}
-	return ensureVersionCorrect(version)
+func SandboxCreateWizard(name, versionStr string) Sandbox {
+
+	name = ensureUniqueNameArg(name)
+	version := ensureVersionCorrect(versionStr)
+
+	box := createSandbox(name, version)
+	fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", box.Name, box.Distro)
+
+	return box
 }
 
-func ensureUniqueNameArg(c *cli.Context) string {
-	var name string
-	if c.NArg() > 0 {
-		name = c.Args().First()
-	}
+func ensureUniqueNameArg(name string) string {
 	existingBoxes := listSandboxes()
 	return util.PromptUntilTrue(name, func(val string, i byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
-			if i == 0 {
-				return "Enter the name of the sandbox: "
-			} else {
-				return "Name of the sandbox can not be empty: "
-			}
+		length := len(strings.TrimSpace(val))
+		if length == 0 && i == 0 {
+			return "Enter the name of the sandbox: "
+		} else if length < 3 {
+			return "Name of the sandbox must be at least 3 characters long: "
 		} else {
 			for _, existingBox := range existingBoxes {
 				if existingBox.Name == val {

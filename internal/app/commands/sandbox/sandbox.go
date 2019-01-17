@@ -35,7 +35,7 @@ type Sandbox struct {
 	Distro string
 }
 
-func createSandbox(name string, version string) string {
+func createSandbox(name string, version string) Sandbox {
 	dir := createFolderIfNotExist(getSandboxesDir(), name)
 
 	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
@@ -44,7 +44,7 @@ func createSandbox(name string, version string) string {
 	data := SandboxData{version}
 	util.EncodeTomlFile(file, data)
 
-	return dir
+	return Sandbox{name, version}
 }
 
 func readSandboxesData() SandboxesData {
@@ -158,8 +158,7 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string) 
 		if !util.YesNoPrompt(noBoxMessage) {
 			os.Exit(0)
 		}
-		newBox := Sandbox{"default", getLatestVersion()}
-		createSandbox(newBox.Name, newBox.Distro)
+		newBox := SandboxCreateWizard("", "")
 		return newBox, true
 	}
 
