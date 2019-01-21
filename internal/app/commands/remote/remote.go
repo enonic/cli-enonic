@@ -110,7 +110,7 @@ func GetActiveRemote() *RemoteData {
 
 func ensureDefaultRemoteExists() {
 	data := readRemotesData()
-	defaultUrl, _ := ParseMarshalledUrl("http://localhost:8080/api")
+	defaultUrl, _ := ParseMarshalledUrl("http://localhost:4848")
 	if remote, exists := getRemoteByName(DEFAULT, data.Remotes); !exists || remote.Url != defaultUrl || data.Active == "" {
 		if !exists || remote.Url != defaultUrl {
 			data.Remotes[DEFAULT] = RemoteData{defaultUrl, "", ""}
