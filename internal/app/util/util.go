@@ -33,26 +33,26 @@ func PrettyPrintJSON(data interface{}) string {
 	return out.String()
 }
 
-func PromptUntilTrue(val string, assessFunc func(val string, i byte) string) string {
+func PromptUntilTrue(val string, assessFunc func(val *string, i byte) string) string {
 	index := byte(0)
-	text := assessFunc(val, index)
+	text := assessFunc(&val, index)
 	for text != "" {
 		reader := bufio.NewScanner(os.Stdin)
 		fmt.Fprint(os.Stderr, text)
 		reader.Scan()
 		val = reader.Text()
 		index += 1
-		text = assessFunc(val, index)
+		text = assessFunc(&val, index)
 	}
 	return val
 }
 
 func YesNoPrompt(question string) bool {
-	answer := PromptUntilTrue("", func(val string, ind byte) string {
+	answer := PromptUntilTrue("", func(val *string, ind byte) string {
 		if ind == 0 {
 			return question + " [y/n]: "
 		} else {
-			switch val {
+			switch *val {
 			case "Y", "y", "N", "n":
 				return ""
 			default:

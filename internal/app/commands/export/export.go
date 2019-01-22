@@ -18,8 +18,8 @@ func ensureNameFlag(c *cli.Context) {
 	if c.String("t") == "" {
 
 		var name string
-		name = util.PromptUntilTrue(name, func(val string, ind byte) string {
-			if len(strings.TrimSpace(val)) == 0 {
+		name = util.PromptUntilTrue(name, func(val *string, ind byte) string {
+			if len(strings.TrimSpace(*val)) == 0 {
 				switch ind {
 				case 0:
 					return "Enter target name: "
@@ -38,8 +38,8 @@ func ensureNameFlag(c *cli.Context) {
 func ensurePathFlag(c *cli.Context) {
 	var path = c.String("path")
 
-	path = util.PromptUntilTrue(path, func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	path = util.PromptUntilTrue(path, func(val *string, ind byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
 				return "Enter source repo path (<repo-name>:<branch-name>:<node-path>): "
@@ -47,9 +47,9 @@ func ensurePathFlag(c *cli.Context) {
 				return "Source repo path can not be empty (<repo-name>:<branch-name>:<node-path>): "
 			}
 		} else {
-			splitPathLen := len(strings.Split(val, ":"))
+			splitPathLen := len(strings.Split(*val, ":"))
 			if splitPathLen != 3 {
-				return fmt.Sprintf("Source repo path '%s' must have the following format <repo-name>:<branch-name>:<node-path>: ", val)
+				return fmt.Sprintf("Source repo path '%s' must have the following format <repo-name>:<branch-name>:<node-path>: ", *val)
 			} else {
 				return ""
 			}

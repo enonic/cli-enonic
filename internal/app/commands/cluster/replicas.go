@@ -50,8 +50,8 @@ func createReprocessRequest(c *cli.Context, replicasNum int64) *http.Request {
 
 func ensureReplicasNumberArg(c *cli.Context) int64 {
 	var replicasNum int64
-	util.PromptUntilTrue(c.Args().First(), func(val string, ind byte) string {
-		if val == "" {
+	util.PromptUntilTrue(c.Args().First(), func(val *string, ind byte) string {
+		if *val == "" {
 			switch ind {
 			case 0:
 				return "Enter number of replicas: "
@@ -60,8 +60,8 @@ func ensureReplicasNumberArg(c *cli.Context) int64 {
 			}
 		} else {
 			var err error
-			if replicasNum, err = strconv.ParseInt(val, 10, 32); err != nil || replicasNum < 0 {
-				return fmt.Sprintf("Not a valid number of replicas '%s'. Only positive numbers allowed: ", val)
+			if replicasNum, err = strconv.ParseInt(*val, 10, 32); err != nil || replicasNum < 0 {
+				return fmt.Sprintf("Not a valid number of replicas '%s'. Only positive numbers allowed: ", *val)
 			}
 			return ""
 		}

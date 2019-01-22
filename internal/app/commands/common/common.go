@@ -23,8 +23,8 @@ var FLAGS = []cli.Flag{
 
 func EnsureAuth(authString string) (string, string) {
 	var splitAuth []string
-	util.PromptUntilTrue(authString, func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	util.PromptUntilTrue(authString, func(val *string, ind byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
 				return "Enter authentication token (<user>:<password>): "
@@ -32,9 +32,9 @@ func EnsureAuth(authString string) (string, string) {
 				return "Authentication token can not be empty (<user>:<password>): "
 			}
 		} else {
-			splitAuth = strings.Split(val, ":")
+			splitAuth = strings.Split(*val, ":")
 			if len(splitAuth) != 2 {
-				return fmt.Sprintf("Authentication token '%s' must have the following format <user>:<password>: ", val)
+				return fmt.Sprintf("Authentication token '%s' must have the following format <user>:<password>: ", *val)
 			} else {
 				return ""
 			}

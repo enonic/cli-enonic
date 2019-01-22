@@ -43,16 +43,16 @@ func SandboxCreateWizard(name, versionStr string) Sandbox {
 
 func ensureUniqueNameArg(name string) string {
 	existingBoxes := listSandboxes()
-	return util.PromptUntilTrue(name, func(val string, i byte) string {
-		length := len(strings.TrimSpace(val))
+	return util.PromptUntilTrue(name, func(val *string, i byte) string {
+		length := len(strings.TrimSpace(*val))
 		if length == 0 && i == 0 {
 			return "Enter the name of the sandbox: "
 		} else if length < 3 {
 			return "Name of the sandbox must be at least 3 characters long: "
 		} else {
 			for _, existingBox := range existingBoxes {
-				if existingBox.Name == val {
-					return fmt.Sprintf("Sandbox with the name '%s' already exists: ", val)
+				if existingBox.Name == *val {
+					return fmt.Sprintf("Sandbox with the name '%s' already exists: ", *val)
 				}
 			}
 			return ""

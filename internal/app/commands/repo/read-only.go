@@ -64,8 +64,8 @@ func ensureReadOnlyArg(c *cli.Context) bool {
 	argValue := c.Args().First()
 	var readOnly bool
 
-	util.PromptUntilTrue(argValue, func(val string, ind byte) string {
-		if val == "" {
+	util.PromptUntilTrue(argValue, func(val *string, ind byte) string {
+		if *val == "" {
 			switch ind {
 			case 0:
 				return "Set read only [T]rue or [F]alse: "
@@ -73,14 +73,14 @@ func ensureReadOnlyArg(c *cli.Context) bool {
 				return "Enter 'T' for true or 'F' for false: "
 			}
 		} else {
-			switch val {
+			switch *val {
 			case "T", "t":
 				readOnly = true
 			case "F", "f":
 				readOnly = false
 			default:
 				var err error
-				readOnly, err = strconv.ParseBool(val)
+				readOnly, err = strconv.ParseBool(*val)
 				if err != nil {
 					return "Not a valid read only value. Enter 'T' for true or 'F' for false: "
 				}

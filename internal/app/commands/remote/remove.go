@@ -38,19 +38,19 @@ func ensureExistingNameArg(c *cli.Context, allowActive bool) string {
 		name = c.Args().First()
 	}
 	remotes := readRemotesData()
-	return util.PromptUntilTrue(name, func(val string, i byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	return util.PromptUntilTrue(name, func(val *string, i byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			if i == 0 {
 				return "Enter the name of the remote: "
 			} else {
 				return "Remote name can not be empty: "
 			}
 		} else {
-			if !allowActive && remotes.Active == val {
-				return fmt.Sprintf("Remote '%s' is already set active: ", val)
+			if !allowActive && remotes.Active == *val {
+				return fmt.Sprintf("Remote '%s' is already set active: ", *val)
 			}
-			if _, exists := getRemoteByName(val, remotes.Remotes); !exists {
-				return fmt.Sprintf("Remote '%s' does not exist: ", val)
+			if _, exists := getRemoteByName(*val, remotes.Remotes); !exists {
+				return fmt.Sprintf("Remote '%s' does not exist: ", *val)
 			}
 			return ""
 		}

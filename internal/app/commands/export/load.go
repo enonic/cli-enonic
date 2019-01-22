@@ -76,9 +76,9 @@ func ensureXSLParamsFlagFormat(c *cli.Context) {
 
 	for _, param := range params {
 		var splitParam []string
-		param = util.PromptUntilTrue(param, func(val string, ind byte) string {
-			splitParam = strings.Split(val, "=")
-			if len(strings.TrimSpace(val)) == 0 || len(splitParam) == 2 {
+		param = util.PromptUntilTrue(param, func(val *string, ind byte) string {
+			splitParam = strings.Split(*val, "=")
+			if len(strings.TrimSpace(*val)) == 0 || len(splitParam) == 2 {
 				return ""
 			} else {
 				return fmt.Sprintf("Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>: ", param)

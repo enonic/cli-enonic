@@ -52,8 +52,8 @@ func ensureRepoFlag(c *cli.Context) {
 	if c.String("r") == "" {
 
 		var name string
-		name = util.PromptUntilTrue(name, func(val string, ind byte) string {
-			if len(strings.TrimSpace(val)) == 0 {
+		name = util.PromptUntilTrue(name, func(val *string, ind byte) string {
+			if len(strings.TrimSpace(*val)) == 0 {
 				switch ind {
 				case 0:
 					return "Enter repository name: "
@@ -72,8 +72,8 @@ func ensureRepoFlag(c *cli.Context) {
 func ensureBranchesFlag(c *cli.Context) {
 	if c.String("b") == "" {
 		var param string
-		param = util.PromptUntilTrue(param, func(val string, ind byte) string {
-			if len(strings.TrimSpace(val)) == 0 {
+		param = util.PromptUntilTrue(param, func(val *string, ind byte) string {
+			if len(strings.TrimSpace(*val)) == 0 {
 				switch ind {
 				case 0:
 					return "Enter comma separated list of branches: "

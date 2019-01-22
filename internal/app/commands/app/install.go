@@ -73,10 +73,10 @@ func ensureURLOrFileFlag(c *cli.Context) {
 
 	if (urlString == "") == (fileString == "") {
 		var val string
-		val = util.PromptUntilTrue(val, func(val string, ind byte) string {
-			if val == "" && ind == 0 {
+		val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
+			if *val == "" && ind == 0 {
 				return "Must provide either URL [u] or file [f] option: "
-			} else if upper := strings.ToUpper(val); upper != "U" && upper != "F" {
+			} else if upper := strings.ToUpper(*val); upper != "U" && upper != "F" {
 				return "Please type [u] for URL or [f] for file:  "
 			} else {
 				return ""
@@ -93,8 +93,8 @@ func ensureURLOrFileFlag(c *cli.Context) {
 
 func ensureURLFlag(c *cli.Context) {
 	val := c.String("u")
-	val = util.PromptUntilTrue(val, func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
 				return "Enter URL: "
@@ -102,9 +102,9 @@ func ensureURLFlag(c *cli.Context) {
 				return "URL can not be empty: "
 			}
 		} else {
-			_, err := url.Parse(val)
+			_, err := url.Parse(*val)
 			if err != nil {
-				return fmt.Sprintf("URL '%s' is not valid: ", val)
+				return fmt.Sprintf("URL '%s' is not valid: ", *val)
 			}
 			return ""
 		}
@@ -114,8 +114,8 @@ func ensureURLFlag(c *cli.Context) {
 
 func ensureFileFlag(c *cli.Context) {
 	val := c.String("f")
-	val = util.PromptUntilTrue(val, func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
 				return "Enter path to file: "
@@ -123,8 +123,8 @@ func ensureFileFlag(c *cli.Context) {
 				return "Path to file can not be empty: "
 			}
 		} else {
-			if _, err := os.Stat(val); os.IsNotExist(err) {
-				return fmt.Sprintf("File '%s' does not exist: ", val)
+			if _, err := os.Stat(*val); os.IsNotExist(err) {
+				return fmt.Sprintf("File '%s' does not exist: ", *val)
 			}
 			return ""
 		}

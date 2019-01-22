@@ -53,10 +53,10 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 
 	if snapshot == "" && before == "" {
 		var val string
-		val = util.PromptUntilTrue(val, func(val string, ind byte) string {
-			if val == "" && ind == 0 {
+		val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
+			if *val == "" && ind == 0 {
 				return "Select by [N]ame or by [D]ate? "
-			} else if upper := strings.ToUpper(val); upper != "N" && upper != "D" {
+			} else if upper := strings.ToUpper(*val); upper != "N" && upper != "D" {
 				return `Please type "N" for Name or "D" for Date: `
 			} else {
 				return ""
@@ -72,8 +72,8 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 }
 func ensureBeforeFlag(c *cli.Context) {
 
-	before := util.PromptUntilTrue(c.String("before"), func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	before := util.PromptUntilTrue(c.String("before"), func(val *string, ind byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
 				return fmt.Sprintf("Enter date in the format %s: ", time.Now().Format(DATE_FORMAT))
@@ -81,7 +81,7 @@ func ensureBeforeFlag(c *cli.Context) {
 				return fmt.Sprintf("Before date can not be empty. Format %s: ", time.Now().Format(DATE_FORMAT))
 			}
 		} else {
-			if _, err := time.Parse(DATE_FORMAT, val); err != nil {
+			if _, err := time.Parse(DATE_FORMAT, *val); err != nil {
 				return "Not a valid date: "
 			} else {
 				return ""

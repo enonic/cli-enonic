@@ -53,15 +53,15 @@ func ensureUrlFlag(c *cli.Context) *MarshalledUrl {
 		parsedUrl *MarshalledUrl
 		err       error
 	)
-	util.PromptUntilTrue(remoteText, func(val string, i byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	util.PromptUntilTrue(remoteText, func(val *string, i byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			if i == 0 {
 				return "Enter remote URL: "
 			} else {
 				return "Remote URL can not be empty: "
 			}
 		} else {
-			if parsedUrl, err = ParseMarshalledUrl(val); err != nil {
+			if parsedUrl, err = ParseMarshalledUrl(*val); err != nil {
 				return "Incorrect URL. Format: [scheme]://[user:password]@[host]:[port]: "
 			}
 			return ""
@@ -76,16 +76,16 @@ func ensureUniqueNameArg(c *cli.Context) string {
 		name = c.Args().First()
 	}
 	remotes := readRemotesData()
-	return util.PromptUntilTrue(name, func(val string, i byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	return util.PromptUntilTrue(name, func(val *string, i byte) string {
+		if len(strings.TrimSpace(*val)) == 0 {
 			if i == 0 {
 				return "Enter the name of the remote: "
 			} else {
 				return "Remote name can not be empty: "
 			}
 		} else {
-			if _, exists := getRemoteByName(val, remotes.Remotes); exists {
-				return fmt.Sprintf("Remote '%s' already exists: ", val)
+			if _, exists := getRemoteByName(*val, remotes.Remotes); exists {
+				return fmt.Sprintf("Remote '%s' already exists: ", *val)
 			}
 			return ""
 		}

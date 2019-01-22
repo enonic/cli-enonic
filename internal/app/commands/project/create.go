@@ -13,11 +13,15 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"regexp"
+	"github.com/Masterminds/semver"
 )
 
 var GITHUB_URL = "https://github.com/"
 var ENONIC_REPOSITORY_PREFIX = "enonic/"
 var GIT_REPOSITORY_SUFFIX = ".git"
+var DEFAULT_NAME = "com.enonic.app.mytest"
+var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 
 var Create = cli.Command{
 	Name:  "create",
@@ -42,19 +46,18 @@ var Create = cli.Command{
 		cli.StringFlag{
 			Name:  "repository, repo, r",
 			Usage: "Repository path. Format: <enonic repo> or <organisation>/<repo> or <full repo url>",
-			Value: "starter-vanilla",
 		},
 		cli.StringFlag{
 			Name:  "version, ver, v",
-			Usage: "Version number.",
-			Value: "1.0.0-SNAPSHOT",
+			Usage: "Version number. Format: 1.0.0-SNAPSHOT",
 		},
 	},
 	Action: func(c *cli.Context) error {
 
-		name := ensureNameArg(c)
 		gitUrl := ensureGitRepositoryUri(c)
-		dest := verifyDestinationNotExists(c, name)
+		name := ensureNameArg(c)
+		dest := ensureDestination(c, name)
+		version := ensureVersion(c)
 		hash := c.String("hash")
 		branch := c.String("branch")
 
@@ -66,24 +69,53 @@ var Create = cli.Command{
 		cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
 
 		propsFile := filepath.Join(dest, "gradle.properties")
-		processGradleProperties(propsFile, name, c.String("version"))
+		processGradleProperties(propsFile, name, version)
 
 		return nil
 	},
 }
 
-func verifyDestinationNotExists(c *cli.Context, name string) string {
-	if dest := c.String("destination"); dest != "" {
-		return util.PromptUntilTrue(dest, func(val string, i byte) string {
-			if _, err := os.Stat(val); !os.IsExist(err) {
-				return fmt.Sprintf("Destination folder '%s' already exists: ", val)
-			} else if err != nil {
-				return fmt.Sprintf("Folder '%s' could not be created", val)
+func ensureVersion(c *cli.Context) string {
+
+	return util.PromptUntilTrue(c.String("version"), func(val *string, i byte) string {
+		if *val == "" {
+			if i == 0 {
+				return fmt.Sprintf("\nEnter the version (hit enter to use '%s'):\n", DEFAULT_VERSION)
+			} else {
+				*val = DEFAULT_VERSION
+				fmt.Fprintln(os.Stderr, *val)
+				return ""
 			}
-			return ""
-		})
+		} else if _, err := semver.NewVersion(*val); err != nil {
+			return fmt.Sprintf("Version '%s' is not valid: ", *val)
+		}
+		return ""
+	})
+}
+
+func ensureDestination(c *cli.Context, name string) string {
+	dest := c.String("destination")
+	destNotSet := dest == ""
+	if destNotSet && name != "" {
+		lastDot := strings.LastIndex(name, ".")
+		dest = name[lastDot+1:]
 	}
-	return name
+
+	return util.PromptUntilTrue(dest, func(val *string, i byte) string {
+		if destNotSet && i == 0 {
+			return fmt.Sprintf("\nEnter the destination folder (hit enter to use '%s'):\n", dest)
+		} else if i > 0 && *val == "" {
+			*val = dest
+			fmt.Fprintln(os.Stderr, *val)
+		}
+		if _, err := os.Stat(*val); os.IsNotExist(err) {
+			return ""
+		} else if os.IsExist(err) {
+			return fmt.Sprintf("Destination folder '%s' already exists: ", *val)
+		} else {
+			return fmt.Sprintf("Folder '%s' could not be created: ", *val)
+		}
+	})
 }
 
 func ensureNameArg(c *cli.Context) string {
@@ -91,17 +123,20 @@ func ensureNameArg(c *cli.Context) string {
 	if c.NArg() > 0 {
 		name = c.Args().First()
 	}
+	appNameRegex, _ := regexp.Compile("[a-z.]")
 
-	return util.PromptUntilTrue(name, func(val string, i byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	return util.PromptUntilTrue(name, func(val *string, i byte) string {
+		if *val == "" {
 			if i == 0 {
-				return "Enter the name of the project: "
+				return fmt.Sprintf("\nEnter the name of the project. Valid symbols: lowercase letters and dot (.) (hit enter to use '%s'):\n", DEFAULT_NAME)
 			} else {
-				return "Project name can not be empty: "
+				*val = DEFAULT_NAME
+				fmt.Fprintln(os.Stderr, *val)
+				return ""
 			}
 		} else {
-			if _, err := os.Stat(val); !os.IsNotExist(err) {
-				return fmt.Sprintf("Folder named '%s' already exists: ", val)
+			if !appNameRegex.MatchString(*val) {
+				return fmt.Sprintf("Name '%s' is not valid. Lowercase letters and dot (.) symbols allowed only: ", *val)
 			}
 			return ""
 		}
@@ -139,12 +174,15 @@ func processGradleProperties(propsFile, name, version string) {
 }
 
 func ensureGitRepositoryUri(c *cli.Context) string {
-	repo := util.PromptUntilTrue(c.String("repository"), func(val string, ind byte) string {
-		if len(strings.TrimSpace(val)) == 0 {
+	defaultRepo := "starter-vanilla"
+	repo := util.PromptUntilTrue(c.String("repository"), func(val *string, ind byte) string {
+		if *val == "" {
 			if ind == 0 {
-				return "Enter the repository to clone: "
+				return fmt.Sprintf("\nEnter the repository to clone. Format: <enonic repo> or <organisation>/<repo> or <full repo url> (hit enter to use '%s'):\n", defaultRepo)
 			} else {
-				return "Repository url can not be empty"
+				*val = defaultRepo
+				fmt.Fprintln(os.Stderr, *val)
+				return ""
 			}
 		} else {
 			return ""
