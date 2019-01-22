@@ -24,7 +24,6 @@ const DISTRO_TEMPLATE = "enonic-xp-%s"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
 const REMOTE_DISTRO_NAME = "enonic-xp-%s-sdk-%s.zip"
-const VERSION_LATEST = "latest"
 
 type VersionResult struct {
 	Version     string `json:version`

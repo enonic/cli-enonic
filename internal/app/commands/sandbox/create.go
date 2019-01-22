@@ -36,7 +36,7 @@ func SandboxCreateWizard(name, versionStr string) Sandbox {
 	version := ensureVersionCorrect(versionStr)
 
 	box := createSandbox(name, version)
-	fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'\n", box.Name, box.Distro)
+	fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
 
 	return box
 }

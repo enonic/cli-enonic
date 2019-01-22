@@ -71,6 +71,8 @@ var Create = cli.Command{
 		propsFile := filepath.Join(dest, "gradle.properties")
 		processGradleProperties(propsFile, name, version)
 
+		fmt.Fprintf(os.Stderr, "Project '%s' created.\n", name)
+
 		return nil
 	},
 }
