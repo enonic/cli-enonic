@@ -44,7 +44,14 @@ func EnsureAuth(authString string) (string, string) {
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	user, pass := EnsureAuth(c.String("auth"))
+	auth := c.String("auth")
+	if auth == "" {
+		activeRemote := remote.GetActiveRemote()
+		if activeRemote.User != "" || activeRemote.Pass != "" {
+			auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+		}
+	}
+	user, pass := EnsureAuth(auth)
 
 	return doCreateRequest(method, url, user, pass, body)
 }
@@ -79,9 +86,6 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 		// remove leading slash
 		path = path[1:]
 	}
-	// hashed pass is not accepted by backend yet
-	// user := activeRemote.User
-	// pass := activeRemote.Pass
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, path), body)
 	if err != nil {

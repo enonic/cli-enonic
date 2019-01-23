@@ -6,14 +6,19 @@ import (
 	"github.com/enonic/xp-cli/internal/app/util"
 	"path/filepath"
 	"bytes"
-	"fmt"
 	"os"
+	"strings"
 )
 
-const DEFAULT = "default"
+const DEFAULT_REMOTE_NAME = "default"
+const DEFAULT_REMOTE_URL = "http://localhost:4848"
+const CLI_REMOTE_URL = "ENONIC_CLI_REMOTE_URL"
+const CLI_REMOTE_USER = "ENONIC_CLI_REMOTE_USER"
+const CLI_REMOTE_PASS = "ENONIC_CLI_REMOTE_PASS"
 
 func All() []cli.Command {
-	ensureDefaultRemoteExists()
+	// enable if file-based remotes are used
+	// ensureDefaultRemoteExists()
 
 	return []cli.Command{
 		Add,
@@ -98,6 +103,26 @@ func getRemoteByName(name string, remotes map[string]RemoteData) (*RemoteData, b
 	return &rm, prs
 }
 
+/*
+Env vars remote implementation
+*/
+func GetActiveRemote() *RemoteData {
+	urlString := os.Getenv(CLI_REMOTE_URL)
+	if strings.LastIndex(urlString, "http") != 0 {
+		urlString = "http://" + urlString
+	}
+	parsedUrl, err := ParseMarshalledUrl(urlString)
+	if err != nil {
+		parsedUrl, _ = ParseMarshalledUrl(DEFAULT_REMOTE_URL)
+	}
+	user := os.Getenv(CLI_REMOTE_USER)
+	pass := os.Getenv(CLI_REMOTE_PASS)
+	return &RemoteData{parsedUrl, user, pass}
+}
+
+/*
+File-based remotes implementation
+
 func GetActiveRemote() *RemoteData {
 	data := readRemotesData()
 	active, ok := data.Remotes[data.Active]
@@ -107,16 +132,17 @@ func GetActiveRemote() *RemoteData {
 	}
 	return &active
 }
+*/
 
 func ensureDefaultRemoteExists() {
 	data := readRemotesData()
-	defaultUrl, _ := ParseMarshalledUrl("http://localhost:4848")
-	if remote, exists := getRemoteByName(DEFAULT, data.Remotes); !exists || remote.Url != defaultUrl || data.Active == "" {
+	defaultUrl, _ := ParseMarshalledUrl(DEFAULT_REMOTE_URL)
+	if remote, exists := getRemoteByName(DEFAULT_REMOTE_NAME, data.Remotes); !exists || remote.Url != defaultUrl || data.Active == "" {
 		if !exists || remote.Url != defaultUrl {
-			data.Remotes[DEFAULT] = RemoteData{defaultUrl, "", ""}
+			data.Remotes[DEFAULT_REMOTE_NAME] = RemoteData{defaultUrl, "", ""}
 		}
 		if data.Active == "" {
-			data.Active = DEFAULT
+			data.Active = DEFAULT_REMOTE_NAME
 		}
 		writeRemotesData(data)
 	}

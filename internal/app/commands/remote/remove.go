@@ -15,14 +15,14 @@ var Remove = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		name := ensureExistingNameArg(c, true)
-		if name == DEFAULT {
+		if name == DEFAULT_REMOTE_NAME {
 			fmt.Fprintln(os.Stderr, "Default remote can not be deleted.")
 			os.Exit(0)
 		}
 		data := readRemotesData()
 		delete(data.Remotes, name)
 		if data.Active == name {
-			data.Active = DEFAULT
+			data.Active = DEFAULT_REMOTE_NAME
 		}
 		writeRemotesData(data)
 
