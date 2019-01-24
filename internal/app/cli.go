@@ -7,10 +7,18 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands"
 )
 
+// set by goreleaser
+// https://goreleaser.com/environment/
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "Enonic CLI"
-	app.Version = "0.1.12"
+	app.Version = version
 	app.Usage = "Manage XP instances, home folders and projects"
 	app.EnableBashCompletion = true
 	app.Commands = commands.All()
