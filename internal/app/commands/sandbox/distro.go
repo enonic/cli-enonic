@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"time"
-	"runtime"
 	"os/exec"
 	"strings"
 	"github.com/Masterminds/semver"
@@ -19,11 +18,10 @@ import (
 	"github.com/AlecAivazis/survey"
 )
 
-const DISTRO_REGEXP = "^enonic-xp-([-_.a-zA-Z0-9]+)$"
-const DISTRO_TEMPLATE = "enonic-xp-%s"
+const DISTRO_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)"
+const DISTRO_NAME_TEMPLATE = "enonic-xp-%s-sdk-%s"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
-const REMOTE_DISTRO_NAME = "enonic-xp-%s-sdk-%s.zip"
 
 type VersionResult struct {
 	Version     string `json:version`
@@ -92,7 +90,7 @@ func createProgressBar(total int64) *pb.ProgressBar {
 }
 
 func downloadDistro(osName, version string) string {
-	distroName := fmt.Sprintf(REMOTE_DISTRO_NAME, osName, version)
+	distroName := fmt.Sprintf(DISTRO_NAME_TEMPLATE+".zip", osName, version)
 
 	fullPath := filepath.Join(getDistrosDir(), distroName)
 
@@ -133,18 +131,7 @@ func unzipDistro(zipFile, version string) string {
 	unzippedFiles := util.Unzip(zipFile, zipDir)
 
 	sourceName := unzippedFiles[0] // distro zip contains only 1 root dir which is the first unzipped file
-	sourcePath := filepath.Join(zipDir, sourceName)
-	targetName := fmt.Sprintf(DISTRO_TEMPLATE, version)
-	targetPath := filepath.Join(zipDir, targetName)
-
-	if sourcePath != targetPath {
-		if _, err := os.Stat(targetPath); !os.IsNotExist(err) {
-			os.RemoveAll(targetPath)
-		}
-
-		err := os.Rename(sourcePath, targetPath)
-		util.Fatal(err, fmt.Sprintf("Could not rename '%s' to '%s'", sourceName, targetName))
-	}
+	targetPath := filepath.Join(zipDir, sourceName)
 
 	fmt.Fprintln(os.Stderr, "Done")
 
@@ -152,11 +139,12 @@ func unzipDistro(zipFile, version string) string {
 }
 
 func startDistro(version, sandbox string) *exec.Cmd {
+	myOs := util.GetCurrentOs()
 	executable := "server.sh"
-	if runtime.GOOS == "windows" {
+	if myOs == "windows" {
 		executable = "server.bat"
 	}
-	appPath := filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "bin", executable)
+	appPath := filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_NAME_TEMPLATE, myOs, version), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
 
 	cmd := exec.Command(appPath, fmt.Sprintf("-Dxp.home=%s", homePath))
@@ -170,7 +158,8 @@ func startDistro(version, sandbox string) *exec.Cmd {
 }
 
 func deleteDistro(version string) {
-	err := os.RemoveAll(filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version)))
+	myOs := util.GetCurrentOs()
+	err := os.RemoveAll(filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_NAME_TEMPLATE, myOs, version)))
 	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", version))
 }
 
@@ -198,12 +187,12 @@ func filterDistros(vs []os.FileInfo, distrosDir string) []string {
 }
 
 func isDistro(v os.FileInfo) bool {
-	distroRegexp := regexp.MustCompile(DISTRO_REGEXP)
+	distroRegexp := regexp.MustCompile(DISTRO_NAME_REGEXP)
 	return v.IsDir() && distroRegexp.MatchString(v.Name())
 }
 
 func getDistroVersion(distro string) string {
-	distroRegexp := regexp.MustCompile(DISTRO_REGEXP)
+	distroRegexp := regexp.MustCompile(DISTRO_NAME_REGEXP)
 	match := distroRegexp.FindStringSubmatch(distro)
 	if len(match) == 2 {
 		return match[1]
@@ -213,7 +202,8 @@ func getDistroVersion(distro string) string {
 }
 
 func GetDistroJdkPath(version string) string {
-	return filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_TEMPLATE, version), "jdk")
+	myOs := util.GetCurrentOs()
+	return filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_NAME_TEMPLATE, myOs, version), "jdk")
 }
 
 func ensureVersionCorrect(versionStr string) string {
