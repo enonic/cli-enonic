@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os/exec"
 	"path"
-	"bytes"
 	"path/filepath"
 	"github.com/otiai10/copy"
 )
@@ -102,15 +101,12 @@ func runGradleTask(projectData ProjectData, task, message string) {
 	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", sandbox.GetDistroJdkPath(sandboxData.Distro))
 	xpHome := fmt.Sprintf("-Dxp.home=%s", sandbox.GetSandboxHomePath(projectData.Sandbox))
 
-	var stderr bytes.Buffer
-	fmt.Fprint(os.Stderr, message)
+	fmt.Fprintln(os.Stderr, message)
 	command := getOsGradlewFile()
 	cmd := exec.Command(command, task, javaHome, xpHome)
-	cmd.Stderr = &stderr
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
 
-	if err := cmd.Run(); err != nil {
-		fmt.Fprintln(os.Stderr, "\n"+stderr.String())
-	} else {
-		fmt.Fprintln(os.Stderr, "Done")
-	}
+	cmd.Run()
 }
