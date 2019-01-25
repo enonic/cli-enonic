@@ -118,8 +118,7 @@ func cloneZipItem(f *zip.File, destFolder string) {
 	Fatal(err, fmt.Sprintf("Could not read file '%s'", f.Name))
 
 	if !f.FileInfo().IsDir() {
-		// Use os.Create() since Zip don't store file permissions.
-		fileCopy, err := os.Create(destPath)
+		fileCopy, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.FileInfo().Mode())
 		Fatal(err, fmt.Sprintf("Could not create file '%s", f.Name))
 
 		_, err = io.Copy(fileCopy, reader)
