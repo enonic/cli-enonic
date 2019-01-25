@@ -108,7 +108,7 @@ Env vars remote implementation
 */
 func GetActiveRemote() *RemoteData {
 	urlString := os.Getenv(CLI_REMOTE_URL)
-	if strings.LastIndex(urlString, "http") != 0 {
+	if urlString != "" && strings.Index(urlString, "http") != 0 {
 		urlString = "http://" + urlString
 	}
 	parsedUrl, err := ParseMarshalledUrl(urlString)
