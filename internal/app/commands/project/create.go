@@ -82,7 +82,7 @@ func ensureVersion(c *cli.Context) string {
 	return util.PromptUntilTrue(c.String("version"), func(val *string, i byte) string {
 		if *val == "" {
 			if i == 0 {
-				return fmt.Sprintf("\nEnter the version (hit enter to use '%s'):\n", DEFAULT_VERSION)
+				return fmt.Sprintf("\nApplication version (default: '%s'):\n", DEFAULT_VERSION)
 			} else {
 				*val = DEFAULT_VERSION
 				fmt.Fprintln(os.Stderr, *val)
@@ -105,7 +105,7 @@ func ensureDestination(c *cli.Context, name string) string {
 
 	return util.PromptUntilTrue(dest, func(val *string, i byte) string {
 		if destNotSet && i == 0 {
-			return fmt.Sprintf("\nEnter the destination folder (hit enter to use '%s'):\n", dest)
+			return fmt.Sprintf("\nDestination folder (default: '%s'):\n", dest)
 		} else if i > 0 && *val == "" {
 			*val = dest
 			fmt.Fprintln(os.Stderr, *val)
@@ -130,7 +130,7 @@ func ensureNameArg(c *cli.Context) string {
 	return util.PromptUntilTrue(name, func(val *string, i byte) string {
 		if *val == "" {
 			if i == 0 {
-				return fmt.Sprintf("\nEnter the name of the project. Valid symbols: lowercase letters and dot (.) (hit enter to use '%s'):\n", DEFAULT_NAME)
+				return fmt.Sprintf("\nProject name (default: '%s'):\n", DEFAULT_NAME)
 			} else {
 				*val = DEFAULT_NAME
 				fmt.Fprintln(os.Stderr, *val)
@@ -138,7 +138,7 @@ func ensureNameArg(c *cli.Context) string {
 			}
 		} else {
 			if !appNameRegex.MatchString(*val) {
-				return fmt.Sprintf("Name '%s' is not valid. Lowercase letters and dot (.) symbols allowed only: ", *val)
+				return fmt.Sprintf("Name '%s' is not valid. Use lowercase letters and dot (.) symbol only: ", *val)
 			}
 			return ""
 		}
@@ -180,7 +180,7 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 	repo := util.PromptUntilTrue(c.String("repository"), func(val *string, ind byte) string {
 		if *val == "" {
 			if ind == 0 {
-				return fmt.Sprintf("\nEnter the repository to clone. Format: <enonic repo> or <organisation>/<repo> or <full repo url> (hit enter to use '%s'):\n", defaultRepo)
+				return fmt.Sprintf("\nStarter repository (default: '%s'):\n", defaultRepo)
 			} else {
 				*val = defaultRepo
 				fmt.Fprintln(os.Stderr, *val)
