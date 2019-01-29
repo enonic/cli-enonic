@@ -23,9 +23,9 @@ var Upgrade = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		ensureNameFlag(c)
+		name := ensureNameFlag(c.String("d"), false)
 
-		req := createUpgradeRequest(c)
+		req := createUpgradeRequest(c, name)
 		var result UpgradeResult
 		status := common.RunTask(req, "Upgrading dump", &result)
 
@@ -45,10 +45,10 @@ var Upgrade = cli.Command{
 	},
 }
 
-func createUpgradeRequest(c *cli.Context) *http.Request {
+func createUpgradeRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]string{
-		"name": c.String("d"),
+		"name": name,
 	}
 	json.NewEncoder(body).Encode(params)
 

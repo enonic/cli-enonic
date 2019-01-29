@@ -35,9 +35,10 @@ var Load = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		if c.Bool("y") || acceptToDeleteExistingRepos() {
-			ensureNameFlag(c)
 
-			req := createLoadRequest(c)
+			name := ensureNameFlag(c.String("d"), false)
+
+			req := createLoadRequest(c, name)
 			var result LoadDumpResponse
 			params := make(map[string]string)
 			if newAuth := c.String("new-auth"); newAuth != "" {
@@ -64,10 +65,10 @@ func acceptToDeleteExistingRepos() bool {
 	return util.YesNoPrompt("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?")
 }
 
-func createLoadRequest(c *cli.Context) *http.Request {
+func createLoadRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"name": c.String("d"),
+		"name": name,
 	}
 
 	if upgrade := c.Bool("upgrade"); upgrade {

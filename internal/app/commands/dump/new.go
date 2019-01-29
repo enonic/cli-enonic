@@ -34,9 +34,9 @@ var New = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		ensureNameFlag(c)
+		name := ensureNameFlag(c.String("d"), true)
 
-		req := createNewRequest(c)
+		req := createNewRequest(c, name)
 
 		var result NewDumpResponse
 		status := common.RunTask(req, "Creating dump", &result)
@@ -53,10 +53,10 @@ var New = cli.Command{
 	},
 }
 
-func createNewRequest(c *cli.Context) *http.Request {
+func createNewRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"name": c.String("d"),
+		"name": name,
 	}
 
 	if includeVersions := c.String("skip-versions"); includeVersions != "" {
