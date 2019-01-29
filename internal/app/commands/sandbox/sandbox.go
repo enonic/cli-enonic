@@ -22,6 +22,8 @@ func All() []cli.Command {
 	}
 }
 
+var CREATE_NEW_BOX = "Create new sandbox"
+
 type SandboxesData struct {
 	Running string `toml:"running"`
 }
@@ -171,7 +173,7 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string) 
 		}
 	}
 
-	selectOptions := make([]string, 0)
+	selectOptions := []string{CREATE_NEW_BOX}
 	for _, box := range existingBoxes {
 		selectOptions = append(selectOptions, fmt.Sprintf("%s ( %s )", box.Name, box.Distro))
 	}
@@ -185,7 +187,13 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string) 
 	err := survey.AskOne(prompt, &name, nil)
 	util.Fatal(err, "Select failed: ")
 
-	return existingBoxes[util.IndexOf(name, selectOptions)], false
+	if name == CREATE_NEW_BOX {
+		newBox := SandboxCreateWizard("", "")
+		return newBox, true
+	}
+
+	// subtract 1 because of 'new sandbox' option
+	return existingBoxes[util.IndexOf(name, selectOptions)-1], false
 }
 
 func ensureDirStructure() {
