@@ -26,7 +26,7 @@ var Upgrade = cli.Command{
 
 		sandbox.Distro = formatDistroVersion(version, util.GetCurrentOs(), true)
 		writeSandboxData(sandbox)
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' distro set to: %s", sandbox.Name, sandbox.Distro)
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' distro upgraded to '%s'.\n", sandbox.Name, sandbox.Distro)
 
 		return nil
 	},

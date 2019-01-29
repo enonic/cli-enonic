@@ -29,7 +29,7 @@ var Delete = cli.Command{
 		}
 
 		deleteSandbox(sandbox.Name)
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' deleted", sandbox.Name)
+		fmt.Fprintf(os.Stderr, "Sandbox '%s' deleted.\n", sandbox.Name)
 
 		return nil
 	},
