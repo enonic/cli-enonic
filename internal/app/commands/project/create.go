@@ -36,7 +36,7 @@ var Create = cli.Command{
 			Usage: "Branch to checkout.",
 		},
 		cli.StringFlag{
-			Name:  "hash",
+			Name:  "checkout, c",
 			Usage: "Commit hash to checkout.",
 		},
 		cli.StringFlag{
@@ -58,7 +58,7 @@ var Create = cli.Command{
 		name := ensureNameArg(c)
 		dest := ensureDestination(c, name)
 		version := ensureVersion(c)
-		hash := c.String("hash")
+		hash := c.String("checkout")
 		branch := c.String("branch")
 
 		var user, pass string
