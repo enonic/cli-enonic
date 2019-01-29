@@ -13,6 +13,8 @@ var Sandbox = cli.Command{
 	Usage:   "Set the default sandbox associated with the current project",
 	Action: func(c *cli.Context) error {
 
+		ensureValidProjectFolder()
+
 		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:")
 		writeProjectData(ProjectData{sandbox.Name})
 

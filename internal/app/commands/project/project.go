@@ -55,7 +55,7 @@ func getOsGradlewFile() string {
 	return gradlewFile
 }
 
-func ensureDirHasGradleFile() {
+func ensureValidProjectFolder() {
 	dir, err := os.Getwd()
 	util.Fatal(err, "Could not get current dir")
 
@@ -69,7 +69,7 @@ func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
 	var newBox bool
 	var sBox sandbox.Sandbox
 
-	ensureDirHasGradleFile()
+	ensureValidProjectFolder()
 
 	projectData := readProjectData()
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
