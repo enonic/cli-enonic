@@ -75,11 +75,11 @@ func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "Select a sandbox to use:")
+		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "A sandbox is required for your project, select one:")
 		projectData.Sandbox = sBox.Name
 		if badSandbox {
 			writeProjectData(projectData)
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default for this project. You can change it using 'project sandbox' command.\n", projectData.Sandbox)
+			fmt.Fprintf(os.Stderr, "Project is now linked to sandbox '%s' using '%s'\n", projectData.Sandbox, sBox.Distro)
 		}
 	} else {
 		sBox = sandbox.ReadSandboxData(projectData.Sandbox)

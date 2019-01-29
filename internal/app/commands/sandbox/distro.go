@@ -18,8 +18,10 @@ import (
 	"github.com/AlecAivazis/survey"
 )
 
-const DISTRO_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)"
-const DISTRO_NAME_TEMPLATE = "enonic-xp-%s-sdk-%s"
+const DISTRO_FOLDER_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
+const DISTRO_FOLDER_NAME_TPL = "enonic-xp-%s-sdk-%s"
+const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
+const DISTRO_LIST_NAME_TPL = "%s-sdk-%s"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
 
@@ -32,18 +34,19 @@ type VersionsResult struct {
 	Results []VersionResult `json:results`
 }
 
-func EnsureDistroExists(version string) (string, bool) {
-	osName := util.GetCurrentOs()
+func EnsureDistroExists(distroName string) (string, bool) {
+	distroVersion := parseDistroVersion(distroName, true)
 
 	for _, distro := range listDistros() {
-		if distroVer := getDistroVersion(distro); distroVer == version {
+		if distroVer := parseDistroVersion(distro, false); distroVer == distroVersion {
 			return filepath.Join(getDistrosDir(), distro), false
 		}
 	}
 
-	zipPath := downloadDistro(osName, version)
+	osName := util.GetCurrentOs()
+	zipPath := downloadDistro(osName, distroVersion)
 
-	distroPath := unzipDistro(zipPath, version)
+	distroPath := unzipDistro(zipPath)
 
 	err := os.Remove(zipPath)
 	util.Warn(err, "Could not delete distro zip file: ")
@@ -51,8 +54,7 @@ func EnsureDistroExists(version string) (string, bool) {
 	return distroPath, true
 }
 
-func getAllVersions() []VersionResult {
-	osName := util.GetCurrentOs()
+func getAllVersions(osName string) []VersionResult {
 	resp, err := http.Get(fmt.Sprintf(REMOTE_VERSION_URL, osName))
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 
@@ -90,7 +92,7 @@ func createProgressBar(total int64) *pb.ProgressBar {
 }
 
 func downloadDistro(osName, version string) string {
-	distroName := fmt.Sprintf(DISTRO_NAME_TEMPLATE+".zip", osName, version)
+	distroName := formatDistroVersion(version, osName, false) + ".zip"
 
 	fullPath := filepath.Join(getDistrosDir(), distroName)
 
@@ -124,7 +126,7 @@ func downloadDistro(osName, version string) string {
 	return fullPath
 }
 
-func unzipDistro(zipFile, version string) string {
+func unzipDistro(zipFile string) string {
 	fmt.Fprint(os.Stderr, "Unzipping distro...")
 
 	zipDir := filepath.Dir(zipFile)
@@ -138,13 +140,14 @@ func unzipDistro(zipFile, version string) string {
 	return targetPath
 }
 
-func startDistro(version, sandbox string) *exec.Cmd {
+func startDistro(distroName, sandbox string) *exec.Cmd {
 	myOs := util.GetCurrentOs()
 	executable := "server.sh"
 	if myOs == "windows" {
 		executable = "server.bat"
 	}
-	appPath := filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_NAME_TEMPLATE, myOs, version), "bin", executable)
+	version := parseDistroVersion(distroName, true)
+	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
 
 	cmd := exec.Command(appPath, fmt.Sprintf("-Dxp.home=%s", homePath))
@@ -152,15 +155,16 @@ func startDistro(version, sandbox string) *exec.Cmd {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	err := cmd.Start()
-	util.Fatal(err, fmt.Sprintf("Could not start distro '%s': ", version))
+	util.Fatal(err, fmt.Sprintf("Could not start distro '%s': ", distroName))
 
 	return cmd
 }
 
-func deleteDistro(version string) {
+func deleteDistro(distroName string) {
 	myOs := util.GetCurrentOs()
-	err := os.RemoveAll(filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_NAME_TEMPLATE, myOs, version)))
-	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", version))
+	distroVersion := parseDistroVersion(distroName, true)
+	err := os.RemoveAll(filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs, false)))
+	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", distroName))
 }
 
 func listDistros() []string {
@@ -187,12 +191,17 @@ func filterDistros(vs []os.FileInfo, distrosDir string) []string {
 }
 
 func isDistro(v os.FileInfo) bool {
-	distroRegexp := regexp.MustCompile(DISTRO_NAME_REGEXP)
+	distroRegexp := regexp.MustCompile(DISTRO_FOLDER_NAME_REGEXP)
 	return v.IsDir() && distroRegexp.MatchString(v.Name())
 }
 
-func getDistroVersion(distro string) string {
-	distroRegexp := regexp.MustCompile(DISTRO_NAME_REGEXP)
+func parseDistroVersion(distro string, isDisplay bool) string {
+	var distroRegexp *regexp.Regexp
+	if isDisplay {
+		distroRegexp = regexp.MustCompile(DISTRO_LIST_NAME_REGEXP)
+	} else {
+		distroRegexp = regexp.MustCompile(DISTRO_FOLDER_NAME_REGEXP)
+	}
 	match := distroRegexp.FindStringSubmatch(distro)
 	if len(match) == 2 {
 		return match[1]
@@ -201,9 +210,20 @@ func getDistroVersion(distro string) string {
 	}
 }
 
-func GetDistroJdkPath(version string) string {
+func formatDistroVersion(version, myOs string, isDisplay bool) string {
+	var tpl string
+	if isDisplay {
+		tpl = DISTRO_LIST_NAME_TPL
+	} else {
+		tpl = DISTRO_FOLDER_NAME_TPL
+	}
+	return fmt.Sprintf(tpl, myOs, version)
+}
+
+func GetDistroJdkPath(distroName string) string {
 	myOs := util.GetCurrentOs()
-	return filepath.Join(getDistrosDir(), fmt.Sprintf(DISTRO_NAME_TEMPLATE, myOs, version), "jdk")
+	distroVersion := parseDistroVersion(distroName, true)
+	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs, false), "jdk")
 }
 
 func ensureVersionCorrect(versionStr string) string {
@@ -219,10 +239,11 @@ func ensureVersionCorrect(versionStr string) string {
 		}
 	}
 
-	versions := getAllVersions()
+	myOs := util.GetCurrentOs()
+	versions := getAllVersions(myOs)
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
-		textVersions[key] = value.Version
+		textVersions[key] = formatDistroVersion(value.Version, myOs, true)
 		if version != nil && version.String() == value.Version {
 			versionExists = true
 		}
@@ -236,13 +257,14 @@ func ensureVersionCorrect(versionStr string) string {
 		defaultVersion := findLatestVersion(versions)
 		var distro string
 		err := survey.AskOne(&survey.Select{
-			Message:  "Distro version:",
+			Message:  "Enonic XP distribution:",
 			Options:  textVersions,
-			Default:  defaultVersion,
+			Default:  formatDistroVersion(defaultVersion, myOs, true),
 			PageSize: 10,
 		}, &distro, nil)
-		util.Fatal(err, "Distro select error: ")
-		return distro
+		util.Fatal(err, "Distribution select error: ")
+
+		return parseDistroVersion(distro, true)
 	}
 
 }

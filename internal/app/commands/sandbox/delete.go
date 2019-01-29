@@ -39,6 +39,6 @@ func acceptToDeleteSandbox(name string) bool {
 	return util.YesNoPrompt(fmt.Sprintf("WARNING: This can not be undone ! Do you still want to delete sandbox '%s' ?", name))
 }
 
-func acceptToDeleteDistro(distro string) bool {
-	return util.YesNoPrompt(fmt.Sprintf("Distro '%s' is not used any more. Do you want to delete it ?", distro))
+func acceptToDeleteDistro(name string) bool {
+	return util.YesNoPrompt(fmt.Sprintf("Distro '%s' is not used any more. Do you want to delete it ?", name))
 }

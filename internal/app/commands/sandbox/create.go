@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+var SANDBOX_NAME_TPL = "Sandbox%d"
+
 var Create = cli.Command{
 	Name:  "create",
 	Usage: "Create a new sandbox.",
@@ -43,19 +45,44 @@ func SandboxCreateWizard(name, versionStr string) Sandbox {
 
 func ensureUniqueNameArg(name string) string {
 	existingBoxes := listSandboxes()
+	defaultSandboxName := getFirstValidSandboxName(existingBoxes)
 	return util.PromptUntilTrue(name, func(val *string, i byte) string {
-		length := len(strings.TrimSpace(*val))
-		if length == 0 && i == 0 {
-			return "Enter the name of the sandbox: "
-		} else if length < 3 {
-			return "Name of the sandbox must be at least 3 characters long: "
+		if *val == "" {
+			if i == 0 {
+				return fmt.Sprintf("\nSandbox name (default: '%s'): \n", defaultSandboxName)
+			} else {
+				*val = defaultSandboxName
+				fmt.Fprintln(os.Stderr, *val)
+				return ""
+			}
+		} else if len(strings.TrimSpace(*val)) < 3 {
+			return "Sandbox name must be at least 3 characters long: "
 		} else {
 			for _, existingBox := range existingBoxes {
 				if existingBox.Name == *val {
-					return fmt.Sprintf("Sandbox with the name '%s' already exists: ", *val)
+					return fmt.Sprintf("Sandbox with name '%s' already exists: ", *val)
 				}
 			}
 			return ""
 		}
 	})
+}
+func getFirstValidSandboxName(sandboxes []Sandbox) string {
+	var name string
+	num := 1
+	nameInvalid := false
+
+	for ok := true; ok; ok = nameInvalid && num < 1000 {
+		name = fmt.Sprintf(SANDBOX_NAME_TPL, num)
+		nameInvalid = false
+		for _, box := range sandboxes {
+			if box.Name == name {
+				num++
+				nameInvalid = true
+				break
+			}
+		}
+	}
+
+	return name
 }

@@ -41,10 +41,10 @@ func createSandbox(name string, version string) Sandbox {
 	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
 
-	data := SandboxData{version}
+	data := SandboxData{formatDistroVersion(version, util.GetCurrentOs(), true)}
 	util.EncodeTomlFile(file, data)
 
-	return Sandbox{name, version}
+	return Sandbox{name, data.Distro}
 }
 
 func readSandboxesData() SandboxesData {
@@ -91,10 +91,10 @@ func GetSandboxHomePath(name string) string {
 	return filepath.Join(getSandboxesDir(), name, "home")
 }
 
-func getSandboxesUsingDistro(distro string) []Sandbox {
+func getSandboxesUsingDistro(distroName string) []Sandbox {
 	usedBy := make([]Sandbox, 0)
 	for _, box := range listSandboxes() {
-		if data := ReadSandboxData(box.Name); data.Distro == distro {
+		if data := ReadSandboxData(box.Name); data.Distro == distroName {
 			usedBy = append(usedBy, box)
 		}
 	}
