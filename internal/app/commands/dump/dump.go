@@ -9,9 +9,8 @@ import (
 	"fmt"
 	"github.com/AlecAivazis/survey"
 	"strings"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 )
-
-var XP_HOME_ENV = "XP_HOME"
 
 func All() []cli.Command {
 	return []cli.Command{
@@ -60,7 +59,7 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 }
 
 func listExistingDumpNames() []string {
-	homePath := os.Getenv(XP_HOME_ENV)
+	homePath := os.Getenv(common.ENV_XP_HOME)
 	dumpsDir := filepath.Join(homePath, "data", "dump")
 	dumps, err := ioutil.ReadDir(dumpsDir)
 	util.Fatal(err, "Could not read dumps folder")

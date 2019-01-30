@@ -14,6 +14,9 @@ import (
 	"net/url"
 )
 
+var ENV_XP_HOME = "XP_HOME"
+var ENV_JAVA_HOME = "JAVA_HOME"
+
 var FLAGS = []cli.Flag{
 	cli.StringFlag{
 		Name:  "auth, a",

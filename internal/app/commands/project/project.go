@@ -20,6 +20,7 @@ func All() []cli.Command {
 		Build,
 		Deploy,
 		Install,
+		Shell,
 	}
 }
 
