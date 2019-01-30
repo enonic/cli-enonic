@@ -38,7 +38,7 @@ func SandboxCreateWizard(name, versionStr string) Sandbox {
 	version := ensureVersionCorrect(versionStr)
 
 	box := createSandbox(name, version)
-	fmt.Fprintf(os.Stderr, "Sandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
+	fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
 
 	return box
 }
@@ -49,10 +49,10 @@ func ensureUniqueNameArg(name string) string {
 	return util.PromptUntilTrue(name, func(val *string, i byte) string {
 		if *val == "" {
 			if i == 0 {
-				return fmt.Sprintf("\nSandbox name (default: '%s'): \n", defaultSandboxName)
+				return fmt.Sprintf("\nSandbox name (default: '%s'):", defaultSandboxName)
 			} else {
 				*val = defaultSandboxName
-				fmt.Fprintln(os.Stderr, *val)
+				fmt.Fprintln(os.Stderr, *val+"\n")
 				return ""
 			}
 		} else if len(strings.TrimSpace(*val)) < 3 {

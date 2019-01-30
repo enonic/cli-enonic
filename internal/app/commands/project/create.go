@@ -15,6 +15,8 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"regexp"
 	"github.com/Masterminds/semver"
+	"github.com/AlecAivazis/survey"
+	"gopkg.in/src-d/go-git.v4/config"
 )
 
 var GITHUB_URL = "https://github.com/"
@@ -22,6 +24,12 @@ var ENONIC_REPOSITORY_PREFIX = "enonic/"
 var GIT_REPOSITORY_SUFFIX = ".git"
 var DEFAULT_NAME = "com.enonic.app.mytest"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
+var DEFAULT_STARTER = "starter-vanilla"
+var STARTER_LIST = []string{
+	"starter-vanilla", "starter-pwa", "starter-react", "starter-babel", "starter-bootstrap3",
+	"starter-typescript", "starter-admin-tool", "starter-base", "starter-academy", "starter-gulp",
+	"starter-intranet", "starter-training", "starter-headless", "starter-lib", "starter-angular2",
+}
 
 var Create = cli.Command{
 	Name:  "create",
@@ -34,6 +42,7 @@ var Create = cli.Command{
 		cli.StringFlag{
 			Name:  "branch, b",
 			Usage: "Branch to checkout.",
+			Value: "xp-7-0",
 		},
 		cli.StringFlag{
 			Name:  "checkout, c",
@@ -53,6 +62,7 @@ var Create = cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		fmt.Fprint(os.Stderr, "\n")
 
 		gitUrl := ensureGitRepositoryUri(c)
 		name := ensureNameArg(c)
@@ -61,6 +71,7 @@ var Create = cli.Command{
 		hash := c.String("checkout")
 		branch := c.String("branch")
 
+		fmt.Fprint(os.Stderr, "\n")
 		var user, pass string
 		if authString := c.String("auth"); authString != "" {
 			user, pass = common.EnsureAuth(authString)
@@ -82,7 +93,7 @@ func ensureVersion(c *cli.Context) string {
 	return util.PromptUntilTrue(c.String("version"), func(val *string, i byte) string {
 		if *val == "" {
 			if i == 0 {
-				return fmt.Sprintf("\nApplication version (default: '%s'):\n", DEFAULT_VERSION)
+				return fmt.Sprintf("\nApplication version (default: '%s'):", DEFAULT_VERSION)
 			} else {
 				*val = DEFAULT_VERSION
 				fmt.Fprintln(os.Stderr, *val)
@@ -105,7 +116,7 @@ func ensureDestination(c *cli.Context, name string) string {
 
 	return util.PromptUntilTrue(dest, func(val *string, i byte) string {
 		if destNotSet && i == 0 {
-			return fmt.Sprintf("\nDestination folder (default: '%s'):\n", dest)
+			return fmt.Sprintf("\nDestination folder (default: '%s'):", dest)
 		} else if i > 0 && *val == "" {
 			*val = dest
 			fmt.Fprintln(os.Stderr, *val)
@@ -130,7 +141,7 @@ func ensureNameArg(c *cli.Context) string {
 	return util.PromptUntilTrue(name, func(val *string, i byte) string {
 		if *val == "" {
 			if i == 0 {
-				return fmt.Sprintf("\nProject name (default: '%s'):\n", DEFAULT_NAME)
+				return fmt.Sprintf("\nProject name (default: '%s'):", DEFAULT_NAME)
 			} else {
 				*val = DEFAULT_NAME
 				fmt.Fprintln(os.Stderr, *val)
@@ -176,22 +187,34 @@ func processGradleProperties(propsFile, name, version string) {
 }
 
 func ensureGitRepositoryUri(c *cli.Context) string {
-	defaultRepo := "starter-vanilla"
-	repo := util.PromptUntilTrue(c.String("repository"), func(val *string, ind byte) string {
-		if *val == "" {
-			if ind == 0 {
-				return fmt.Sprintf("\nStarter repository (default: '%s'):\n", defaultRepo)
+	var customRepoOption = "Custom repo"
+	repo := c.String("repository")
+
+	if repo == "" {
+		err := survey.AskOne(&survey.Select{
+			Message:  fmt.Sprintf("Starter (default: %s):", DEFAULT_STARTER),
+			Options:  append([]string{customRepoOption}, STARTER_LIST...),
+			Default:  DEFAULT_STARTER,
+			PageSize: 10,
+		}, &repo, nil)
+		util.Fatal(err, "Distribution select error: ")
+	}
+
+	if repo == customRepoOption {
+		repo = util.PromptUntilTrue("", func(val *string, i byte) string {
+			if *val == "" {
+				if i == 0 {
+					return "Custom repo: "
+				} else {
+					return "Custom repo can not be empty: "
+				}
 			} else {
-				*val = defaultRepo
-				fmt.Fprintln(os.Stderr, *val)
 				return ""
 			}
-		} else {
-			return ""
-		}
-	})
+		})
+	}
 
-	if strings.Contains(repo, ":/") {
+	if strings.Contains(repo, "://") {
 		return repo
 	} else if strings.Contains(repo, "/") {
 		return GITHUB_URL + repo + GIT_REPOSITORY_SUFFIX
@@ -225,18 +248,24 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s", url))
 
 	if branch != "" || hash != "" {
+		err2 := repo.Fetch(&git.FetchOptions{
+			RemoteName: "origin",
+			RefSpecs:   []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
+		})
+		util.Fatal(err2, "Could not fetch remote repo")
+
 		tree, err := repo.Worktree()
 		util.Fatal(err, "Could not get repo tree")
 
 		opts := &git.CheckoutOptions{}
-		if hash != "" {
+		if branch != "" {
 			opts.Branch = plumbing.NewBranchReferenceName(branch)
-		} else if branch != "" {
+		} else if hash != "" {
 			opts.Hash = plumbing.NewHash(hash)
 		}
 
-		err2 := tree.Checkout(opts)
-		util.Fatal(err2, fmt.Sprintf("Could not checkout hash:'%s', branch:'%s'", hash, branch))
+		err3 := tree.Checkout(opts)
+		util.Fatal(err3, fmt.Sprintf("Could not checkout hash '%s' or branch '%s'", hash, branch))
 	}
 }
 

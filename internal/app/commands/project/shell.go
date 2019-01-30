@@ -11,7 +11,6 @@ import (
 	"strings"
 )
 
-// http://technosophos.com/2014/07/11/start-an-interactive-shell-from-within-go.html
 var Shell = cli.Command{
 	Name:  "shell",
 	Usage: "Creates a new shell with project environment variables",
