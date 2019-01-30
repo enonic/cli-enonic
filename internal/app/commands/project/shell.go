@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"github.com/enonic/xp-cli/internal/app/util"
 	"fmt"
-	"strings"
 )
 
 var Shell = cli.Command{
@@ -25,20 +24,16 @@ var Shell = cli.Command{
 
 		prjJavaHome := sandbox.GetDistroJdkPath(sBox.Distro)
 		prjXpHome := sandbox.GetSandboxHomePath(pData.Sandbox)
+		os.Setenv(common.ENV_JAVA_HOME, prjJavaHome)
+		os.Setenv(common.ENV_XP_HOME, prjXpHome)
 		cmd.Env = os.Environ()
-		for i, keyVal := range cmd.Env {
-			key := strings.Split(keyVal, "=")[0]
-			if key == common.ENV_JAVA_HOME {
-				cmd.Env[i] = key + "=" + prjJavaHome
-			} else if key == common.ENV_XP_HOME {
-				cmd.Env[i] = key + "=" + prjXpHome
-			}
-		}
 
 		err := cmd.Start()
-		util.Fatal(err, "Could not start a new terminal")
+		util.Warn(err, "Could not start new shell")
+		fmt.Fprintf(os.Stderr, "Started new project shell with PID %d.\n", cmd.Process.Pid)
 
-		fmt.Fprintf(os.Stderr, "Started a new shell with PID %d.\n", cmd.Process.Pid)
+		cmd.Wait()
+		fmt.Fprintln(os.Stderr, "Project shell has finished.")
 
 		return nil
 	},
@@ -54,6 +49,15 @@ func createNewTerminalCommand() *exec.Cmd {
 	case "mac":
 		return exec.Command("open", "-F", "-n", "-b", "com.apple.Terminal", prjDir)
 	default:
-		return exec.Command("xterm", "-e", "cd "+prjDir+" && bash")
+		shell := os.Getenv("SHELL")
+		if shell == "" {
+			shell = "bash"
+		}
+		cmd := exec.Command(shell, "--init-file", "'<(enonic)'")
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+
+		return cmd
 	}
 }

@@ -17,6 +17,6 @@ var Build = cli.Command{
 }
 
 func buildProject(c *cli.Context) {
-	projectData := ensureProjectDataExists(c, "A sandbox is required for your project, create one? [y/n]")
+	projectData := ensureProjectDataExists(c, "A sandbox is required for your project, create one?")
 	runGradleTask(projectData, "build", fmt.Sprintf("Building using sandbox '%s'...", projectData.Sandbox))
 }
