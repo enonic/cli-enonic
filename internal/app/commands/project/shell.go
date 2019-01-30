@@ -52,7 +52,7 @@ func createNewTerminalCommand() *exec.Cmd {
 	case "windows":
 		return exec.Command("cmd", "/C", "start", "/d", prjDir)
 	case "mac":
-		return exec.Command("open", "-a", "Terminal", "-n")
+		return exec.Command("open", "-F", "-n", "-b", "com.apple.Terminal", prjDir)
 	default:
 		return exec.Command("xterm", "-e", "cd "+prjDir+" && bash")
 	}
