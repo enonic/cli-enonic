@@ -98,7 +98,7 @@ release:
 scoop:
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-  url_template: http://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
+  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
 
   # Repository to push the app manifest to.
   bucket:
@@ -113,11 +113,11 @@ scoop:
 
   # Your app's homepage.
   # Default is empty.
-  homepage: "http://enonic.com/"
+  homepage: "https://enonic.com/"
 
   # Your app's description.
   # Default is empty.
-  description: "Enonic XP command line interface."
+  description: "Command-line interface for Enonic XP"
 
   # Your app's license
   # Default is empty.
@@ -137,7 +137,7 @@ brew:
 
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-  url_template: http://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
+  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
 
   # Allows you to set a custom download strategy.
   # Default is empty.
@@ -155,11 +155,11 @@ brew:
 
   # Your app's homepage.
   # Default is empty.
-  homepage: "http://enonic.com/"
+  homepage: "https://enonic.com/"
 
   # Your app's description.
   # Default is empty.
-  description: "Enonic XP command line interface."
+  description: "Command-line interface for Enonic XP"
 
 nfpm:
   # You can change the name of the package.
@@ -182,7 +182,7 @@ nfpm:
   vendor: Enonic AS.
   # Your app's homepage.
   # Default is empty.
-  homepage: http://enonic.com/
+  homepage: https://enonic.com/
 
   # Your app's maintainer (probably you).
   # Default is empty.
@@ -190,7 +190,7 @@ nfpm:
 
   # Your app's description.
   # Default is empty.
-  description: Enonic XP command line interface.
+  description: Command-line interface for Enonic XP
 
   # Your app's license.
   # Default is empty.
