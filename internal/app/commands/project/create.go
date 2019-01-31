@@ -82,7 +82,11 @@ var Create = cli.Command{
 		propsFile := filepath.Join(dest, "gradle.properties")
 		processGradleProperties(propsFile, name, version)
 
-		fmt.Fprintf(os.Stderr, "Project '%s' created.\n\n", name)
+		fmt.Fprint(os.Stderr, "\n")
+
+		ensureProjectDataExists(nil, dest, "A sandbox is required for your project, create one?")
+
+		fmt.Fprintf(os.Stderr, "\nProject '%s' created.\n", name)
 
 		return nil
 	},

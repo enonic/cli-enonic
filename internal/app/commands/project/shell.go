@@ -15,9 +15,9 @@ var Shell = cli.Command{
 	Usage: "Creates a new shell with project environment variables",
 	Action: func(c *cli.Context) error {
 
-		ensureValidProjectFolder()
+		ensureValidProjectFolder(".")
 
-		pData := readProjectData()
+		pData := readProjectData(".")
 		sBox := sandbox.ReadSandboxData(pData.Sandbox)
 
 		cmd := createNewTerminalCommand()

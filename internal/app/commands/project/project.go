@@ -7,9 +7,9 @@ import (
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 	"fmt"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"github.com/otiai10/copy"
+	"path"
 )
 
 func All() []cli.Command {
@@ -28,17 +28,17 @@ type ProjectData struct {
 	Sandbox string `toml:"sandbox"`
 }
 
-func readProjectData() ProjectData {
-	file := util.OpenOrCreateDataFile(".enonic", true)
+func readProjectData(prjPath string) *ProjectData {
+	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), true)
 	defer file.Close()
 
 	var data ProjectData
 	util.DecodeTomlFile(file, &data)
-	return data
+	return &data
 }
 
-func writeProjectData(data ProjectData) {
-	file := util.OpenOrCreateDataFile(".enonic", false)
+func writeProjectData(data *ProjectData, prjPath string) {
+	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), false)
 	defer file.Close()
 
 	util.EncodeTomlFile(file, data)
@@ -56,30 +56,30 @@ func getOsGradlewFile() string {
 	return gradlewFile
 }
 
-func ensureValidProjectFolder() {
-	dir, err := os.Getwd()
-	util.Fatal(err, "Could not get current dir")
-
-	if _, err := os.Stat(path.Join(dir, getOsGradlewFile())); os.IsNotExist(err) {
+func ensureValidProjectFolder(prjPath string) {
+	if _, err := os.Stat(path.Join(prjPath, getOsGradlewFile())); os.IsNotExist(err) {
 		fmt.Fprintln(os.Stderr, "Not a valid project folder")
 		os.Exit(0)
 	}
 }
 
-func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
+func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *ProjectData {
 	var newBox bool
-	var sBox sandbox.Sandbox
+	var sBox *sandbox.Sandbox
 
-	ensureValidProjectFolder()
+	ensureValidProjectFolder(prjPath)
 
-	projectData := readProjectData()
+	projectData := readProjectData(prjPath)
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
 		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "A sandbox is required for your project, select one:")
+		if sBox == nil {
+			return nil
+		}
 		projectData.Sandbox = sBox.Name
 		if badSandbox {
-			writeProjectData(projectData)
+			writeProjectData(projectData, prjPath)
 			fmt.Fprintf(os.Stderr, "Project is now linked to sandbox '%s' using '%s'\n", projectData.Sandbox, sBox.Distro)
 		}
 	} else {
@@ -95,7 +95,7 @@ func ensureProjectDataExists(c *cli.Context, noBoxMessage string) ProjectData {
 	return projectData
 }
 
-func runGradleTask(projectData ProjectData, task, message string) {
+func runGradleTask(projectData *ProjectData, task, message string) {
 
 	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
 

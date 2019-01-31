@@ -21,6 +21,9 @@ var Upgrade = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:")
+		if sandbox == nil {
+			os.Exit(0)
+		}
 		version := ensureVersionCorrect(c.String("version"))
 		preventVersionDowngrade(sandbox, version)
 
@@ -32,7 +35,7 @@ var Upgrade = cli.Command{
 	},
 }
 
-func preventVersionDowngrade(sandbox Sandbox, newString string) {
+func preventVersionDowngrade(sandbox *Sandbox, newString string) {
 	distroVer := parseDistroVersion(sandbox.Distro, true)
 	oldVer, err := semver.NewVersion(distroVer)
 	util.Fatal(err, fmt.Sprintf("Could not parse sandbox distro version from: %s", sandbox.Distro))

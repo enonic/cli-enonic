@@ -15,6 +15,9 @@ var Start = cli.Command{
 
 		ensurePortAvailable(8080)
 		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:")
+		if sandbox == nil {
+			os.Exit(0)
+		}
 		EnsureDistroExists(sandbox.Distro)
 
 		cmd := startDistro(sandbox.Distro, sandbox.Name)

@@ -37,7 +37,7 @@ type Sandbox struct {
 	Distro string
 }
 
-func createSandbox(name string, version string) Sandbox {
+func createSandbox(name string, version string) *Sandbox {
 	dir := createFolderIfNotExist(getSandboxesDir(), name)
 
 	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
@@ -46,7 +46,7 @@ func createSandbox(name string, version string) Sandbox {
 	data := SandboxData{formatDistroVersion(version, util.GetCurrentOs(), true)}
 	util.EncodeTomlFile(file, data)
 
-	return Sandbox{name, data.Distro}
+	return &Sandbox{name, data.Distro}
 }
 
 func readSandboxesData() SandboxesData {
@@ -67,17 +67,17 @@ func writeSandboxesData(data SandboxesData) {
 	util.EncodeTomlFile(file, data)
 }
 
-func ReadSandboxData(name string) Sandbox {
+func ReadSandboxData(name string) *Sandbox {
 	path := filepath.Join(getSandboxesDir(), name, ".enonic")
 	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
 
 	var data SandboxData
 	util.DecodeTomlFile(file, &data)
-	return Sandbox{name, data.Distro}
+	return &Sandbox{name, data.Distro}
 }
 
-func writeSandboxData(data Sandbox) {
+func writeSandboxData(data *Sandbox) {
 	path := filepath.Join(getSandboxesDir(), data.Name, ".enonic")
 	file := util.OpenOrCreateDataFile(path, false)
 	defer file.Close()
@@ -93,8 +93,8 @@ func GetSandboxHomePath(name string) string {
 	return filepath.Join(getSandboxesDir(), name, "home")
 }
 
-func getSandboxesUsingDistro(distroName string) []Sandbox {
-	usedBy := make([]Sandbox, 0)
+func getSandboxesUsingDistro(distroName string) []*Sandbox {
+	usedBy := make([]*Sandbox, 0)
 	for _, box := range listSandboxes() {
 		if data := ReadSandboxData(box.Name); data.Distro == distroName {
 			usedBy = append(usedBy, box)
@@ -108,15 +108,15 @@ func deleteSandbox(name string) {
 	util.Warn(err, fmt.Sprintf("Could not delete sandbox '%s' folder: ", name))
 }
 
-func listSandboxes() []Sandbox {
+func listSandboxes() []*Sandbox {
 	sandboxesDir := getSandboxesDir()
 	files, err := ioutil.ReadDir(sandboxesDir)
 	util.Fatal(err, "Could not list sandboxes: ")
 	return filterSandboxes(files, sandboxesDir)
 }
 
-func filterSandboxes(vs []os.FileInfo, sandboxDir string) []Sandbox {
-	vsf := make([]Sandbox, 0)
+func filterSandboxes(vs []os.FileInfo, sandboxDir string) []*Sandbox {
+	vsf := make([]*Sandbox, 0)
 	for _, v := range vs {
 		if !v.IsDir() {
 			continue
@@ -153,12 +153,12 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string) (Sandbox, bool) {
+func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string) (*Sandbox, bool) {
 	existingBoxes := listSandboxes()
 
 	if len(existingBoxes) == 0 {
 		if !util.YesNoPrompt(noBoxMessage) {
-			os.Exit(0)
+			return nil, false
 		}
 		newBox := SandboxCreateWizard("", "")
 		return newBox, true

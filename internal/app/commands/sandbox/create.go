@@ -32,13 +32,13 @@ var Create = cli.Command{
 	},
 }
 
-func SandboxCreateWizard(name, versionStr string) Sandbox {
+func SandboxCreateWizard(name, versionStr string) *Sandbox {
 
 	name = ensureUniqueNameArg(name)
 	version := ensureVersionCorrect(versionStr)
 
 	box := createSandbox(name, version)
-	fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n\n", box.Name, box.Distro)
+	fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
 
 	return box
 }
@@ -67,7 +67,7 @@ func ensureUniqueNameArg(name string) string {
 		}
 	})
 }
-func getFirstValidSandboxName(sandboxes []Sandbox) string {
+func getFirstValidSandboxName(sandboxes []*Sandbox) string {
 	var name string
 	num := 1
 	nameInvalid := false
