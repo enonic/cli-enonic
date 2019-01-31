@@ -20,13 +20,19 @@ var Start = cli.Command{
 		}
 		EnsureDistroExists(sandbox.Distro)
 
-		cmd := startDistro(sandbox.Distro, sandbox.Name)
-		writeRunningSandbox(sandbox.Name)
-		listenForInterrupt(sandbox.Name)
+		StartSandbox(sandbox)
 
-		cmd.Wait()
 		return nil
 	},
+}
+
+func StartSandbox(sandbox *Sandbox) {
+	cmd := startDistro(sandbox.Distro, sandbox.Name)
+
+	writeRunningSandbox(sandbox.Name)
+	listenForInterrupt(sandbox.Name)
+
+	cmd.Wait()
 }
 
 func ensurePortAvailable(port uint16) {
