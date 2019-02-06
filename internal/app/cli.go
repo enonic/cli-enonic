@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/commands"
+	"github.com/enonic/enonic-cli/internal/app/commands"
 )
 
 // set by goreleaser

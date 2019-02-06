@@ -3,7 +3,7 @@ package remote
 import (
 	"github.com/urfave/cli"
 	"net/url"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"path/filepath"
 	"bytes"
 	"os"

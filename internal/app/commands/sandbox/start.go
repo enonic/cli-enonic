@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 var Start = cli.Command{

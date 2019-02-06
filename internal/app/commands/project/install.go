@@ -2,13 +2,13 @@ package project
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/commands/app"
+	"github.com/enonic/enonic-cli/internal/app/commands/app"
 	"io/ioutil"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"path/filepath"
 	"os"
 	"fmt"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 )
 
 var Install = cli.Command{

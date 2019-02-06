@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/AlecAivazis/survey"
 	"io/ioutil"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 )
 
 func All() []cli.Command {

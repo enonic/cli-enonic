@@ -36,7 +36,7 @@ For other OSes, please see [Goreleaser](https://goreleaser.com).
 
 ## Building project
 
-1. Check out [XP CLI](https://github.com/enonic/xp-cli) from GitHub
+1. Check out [XP CLI](https://github.com/enonic/enonic-cli) from GitHub
 1. Run `dep ensure` in the project folder.  -  This will download all dependencies for the project.
 1. Run `goreleaser --rm-dist --snapshot` in the project folder to build a snapshot of latest code.  A binary installation, ready for use will be put in the dist folder.
 

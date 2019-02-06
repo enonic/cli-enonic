@@ -2,15 +2,15 @@ package commands
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
-	"github.com/enonic/xp-cli/internal/app/commands/project"
-	"github.com/enonic/xp-cli/internal/app/commands/snapshot"
-	"github.com/enonic/xp-cli/internal/app/commands/dump"
-	"github.com/enonic/xp-cli/internal/app/commands/export"
-	"github.com/enonic/xp-cli/internal/app/commands/app"
-	"github.com/enonic/xp-cli/internal/app/commands/repo"
-	"github.com/enonic/xp-cli/internal/app/commands/cms"
-	"github.com/enonic/xp-cli/internal/app/commands/cluster"
+	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
+	"github.com/enonic/enonic-cli/internal/app/commands/project"
+	"github.com/enonic/enonic-cli/internal/app/commands/snapshot"
+	"github.com/enonic/enonic-cli/internal/app/commands/dump"
+	"github.com/enonic/enonic-cli/internal/app/commands/export"
+	"github.com/enonic/enonic-cli/internal/app/commands/app"
+	"github.com/enonic/enonic-cli/internal/app/commands/repo"
+	"github.com/enonic/enonic-cli/internal/app/commands/cms"
+	"github.com/enonic/enonic-cli/internal/app/commands/cluster"
 )
 
 func All() []cli.Command {

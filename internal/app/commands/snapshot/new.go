@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 var New = cli.Command{

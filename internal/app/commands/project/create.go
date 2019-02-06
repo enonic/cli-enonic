@@ -2,8 +2,8 @@ package project
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/util"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"github.com/otiai10/copy"
 	"strings"
 	"os"

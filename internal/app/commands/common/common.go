@@ -3,14 +3,14 @@ package common
 import (
 	"io"
 	"net/http"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"fmt"
 	"os"
 	"encoding/json"
 	"github.com/urfave/cli"
 	"time"
 	"strings"
-	"github.com/enonic/xp-cli/internal/app/commands/remote"
+	"github.com/enonic/enonic-cli/internal/app/commands/remote"
 	"net/url"
 )
 

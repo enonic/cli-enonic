@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"bytes"
 	"time"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"strings"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 )
 
 const DATE_FORMAT = "2 Jan 06"

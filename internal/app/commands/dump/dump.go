@@ -2,13 +2,13 @@ package dump
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"io/ioutil"
 	"path/filepath"
 	"fmt"
 	"github.com/AlecAivazis/survey"
 	"strings"
-	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
+	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 	"os"
 	"regexp"
 )

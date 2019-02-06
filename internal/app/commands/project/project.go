@@ -2,9 +2,9 @@ package project
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"os"
-	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
+	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 	"fmt"
 	"os/exec"
 	"path/filepath"

@@ -2,7 +2,7 @@ package export
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"strings"
 	"fmt"
 )

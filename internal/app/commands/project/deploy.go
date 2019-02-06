@@ -3,8 +3,8 @@ package project
 import (
 	"github.com/urfave/cli"
 	"fmt"
-	"github.com/enonic/xp-cli/internal/app/util"
-	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 )
 
 var Deploy = cli.Command{

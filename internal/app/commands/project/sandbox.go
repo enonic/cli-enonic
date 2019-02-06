@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"os"
-	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
+	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 )
 
 var Sandbox = cli.Command{

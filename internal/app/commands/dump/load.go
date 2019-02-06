@@ -2,13 +2,13 @@ package dump
 
 import (
 	"github.com/urfave/cli"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"os"
 	"fmt"
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 var Load = cli.Command{

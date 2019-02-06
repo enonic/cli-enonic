@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"os"
-	"github.com/enonic/xp-cli/internal/app/util"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/Masterminds/semver"
 )
 
