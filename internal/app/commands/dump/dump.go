@@ -3,13 +3,12 @@ package dump
 import (
 	"github.com/urfave/cli"
 	"github.com/enonic/xp-cli/internal/app/util"
-	"os"
 	"io/ioutil"
 	"path/filepath"
 	"fmt"
 	"github.com/AlecAivazis/survey"
 	"strings"
-	"github.com/enonic/xp-cli/internal/app/commands/common"
+	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 )
 
 func All() []cli.Command {
@@ -59,10 +58,13 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 }
 
 func listExistingDumpNames() []string {
-	homePath := os.Getenv(common.ENV_XP_HOME)
+	homePath := sandbox.GetActiveHomePath()
 	dumpsDir := filepath.Join(homePath, "data", "dump")
 	dumps, err := ioutil.ReadDir(dumpsDir)
-	util.Fatal(err, "Could not read dumps folder")
+	if err != nil {
+		return []string{}
+	}
+
 	dumpNames := make([]string, len(dumps))
 	for i, dump := range dumps {
 		dumpNames[i] = dump.Name()

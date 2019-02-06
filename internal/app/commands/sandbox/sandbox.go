@@ -8,6 +8,7 @@ import (
 	"github.com/enonic/xp-cli/internal/app/util"
 	"github.com/AlecAivazis/survey"
 	"io/ioutil"
+	"github.com/enonic/xp-cli/internal/app/commands/common"
 )
 
 func All() []cli.Command {
@@ -87,6 +88,17 @@ func writeSandboxData(data *Sandbox) {
 
 func getSandboxesDir() string {
 	return filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes")
+}
+
+func GetActiveHomePath() string {
+	var homePath string
+	sboxesData := readSandboxesData()
+	if sboxesData.Running != "" {
+		homePath = GetSandboxHomePath(sboxesData.Running)
+	} else {
+		homePath = os.Getenv(common.ENV_XP_HOME)
+	}
+	return homePath
 }
 
 func GetSandboxHomePath(name string) string {
