@@ -50,6 +50,10 @@ func ensureSnapshotFlag(c *cli.Context) {
 	if c.String("snapshot") == "" {
 
 		snapshotList := listSnapshots(c)
+		if len(snapshotList.Results) == 0 {
+			fmt.Fprintln(os.Stderr, "No existing snapshots found")
+			os.Exit(0)
+		}
 
 		var name string
 		prompt := &survey.Select{

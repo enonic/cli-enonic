@@ -9,6 +9,7 @@ import (
 	"github.com/AlecAivazis/survey"
 	"strings"
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
+	"os"
 )
 
 func All() []cli.Command {
@@ -21,6 +22,10 @@ func All() []cli.Command {
 
 func ensureNameFlag(name string, mustNotExist bool) string {
 	existingDumps := listExistingDumpNames()
+	if len(existingDumps) == 0 && !mustNotExist {
+		fmt.Fprintln(os.Stderr, "No existing dumps found")
+		os.Exit(0)
+	}
 
 	return util.PromptUntilTrue(name, func(val *string, ind byte) string {
 
