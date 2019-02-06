@@ -33,9 +33,9 @@ var Install = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		ensureURLOrFileFlag(c)
+		file, url := ensureURLOrFileFlag(c)
 
-		installApp(c, c.String("file"), c.String("url"))
+		installApp(c, file, url)
 
 		return nil
 	},
@@ -67,7 +67,7 @@ func InstallFromUrl(c *cli.Context, url string) InstallResult {
 	return installApp(c, "", url)
 }
 
-func ensureURLOrFileFlag(c *cli.Context) {
+func ensureURLOrFileFlag(c *cli.Context) (string, string) {
 	urlString := strings.TrimSpace(c.String("u"))
 	fileString := strings.TrimSpace(c.String("f"))
 
@@ -84,16 +84,16 @@ func ensureURLOrFileFlag(c *cli.Context) {
 		})
 		switch val {
 		case "U", "u":
-			ensureURLFlag(c)
+			return "", ensureURLFlag(c)
 		case "F", "f":
-			ensureFileFlag(c)
+			return ensureFileFlag(c), ""
 		}
 	}
+	return fileString, urlString
 }
 
-func ensureURLFlag(c *cli.Context) {
-	val := c.String("u")
-	val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
+func ensureURLFlag(c *cli.Context) string {
+	return util.PromptUntilTrue(c.String("u"), func(val *string, ind byte) string {
 		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
@@ -109,12 +109,10 @@ func ensureURLFlag(c *cli.Context) {
 			return ""
 		}
 	})
-	c.Set("u", val)
 }
 
-func ensureFileFlag(c *cli.Context) {
-	val := c.String("f")
-	val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
+func ensureFileFlag(c *cli.Context) string {
+	return util.PromptUntilTrue(c.String("f"), func(val *string, ind byte) string {
 		if len(strings.TrimSpace(*val)) == 0 {
 			switch ind {
 			case 0:
@@ -129,7 +127,6 @@ func ensureFileFlag(c *cli.Context) {
 			return ""
 		}
 	})
-	c.Set("f", val)
 }
 
 func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Request {
