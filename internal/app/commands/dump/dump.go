@@ -10,6 +10,7 @@ import (
 	"strings"
 	"github.com/enonic/xp-cli/internal/app/commands/sandbox"
 	"os"
+	"regexp"
 )
 
 func All() []cli.Command {
@@ -27,6 +28,8 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 		os.Exit(0)
 	}
 
+	nameRegex, _ := regexp.Compile("^[a-zA-Z0-9_]+$")
+
 	return util.PromptUntilTrue(name, func(val *string, ind byte) string {
 
 		exists := false
@@ -39,10 +42,14 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 				}
 			}
 		} else {
-			for _, dumpName := range existingDumps {
-				if dumpName == *val {
-					exists = true
-					break
+			if !nameRegex.MatchString(*val) {
+				return fmt.Sprintf("Dump name '%s' is not valid. Use letters, digits and underscore (_) only: ", *val)
+			} else {
+				for _, dumpName := range existingDumps {
+					if dumpName == *val {
+						exists = true
+						break
+					}
 				}
 			}
 		}
