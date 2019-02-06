@@ -1,6 +1,8 @@
 # Enonic XP CLI
 
-In order to build and develop the XP CLI, you need to have the go environment available.
+Enonic XP CLI is a command-line tool built for management of installations and projects of [Enonic XP](https://github.com/enonic/xp).
+
+In order to build and develop the CLI, you need to have the Go environment available.
 
 ## Installing Go build and release environment:
 
