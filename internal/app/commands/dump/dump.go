@@ -45,8 +45,9 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 			if !nameRegex.MatchString(*val) {
 				return fmt.Sprintf("Dump name '%s' is not valid. Use letters, digits and underscore (_) only: ", *val)
 			} else {
+				lowerVal := strings.ToLower(*val);
 				for _, dumpName := range existingDumps {
-					if dumpName == *val {
+					if strings.ToLower(dumpName) == lowerVal {
 						exists = true
 						break
 					}
