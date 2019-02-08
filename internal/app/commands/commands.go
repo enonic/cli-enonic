@@ -17,31 +17,31 @@ func All() []cli.Command {
 	return []cli.Command{
 		{
 			Name:        "snapshot",
-			Usage:       "Snapshot commands",
+			Usage:       "Create and restore snapshots",
 			HelpName:    "Snapshot",
 			Subcommands: snapshot.All(),
 		},
 		{
 			Name:        "dump",
-			Usage:       "Dump commands",
+			Usage:       "Dump and load complete repositories",
 			HelpName:    "Dump",
 			Subcommands: dump.All(),
 		},
 		{
 			Name:        "export",
-			Usage:       "Export commands",
+			Usage:       "Export and load repository structures",
 			HelpName:    "Export",
 			Subcommands: export.All(),
 		},
 		{
 			Name:        "app",
-			Usage:       "Application commands",
+			Usage:       "Install, stop and start applications",
 			HelpName:    "Application",
 			Subcommands: app.All(),
 		},
 		{
 			Name:        "repo",
-			Usage:       "Repository commands",
+			Usage:       "Tune and manage repositories",
 			HelpName:    "Repo",
 			Subcommands: repo.All(),
 		},
@@ -59,14 +59,14 @@ func All() []cli.Command {
 		},
 		{
 			Name:        "sandbox",
-			Usage:       "Sandbox commands",
+			Usage:       "Manage XP development instances",
 			Subcommands: sandbox.All(),
 			HelpName:    "Sandbox",
 			Category:    "PROJECT COMMANDS",
 		},
 		{
 			Name:        "project",
-			Usage:       "Project commands",
+			Usage:       "Manage XP development projects",
 			Subcommands: project.All(),
 			HelpName:    "Project",
 			Category:    "PROJECT COMMANDS",
