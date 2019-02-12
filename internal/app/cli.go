@@ -5,6 +5,7 @@ import (
 	"os"
 	"github.com/urfave/cli"
 	"github.com/enonic/enonic-cli/internal/app/commands"
+	survey "gopkg.in/AlecAivazis/survey.v1/core"
 )
 
 // set by goreleaser
@@ -26,6 +27,10 @@ func main() {
 	app.CustomAppHelpTemplate = appHelp
 	cli.CommandHelpTemplate = commandHelp
 	cli.SubcommandHelpTemplate = subCommandHelp
+
+	survey.ErrorIcon = ">>"
+	survey.ErrorTemplate = `{{color "red"}}{{ ErrorIcon }}{{color "reset"}} {{color "white"}}{{.Error}}{{color "reset"}}
+`
 
 	err := app.Run(os.Args)
 	if err != nil {

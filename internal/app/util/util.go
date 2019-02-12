@@ -15,6 +15,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"time"
 	"strings"
+	"github.com/AlecAivazis/survey"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -31,6 +32,21 @@ func PrettyPrintJSON(data interface{}) string {
 		return "Not a valid JSON: " + err.Error()
 	}
 	return out.String()
+}
+
+func PromptOnce(text, val, defaultVal string, validator func(val interface{}) error) string {
+	if err := validator(val); err == nil {
+		return val
+	}
+
+	prompt := &survey.Input{
+		Message: text,
+		Default: defaultVal,
+	}
+
+	survey.AskOne(prompt, &val, validator)
+
+	return val
 }
 
 func PromptUntilTrue(val string, assessFunc func(val *string, i byte) string) string {

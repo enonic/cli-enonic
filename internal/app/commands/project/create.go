@@ -17,6 +17,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/AlecAivazis/survey"
 	"gopkg.in/src-d/go-git.v4/config"
+	"github.com/pkg/errors"
 )
 
 var GITHUB_URL = "https://github.com/"
@@ -94,45 +95,40 @@ var Create = cli.Command{
 
 func ensureVersion(c *cli.Context) string {
 
-	return util.PromptUntilTrue(c.String("version"), func(val *string, i byte) string {
-		if *val == "" {
-			if i == 0 {
-				return fmt.Sprintf("\nApplication version (default: '%s'):", DEFAULT_VERSION)
-			} else {
-				*val = DEFAULT_VERSION
-				fmt.Fprintln(os.Stderr, *val)
-				return ""
-			}
-		} else if _, err := semver.NewVersion(*val); err != nil {
-			return fmt.Sprintf("Version '%s' is not valid: ", *val)
+	var versionValidator = func(val interface{}) error {
+		str := val.(string)
+		if _, err := semver.NewVersion(str); err != nil {
+			return errors.Errorf("Version '%s' is not valid: ", str)
 		}
-		return ""
-	})
+		return nil
+	}
+
+	return util.PromptOnce("Application version", c.String("version"), DEFAULT_VERSION, versionValidator)
 }
 
 func ensureDestination(c *cli.Context, name string) string {
 	dest := c.String("destination")
-	destNotSet := dest == ""
-	if destNotSet && name != "" {
+	var defaultDest string
+	if dest == "" && name != "" {
 		lastDot := strings.LastIndex(name, ".")
-		dest = name[lastDot+1:]
+		defaultDest = name[lastDot+1:]
 	}
 
-	return util.PromptUntilTrue(dest, func(val *string, i byte) string {
-		if destNotSet && i == 0 {
-			return fmt.Sprintf("\nDestination folder (default: '%s'):", dest)
-		} else if i > 0 && *val == "" {
-			*val = dest
-			fmt.Fprintln(os.Stderr, *val)
+	var destValidator = func(val interface{}) error {
+		str := val.(string)
+		if val == "" || len(strings.TrimSpace(str)) < 2 {
+			return errors.New("Destination folder must be at least 2 characters long: ")
+		} else if stat, err := os.Stat(str); stat != nil {
+			return errors.Errorf("Destination folder '%s' already exists: ", str)
+		} else if os.IsNotExist(err) {
+			return nil
+		} else if err != nil {
+			return errors.Errorf("Folder '%s' could not be created: ", str)
 		}
-		if _, err := os.Stat(*val); os.IsNotExist(err) {
-			return ""
-		} else if os.IsExist(err) {
-			return fmt.Sprintf("Destination folder '%s' already exists: ", *val)
-		} else {
-			return fmt.Sprintf("Folder '%s' could not be created: ", *val)
-		}
-	})
+		return nil
+	}
+
+	return util.PromptOnce("Destination folder", dest, defaultDest, destValidator)
 }
 
 func ensureNameArg(c *cli.Context) string {
@@ -140,24 +136,17 @@ func ensureNameArg(c *cli.Context) string {
 	if c.NArg() > 0 {
 		name = c.Args().First()
 	}
-	appNameRegex, _ := regexp.Compile("[a-z.]")
+	appNameRegex, _ := regexp.Compile("^[a-z0-9.]{3,}$")
 
-	return util.PromptUntilTrue(name, func(val *string, i byte) string {
-		if *val == "" {
-			if i == 0 {
-				return fmt.Sprintf("\nProject name (default: '%s'):", DEFAULT_NAME)
-			} else {
-				*val = DEFAULT_NAME
-				fmt.Fprintln(os.Stderr, *val)
-				return ""
-			}
-		} else {
-			if !appNameRegex.MatchString(*val) {
-				return fmt.Sprintf("Name '%s' is not valid. Use lowercase letters and dot (.) symbol only: ", *val)
-			}
-			return ""
+	var nameValidator = func(val interface{}) error {
+		str := val.(string)
+		if !appNameRegex.MatchString(str) {
+			return errors.Errorf("Name '%s' is not valid. Use at least 3 lowercase letters, digits or dot (.) symbols: ", val)
 		}
-	})
+		return nil
+	}
+
+	return util.PromptOnce("Project name", name, DEFAULT_NAME, nameValidator)
 }
 
 func processGradleProperties(propsFile, name, version string) {
@@ -196,7 +185,7 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 
 	if repo == "" {
 		err := survey.AskOne(&survey.Select{
-			Message:  fmt.Sprintf("Starter (default: %s):", DEFAULT_STARTER),
+			Message:  "Starter",
 			Options:  append([]string{customRepoOption}, STARTER_LIST...),
 			Default:  DEFAULT_STARTER,
 			PageSize: 10,
@@ -205,17 +194,16 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 	}
 
 	if repo == customRepoOption {
-		repo = util.PromptUntilTrue("", func(val *string, i byte) string {
-			if *val == "" {
-				if i == 0 {
-					return "Custom repo: "
-				} else {
-					return "Custom repo can not be empty: "
-				}
-			} else {
-				return ""
+
+		var repoValidator = func(val interface{}) error {
+			str := val.(string)
+			if str == "" || len(strings.TrimSpace(str)) < 3 {
+				return errors.Errorf("Repository name can not be empty", val)
 			}
-		})
+			return nil
+		}
+
+		repo = util.PromptOnce("Custom repository", "", "", repoValidator)
 	}
 
 	if strings.Contains(repo, "://") {

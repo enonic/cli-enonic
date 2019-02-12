@@ -6,6 +6,7 @@ import (
 	"strings"
 	"fmt"
 	"os"
+	"github.com/pkg/errors"
 )
 
 var SANDBOX_NAME_TPL = "Sandbox%d"
@@ -46,27 +47,24 @@ func SandboxCreateWizard(name, versionStr string) *Sandbox {
 func ensureUniqueNameArg(name string) string {
 	existingBoxes := listSandboxes()
 	defaultSandboxName := getFirstValidSandboxName(existingBoxes)
-	return util.PromptUntilTrue(name, func(val *string, i byte) string {
-		if *val == "" {
-			if i == 0 {
-				return fmt.Sprintf("\nSandbox name (default: '%s'):", defaultSandboxName)
-			} else {
-				*val = defaultSandboxName
-				fmt.Fprintln(os.Stderr, *val+"\n")
-				return ""
-			}
-		} else if len(strings.TrimSpace(*val)) < 3 {
-			return "Sandbox name must be at least 3 characters long: "
+
+	var sandboxValidator = func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) < 3 {
+			return errors.New("Sandbox name must be at least 3 characters long")
 		} else {
 			for _, existingBox := range existingBoxes {
-				if existingBox.Name == *val {
-					return fmt.Sprintf("Sandbox with name '%s' already exists: ", *val)
+				if existingBox.Name == str {
+					return errors.Errorf("Sandbox with name '%s' already exists: ", str)
 				}
 			}
-			return ""
+			return nil
 		}
-	})
+	}
+
+	return util.PromptOnce("Sandbox name", name, defaultSandboxName, sandboxValidator)
 }
+
 func getFirstValidSandboxName(sandboxes []*Sandbox) string {
 	var name string
 	num := 1
