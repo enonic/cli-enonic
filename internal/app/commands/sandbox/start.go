@@ -14,7 +14,7 @@ var Start = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		ensurePortAvailable(8080)
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:")
+		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true)
 		if sandbox == nil {
 			os.Exit(0)
 		}

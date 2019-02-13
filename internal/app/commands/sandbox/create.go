@@ -27,19 +27,21 @@ var Create = cli.Command{
 			name = c.Args().First()
 		}
 
-		SandboxCreateWizard(name, c.String("version"))
+		SandboxCreateWizard(name, c.String("version"), true)
 
 		return nil
 	},
 }
 
-func SandboxCreateWizard(name, versionStr string) *Sandbox {
+func SandboxCreateWizard(name, versionStr string, showSuccessMessage bool) *Sandbox {
 
 	name = ensureUniqueNameArg(name)
 	version := ensureVersionCorrect(versionStr)
 
 	box := createSandbox(name, version)
-	fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
+	if showSuccessMessage {
+		fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
+	}
 
 	return box
 }

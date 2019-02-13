@@ -20,7 +20,7 @@ var Upgrade = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:")
+		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:", true)
 		if sandbox == nil {
 			os.Exit(0)
 		}

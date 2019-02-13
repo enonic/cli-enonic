@@ -72,22 +72,22 @@ var Create = cli.Command{
 		hash := c.String("checkout")
 		branch := c.String("branch")
 
-		fmt.Fprint(os.Stderr, "\n")
 		var user, pass string
 		if authString := c.String("auth"); authString != "" {
 			user, pass = common.EnsureAuth(authString)
 		}
 
+		fmt.Fprint(os.Stderr, "\nInitializing project...\n")
 		cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
 
 		propsFile := filepath.Join(dest, "gradle.properties")
 		processGradleProperties(propsFile, name, version)
 
-		fmt.Fprint(os.Stderr, "\n")
+		absDest, err := filepath.Abs(dest)
+		util.Fatal(err, "Error creating project")
+		fmt.Fprintf(os.Stderr, "Project created in '%s'\n\n", absDest)
 
 		ensureProjectDataExists(nil, dest, "A sandbox is required for your project, create one?")
-
-		fmt.Fprintf(os.Stderr, "\nProject '%s' created.\n", name)
 
 		return nil
 	},

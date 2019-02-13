@@ -73,23 +73,30 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "A sandbox is required for your project, select one:")
+		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "A sandbox is required for your project, select one:", false)
 		if sBox == nil {
 			return nil
 		}
 		projectData.Sandbox = sBox.Name
 		if badSandbox {
 			writeProjectData(projectData, prjPath)
-			fmt.Fprintf(os.Stderr, "Project is now linked to sandbox '%s' using '%s'\n", projectData.Sandbox, sBox.Distro)
 		}
 	} else {
 		sBox = sandbox.ReadSandboxData(projectData.Sandbox)
 	}
 	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
 
+	fmt.Fprint(os.Stderr, "\n")
 	if newBox || newDistro {
 		err := copy.Copy(filepath.Join(distroPath, "home"), sandbox.GetSandboxHomePath(projectData.Sandbox))
 		util.Fatal(err, "Could not copy home folder from distro: ")
+
+		if newBox {
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' created.\n", sBox.Name)
+		}
+	}
+	if badSandbox {
+		fmt.Fprintf(os.Stderr, "Project linked to '%s'.\n", projectData.Sandbox)
 	}
 
 	return projectData

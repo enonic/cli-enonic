@@ -12,7 +12,7 @@ var Delete = cli.Command{
 	Usage:   "Delete a sandbox",
 	Aliases: []string{"del", "rm"},
 	Action: func(c *cli.Context) error {
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to delete:")
+		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to delete:", true)
 		if sandbox == nil || !acceptToDeleteSandbox(sandbox.Name) {
 			os.Exit(0)
 		}

@@ -15,13 +15,13 @@ var Sandbox = cli.Command{
 
 		ensureValidProjectFolder(".")
 
-		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:")
+		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true)
 		if sandbox == nil {
 			os.Exit(0)
 		}
 		writeProjectData(&ProjectData{sandbox.Name}, ".")
 
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' set as default.\n", sandbox.Name)
+		fmt.Fprintf(os.Stderr, "\nSandbox '%s' set as default.\n", sandbox.Name)
 
 		return nil
 	},
