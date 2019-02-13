@@ -84,9 +84,10 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 	} else {
 		sBox = sandbox.ReadSandboxData(projectData.Sandbox)
 	}
-	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
 
 	fmt.Fprint(os.Stderr, "\n")
+	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
+
 	if newBox || newDistro {
 		err := copy.Copy(filepath.Join(distroPath, "home"), sandbox.GetSandboxHomePath(projectData.Sandbox))
 		util.Fatal(err, "Could not copy home folder from distro: ")
