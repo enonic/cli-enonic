@@ -8,6 +8,7 @@ import (
 	"strings"
 	"encoding/json"
 	"gopkg.in/cheggaaa/pb.v1"
+	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 const TASK_FINISHED = "FINISHED"
@@ -20,7 +21,8 @@ func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
 }
 
 func RunTaskWithParams(req *http.Request, msg string, target interface{}, params map[string]string) *TaskStatus {
-	resp := SendRequest(req)
+	resp, err := SendRequestCustom(req, 3)
+	util.Fatal(err, "Request error")
 
 	var result TaskResponse
 	ParseResponse(resp, &result)

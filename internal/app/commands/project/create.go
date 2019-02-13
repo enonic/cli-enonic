@@ -18,6 +18,8 @@ import (
 	"github.com/AlecAivazis/survey"
 	"gopkg.in/src-d/go-git.v4/config"
 	"github.com/pkg/errors"
+	"encoding/json"
+	"bytes"
 )
 
 var GITHUB_URL = "https://github.com/"
@@ -25,12 +27,27 @@ var ENONIC_REPOSITORY_PREFIX = "enonic/"
 var GIT_REPOSITORY_SUFFIX = ".git"
 var DEFAULT_NAME = "com.enonic.app.mytest"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
-var DEFAULT_STARTER = "starter-vanilla"
-var STARTER_LIST = []string{
-	"starter-vanilla", "starter-pwa", "starter-react", "starter-babel", "starter-bootstrap3",
-	"starter-typescript", "starter-admin-tool", "starter-base", "starter-academy", "starter-gulp",
-	"starter-intranet", "starter-training", "starter-headless", "starter-lib", "starter-angular2",
-}
+var MARKET_URL = "https://market.enonic.com/api/graphql"
+var MARKET_STARTERS_REQUEST = `{
+  market {
+    query(
+      query: "type='com.enonic.app.market:starter' AND ngram('data.version.supportedVersions', '7.0')"
+    ) {
+      displayName
+      ... on com_enonic_app_market_Starter {
+        data {
+          ... on com_enonic_app_market_Starter_Data {
+            gitUrl
+            version {
+              supportedVersions
+              gitTag
+            }
+          }
+        }
+      }
+    }
+  }
+}`
 
 var Create = cli.Command{
 	Name:  "create",
@@ -180,21 +197,43 @@ func processGradleProperties(propsFile, name, version string) {
 }
 
 func ensureGitRepositoryUri(c *cli.Context) string {
-	var customRepoOption = "Custom repo"
+	var (
+		customRepoOption        = "Custom repo"
+		starterList             []string
+		starter, defaultStarter string
+	)
 	repo := c.String("repository")
 
 	if repo == "" {
+		starters := fetchStarters(c)
+		for i, st := range starters {
+			if i == 0 {
+				defaultStarter = st.DisplayName
+			}
+			starterList = append(starterList, st.DisplayName)
+		}
+
 		err := survey.AskOne(&survey.Select{
 			Message:  "Starter",
-			Options:  append([]string{customRepoOption}, STARTER_LIST...),
-			Default:  DEFAULT_STARTER,
+			Options:  append([]string{customRepoOption}, starterList...),
+			Default:  defaultStarter,
 			PageSize: 10,
-		}, &repo, nil)
-		util.Fatal(err, "Distribution select error: ")
+		}, &starter, nil)
+		util.Fatal(err, "Starter select error: ")
+
+		if starter != customRepoOption {
+			for _, st := range starters {
+				if st.DisplayName == starter {
+					repo = st.Data.GitUrl
+					break
+				}
+			}
+		} else {
+			repo = customRepoOption
+		}
 	}
 
 	if repo == customRepoOption {
-
 		var repoValidator = func(val interface{}) error {
 			str := val.(string)
 			if str == "" || len(strings.TrimSpace(str)) < 3 {
@@ -202,7 +241,6 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 			}
 			return nil
 		}
-
 		repo = util.PromptOnce("Custom repository", "", "", repoValidator)
 	}
 
@@ -213,6 +251,27 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 	} else {
 		return GITHUB_URL + ENONIC_REPOSITORY_PREFIX + repo + GIT_REPOSITORY_SUFFIX
 	}
+}
+func fetchStarters(c *cli.Context) []Starter {
+	body := new(bytes.Buffer)
+	params := map[string]string{
+		"query": MARKET_STARTERS_REQUEST,
+	}
+	json.NewEncoder(body).Encode(params)
+
+	fmt.Fprint(os.Stderr, "Loading starters from enonic market...")
+	req := common.CreateRequest(c, "POST", MARKET_URL, body)
+	res, err := common.SendRequestCustom(req, 1)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error, check your internet connection.")
+		return []Starter{}
+	}
+
+	var result StartersResponse
+	common.ParseResponse(res, &result)
+
+	fmt.Fprintln(os.Stderr, "Done.")
+	return result.Data.Market.Query
 }
 
 func cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash string) {
@@ -265,4 +324,23 @@ func clearGitData(dest string) {
 	os.RemoveAll(filepath.Join(dest, ".git"))
 	os.Remove(filepath.Join(dest, "README.md"))
 	os.Remove(filepath.Join(dest, ".gitignore"))
+}
+
+type Starter struct {
+	DisplayName string
+	Data struct {
+		GitUrl string
+		Version []struct {
+			SupportedVersions []string
+			GitTag            string
+		}
+	}
+}
+
+type StartersResponse struct {
+	Data struct {
+		Market struct {
+			Query []Starter
+		}
+	}
 }

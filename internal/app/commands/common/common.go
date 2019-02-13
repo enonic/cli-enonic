@@ -101,16 +101,19 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 }
 
 func SendRequest(req *http.Request) *http.Response {
-	client := &http.Client{
-		Timeout: time.Duration(5 * time.Minute),
-	}
-	resp, err := client.Do(req)
-
+	res, err := SendRequestCustom(req, 1)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Request error: ", err)
 		os.Exit(1)
 	}
-	return resp
+	return res
+}
+
+func SendRequestCustom(req *http.Request, timeoutMin time.Duration) (*http.Response, error) {
+	client := &http.Client{
+		Timeout: timeoutMin * time.Minute,
+	}
+	return client.Do(req)
 }
 
 func ParseResponse(resp *http.Response, target interface{}) {
