@@ -186,14 +186,20 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 	}
 
 	selectOptions := []string{CREATE_NEW_BOX}
-	for _, box := range existingBoxes {
-		selectOptions = append(selectOptions, fmt.Sprintf("%s ( %s )", box.Name, box.Distro))
+	var boxName, defaultBox string
+	for i, box := range existingBoxes {
+		boxName = fmt.Sprintf("%s ( %s )", box.Name, box.Distro)
+		if i == 0 {
+			defaultBox = boxName
+		}
+		selectOptions = append(selectOptions, boxName)
 	}
 
 	var name string
 	prompt := &survey.Select{
 		Message: selectBoxMessage,
 		Options: selectOptions,
+		Default: defaultBox,
 	}
 
 	err := survey.AskOne(prompt, &name, nil)

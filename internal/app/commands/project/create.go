@@ -82,19 +82,19 @@ var Create = cli.Command{
 	Action: func(c *cli.Context) error {
 		fmt.Fprint(os.Stderr, "\n")
 
-		gitUrl := ensureGitRepositoryUri(c)
+		branch := c.String("branch")
+		hash := c.String("checkout")
+		gitUrl := ensureGitRepositoryUri(c, &hash)
 		name := ensureNameArg(c)
 		dest := ensureDestination(c, name)
 		version := ensureVersion(c)
-		hash := c.String("checkout")
-		branch := c.String("branch")
 
 		var user, pass string
 		if authString := c.String("auth"); authString != "" {
 			user, pass = common.EnsureAuth(authString)
 		}
 
-		fmt.Fprint(os.Stderr, "\nInitializing project...\n")
+		fmt.Fprintln(os.Stderr, "\nInitializing project...")
 		cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
 
 		propsFile := filepath.Join(dest, "gradle.properties")
@@ -196,7 +196,7 @@ func processGradleProperties(propsFile, name, version string) {
 	}
 }
 
-func ensureGitRepositoryUri(c *cli.Context) string {
+func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 	var (
 		customRepoOption        = "Custom repo"
 		starterList             []string
@@ -225,6 +225,9 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 			for _, st := range starters {
 				if st.DisplayName == starter {
 					repo = st.Data.GitUrl
+					if *hash == "" {
+						*hash = findLatestHash(&st.Data.Version)
+					}
 					break
 				}
 			}
@@ -252,6 +255,38 @@ func ensureGitRepositoryUri(c *cli.Context) string {
 		return GITHUB_URL + ENONIC_REPOSITORY_PREFIX + repo + GIT_REPOSITORY_SUFFIX
 	}
 }
+
+func findLatestHash(versions *[]StarterVersion) string {
+	var (
+		latestSemver, maxSemver *semver.Version
+		maxHash                 string
+	)
+	for _, v := range *versions {
+		latestSemver = findLatestVersion(v.SupportedVersions)
+
+		if maxSemver == nil || latestSemver.GreaterThan(maxSemver) {
+			maxSemver = latestSemver
+			maxHash = v.GitTag
+		}
+	}
+	return maxHash
+}
+func findLatestVersion(versions []string) *semver.Version {
+	var (
+		latestSemver, maxSemver *semver.Version
+		err                     error
+	)
+	for _, ver := range versions {
+		latestSemver, err = semver.NewVersion(ver)
+		util.Warn(err, fmt.Sprintf("Could not parse version '%s'", ver))
+
+		if maxSemver == nil || latestSemver.GreaterThan(maxSemver) {
+			maxSemver = latestSemver
+		}
+	}
+	return maxSemver
+}
+
 func fetchStarters(c *cli.Context) []Starter {
 	body := new(bytes.Buffer)
 	params := map[string]string{
@@ -309,10 +344,10 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		util.Fatal(err, "Could not get repo tree")
 
 		opts := &git.CheckoutOptions{}
-		if branch != "" {
-			opts.Branch = plumbing.NewBranchReferenceName(branch)
-		} else if hash != "" {
+		if hash != "" {
 			opts.Hash = plumbing.NewHash(hash)
+		} else if branch != "" {
+			opts.Branch = plumbing.NewBranchReferenceName(branch)
 		}
 
 		err3 := tree.Checkout(opts)
@@ -326,14 +361,16 @@ func clearGitData(dest string) {
 	os.Remove(filepath.Join(dest, ".gitignore"))
 }
 
+type StarterVersion struct {
+	SupportedVersions []string
+	GitTag            string
+}
+
 type Starter struct {
 	DisplayName string
 	Data struct {
-		GitUrl string
-		Version []struct {
-			SupportedVersions []string
-			GitTag            string
-		}
+		GitUrl  string
+		Version []StarterVersion
 	}
 }
 
