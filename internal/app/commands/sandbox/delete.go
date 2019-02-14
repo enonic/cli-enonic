@@ -18,8 +18,7 @@ var Delete = cli.Command{
 		}
 
 		if boxesData := readSandboxesData(); boxesData.Running == sandbox.Name {
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' is currently running, stop it first!", sandbox.Name)
-			os.Exit(0)
+			AskToStopSandbox(boxesData)
 		}
 
 		boxes := getSandboxesUsingDistro(sandbox.Distro)

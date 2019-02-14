@@ -49,14 +49,17 @@ func StartSandbox(sandbox *Sandbox, detach bool) {
 func ensurePortAvailable(port uint16) {
 	sData := readSandboxesData()
 	if sData.Running != "" && sData.PID != 0 {
-		if util.YesNoPrompt(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", sData.Running)) {
-			StopSandbox(sData)
-		} else {
-			os.Exit(0)
-		}
+		AskToStopSandbox(sData)
 	} else if !util.IsPortAvailable(port) {
 		fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
 		os.Exit(1)
+	}
+}
+func AskToStopSandbox(sData SandboxesData) {
+	if util.YesNoPrompt(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", sData.Running)) {
+		StopSandbox(sData)
+	} else {
+		os.Exit(0)
 	}
 }
 
