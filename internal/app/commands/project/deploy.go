@@ -16,7 +16,7 @@ var Deploy = cli.Command{
 			runGradleTask(projectData, "deploy", fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox))
 
 			if util.IsPortAvailable(8080) && util.YesNoPrompt(fmt.Sprintf("\nDo you want to start sandbox '%s'?", projectData.Sandbox)) {
-				sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox))
+				sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false)
 			}
 		}
 

@@ -17,6 +17,7 @@ func All() []cli.Command {
 	return []cli.Command{
 		List,
 		Start,
+		Stop,
 		Create,
 		Delete,
 		Upgrade,
@@ -27,6 +28,7 @@ var CREATE_NEW_BOX = "Create new sandbox"
 
 type SandboxesData struct {
 	Running string `toml:"running"`
+	PID     int    `toml:"PID"`
 }
 
 type SandboxData struct {

@@ -16,6 +16,7 @@ import (
 	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"gopkg.in/cheggaaa/pb.v1"
 	"github.com/AlecAivazis/survey"
+	"github.com/enonic/enonic-cli/internal/app/util/system"
 )
 
 const DISTRO_FOLDER_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
@@ -140,7 +141,7 @@ func unzipDistro(zipFile string) string {
 	return targetPath
 }
 
-func startDistro(distroName, sandbox string) *exec.Cmd {
+func startDistro(distroName, sandbox string, detach bool) *exec.Cmd {
 	myOs := util.GetCurrentOs()
 	executable := "server.sh"
 	if myOs == "windows" {
@@ -149,15 +150,14 @@ func startDistro(distroName, sandbox string) *exec.Cmd {
 	version := parseDistroVersion(distroName, true)
 	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
+	args := []string{fmt.Sprintf("-Dxp.home=%s", homePath)}
 
-	cmd := exec.Command(appPath, fmt.Sprintf("-Dxp.home=%s", homePath))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	err := cmd.Start()
-	util.Fatal(err, fmt.Sprintf("Could not start distro '%s': ", distroName))
+	return system.Start(appPath, args, detach)
+}
 
-	return cmd
+func stopDistro(pid int) {
+	err := system.KillAll(pid)
+	util.Fatal(err, fmt.Sprintf("Could not stop process %d", pid))
 }
 
 func deleteDistro(distroName string) {
