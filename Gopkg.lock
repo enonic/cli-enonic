@@ -26,6 +26,14 @@
   version = "v1.4.2"
 
 [[projects]]
+  digest = "1:2fd83c8c2b1ff53fd7c4376a63c3a2f31e002e9296df9d7f150b07da524de88d"
+  name = "github.com/briandowns/spinner"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dd69c579ff204842e8962816987f838e2c2c18d8"
+  version = "1.4"
+
+[[projects]]
   digest = "1:b498b36dbb2b306d1c5205ee5236c9e60352be8f9eea9bf08186723a9f75b4f3"
   name = "github.com/emirpasic/gods"
   packages = [
@@ -39,6 +47,14 @@
   pruneopts = "UT"
   revision = "1615341f118ae12f353cc8a983f35b584342c9b3"
   version = "v1.12.0"
+
+[[projects]]
+  digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
+  name = "github.com/fatih/color"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
+  version = "v1.7.0"
 
 [[projects]]
   branch = "master"
@@ -323,6 +339,7 @@
     "github.com/AlecAivazis/survey",
     "github.com/BurntSushi/toml",
     "github.com/Masterminds/semver",
+    "github.com/briandowns/spinner",
     "github.com/mitchellh/go-homedir",
     "github.com/otiai10/copy",
     "github.com/pkg/errors",

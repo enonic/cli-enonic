@@ -25,8 +25,7 @@ var List = cli.Command{
 func listSnapshots(c *cli.Context) *SnapshotList {
 	req := common.CreateRequest(c, "GET", "repo/snapshot/list", nil)
 
-	fmt.Fprint(os.Stderr, "Loading snapshots...")
-	resp := common.SendRequest(req)
+	resp := common.SendRequest(req, "Loading snapshots")
 
 	var list SnapshotList
 	common.ParseResponse(resp, &list)

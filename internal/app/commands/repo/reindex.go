@@ -37,8 +37,7 @@ var Reindex = cli.Command{
 
 		req := createNewRequest(c)
 
-		fmt.Fprint(os.Stderr, "Reindexing...")
-		resp := common.SendRequest(req)
+		resp := common.SendRequest(req, "Reindexing")
 		var result ReindexResponse
 		common.ParseResponse(resp, &result)
 		fmt.Fprintf(os.Stderr, "Done %d nodes\n", result.NumberReindexed)

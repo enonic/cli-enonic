@@ -12,10 +12,17 @@ import (
 	"strings"
 	"github.com/enonic/enonic-cli/internal/app/commands/remote"
 	"net/url"
+	"github.com/briandowns/spinner"
 )
 
 var ENV_XP_HOME = "XP_HOME"
 var ENV_JAVA_HOME = "JAVA_HOME"
+var spin *spinner.Spinner
+
+func init() {
+	spin = spinner.New(spinner.CharSets[26], 300*time.Millisecond)
+	spin.Writer = os.Stderr
+}
 
 var FLAGS = []cli.Flag{
 	cli.StringFlag{
@@ -100,18 +107,24 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 	return req
 }
 
-func SendRequest(req *http.Request) *http.Response {
-	res, err := SendRequestCustom(req, 1)
+func SendRequest(req *http.Request, message string) *http.Response {
+	res, err := SendRequestCustom(req, message, 1)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Request error: ", err)
+		fmt.Fprintln(os.Stderr, "Unable to connect to remote service: ", err)
 		os.Exit(1)
 	}
 	return res
 }
 
-func SendRequestCustom(req *http.Request, timeoutMin time.Duration) (*http.Response, error) {
+func SendRequestCustom(req *http.Request, message string, timeoutMin time.Duration) (*http.Response, error) {
 	client := &http.Client{
 		Timeout: timeoutMin * time.Minute,
+	}
+	if message != "" {
+		spin.Prefix = message
+		spin.FinalMSG = "\r" + message + "..." //r fixes empty spaces before final msg on windows
+		spin.Start()
+		defer spin.Stop()
 	}
 	return client.Do(req)
 }

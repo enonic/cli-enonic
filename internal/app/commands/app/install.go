@@ -44,13 +44,12 @@ var Install = cli.Command{
 func installApp(c *cli.Context, file, url string) InstallResult {
 	req := createInstallRequest(c, file, url)
 
-	fmt.Fprint(os.Stderr, "Installing...")
-	resp := common.SendRequest(req)
+	resp := common.SendRequest(req, "Installing")
 
 	var result InstallResult
 	common.ParseResponse(resp, &result)
 	if fail := result.ApplicationInstalledJson.Failure; fail != "" {
-		fmt.Fprintf(os.Stderr, "Error occurred: %s\n", fail)
+		fmt.Fprintf(os.Stderr, "Install error: %s\n", fail)
 	} else {
 		fmt.Fprintf(os.Stderr, "Installed '%s' v.%s\n", result.ApplicationInstalledJson.Application.DisplayName, result.ApplicationInstalledJson.Application.Version)
 	}

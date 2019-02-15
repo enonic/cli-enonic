@@ -21,7 +21,7 @@ func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
 }
 
 func RunTaskWithParams(req *http.Request, msg string, target interface{}, params map[string]string) *TaskStatus {
-	resp, err := SendRequestCustom(req, 3)
+	resp, err := SendRequestCustom(req, "", 3)
 	util.Fatal(err, "Request error")
 
 	var result TaskResponse
@@ -101,7 +101,7 @@ func displayTaskProgress(taskId, msg, user, pass string, doneCh chan<- *TaskStat
 
 func fetchTaskStatus(taskId, user, pass string) *TaskStatus {
 	req := doCreateRequest("GET", "/task/"+taskId, user, pass, nil)
-	resp := SendRequest(req)
+	resp := SendRequest(req, "")
 	var taskStatus TaskStatus
 	ParseResponse(resp, &taskStatus)
 	return &taskStatus

@@ -31,8 +31,7 @@ var Reprocess = cli.Command{
 
 		req := createReprocessRequest(c)
 
-		fmt.Fprint(os.Stderr, "Reprocessing...")
-		res := common.SendRequest(req)
+		res := common.SendRequest(req, "Reprocessing")
 
 		var result ReprocessResponse
 		common.ParseResponse(res, &result)

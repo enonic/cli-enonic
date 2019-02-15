@@ -26,12 +26,13 @@ var ReadOnly = cli.Command{
 		readOnly := ensureReadOnlyArg(c)
 		req := createReadOnlyRequest(c, readOnly)
 
+		var access string
 		if readOnly {
-			fmt.Fprint(os.Stderr, "Setting read only access...")
+			access = "read only"
 		} else {
-			fmt.Fprint(os.Stderr, "Setting read/write access...")
+			access = "read/write"
 		}
-		res := common.SendRequest(req)
+		res := common.SendRequest(req, fmt.Sprintf("Setting access to %s", access))
 
 		var result ReadOnlyResponse
 		common.ParseResponse(res, &result)

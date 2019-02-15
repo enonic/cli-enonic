@@ -24,8 +24,7 @@ var New = cli.Command{
 
 		req := createNewRequest(c)
 
-		fmt.Fprint(os.Stderr, "Creating snapshot...")
-		resp := common.SendRequest(req)
+		resp := common.SendRequest(req, "Creating snapshot")
 
 		var snap Snapshot
 		if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {

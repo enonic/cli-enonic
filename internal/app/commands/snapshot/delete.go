@@ -35,8 +35,7 @@ var Delete = cli.Command{
 
 		req := createDeleteRequest(c)
 
-		fmt.Fprint(os.Stderr, "Deleting snapshot(s)...")
-		resp := common.SendRequest(req)
+		resp := common.SendRequest(req, "Deleting snapshot(s)")
 
 		var result DeleteResult
 		common.ParseResponse(resp, &result)
