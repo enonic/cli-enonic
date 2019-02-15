@@ -17,6 +17,7 @@ import (
 
 var ENV_XP_HOME = "XP_HOME"
 var ENV_JAVA_HOME = "JAVA_HOME"
+var MARKET_URL = "https://market.enonic.com/api/graphql"
 var spin *spinner.Spinner
 
 func init() {
@@ -55,13 +56,17 @@ func EnsureAuth(authString string) (string, string) {
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
 	auth := c.String("auth")
-	if auth == "" {
-		activeRemote := remote.GetActiveRemote()
-		if activeRemote.User != "" || activeRemote.Pass != "" {
-			auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+	var user, pass string
+
+	if url != MARKET_URL {
+		if auth == "" {
+			activeRemote := remote.GetActiveRemote()
+			if activeRemote.User != "" || activeRemote.Pass != "" {
+				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+			}
 		}
+		user, pass = EnsureAuth(auth)
 	}
-	user, pass := EnsureAuth(auth)
 
 	return doCreateRequest(method, url, user, pass, body)
 }

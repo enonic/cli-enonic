@@ -27,7 +27,6 @@ var ENONIC_REPOSITORY_PREFIX = "enonic/"
 var GIT_REPOSITORY_SUFFIX = ".git"
 var DEFAULT_NAME = "com.enonic.app.mytest"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
-var MARKET_URL = "https://market.enonic.com/api/graphql"
 var MARKET_STARTERS_REQUEST = `{
   market {
     query(
@@ -294,7 +293,7 @@ func fetchStarters(c *cli.Context) []Starter {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	req := common.CreateRequest(c, "POST", MARKET_URL, body)
+	req := common.CreateRequest(c, "POST", common.MARKET_URL, body)
 	res, err := common.SendRequestCustom(req, "Loading starters from enonic market", 1)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error, check your internet connection.")
