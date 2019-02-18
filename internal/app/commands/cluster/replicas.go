@@ -53,14 +53,14 @@ func ensureReplicasNumberArg(c *cli.Context) int64 {
 		if *val == "" {
 			switch ind {
 			case 0:
-				return "Enter number of replicas: "
+				return "Enter number of replicas (1-99): "
 			default:
 				return "Number of replicas can not be empty: "
 			}
 		} else {
 			var err error
-			if replicasNum, err = strconv.ParseInt(*val, 10, 32); err != nil || replicasNum < 0 {
-				return fmt.Sprintf("Not a valid number of replicas '%s'. Only positive numbers allowed: ", *val)
+			if replicasNum, err = strconv.ParseInt(*val, 10, 32); err != nil || replicasNum < 1 || replicasNum > 99 {
+				return fmt.Sprintf("Not a valid number of replicas '%s'. Use whole numbers from 1 to 99: ", *val)
 			}
 			return ""
 		}
