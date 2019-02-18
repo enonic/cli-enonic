@@ -48,10 +48,10 @@ func installApp(c *cli.Context, file, url string) InstallResult {
 
 	var result InstallResult
 	common.ParseResponse(resp, &result)
-	if fail := result.ApplicationInstalledJson.Failure; fail != "" {
-		fmt.Fprintf(os.Stderr, "Install error: %s\n", fail)
+	if fail := result.Failure; fail != "" {
+		fmt.Fprintln(os.Stderr, fail)
 	} else {
-		fmt.Fprintf(os.Stderr, "Installed '%s' v.%s\n", result.ApplicationInstalledJson.Application.DisplayName, result.ApplicationInstalledJson.Application.Version)
+		fmt.Fprintln(os.Stderr, "Done")
 	}
 	fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
 
@@ -101,8 +101,7 @@ func ensureURLFlag(c *cli.Context) string {
 				return "URL can not be empty: "
 			}
 		} else {
-			_, err := url.Parse(*val)
-			if err != nil {
+			if _, err := url.ParseRequestURI(*val); err != nil {
 				return fmt.Sprintf("URL '%s' is not valid: ", *val)
 			}
 			return ""
@@ -120,7 +119,7 @@ func ensureFileFlag(c *cli.Context) string {
 				return "Path to file can not be empty: "
 			}
 		} else {
-			if _, err := os.Stat(*val); os.IsNotExist(err) {
+			if _, err := os.Stat(*val); err != nil {
 				return fmt.Sprintf("File '%s' does not exist: ", *val)
 			}
 			return ""
@@ -161,20 +160,20 @@ func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Reque
 type InstallResult struct {
 	ApplicationInstalledJson struct {
 		Application struct {
-			DisplayName      string    `json:displayName`
-			Key              string    `json:key`
-			Deletable        bool      `json:deletable`
-			Editable         bool      `json:editable`
-			Local            bool      `json:local`
-			MaxSystemVersion string    `json:maxSystemVersion`
-			MinSystemVersion string    `json:minSystemVersion`
-			ModifiedTime     time.Time `json:modifiedTime`
-			State            string    `json:state`
-			Url              string    `json:url`
-			VendorName       string    `json:vendorName`
-			VendorUrl        string    `json:verndorUrl`
-			Version          string    `json:version`
+			DisplayName      string
+			Key              string
+			Deletable        bool
+			Editable         bool
+			Local            bool
+			MaxSystemVersion string
+			MinSystemVersion string
+			ModifiedTime     time.Time
+			State            string
+			Url              string
+			VendorName       string
+			VendorUrl        string
+			Version          string
 		}
-		Failure string `json:failure`
-	} `json:applicationInstalledJson`
+	}
+	Failure string
 }
