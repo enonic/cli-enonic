@@ -14,8 +14,8 @@ import (
 
 var xslParams map[string]string
 
-var Load = cli.Command{
-	Name:  "load",
+var Import = cli.Command{
+	Name:  "import",
 	Usage: "Import data from a named export.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{

@@ -3,21 +3,19 @@ package dump
 import (
 	"github.com/urfave/cli"
 	"github.com/enonic/enonic-cli/internal/app/util"
-	"io/ioutil"
-	"path/filepath"
 	"fmt"
 	"github.com/AlecAivazis/survey"
 	"strings"
-	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 	"os"
 	"regexp"
 )
 
 func All() []cli.Command {
 	return []cli.Command{
-		New,
+		Create,
 		Upgrade,
 		Load,
+		List,
 	}
 }
 
@@ -68,19 +66,4 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 			return ""
 		}
 	})
-}
-
-func listExistingDumpNames() []string {
-	homePath := sandbox.GetActiveHomePath()
-	dumpsDir := filepath.Join(homePath, "data", "dump")
-	dumps, err := ioutil.ReadDir(dumpsDir)
-	if err != nil {
-		return []string{}
-	}
-
-	dumpNames := make([]string, len(dumps))
-	for i, dump := range dumps {
-		dumpNames[i] = dump.Name()
-	}
-	return dumpNames
 }

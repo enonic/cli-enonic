@@ -11,8 +11,8 @@ import (
 	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
-var New = cli.Command{
-	Name:  "new",
+var Create = cli.Command{
+	Name:  "create",
 	Usage: "Export data from every repository.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{

@@ -1,4 +1,4 @@
-package cluster
+package repo
 
 import (
 	"github.com/urfave/cli"

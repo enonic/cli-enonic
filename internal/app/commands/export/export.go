@@ -9,8 +9,8 @@ import (
 
 func All() []cli.Command {
 	return []cli.Command{
-		New,
-		Load,
+		Create,
+		Import,
 	}
 }
 

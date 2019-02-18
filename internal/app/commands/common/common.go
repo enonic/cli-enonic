@@ -98,11 +98,9 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 			// relative path
 			path = activeRemote.Url.Path + "/" + reqUrl
 		}
-		// remove leading slash
-		path = path[1:]
 	}
 
-	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s/%s", scheme, host, port, path), body)
+	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s%s", scheme, host, port, path), body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Params error: ", err)
 		os.Exit(1)
