@@ -34,7 +34,7 @@ func PrettyPrintJSON(data interface{}) string {
 	return out.String()
 }
 
-func PromptOnce(text, val, defaultVal string, validator func(val interface{}) error) string {
+func PromptString(text, val, defaultVal string, validator func(val interface{}) error) string {
 	if err := validator(val); err == nil {
 		return val
 	}
@@ -45,6 +45,19 @@ func PromptOnce(text, val, defaultVal string, validator func(val interface{}) er
 	}
 
 	survey.AskOne(prompt, &val, validator)
+
+	return val
+}
+
+func PromptBool(text string, defaultVal bool) bool {
+	var val bool
+
+	prompt := &survey.Confirm{
+		Message: text,
+		Default: defaultVal,
+	}
+
+	survey.AskOne(prompt, &val, nil)
 
 	return val
 }
@@ -61,22 +74,6 @@ func PromptUntilTrue(val string, assessFunc func(val *string, i byte) string) st
 		text = assessFunc(&val, index)
 	}
 	return val
-}
-
-func YesNoPrompt(question string) bool {
-	answer := PromptUntilTrue("", func(val *string, ind byte) string {
-		if ind == 0 {
-			return question + " [y/n]: "
-		} else {
-			switch *val {
-			case "Y", "y", "N", "n":
-				return ""
-			default:
-				return "Please type 'Y' for yes, or 'N' for no: "
-			}
-		}
-	})
-	return answer == "Y" || answer == "y"
 }
 
 func checkError(err error, msg string, fatal bool) {

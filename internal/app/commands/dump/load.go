@@ -34,7 +34,7 @@ var Load = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		if c.Bool("y") || acceptToDeleteExistingRepos() {
+		if c.Bool("y") || util.PromptBool("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?", false) {
 
 			name := ensureNameFlag(c.String("d"), false)
 
@@ -59,10 +59,6 @@ var Load = cli.Command{
 
 		return nil
 	},
-}
-
-func acceptToDeleteExistingRepos() bool {
-	return util.YesNoPrompt("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?")
 }
 
 func createLoadRequest(c *cli.Context, name string) *http.Request {
