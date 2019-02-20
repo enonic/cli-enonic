@@ -8,7 +8,7 @@ import (
 func All() []cli.Command {
 	return []cli.Command{
 		List,
-		New,
+		Create,
 		Restore,
 		Delete,
 	}

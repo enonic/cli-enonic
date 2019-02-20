@@ -10,7 +10,7 @@ import (
 	"github.com/enonic/enonic-cli/internal/app/commands/app"
 	"github.com/enonic/enonic-cli/internal/app/commands/repo"
 	"github.com/enonic/enonic-cli/internal/app/commands/cms"
-	"github.com/enonic/enonic-cli/internal/app/commands/cluster"
+	"github.com/enonic/enonic-cli/internal/app/commands/system"
 )
 
 func All() []cli.Command {
@@ -52,10 +52,10 @@ func All() []cli.Command {
 			Subcommands: cms.All(),
 		},
 		{
-			Name:        "cluster",
-			Usage:       "Cluster commands",
-			HelpName:    "Cluster",
-			Subcommands: cluster.All(),
+			Name:        "system",
+			Usage:       "System commands",
+			Subcommands: system.All(),
+			HelpName:    "System",
 		},
 		{
 			Name:        "sandbox",

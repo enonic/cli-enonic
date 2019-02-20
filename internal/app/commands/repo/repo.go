@@ -8,5 +8,7 @@ func All() []cli.Command {
 	return []cli.Command{
 		Reindex,
 		ReadOnly,
+		Replicas,
+		List,
 	}
 }

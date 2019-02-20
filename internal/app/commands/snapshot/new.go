@@ -11,8 +11,8 @@ import (
 	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
-var New = cli.Command{
-	Name:  "new",
+var Create = cli.Command{
+	Name:  "create",
 	Usage: "Stores a snapshot of the current state of the repository.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
