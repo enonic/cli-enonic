@@ -119,7 +119,7 @@ func ensureVersion(c *cli.Context) string {
 		return nil
 	}
 
-	return util.PromptOnce("Application version", c.String("version"), DEFAULT_VERSION, versionValidator)
+	return util.PromptString("Application version", c.String("version"), DEFAULT_VERSION, versionValidator)
 }
 
 func ensureDestination(c *cli.Context, name string) string {
@@ -144,7 +144,7 @@ func ensureDestination(c *cli.Context, name string) string {
 		return nil
 	}
 
-	return util.PromptOnce("Destination folder", dest, defaultDest, destValidator)
+	return util.PromptString("Destination folder", dest, defaultDest, destValidator)
 }
 
 func ensureNameArg(c *cli.Context) string {
@@ -162,7 +162,7 @@ func ensureNameArg(c *cli.Context) string {
 		return nil
 	}
 
-	return util.PromptOnce("Project name", name, DEFAULT_NAME, nameValidator)
+	return util.PromptString("Project name", name, DEFAULT_NAME, nameValidator)
 }
 
 func processGradleProperties(propsFile, name, version string) {
@@ -243,7 +243,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 			}
 			return nil
 		}
-		repo = util.PromptOnce("Custom repository", "", "", repoValidator)
+		repo = util.PromptString("Custom repository", "", "", repoValidator)
 	}
 
 	if strings.Contains(repo, "://") {

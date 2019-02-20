@@ -15,7 +15,7 @@ var Deploy = cli.Command{
 		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to deploy the project, do you want to create one?"); projectData != nil {
 			runGradleTask(projectData, "deploy", fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox))
 
-			if util.IsPortAvailable(8080) && util.YesNoPrompt(fmt.Sprintf("\nDo you want to start sandbox '%s'?", projectData.Sandbox)) {
+			if util.IsPortAvailable(8080) && util.PromptBool(fmt.Sprintf("\nDo you want to start sandbox '%s'?", projectData.Sandbox), true) {
 				sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false)
 			}
 		}

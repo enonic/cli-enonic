@@ -64,7 +64,7 @@ func ensureUniqueNameArg(name string) string {
 		}
 	}
 
-	return util.PromptOnce("Sandbox name", name, defaultSandboxName, sandboxValidator)
+	return util.PromptString("Sandbox name", name, defaultSandboxName, sandboxValidator)
 }
 
 func getFirstValidSandboxName(sandboxes []*Sandbox) string {

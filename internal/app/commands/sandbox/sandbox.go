@@ -171,7 +171,7 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 	existingBoxes := listSandboxes()
 
 	if len(existingBoxes) == 0 {
-		if !util.YesNoPrompt(noBoxMessage) {
+		if !util.PromptBool(noBoxMessage, true) {
 			return nil, false
 		}
 		newBox := SandboxCreateWizard("", "", showSuccessMessage)

@@ -56,7 +56,7 @@ func ensurePortAvailable(port uint16) {
 	}
 }
 func AskToStopSandbox(sData SandboxesData) {
-	if util.YesNoPrompt(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", sData.Running)) {
+	if util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", sData.Running), true) {
 		StopSandbox(sData)
 	} else {
 		os.Exit(0)
