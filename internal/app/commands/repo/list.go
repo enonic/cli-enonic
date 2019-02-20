@@ -1,10 +1,10 @@
 package repo
 
 import (
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/util"
 	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -15,7 +15,7 @@ var List = cli.Command{
 	Flags:   append([]cli.Flag{}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		req := common.CreateRequest(c, "GET", "repo/index/listRepositories", nil)
+		req := common.CreateRequest(c, "GET", "repo/list", nil)
 		res := common.SendRequest(req, "Loading")
 
 		var result RepositoriesResult
