@@ -30,7 +30,7 @@ var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 var MARKET_STARTERS_REQUEST = `{
   market {
     query(
-      query: "type='com.enonic.app.market:starter' AND ngram('data.version.supportedVersions', '7.0')"
+      query: "type='com.enonic.app.market:starter' AND data.version.supportedVersions LIKE '7.*'"
     ) {
       displayName
       ... on com_enonic_app_market_Starter {
