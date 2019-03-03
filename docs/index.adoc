@@ -6,8 +6,9 @@
 :sourcedir: ../javascript
 :imagesdir: images
 
-
 The Enonic Command Line Interface (CLI) automates tasks related to development, as well as common management tasks for both local and remote instances of Enonic XP.
+
+WARNING: This documentation is currently under construction, and will be completed with the release of XP 7.
 
 == Installation
 
