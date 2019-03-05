@@ -1,10 +1,10 @@
 package system
 
 import (
-	"os/exec"
-	"os"
-	"github.com/enonic/enonic-cli/internal/app/util"
 	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"os"
+	"os/exec"
 )
 
 func Start(app string, args []string, detach bool) *exec.Cmd {
@@ -14,6 +14,7 @@ func Start(app string, args []string, detach bool) *exec.Cmd {
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		cmd.Stdin = os.Stdin
+		setStartAttachedParams(cmd)
 	} else {
 		setStartDetachedParams(cmd)
 	}

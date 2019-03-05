@@ -3,9 +3,15 @@
 package system
 
 import (
-	"syscall"
 	"os/exec"
+	"syscall"
 )
+
+func setStartAttachedParams(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
+}
 
 func setStartDetachedParams(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
