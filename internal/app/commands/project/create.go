@@ -1,25 +1,25 @@
 package project
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/AlecAivazis/survey"
+	"github.com/Masterminds/semver"
 	"github.com/enonic/enonic-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/otiai10/copy"
-	"strings"
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/config"
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"os"
 	"path/filepath"
-	"bufio"
-	"fmt"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
-	"gopkg.in/src-d/go-git.v4/plumbing"
 	"regexp"
-	"github.com/Masterminds/semver"
-	"github.com/AlecAivazis/survey"
-	"gopkg.in/src-d/go-git.v4/config"
-	"github.com/pkg/errors"
-	"encoding/json"
-	"bytes"
+	"strings"
 )
 
 var GITHUB_URL = "https://github.com/"
@@ -39,6 +39,7 @@ var MARKET_STARTERS_REQUEST = `{
             gitUrl
             version {
               supportedVersions
+			  versionNumber
               gitTag
             }
           }
@@ -259,31 +260,34 @@ func findLatestHash(versions *[]StarterVersion) string {
 	var (
 		latestSemver, maxSemver *semver.Version
 		maxHash                 string
+		err                     error
 	)
 	for _, v := range *versions {
-		latestSemver = findLatestVersion(v.SupportedVersions)
+		latestSemver, err = semver.NewVersion(v.VersionNumber)
+		util.Warn(err, fmt.Sprintf("Could not parse version number: %s", v.VersionNumber))
 
-		if maxSemver == nil || latestSemver.GreaterThan(maxSemver) {
+		if isSupports7(v.SupportedVersions) && (maxSemver == nil || latestSemver.GreaterThan(maxSemver)) {
 			maxSemver = latestSemver
 			maxHash = v.GitTag
 		}
 	}
 	return maxHash
 }
-func findLatestVersion(versions []string) *semver.Version {
+func isSupports7(versions []string) bool {
 	var (
-		latestSemver, maxSemver *semver.Version
-		err                     error
+		latestSemver, semver7 *semver.Version
+		err                   error
 	)
+	semver7, _ = semver.NewVersion("7.0.0")
 	for _, ver := range versions {
 		latestSemver, err = semver.NewVersion(ver)
 		util.Warn(err, fmt.Sprintf("Could not parse version '%s'", ver))
 
-		if maxSemver == nil || latestSemver.GreaterThan(maxSemver) {
-			maxSemver = latestSemver
+		if !latestSemver.LessThan(semver7) {
+			return true
 		}
 	}
-	return maxSemver
+	return false
 }
 
 func fetchStarters(c *cli.Context) []Starter {
@@ -362,11 +366,12 @@ func clearGitData(dest string) {
 type StarterVersion struct {
 	SupportedVersions []string
 	GitTag            string
+	VersionNumber     string
 }
 
 type Starter struct {
 	DisplayName string
-	Data struct {
+	Data        struct {
 		GitUrl  string
 		Version []StarterVersion
 	}
