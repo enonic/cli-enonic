@@ -107,7 +107,8 @@ func downloadDistro(osName, version string) string {
 
 	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, distroName)
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	resp := common.SendRequest(req, "Loading")
 	if err != nil || resp.StatusCode != 200 {
 		message := resp.Status
 		if err != nil {
