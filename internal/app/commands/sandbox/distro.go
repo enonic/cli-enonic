@@ -1,22 +1,22 @@
 package sandbox
 
 import (
-	"path/filepath"
 	"fmt"
-	"net/http"
-	"io"
-	"io/ioutil"
-	"os"
-	"regexp"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"time"
-	"os/exec"
-	"strings"
+	"github.com/AlecAivazis/survey"
 	"github.com/Masterminds/semver"
 	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"gopkg.in/cheggaaa/pb.v1"
-	"github.com/AlecAivazis/survey"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/enonic/enonic-cli/internal/app/util/system"
+	"gopkg.in/cheggaaa/pb.v1"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"time"
 )
 
 const DISTRO_FOLDER_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
@@ -56,7 +56,9 @@ func EnsureDistroExists(distroName string) (string, bool) {
 }
 
 func getAllVersions(osName string) []VersionResult {
-	resp, err := http.Get(fmt.Sprintf(REMOTE_VERSION_URL, osName))
+
+	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
+	resp := common.SendRequest(req, "Loading")
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 
 	var versions VersionsResult
