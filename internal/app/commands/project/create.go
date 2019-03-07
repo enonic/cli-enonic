@@ -347,9 +347,17 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 
 		opts := &git.CheckoutOptions{}
 		if hash != "" {
-			opts.Hash = plumbing.NewHash(hash)
-		} else if branch != "" {
-			opts.Branch = plumbing.NewBranchReferenceName(branch)
+			// verify hash exists
+			if _, err := repo.CommitObject(plumbing.NewHash(hash)); err == nil {
+				opts.Hash = plumbing.NewHash(hash)
+			}
+		}
+		// use branch if hash is not set only
+		if opts.Hash.IsZero() && branch != "" {
+			// verify branch exists
+			if _, err := repo.Branch(hash); err == nil {
+				opts.Branch = plumbing.NewBranchReferenceName(branch)
+			}
 		}
 
 		err3 := tree.Checkout(opts)
