@@ -132,6 +132,7 @@ scoop:
 #  - "config.toml"
 
 brew:
+  skip_upload: true
 
   # Repository to push the tap to.
   github:
