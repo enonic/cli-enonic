@@ -60,7 +60,6 @@ var Create = cli.Command{
 		cli.StringFlag{
 			Name:  "branch, b",
 			Usage: "Branch to checkout.",
-			Value: "xp-7-0",
 		},
 		cli.StringFlag{
 			Name:  "checkout, c",
