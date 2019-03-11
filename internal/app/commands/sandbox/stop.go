@@ -1,8 +1,8 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -11,7 +11,7 @@ var Stop = cli.Command{
 	Usage: "Stop the sandbox started in detached mode.",
 	Action: func(c *cli.Context) error {
 
-		sData := readSandboxesData()
+		sData := ReadSandboxesData()
 		if sData.Running == "" || sData.PID == 0 {
 			fmt.Fprintln(os.Stderr, "No sandbox is currently running.")
 			os.Exit(0)

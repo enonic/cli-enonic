@@ -1,8 +1,8 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -11,7 +11,7 @@ var List = cli.Command{
 	Aliases: []string{"ls"},
 	Usage:   "List all sandboxes",
 	Action: func(c *cli.Context) error {
-		data := readSandboxesData()
+		data := ReadSandboxesData()
 
 		for _, box := range listSandboxes() {
 			if data.Running == box.Name {

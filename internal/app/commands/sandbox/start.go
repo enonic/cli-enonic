@@ -35,10 +35,7 @@ var Start = cli.Command{
 func StartSandbox(sandbox *Sandbox, detach bool) {
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach)
 
-	pid := cmd.Process.Pid
-	if util.GetCurrentOs() == "mac" {
-		pid-- //TODO: mac os hack because cmd.Process.Pid always returns +1 to the actual
-	}
+	pid := os.Getpid()
 	writeRunningSandbox(sandbox.Name, pid)
 
 	if !detach {
@@ -50,7 +47,7 @@ func StartSandbox(sandbox *Sandbox, detach bool) {
 }
 
 func ensurePortAvailable(port uint16) {
-	sData := readSandboxesData()
+	sData := ReadSandboxesData()
 	if sData.Running != "" && sData.PID != 0 {
 		AskToStopSandbox(sData)
 	} else if !util.IsPortAvailable(port) {
@@ -81,7 +78,7 @@ func listenForInterrupt(name string) {
 }
 
 func writeRunningSandbox(name string, pid int) {
-	data := readSandboxesData()
+	data := ReadSandboxesData()
 	data.Running = name
 	data.PID = pid
 	writeSandboxesData(data)

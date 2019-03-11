@@ -1,14 +1,14 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/AlecAivazis/survey"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"github.com/AlecAivazis/survey"
-	"io/ioutil"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
 )
 
 func All() []cli.Command {
@@ -52,7 +52,7 @@ func createSandbox(name string, version string) *Sandbox {
 	return &Sandbox{name, data.Distro}
 }
 
-func readSandboxesData() SandboxesData {
+func ReadSandboxesData() SandboxesData {
 	path := filepath.Join(getSandboxesDir(), ".enonic")
 	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
@@ -94,7 +94,7 @@ func getSandboxesDir() string {
 
 func GetActiveHomePath() string {
 	var homePath string
-	sboxesData := readSandboxesData()
+	sboxesData := ReadSandboxesData()
 	if sboxesData.Running != "" {
 		homePath = GetSandboxHomePath(sboxesData.Running)
 	} else {

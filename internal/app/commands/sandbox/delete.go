@@ -1,9 +1,9 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
 	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -17,7 +17,7 @@ var Delete = cli.Command{
 			os.Exit(0)
 		}
 
-		if boxesData := readSandboxesData(); boxesData.Running == sandbox.Name {
+		if boxesData := ReadSandboxesData(); boxesData.Running == sandbox.Name {
 			AskToStopSandbox(boxesData)
 		}
 
