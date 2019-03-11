@@ -1,11 +1,11 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
 	"os"
 	"os/signal"
-	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 var Start = cli.Command{
@@ -35,8 +35,11 @@ var Start = cli.Command{
 func StartSandbox(sandbox *Sandbox, detach bool) {
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach)
 
-	writeRunningSandbox(sandbox.Name, cmd.Process.Pid)
-	listenForInterrupt(sandbox.Name)
+	pid := cmd.Process.Pid
+	if util.GetCurrentOs() == "mac" {
+		pid-- //TODO: mac os hack because cmd.Process.Pid always returns +1 to the actual
+	}
+	writeRunningSandbox(sandbox.Name, pid)
 
 	if !detach {
 		listenForInterrupt(sandbox.Name)
@@ -73,6 +76,7 @@ func listenForInterrupt(name string) {
 		fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", name)
 		fmt.Fprintln(os.Stderr)
 		writeRunningSandbox("", 0)
+		signal.Stop(interruptChan)
 	}()
 }
 

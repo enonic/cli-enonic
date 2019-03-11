@@ -9,7 +9,7 @@ import (
 
 func setStartAttachedParams(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
+		//Setpgid: true,
 	}
 }
 
