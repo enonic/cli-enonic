@@ -34,10 +34,10 @@ func GetPPids(pid int) ([]int, error) {
 
 func Kill(pids []uint32) {
 	for _, pid := range pids {
-		syscall.Kill(int(pid), syscall.SIGQUIT)
+		syscall.Kill(int(pid), syscall.SIGTERM)
 	}
 }
 
 func KillAll(pid int) error {
-	return syscall.Kill(pid-(pid*2), syscall.SIGQUIT)
+	return syscall.Kill(pid-(pid*2), syscall.SIGTERM)
 }
