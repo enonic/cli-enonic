@@ -19,7 +19,19 @@ var Start = cli.Command{
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
 
-		ensurePortAvailable(8080)
+		sData := ReadSandboxesData()
+		if sData.Running != "" && sData.PID != 0 {
+			if sData.Running == c.Args().First() {
+				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", sData.Running)
+				os.Exit(0)
+			} else {
+				AskToStopSandbox(sData)
+			}
+		} else if !util.IsPortAvailable(8080) {
+			fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
+			os.Exit(0)
+		}
+
 		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true)
 		if sandbox == nil {
 			os.Exit(0)
@@ -46,15 +58,6 @@ func StartSandbox(sandbox *Sandbox, detach bool) {
 	}
 }
 
-func ensurePortAvailable(port uint16) {
-	sData := ReadSandboxesData()
-	if sData.Running != "" && sData.PID != 0 {
-		AskToStopSandbox(sData)
-	} else if !util.IsPortAvailable(port) {
-		fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
-		os.Exit(1)
-	}
-}
 func AskToStopSandbox(sData SandboxesData) {
 	if util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", sData.Running), true) {
 		StopSandbox(sData)
