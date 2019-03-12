@@ -36,7 +36,6 @@ var Start = cli.Command{
 		if sandbox == nil {
 			os.Exit(0)
 		}
-		EnsureDistroExists(sandbox.Distro)
 
 		StartSandbox(sandbox, c.Bool("detach"))
 
@@ -45,6 +44,8 @@ var Start = cli.Command{
 }
 
 func StartSandbox(sandbox *Sandbox, detach bool) {
+	EnsureDistroExists(sandbox.Distro)
+
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach)
 
 	pid := os.Getpid()

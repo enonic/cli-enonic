@@ -63,7 +63,19 @@ func getAllVersions(osName string) []VersionResult {
 
 	var versions VersionsResult
 	common.ParseResponse(resp, &versions)
-	return versions.Results
+
+	var filteredVersions []VersionResult
+	for _, value := range versions.Results {
+		tempVersion, tempErr := semver.NewVersion(value.Version)
+		util.Warn(tempErr, "Could not parse distro version: "+value.Version)
+
+		// excluding only SNAPSHOTS
+		if strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" {
+			filteredVersions = append(filteredVersions, value)
+		}
+	}
+
+	return filteredVersions
 }
 
 func findLatestVersion(versions []VersionResult) string {
@@ -108,7 +120,9 @@ func downloadDistro(osName, version string) string {
 	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, distroName)
 
 	req, err := http.NewRequest("GET", url, nil)
-	resp := common.SendRequest(req, "Loading")
+	util.Fatal(err, "Could not create request to: "+url)
+
+	resp, err := common.SendRequestCustom(req, "Loading", 5)
 	if err != nil || resp.StatusCode != 200 {
 		message := resp.Status
 		if err != nil {
