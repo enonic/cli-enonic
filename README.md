@@ -47,4 +47,4 @@ For other OSes, please see [Goreleaser](https://goreleaser.com).
 1. repo.enonic.com - This repo use the Artifactory general `ci` user.  The API key for the `ci` user must be put in a local environment variable called `ARTIFACTORY_REPO_SECRET`.
 
 If you build a snapshot with `goreleaser --rm-dist --snapshot`, it may be uploaded to our repo by executing this command for each created distro:
-* `curl -u ci:$ARTIFACTORY_REPO_SECRET -X PUT "http://repo.enonic.com/public/com/enonic/cli/eonic/next/enonic_0.1.9-next_Windows_64-bit.zip" -T enonic_0.1.9-next_Windows_64-bit.zip`
+* `curl -u ci:$ARTIFACTORY_REPO_SECRET -X PUT "http://repo.enonic.com/public/com/enonic/cli/eonic/next/enonic_1.0.0-next_Windows_64-bit.zip" -T enonic_1.0.0-next_Windows_64-bit.zip`
