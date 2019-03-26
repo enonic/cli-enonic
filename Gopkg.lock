@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:ee7ae23573927dfe9673d05cf872c23d87740e2a7d43dae9aff92b67a0b59996"
+  digest = "1:f4d255431b8bb6f86b6ac32fd0614a26eb17a7d2b778f32cf2de918cbd60f49c"
   name = "github.com/AlecAivazis/survey"
   packages = ["."]
   pruneopts = "UT"
-  revision = "3409e8256f5cf23a9e9ee2a8816c4c5da78a181d"
-  version = "v1.6.4"
+  revision = "ee72c28b95a5ff3e227cfd403f556f0ef4b07ca5"
+  version = "v1.8.2"
 
 [[projects]]
   digest = "1:9f3b30d9f8e0d7040f729b82dcbc8f0dead820a133b3147ce355fc451f32d761"

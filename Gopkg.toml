@@ -43,7 +43,7 @@
 
 [[constraint]]
   name = "github.com/AlecAivazis/survey"
-  version = "1.6.4"
+  version = "1.8.2"
 
 [[constraint]]
   name = "gopkg.in/src-d/go-git.v4"
