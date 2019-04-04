@@ -167,7 +167,7 @@ func startDistro(distroName, sandbox string, detach bool) *exec.Cmd {
 	version := parseDistroVersion(distroName, true)
 	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
-	args := []string{fmt.Sprintf("-Dxp.home=%s", homePath)}
+	args := []string{fmt.Sprintf(`-Dxp.home="%s"`, homePath)}
 
 	return system.Start(appPath, args, detach)
 }

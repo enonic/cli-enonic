@@ -3,20 +3,34 @@
 package system
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 	"unsafe"
 )
+
+func prepareCmd(app string, args []string) *exec.Cmd {
+	cmd := exec.Command("cmd")
+	cmd.SysProcAttr = &syscall.SysProcAttr{}
+	return cmd
+}
+
+/*
+	Description of the '@' trick to prevent quote stripping by cmd.exe
+	https://github.com/Microsoft/WSL/issues/2835#issuecomment-364475668
+ */
+func setCommandLineParams(cmd *exec.Cmd, app string, args []string) {
+	cmd.SysProcAttr.CmdLine = fmt.Sprintf(` /c @ "%v" %v`, app, strings.Join(args, " "))
+}
 
 /*
 	https://docs.microsoft.com/en-us/windows/desktop/procthread/process-creation-flags
 	CREATE_NEW_PROCESS_GROUP = 0x00000200
  */
 func setStartAttachedParams(cmd *exec.Cmd) {
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		//CreationFlags: 0x00000200,
-	}
+	//cmd.SysProcAttr.CreationFlags = 0x00000200
 }
 
 /*
@@ -25,10 +39,8 @@ func setStartAttachedParams(cmd *exec.Cmd) {
 	CREATE_NO_WINDOW = 0x08000000
  */
 func setStartDetachedParams(cmd *exec.Cmd) {
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		CreationFlags: 0x08000200,
-		HideWindow:    true,
-	}
+	cmd.SysProcAttr.CreationFlags = 0x08000200
+	cmd.SysProcAttr.HideWindow = true
 }
 
 /*

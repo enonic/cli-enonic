@@ -8,7 +8,9 @@ import (
 )
 
 func Start(app string, args []string, detach bool) *exec.Cmd {
-	cmd := exec.Command(app, args...)
+
+	cmd := prepareCmd(app, args)
+	setCommandLineParams(cmd, app, args)
 
 	if !detach {
 		cmd.Stderr = os.Stderr
