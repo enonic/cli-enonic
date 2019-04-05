@@ -79,7 +79,7 @@ release:
   # Default is extracted from the origin remote URL.
   github:
     owner: enonic
-    name: xp-cli-scoop
+    name: cli-scoop
 
   # If set to true, will not auto-publish the release.
   # Default is false.
@@ -106,7 +106,7 @@ scoop:
   # Repository to push the app manifest to.
   bucket:
     owner: enonic
-    name: xp-cli-scoop
+    name: cli-scoop
 
   # Git author used to commit to the repository.
   # Defaults are shown.
@@ -132,12 +132,12 @@ scoop:
 #  - "config.toml"
 
 brew:
-  skip_upload: true
+  skip_upload: false
 
   # Repository to push the tap to.
   github:
     owner: enonic
-    name: xp-cli-brew
+    name: homebrew-cli
 
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
