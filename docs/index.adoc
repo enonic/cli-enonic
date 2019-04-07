@@ -18,4 +18,8 @@ include::sandbox.adoc[]
 
 include::project.adoc[]
 
+include::snapshot.adoc[]
+
+include::dump.adoc[]
+
 include::system.adoc[]

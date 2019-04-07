@@ -1,0 +1,115 @@
+== Snapshots
+
+List of commands for manipulating repository snapshots can be seen by typing:
+
+----
+$ enonic snapshot
+
+Create and restore snapshots
+
+USAGE:
+   Enonic CLI snapshot command [command options] [arguments...]
+
+COMMANDS:
+     list, ls     Returns a list of existing snapshots with name and status.
+     create       Stores a snapshot of the current state of the repository.
+     restore      Restores a snapshot of a previous state of the repository.
+     delete, del  Deletes snapshots, either before a given timestamp or by name.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+WARNING: For a clustered installation, the snapshot-location must be on a shared file-system.
+
+ $ enonic snapshot create [-r <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+
+|`-r, --repo`
+|the name of the repository to snapshot.
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic snapshot create -a su:password -r cms-repo
+====
+
+=== List
+
+List all the snapshots for the installation. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+ $ enonic snapshot ls
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+=== Restore
+
+Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+ $ enonic snapshot restore [--snap <value>] [--repo <value>] [--a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--snap, --snapshot`
+|snapshot name to restore
+
+|`-r, --repo`
+|the name of the repository to restore
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+=== Delete
+
+Deletes a snapshot by name or date:
+
+ $ enonic snapshot delete [-before <value>] [--snap <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-b, --before`
+|_"2 Jan 06"_ formatted date to delete snapshots up to
+
+|`--snap, --snapshot`
+|snapshot name to delete
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.

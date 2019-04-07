@@ -166,6 +166,8 @@ Options:
 |Authentication token for basic authentication in the following format <user:password>
 |===
 
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
 === Shell
 
 This is an advanced command to export current sandbox `JAVA_HOME` and `ENONIC_HOME` variables to a new shell. This gives ability to run 3-rd party software in that sanbox.

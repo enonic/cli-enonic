@@ -1,14 +1,14 @@
 package dump
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"os"
-	"fmt"
-	"net/http"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
+	"os"
 )
 
 var Load = cli.Command{
@@ -17,15 +17,15 @@ var Load = cli.Command{
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
 			Name:  "d",
-			Usage: "Dump name.",
+			Usage: "Dump name",
 		},
 		cli.StringFlag{
 			Name:  "new-auth, na",
-			Usage: "Dump name.",
+			Usage: "Authentication token for basic authentication in a new dump (user:password)",
 		},
 		cli.BoolFlag{
 			Name:  "y",
-			Usage: "Automatic yes to prompts; assume “Yes” as answer to all prompts and run non-interactively.",
+			Usage: "assume “Yes” as answer to all prompts and run non-interactively",
 		},
 		cli.BoolFlag{
 			Name:  "upgrade",
