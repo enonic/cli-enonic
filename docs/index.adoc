@@ -10,102 +10,12 @@ The Enonic Command Line Interface (CLI) automates tasks related to development, 
 
 WARNING: This documentation is currently under construction, and will be completed with the release of XP 7.
 
-== Installation
+include::install.adoc[]
 
-The CLI is available for Mac, Linux and Windows. To install the CLI on your local device, visit our https://enonic.com/downloads[downloads page] or follow the instructions below
+include::starting.adoc[]
 
-=== MacOS
+include::sandbox.adoc[]
 
-Enonic CLI is available from the https://brew.sh/[Homebrew package service]. With Homebrew installed, run the following command in your terminal:
+include::project.adoc[]
 
-``brew install enonic``
-
-If you later want to update the CLI, simply run:
-
-``brew update enonic``.
-
-
-=== Linux
-
-TODO
-
-=== Windows
-
-TODO
-
-
-== Getting started
-
-Once installed, the CLI includes standard CLI help functions for listing available commands and options.
-To get a list of commands, simply type the following in your terminal:
-
-`enonic`
-
-It will output a list of available  TODO
-
-TODO Sample output
-
-TODO, getting more help optinos
-
-
-
-
-
-== Project
-
-By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
-Projects are commonly hosted in a Git repo, and needs to follow a set of principles to work with Enonic XP.
-
-=== Project Create
-
-In the folder you wish to place your project:
-
-`enonic project create`
-
-
-
-=== Project Build
-
-`enonic project build`.
-
-The build command helps you:
-
-* Compiling code
-* Run tests
-* Create artifacts (executables)
-
-The build system is based on https://gradle.org/[Gradle] and the https://plugins.gradle.org/plugin/com.enonic.xp.app[XP Gradle plugin].
-
-The "project build" command is an alias for the Gradle Wrapper, which must be located in your project through a file called .gradlew (linux/mac) or gradlew.bat (windows).
-The Gradle Wrapper is by default available with all https://market.enonic.com/starters[Starter Kits on Enonic Market].
-
-NOTE: You may also the Gradle Wrapper directly by running `./gradlew build` (linux/mac) or `gradlew build` (windows) from your projects directory.
-
-=== Project Deploy
-
-``enonic project deploy``
-
-As developers continuously need to deploy and test their code,
-
-
-=== Libraries
-
-To speed up development and enable a high degree of re-use,
-applications can make use of Libraries in addition to your own custom code.
-
-Libraries (and applications) are shared through so-called Maven repositories.
-An example is https://repo.enonic.com. Anyone may configure and run their own repository - for internal as well as external use.
-
-
-=== Deployment
-
-
-== Sandboxes
-
-Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
-Each sandbox will be associated with a specific distribution (version) of Enonic XP.
-
-The CLI automates setting up, starting, stopping and upgrading sandboxes.
-
-
-== System tasks
+include::system.adoc[]

@@ -1,0 +1,175 @@
+== Project
+
+By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
+Projects are commonly hosted in a Git repo and need to follow a set of principles to work with Enonic XP.
+Each project is associated with a <<sandbox.adoc#sandboxes, sandbox>> to be run in.
+
+NOTE: All project commands should be run from the project root folder.
+
+Command list is available by running following command:
+----
+$ enonic project
+
+ Manage XP development projects
+
+ USAGE:
+    Enonic CLI project command [command options] [arguments...]
+
+ COMMANDS:
+      create             Create new project
+      sandbox, sbox, sb  Set the default sandbox associated with the current project
+      clean              Clean current project
+      build              Build current project
+      deploy             Deploy current project to a sandbox
+      install, i         Build current project and install it to Enonic XP
+      shell              Creates a new shell with project environment variables
+
+ OPTIONS:
+    --help, -h  show help
+----
+
+=== Create
+
+Navigate to the folder you wish to place your project in and run the following command:
+
+ $ enonic project create [name] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>]
+
+Follow wizard instructions that will set everything up for you.
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|name of the project
+
+|`-r, --repo, +
+--repository`
+|repository path. Format: <enonic repo> or <organisation>/<repo> or <full repo url>
+
+|`-b, --branch`
+|repository branch to use
+
+|`-c, --checkout`
+|commit hash to use (mutually exclusive with branch option, used if both are present)
+
+|`-d, --dest, +
+--destination`
+|destination folder name
+
+|`-v, --ver, --version`
+|version number to assign to new project. Format: 1.0.0-SNAPSHOT
+|===
+
+TIP: `name`, `repository`, `destination` and `version` params are sufficient to create a project immediately without a wizard.
+
+_Example:_
+====
+ $ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
+====
+
+[#project-sandbox]
+=== Sandbox
+
+Project create will configure the default sandbox for your project. To change it later run this command inside the project folder:
+
+ $ enonic project sandbox [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+|===
+
+TIP: If sandbox with provided name exists, this will immediately set it as default for the project.
+
+_Example:_
+====
+ $ enonic project sandbox myOtherBox
+====
+
+[#project-build]
+=== Build
+
+You can build your project by running following command inside the project folder:
+
+ $ enonic project build
+
+The build command helps you with:
+
+* Compiling code
+* Running tests
+* Creating artifacts (executables)
+
+The build system is based on https://gradle.org/[Gradle] and the https://plugins.gradle.org/plugin/com.enonic.xp.app[XP Gradle plugin].
+
+The "project build" command is an alias for the Gradle Wrapper, which must be located in your project through a file called .gradlew (linux/mac) or gradlew.bat (windows).
+The Gradle Wrapper is by default available with all https://market.enonic.com/starters[Starter Kits on Enonic Market].
+
+NOTE: You may also use the Gradle Wrapper directly by running `./gradlew build` (linux/mac) or `gradlew build` (windows) from your projects directory.
+
+=== Clean
+
+Alias for the `gradlew clean` command
+
+ $ enonic project clean
+
+=== Deploy
+
+As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <<sandbox.adoc#project-sandbox, sandbox>>:
+
+ $ enonic project deploy [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name to deploy to (overrides associated sandbox)
+|===
+
+NOTE: If no sandbox name is provided, the project will be deployed to the associated sandbox. The difference between `./gradlew deploy` (linux/mac) or `gradlew deploy` (windows) is that CLI remembers sandbox associated with project and always uses it.
+
+_Example:_
+====
+ $ enonic project deploy otherSandbox
+====
+
+=== Install
+
+To install current project to running enonic instance
+
+ $ enonic project install
+
+NOTE: Enonic XP instance must be running when executing this command !
+
+Install command does 2 things:
+
+* <<project-build, Builds>> the project
+* Installs built project to a running enonic instance using enonic XP API
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|Authentication token for basic authentication in the following format <user:password>
+|===
+
+=== Shell
+
+This is an advanced command to export current sandbox `JAVA_HOME` and `ENONIC_HOME` variables to a new shell. This gives ability to run 3-rd party software in that sanbox.
+
+ $ enonic project shell
+
+WARNING: This is an experimental feature, use it at your own risk !

@@ -1,0 +1,37 @@
+== System tasks
+
+System tasks show info about currently running enonic XP instance. Currently there is only one command as can be seen by running:
+
+----
+$ enonic system
+
+System commands
+
+USAGE:
+   Enonic CLI system command [command options] [arguments...]
+
+COMMANDS:
+     info, i  XP distribution info
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Info
+
+Shows info about currently running enonic XP instance.
+----
+$ enonic system info
+
+{
+    "Version": "7.0.0-B1",
+    "Installation": "demo",
+    "RunMode": "PROD",
+    "Build": {
+        "Hash": "934a05d947a8ab238295f74b9c1a5ab2b9f13794",
+        "ShortHash": "934a05d",
+        "Branch": "master",
+        "Timestamp": "2019-02-26T21:03:13+0100"
+    }
+}
+----
