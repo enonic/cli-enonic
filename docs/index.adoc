@@ -22,4 +22,10 @@ include::snapshot.adoc[]
 
 include::dump.adoc[]
 
+include::export.adoc[]
+
+include::app.adoc[]
+
+include::cms.adoc[]
+
 include::system.adoc[]

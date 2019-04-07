@@ -1,14 +1,14 @@
 package export
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"os"
-	"fmt"
-	"net/http"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -36,11 +36,11 @@ var Import = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "skip-ids",
-			Usage: "Flag that skips ids.",
+			Usage: "Flag to skips ids when importing",
 		},
 		cli.BoolFlag{
 			Name:  "skip-permissions",
-			Usage: "Flag that skips permissions.",
+			Usage: "Flag to skips permissions when importing",
 		},
 		cli.BoolFlag{
 			Name:  "dry",

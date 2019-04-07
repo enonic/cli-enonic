@@ -1,19 +1,19 @@
 package export
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"fmt"
-	"os"
-	"net/http"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
+	"os"
 )
 
 var Create = cli.Command{
 	Name:  "create",
-	Usage: "Export data from every repository.",
+	Usage: "Export data from a given repository, branch and content path.",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
 			Name:  "t",
@@ -25,11 +25,11 @@ var Create = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "skip-ids",
-			Usage: "Flag that skips ids in data when exporting.",
+			Usage: "Flag to skip ids in data when exporting.",
 		},
 		cli.BoolFlag{
 			Name:  "skip-versions",
-			Usage: "Flag that skips versions in data when exporting.",
+			Usage: "Flag to skip versions in data when exporting.",
 		},
 		cli.BoolFlag{
 			Name:  "dry",
