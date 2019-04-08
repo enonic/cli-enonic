@@ -1,12 +1,12 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"strings"
 	"fmt"
-	"os"
+	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/pkg/errors"
+	"github.com/urfave/cli"
+	"os"
+	"strings"
 )
 
 var SANDBOX_NAME_TPL = "Sandbox%d"
@@ -39,6 +39,10 @@ func SandboxCreateWizard(name, versionStr string, showSuccessMessage bool) *Sand
 	version := ensureVersionCorrect(versionStr)
 
 	box := createSandbox(name, version)
+
+	distroPath, _ := EnsureDistroExists(box.Distro)
+	CopyHomeFolder(distroPath, box.Name)
+
 	if showSuccessMessage {
 		fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/AlecAivazis/survey"
 	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/otiai10/copy"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
@@ -214,6 +215,14 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 
 	// subtract 1 because of 'new sandbox' option
 	return existingBoxes[util.IndexOf(name, selectOptions)-1], false
+}
+
+func CopyHomeFolder(distroPath, sandboxName string) {
+	homePath := GetSandboxHomePath(sandboxName)
+	if _, err := os.Stat(homePath); os.IsNotExist(err) {
+		err := copy.Copy(filepath.Join(distroPath, "home"), homePath)
+		util.Fatal(err, "Could not copy home folder from distro: ")
+	}
 }
 
 func ensureDirStructure() {

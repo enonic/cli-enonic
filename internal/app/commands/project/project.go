@@ -1,15 +1,14 @@
 package project
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"os"
-	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 	"fmt"
+	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
+	"os"
 	"os/exec"
-	"path/filepath"
-	"github.com/otiai10/copy"
 	"path"
+	"path/filepath"
 )
 
 func All() []cli.Command {
@@ -89,8 +88,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
 
 	if newBox || newDistro {
-		err := copy.Copy(filepath.Join(distroPath, "home"), sandbox.GetSandboxHomePath(projectData.Sandbox))
-		util.Fatal(err, "Could not copy home folder from distro: ")
+		sandbox.CopyHomeFolder(distroPath, projectData.Sandbox)
 
 		if newBox {
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' created.\n", sBox.Name)
