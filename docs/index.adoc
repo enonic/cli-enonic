@@ -210,10 +210,10 @@ Options:
 
 TIP: If all params are present and correct, sandbox is created immediately without wizard.
 
-_Example:_
-====
- $ enonic sandbox create myBox mac-sdk-7.0.0-B5
-====
+.Example creating a 'myBox' sandbox using 'mac-sdk-7.0.0-B5' enonic distribution:
+----
+$ enonic sandbox create myBox mac-sdk-7.0.0-B5
+----
 
 === List
 
@@ -221,7 +221,7 @@ Lists all sandboxes previously created by user:
 ----
 $ enonic sandbox list
 ----
-_Example output:_
+.Example output:
 ----
 $ enonic sandbox ls
 
@@ -248,13 +248,13 @@ Options:
 |sandbox name
 
 |`-d, --detach`
-|flag to start sandbox in background
+|flag to start sandbox in detached mode (background process)
 |===
 
-_Example:_
-====
- $ enonic sandbox start myBox -d
-====
+.Example starting 'myBox' sandbox in a detached mode:
+----
+$ enonic sandbox start myBox -d
+----
 
 === Stop
 
@@ -264,10 +264,10 @@ Stops a running sandbox:
 
 NOTE: only sandboxes started with CLI can be stopped using this command.
 
-_Example:_
-====
- $ enonic sandbox stop
-====
+.Example stopping sandbox:
+----
+$ enonic sandbox stop
+----
 
 === Upgrade
 
@@ -290,10 +290,10 @@ Options:
 
 NOTE: Downgrades are not permitted.
 
-_Example:_
-====
- $ enonic sandbox upgrade myBox -v windows-sdk-7.0.0-B5
-====
+.Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.0.0-B5':
+----
+$ enonic sandbox upgrade myBox -v windows-sdk-7.0.0-B5
+----
 
 === Delete
 
@@ -312,10 +312,10 @@ Options:
 |===
 WARNING: All data that may have been created in this sandbox will be deleted.
 
-_Example:_
-====
- $ enonic sandbox delete myBox
-====
+.Example deleting 'myBox' sandbox:
+----
+$ enonic sandbox delete myBox
+----
 
 ////
         Project tasks
@@ -388,10 +388,10 @@ Options:
 
 TIP: `name`, `repository`, `destination` and `version` params are sufficient to create a project immediately without a wizard.
 
-_Example:_
-====
- $ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
-====
+.Example creating 'myProject' project in 'myFolder' folder from vanilla starter and setting '1.0.0-SNAPSHOT' version:
+----
+$ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
+----
 
 [#project-sandbox]
 === Sandbox
@@ -412,10 +412,10 @@ Options:
 
 TIP: If sandbox with provided name exists, this will immediately set it as default for the project.
 
-_Example:_
-====
- $ enonic project sandbox myOtherBox
-====
+.Example setting 'myOtherBox' as default sandbox for current project:
+----
+$ enonic project sandbox myOtherBox
+----
 
 [#project-build]
 === Build
@@ -461,10 +461,10 @@ Options:
 
 NOTE: If no sandbox name is provided, the project will be deployed to the associated sandbox. The difference between `./gradlew deploy` (linux/mac) or `gradlew deploy` (windows) is that CLI remembers sandbox associated with project and always uses it.
 
-_Example:_
-====
- $ enonic project deploy otherSandbox
-====
+.Example deploying current project to 'otherSandbox' sandbox:
+----
+$ enonic project deploy otherSandbox
+----
 
 === Install
 
@@ -548,10 +548,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic snapshot create -a su:password -r cms-repo
-====
+.Example creating new snapshot from 'cms-repo':
+----
+$ enonic snapshot create -a su:password -r cms-repo
+----
 
 === List
 
@@ -675,10 +675,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic dump create -a su:password -d myDump
-====
+.Example creating new dump named 'myDump':
+----
+$ enonic dump create -a su:password -d myDump
+----
 
 === Upgrade
 
@@ -703,10 +703,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic dump upgrade -a su:password -d myDump
-====
+.Example upgrading dump named 'myDump' to current version:
+----
+$ enonic dump upgrade -a su:password -d myDump
+----
 
 === List
 
@@ -758,10 +758,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic dump load -a su:password --na newSu:newPassword -d newDump -y --upgrade
-====
+.Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:
+----
+$ enonic dump load -a su:password --na newSu:newPassword -d newDump -y --upgrade
+----
 
 ////
         Export tasks
@@ -821,10 +821,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic export create -a su:password -t myExport --path cms-repo:draft:/some-content
-====
+.Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:
+----
+$ enonic export create -a su:password -t myExport --path cms-repo:draft:/some-content
+----
 
 === Import
 
@@ -865,10 +865,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic export import -a su:password -t myExport --path cms-repo:draft:/some-content
-====
+.Example:
+----
+$ enonic export import -a su:password -t myExport --path cms-repo:draft:/some-content
+----
 
 [TIP]
 ====
@@ -924,13 +924,14 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Examples:_
-====
- $ enonic app install -a su:password -u http://repo.enonic.com/public/com/enonic/app/superhero/1.2.0/superhero-1.2.0.jar
-====
-====
- $ enonic app install -a su:password -f /Users/rmy/Dev/apps/superhero/build/libs/superhero-1.2.0-SNAPSHOT.jar
-====
+.Example installing app from URL:
+----
+$ enonic app install -a su:password -u http://repo.enonic.com/public/com/enonic/app/superhero/1.2.0/superhero-1.2.0.jar
+----
+.Example installing app from file:
+----
+$ enonic app install -a su:password -f /Users/rmy/Dev/apps/superhero/build/libs/superhero-1.2.0-SNAPSHOT.jar
+----
 
 ////
         CMS tasks
@@ -983,10 +984,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic reprocess -a su:password -s draft:/some-content
-====
+.Example reprocessing media in branch 'draft' and content path '/some-content':
+----
+$ enonic reprocess -a su:password -s draft:/some-content
+----
 
 ////
         Repository tasks
@@ -1032,7 +1033,7 @@ Options:
 |the name of the repository to reindex
 
 |`-i`
-|ff true, the indices will be deleted before recreated
+|if true, the indices will be deleted before recreated
 
 |`--a, --auth`
 |authentication token for basic authentication (user:password)
@@ -1040,10 +1041,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic repo reindex -a su:password -b draft,master -i -r cms-repo
-====
+.Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:
+----
+$ enonic repo reindex -a su:password -b draft,master -i -r cms-repo
+----
 
 === Readonly
 
@@ -1069,10 +1070,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic repo readonly true -a su:password -r cms-repo
-====
+.Example setting 'cms-repo' repository to read-only mode:
+----
+$ enonic repo readonly true -a su:password -r cms-repo
+----
 
 === Replicas
 
@@ -1095,10 +1096,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic repo replicas 3 -a su:password
-====
+.Example setting number of replicas to 3:
+----
+$ enonic repo replicas 3 -a su:password
+----
 
 === List
 
@@ -1118,10 +1119,10 @@ Options:
 
 NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
 
-_Example:_
-====
- $ enonic repo list -a su:password
-====
+.Example listing repositories:
+----
+$ enonic repo list -a su:password
+----
 
 ////
         System tasks
