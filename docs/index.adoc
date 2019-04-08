@@ -10,24 +10,1158 @@ The Enonic Command Line Interface (CLI) automates tasks related to development, 
 
 WARNING: This documentation is currently under construction, and will be completed with the release of XP 7.
 
-include::install.adoc[]
+////
+        Installation
+////
 
-include::starting.adoc[]
+== Installation
 
-include::sandbox.adoc[]
+The CLI is available for Mac, Linux and Windows. To install the CLI on your local device, visit our https://enonic.com/downloads[downloads page] or follow the instructions below
 
-include::project.adoc[]
+=== MacOS
 
-include::snapshot.adoc[]
+. Enonic CLI is available from the https://brew.sh/[Homebrew package service]. With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:
 
-include::dump.adoc[]
+ brew tap enonic/cli
 
-include::export.adoc[]
+. Now you can install CLI by running:
 
-include::app.adoc[]
+ brew install enonic
 
-include::cms.adoc[]
+. If you later want to update the CLI, simply run:
 
-include::repo.adoc[]
+ brew update enonic
 
-include::system.adoc[]
+=== Linux
+
+If you know exact version you need you can download CLI archive directly from our repository:
+
+ curl -O http://repo.enonic.com/public/com/enonic/cli/enonic/1.0.2/enonic_1.0.2_Linux_64-bit.tar.gz
+
+
+=== Windows
+
+There are two ways to install CLI on windows
+
+==== Install using Scoop
+
+. After having https://scoop.sh/[Scoop command-line installer] installed, open command prompt and add CLI github repo to scoop known repositories with the following command:
+
+ scoop bucket add enonic https://github.com/enonic/cli-scoop.git
+
+. Now you can install CLI by running:
+
+ scoop install enonic
+
+. Updating CLI is done with the following comand:
+
+ scoop update enonic
+
+
+==== Windows native installer
+To download the latest available CLI and install it on your PC with native installer:
+
+. Download https://enonic.com[windows installer >>>fix link<<<].
+. Run it and follow the wizard instructions.
+. If you need to update the CLI later, just run the installer once again to fetch the latest version.
+
+////
+        Getting started
+////
+
+== Getting started
+
+Once installed, the CLI includes standard CLI help functions for listing available commands and options.
+To get a list of commands, simply type the following in your terminal:
+----
+$ enonic
+
+Enonic CLI v.1.0.2
+Manage XP instances, home folders and projects
+
+USAGE:
+   enonic.exe [global options] command [command options] [arguments...]
+
+COMMANDS:
+     snapshot  Create and restore snapshots
+     dump      Dump and load complete repositories
+     export    Export and load repository structures
+     app       Install, stop and start applications
+     repo      Tune and manage repositories
+     cms       CMS commands
+     system    System commands
+     help, h   Shows a list of commands or help for one command
+
+PROJECT COMMANDS:
+     sandbox  Manage XP development instances
+     project  Manage XP development projects
+
+GLOBAL OPTIONS:
+   --help, -h     show help
+   --version, -v  print the version
+----
+
+Most of the top-level commands contain sub-commands that can be printed out by typing the command name:
+----
+$ enonic snapshot
+
+Create and restore snapshots
+
+USAGE:
+   Enonic CLI snapshot command [command options] [arguments...]
+
+COMMANDS:
+     list, ls     Returns a list of existing snapshots with name and status.
+     create       Stores a snapshot of the current state of the repository.
+     restore      Restores a snapshot of a previous state of the repository.
+     delete, del  Deletes snapshots, either before a given timestamp or by name.
+
+OPTIONS:
+   --help, -h  show help
+----
+NOTE: some commands have aliases for convenience like `ls` for `list`
+
+To execute a sub-command you need to type full path to that command:
+----
+$ enonic snapshot list
+
+Loading snapshots...Done
+{
+    "Results": [
+        {
+            "Name": "2019-04-05t11-31-26.184z",
+            "Reason": "",
+            "State": "SUCCESS",
+            "Timestamp": "2019-04-05T11:31:26.47Z",
+            "Indices": [
+                "search-com.enonic.cms.default",
+                "storage-com.enonic.cms.default",
+                "search-system-repo",
+                "storage-system-repo"
+            ]
+        }
+    ]
+}
+----
+
+To get help for any command at any level type its name followed by `-h` or `--help`:
+----
+$ enonic snapshot list -h
+
+Returns a list of existing snapshots with name and status.
+
+USAGE:
+   Enonic CLI snapshot list [command options] [arguments...]
+
+OPTIONS:
+   --auth value, -a value  Authentication token for basic authentication (user:password)
+----
+
+////
+        Sandbox tasks
+////
+
+[#sandboxes]
+== Sandboxes
+
+Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
+Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.
+
+The CLI automates setting up, starting, stopping and upgrading sandboxes.
+Sandbox commands list is available by running following command:
+----
+$ enonic sandbox
+
+Manage XP development instances
+
+USAGE:
+   Enonic CLI sandbox command [command options] [arguments...]
+
+COMMANDS:
+     list, ls         List all sandboxes
+     start            Start the sandbox.
+     stop             Stop the sandbox started in detached mode.
+     create           Create a new sandbox.
+     delete, del, rm  Delete a sandbox
+     upgrade, up      Upgrades the distribution version.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Starts a new sandbox wizard asking for a name and an enonic distribution version:
+
+ $ enonic sandbox create [name] [-v <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-v, --version`
+|enonic distribution version
+|===
+
+TIP: If all params are present and correct, sandbox is created immediately without wizard.
+
+_Example:_
+====
+ $ enonic sandbox create myBox mac-sdk-7.0.0-B5
+====
+
+=== List
+
+Lists all sandboxes previously created by user:
+----
+$ enonic sandbox list
+----
+_Example output:_
+----
+$ enonic sandbox ls
+
+* Sandbox1 ( windows-sdk-7.0.0-B1 )
+  Sandbox2 ( windows-sdk-7.0.0-B1 )
+  Sandbox3 ( windows-sdk-7.0.0-B4 )
+  Sandbox4 ( windows-sdk-7.0.0-B5 )
+----
+NOTE: Asterisk marks currently running sandbox
+
+=== Start
+
+Starts a previously created sandbox ensuring that only 1 is started at a time:
+
+ $ enonic sandbox start [name] [-d]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-d, --detach`
+|flag to start sandbox in background
+|===
+
+_Example:_
+====
+ $ enonic sandbox start myBox -d
+====
+
+=== Stop
+
+Stops a running sandbox:
+
+ $ enonic sandbox stop
+
+NOTE: only sandboxes started with CLI can be stopped using this command.
+
+_Example:_
+====
+ $ enonic sandbox stop
+====
+
+=== Upgrade
+
+Upgrades enonic distribution used for this sandbox:
+
+ $ enonic sandbox upgrade [name] [-v <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-v, --version`
+|enonic distribution version
+|===
+
+NOTE: Downgrades are not permitted.
+
+_Example:_
+====
+ $ enonic sandbox upgrade myBox -v windows-sdk-7.0.0-B5
+====
+
+=== Delete
+
+Deletes a sandbox:
+
+ $ enonic sandbox delete [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+|===
+WARNING: All data that may have been created in this sandbox will be deleted.
+
+_Example:_
+====
+ $ enonic sandbox delete myBox
+====
+
+////
+        Project tasks
+////
+
+== Project
+
+By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
+Projects are commonly hosted in a Git repo and need to follow a set of principles to work with Enonic XP.
+Each project is associated with a <<sandbox.adoc#sandboxes, sandbox>> to be run in.
+
+NOTE: All project commands should be run from the project root folder.
+
+Command list is available by running following command:
+----
+$ enonic project
+
+ Manage XP development projects
+
+ USAGE:
+    Enonic CLI project command [command options] [arguments...]
+
+ COMMANDS:
+      create             Create new project
+      sandbox, sbox, sb  Set the default sandbox associated with the current project
+      clean              Clean current project
+      build              Build current project
+      deploy             Deploy current project to a sandbox
+      install, i         Build current project and install it to Enonic XP
+      shell              Creates a new shell with project environment variables
+
+ OPTIONS:
+    --help, -h  show help
+----
+
+=== Create
+
+Navigate to the folder you wish to place your project in and run the following command:
+
+ $ enonic project create [name] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>]
+
+Follow wizard instructions that will set everything up for you.
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|name of the project
+
+|`-r, --repo, +
+--repository`
+|repository path. Format: <enonic repo> or <organisation>/<repo> or <full repo url>
+
+|`-b, --branch`
+|repository branch to use
+
+|`-c, --checkout`
+|commit hash to use (mutually exclusive with branch option, used if both are present)
+
+|`-d, --dest, +
+--destination`
+|destination folder name
+
+|`-v, --ver, --version`
+|version number to assign to new project. Format: 1.0.0-SNAPSHOT
+|===
+
+TIP: `name`, `repository`, `destination` and `version` params are sufficient to create a project immediately without a wizard.
+
+_Example:_
+====
+ $ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
+====
+
+[#project-sandbox]
+=== Sandbox
+
+Project create will configure the default sandbox for your project. To change it later run this command inside the project folder:
+
+ $ enonic project sandbox [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+|===
+
+TIP: If sandbox with provided name exists, this will immediately set it as default for the project.
+
+_Example:_
+====
+ $ enonic project sandbox myOtherBox
+====
+
+[#project-build]
+=== Build
+
+You can build your project by running following command inside the project folder:
+
+ $ enonic project build
+
+The build command helps you with:
+
+* Compiling code
+* Running tests
+* Creating artifacts (executables)
+
+The build system is based on https://gradle.org/[Gradle] and the https://plugins.gradle.org/plugin/com.enonic.xp.app[XP Gradle plugin].
+
+The "project build" command is an alias for the Gradle Wrapper, which must be located in your project through a file called .gradlew (linux/mac) or gradlew.bat (windows).
+The Gradle Wrapper is by default available with all https://market.enonic.com/starters[Starter Kits on Enonic Market].
+
+NOTE: You may also use the Gradle Wrapper directly by running `./gradlew build` (linux/mac) or `gradlew build` (windows) from your projects directory.
+
+=== Clean
+
+Alias for the `gradlew clean` command
+
+ $ enonic project clean
+
+=== Deploy
+
+As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <<sandbox.adoc#project-sandbox, sandbox>>:
+
+ $ enonic project deploy [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name to deploy to (overrides associated sandbox)
+|===
+
+NOTE: If no sandbox name is provided, the project will be deployed to the associated sandbox. The difference between `./gradlew deploy` (linux/mac) or `gradlew deploy` (windows) is that CLI remembers sandbox associated with project and always uses it.
+
+_Example:_
+====
+ $ enonic project deploy otherSandbox
+====
+
+=== Install
+
+To install current project to running enonic instance
+
+ $ enonic project install
+
+NOTE: Enonic XP instance must be running when executing this command !
+
+Install command does 2 things:
+
+* <<project-build, Builds>> the project
+* Installs built project to a running enonic instance using enonic XP API
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|Authentication token for basic authentication in the following format <user:password>
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+=== Shell
+
+This is an advanced command to export current sandbox `JAVA_HOME` and `ENONIC_HOME` variables to a new shell. This gives ability to run 3-rd party software in that sanbox.
+
+ $ enonic project shell
+
+WARNING: This is an experimental feature, use it at your own risk !
+
+////
+        Snapshot tasks
+////
+
+== Snapshots
+
+List of commands for manipulating repository snapshots can be seen by typing:
+
+----
+$ enonic snapshot
+
+Create and restore snapshots
+
+USAGE:
+   Enonic CLI snapshot command [command options] [arguments...]
+
+COMMANDS:
+     list, ls     Returns a list of existing snapshots with name and status.
+     create       Stores a snapshot of the current state of the repository.
+     restore      Restores a snapshot of a previous state of the repository.
+     delete, del  Deletes snapshots, either before a given timestamp or by name.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+WARNING: For a clustered installation, the snapshot-location must be on a shared file-system.
+
+ $ enonic snapshot create [-r <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+
+|`-r, --repo`
+|the name of the repository to snapshot.
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic snapshot create -a su:password -r cms-repo
+====
+
+=== List
+
+List all the snapshots for the installation. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+ $ enonic snapshot ls
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+=== Restore
+
+Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+ $ enonic snapshot restore [--snap <value>] [--repo <value>] [--a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--snap, --snapshot`
+|snapshot name to restore
+
+|`-r, --repo`
+|the name of the repository to restore
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+=== Delete
+
+Deletes a snapshot by name or date:
+
+ $ enonic snapshot delete [-before <value>] [--snap <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-b, --before`
+|_"2 Jan 06"_ formatted date to delete snapshots up to
+
+|`--snap, --snapshot`
+|snapshot name to delete
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+////
+        Dump tasks
+////
+
+== Dumps
+
+List of command for manipulating all repositories can be seen by typing:
+
+----
+$ enonic dump
+
+Dump and load complete repositories
+
+USAGE:
+   Enonic CLI dump command [command options] [arguments...]
+
+COMMANDS:
+     create       Export data from every repository.
+     upgrade, up  Upgrade a dump.
+     load         Import data from a dump.
+     list, ls     List available dumps
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Export data from every repository. The result will be stored in the `$XP_HOME/data/dump` directory.
+
+ $ enonic dump create [-d <value>] [--skip-versions <value>] [--max-version-age <value>] [--max-versions <value>] [] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-d`
+|dump name
+
+|`--skip-versions`
+|don't dump version-history, only current versions included
+
+|`--max-version-age`
+|max age of versions to include, in days, in addition to current version
+
+|`--max-versions`
+|max number of versions to dump in addition to current version
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic dump create -a su:password -d myDump
+====
+
+=== Upgrade
+
+Upgrade a data dump from a previous version to the current version. The output of the upgrade will be placed alongside the dump that is being upgraded and will have the name `<dump-name>_upgraded_<new-version>`.
+
+NOTE: The current version XP installation must be running with the upgraded app deployed.
+
+ $ enonic dump upgrade [-d <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-d`
+|dump name
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic dump upgrade -a su:password -d myDump
+====
+
+=== List
+
+Lists all the dumps
+
+ $ enonic dump ls
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+=== Load
+
+Load data from a named system dump into Enonic XP. The dump read has to be stored in the `$XP_HOME/data/dump` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on system dump/load.
+
+WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
+
+ $ enonic dump load [--d <value>] [-y] [--upgrade] [--a <value>] [--na <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-d`
+|dump name to load
+
+|`-y`
+|assume “Yes” as answer to all prompts and run non-interactively
+
+|`--upgrade`
+|upgrade the dump if necessary (default is false)
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password)
+
+|`--na, --new-auth`
+|authentication token for basic authentication in the new dump (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic dump load -a su:password --na newSu:newPassword -d newDump -y --upgrade
+====
+
+////
+        Export tasks
+////
+
+== Export
+
+Export and import data from a given repository, branch and content path. To list available commands type:
+----
+$ enonic export
+
+Export and load repository structures
+
+USAGE:
+   Enonic CLI export command [command options] [arguments...]
+
+COMMANDS:
+     create  Export data from given repository, branch and content path.
+     import  Import data from a named export.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+
+WARNING: Exporting content will not include the version history of the content, just the current version.
+
+ $ enonic export create [-t <value>] [--path <value>] [--skip-ids] [--skip-versions] [--dry] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-t`
+|target name to save export
+
+|`--path`
+|path of data to export. Format: `<repo-name>:<branch-name>:<node-path>` e.g. `cms-repo:draft:/some-content`
+
+|`--skip-ids`
+|Flag to skip ids in data when exporting.
+
+|`--skip-versions`
+|Flag to skip versions in data when exporting.
+
+|`--dry`
+|Show the result without making actual changes.
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic export create -a su:password -t myExport --path cms-repo:draft:/some-content
+====
+
+=== Import
+
+Import data from a named export into Enonic XP at the desired content path. The export read has to be stored in the `$XP_HOME/data/export` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+
+ $ enonic export import [-t <value>] [--path <value>] [--xsl-source <value>] [--xsl-param <value>] [--skip-ids] [--skip-permissions] [--dry] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-t`
+|a named export to import
+
+|`--path`
+|target path for import. Format: `<repo-name>:<branch-name>:<node-path>` e.g. `cms-repo:draft:/some-content`
+
+|`--xsl-source`
+|path to xsl file (relative to `<XP_HOME>/data/export`) for applying transformations to node.xml before importing
+
+|`--xsl-param`
+|parameters to pass to the XSL transformations before importing nodes. Format: `<parameter-name>=<parameter-value>` e.g. `applicationId=com.enonic.myapp`
+
+|`--skip-ids`
+|flag to skip ids when importing
+
+|`--skip-permissions`
+|flag to skip permissions when importing
+
+|`--dry`
+|show the result without making actual changes.
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic export import -a su:password -t myExport --path cms-repo:draft:/some-content
+====
+
+[TIP]
+====
+An XSL file and a set of name=value parameters can be optionally passed for applying transformations to each node.xml file, before importing it.
+
+This option could for example be used for renaming types or fields. The .xsl file must be located in the `$XP_HOME/data/export` directory.
+====
+
+////
+        Application tasks
+////
+
+== Applications
+
+Commands to install applications to the running enonic XP instance. Currently only one command is available here:
+
+----
+$ enonic app
+
+Install, stop and start applications
+
+USAGE:
+   Enonic CLI app command [command options] [arguments...]
+
+COMMANDS:
+     install, i  Install an application from URL or file
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Install
+
+Installs an application on all nodes.
+
+ $ enonic app install [-u <value>] [-f <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-u, --url`
+|the URL of the application
+
+|`-f, --file`
+|path to an application file (mutually exclusive with url, used if both are present)
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Examples:_
+====
+ $ enonic app install -a su:password -u http://repo.enonic.com/public/com/enonic/app/superhero/1.2.0/superhero-1.2.0.jar
+====
+====
+ $ enonic app install -a su:password -f /Users/rmy/Dev/apps/superhero/build/libs/superhero-1.2.0-SNAPSHOT.jar
+====
+
+////
+        CMS tasks
+////
+
+== CMS
+
+Content metadata commands. Currently only one command present here:
+
+----
+$ enonic cms
+
+CMS commands
+
+USAGE:
+   Enonic CLI cms command [command options] [arguments...]
+
+COMMANDS:
+     reprocess  Reprocesses content in the repository.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Reprocess
+
+Reprocesses content in the repository and *regenerates metadata for the media attachments*. Only content of a media type (super-type = _base:media_) are processed.
+
+Unless the `–skip-children` flag is specified, it processes all descendants of the specified content path.
+
+NOTE: This command should be used after migrating content from Enonic CMS using the cms2xp tool.
+
+ $ enonic cms reprocess [--path <value>] [--skip-children] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--path`
+|target content path to be reprocessed. Format: `<branch-name>:<content-path>`. e.g `draft:/`
+
+|`--skip-children`
+|flag to skip processing of content children
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic reprocess -a su:password -s draft:/some-content
+====
+
+////
+        Repository tasks
+////
+
+== Repository
+
+Commands for configuring and managing repositories. Full list is available by typing:
+----
+$ enonic repo
+
+Tune and manage repositories
+
+USAGE:
+   Enonic CLI repo command [command options] [arguments...]
+
+COMMANDS:
+     reindex   Reindex content in search indices for the given repository and branches.
+     readonly  Toggle read-only mode for server or single repository
+     replicas  Set the number of replicas in the cluster.
+     list, ls  List available repos
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Reindex
+
+Reindex the content in the search indices for the given repository and branches. This is usually required after upgrades, and may be useful in many other situation.
+
+ $ enonic repo reindex [--b <value, value...>] [-r <value>] [-i] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-b`
+|a comma-separated list of branches to be reindexed
+
+|`-r`
+|the name of the repository to reindex
+
+|`-i`
+|ff true, the indices will be deleted before recreated
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic repo reindex -a su:password -b draft,master -i -r cms-repo
+====
+
+=== Readonly
+
+Toggle read-only mode. In read-only mode, no changes can be made on the server, or a single repo if specified
+
+ $ enonic repo readonly [readOnly] [-r <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`readOnly`
+|boolean value to set
+
+|`-r`
+|single repository to toggle read-only mode for
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic repo readonly true -a su:password -r cms-repo
+====
+
+=== Replicas
+
+Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: https://xp.readthedocs.io/en/stable/operations/clustering.html#replica-setup[Replica setup].
+
+ $ enonic repo replicas [replicasNum] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`replicasNum`
+|whole number between 1 and 99 to set
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic repo replicas 3 -a su:password
+====
+
+=== List
+
+List available repositories.
+
+ $ enonic repo list [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables.
+
+_Example:_
+====
+ $ enonic repo list -a su:password
+====
+
+////
+        System tasks
+////
+
+== System tasks
+
+System tasks show info about currently running enonic XP instance. Currently there is only one command as can be seen by running:
+
+----
+$ enonic system
+
+System commands
+
+USAGE:
+   Enonic CLI system command [command options] [arguments...]
+
+COMMANDS:
+     info, i  XP distribution info
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Info
+
+Shows info about currently running enonic XP instance.
+----
+$ enonic system info
+
+{
+    "Version": "7.0.0-B1",
+    "Installation": "demo",
+    "RunMode": "PROD",
+    "Build": {
+        "Hash": "934a05d947a8ab238295f74b9c1a5ab2b9f13794",
+        "ShortHash": "934a05d",
+        "Branch": "master",
+        "Timestamp": "2019-02-26T21:03:13+0100"
+    }
+}
+----
+
