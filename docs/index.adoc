@@ -28,4 +28,6 @@ include::app.adoc[]
 
 include::cms.adoc[]
 
+include::repo.adoc[]
+
 include::system.adoc[]
