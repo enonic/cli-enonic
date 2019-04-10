@@ -25,7 +25,7 @@ import (
 var GITHUB_URL = "https://github.com/"
 var ENONIC_REPOSITORY_PREFIX = "enonic/"
 var GIT_REPOSITORY_SUFFIX = ".git"
-var DEFAULT_NAME = "com.enonic.app.mytest"
+var DEFAULT_NAME = "com.example.myapp"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 var MARKET_STARTERS_REQUEST = `{
   market {
