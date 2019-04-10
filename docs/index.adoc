@@ -65,11 +65,40 @@ To download the latest available CLI and install it on your PC with native insta
 . Run it and follow the wizard instructions.
 . If you need to update the CLI later, just run the installer once again to fetch the latest version.
 
+
+////
+        Configuration
+////
+
+== Configuration
+
+CLI acts as an interface to a running enonic XP instance. You can customize connection settings with following environmental variables:
+
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`ENONIC_CLI_REMOTE_URL`
+|URL of the running enonic XP instance ( Default is `localhost:4848` )
+
+|`ENONIC_CLI_REMOTE_USER`
+|User name for authentication in enonic XP
+
+|`ENONIC_CLI_REMOTE_PASS`
+|User password for authentication in enonic XP
+|===
+
+NOTE: Authentication credentials passed to CLI command override environment settings.
+
+
 ////
         Getting started
 ////
 
 == Getting started
+
+NOTE: Enonic XP should be started and running to use CLI.
 
 Once installed, the CLI includes standard CLI help functions for listing available commands and options.
 To get a list of commands, simply type the following in your terminal:
