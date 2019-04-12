@@ -25,7 +25,6 @@ import (
 
 var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
 var STARTER_LIST_TPL = "%s (%s)"
-var STARTER_LIST_REGEX = regexp.MustCompile("^(.+) \\(.+\\)$")
 var DEFAULT_NAME = "com.example.myproject"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 var MARKET_STARTERS_REQUEST = `{
@@ -103,9 +102,15 @@ var Create = cli.Command{
 
 		absDest, err := filepath.Abs(dest)
 		util.Fatal(err, "Error creating project")
-		fmt.Fprintf(os.Stderr, "Project created in '%s'\n\n", absDest)
 
-		ensureProjectDataExists(nil, dest, "A sandbox is required for your project, create one?")
+		pData := ensureProjectDataExists(nil, dest, "A sandbox is required for your project, create one?")
+
+		if pData == nil {
+			fmt.Fprintf(os.Stderr, "\nProject created in '%s'", absDest)
+		} else {
+			fmt.Fprintf(os.Stderr, "Project created in '%s' and linked to '%s'", absDest, pData.Sandbox)
+		}
+		fmt.Fprint(os.Stderr, "\n\n")
 
 		return nil
 	},
@@ -199,34 +204,31 @@ func processGradleProperties(propsFile, name, version string) {
 
 func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 	var (
-		customRepoOption        = "Custom repo"
-		starterList             []string
-		starter, defaultStarter string
+		customRepoOption = "Custom repo"
+		starterList      []string
+		selectedOption   string
 	)
 	repo := c.String("repository")
 
 	if repo == "" {
 		starters := fetchStarters(c)
-		for i, st := range starters {
-			if i == 0 {
-				defaultStarter = st.DisplayName
-			}
+		sort.SliceStable(starters, func(i, j int) bool {
+			return starters[i].DisplayName < starters[j].DisplayName
+		})
+		for _, st := range starters {
 			starterList = append(starterList, fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription))
 		}
-		sort.Strings(starterList)
 
 		err := survey.AskOne(&survey.Select{
 			Message:  "Starter",
 			Options:  append(starterList, customRepoOption),
-			Default:  defaultStarter,
 			PageSize: 10,
-		}, &starter, nil)
+		}, &selectedOption, nil)
 		util.Fatal(err, "Starter select error: ")
 
-		if starter != customRepoOption {
-			starterName := STARTER_LIST_REGEX.FindStringSubmatch(starter)[1]
+		if selectedOption != customRepoOption {
 			for _, st := range starters {
-				if st.DisplayName == starterName {
+				if fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription) == selectedOption {
 					repo = st.Data.GitUrl
 					if *hash == "" {
 						*hash = findLatestHash(&st.Data.Version)

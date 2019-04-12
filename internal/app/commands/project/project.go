@@ -94,9 +94,6 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' created.\n", sBox.Name)
 		}
 	}
-	if badSandbox {
-		fmt.Fprintf(os.Stderr, "Project linked to '%s'.\n", projectData.Sandbox)
-	}
 
 	return projectData
 }
