@@ -19,13 +19,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
-var GITHUB_URL = "https://github.com/"
-var ENONIC_REPOSITORY_PREFIX = "enonic/"
-var GIT_REPOSITORY_SUFFIX = ".git"
-var DEFAULT_NAME = "com.example.myapp"
+var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
+var STARTER_LIST_TPL = "%s (%s)"
+var STARTER_LIST_REGEX = regexp.MustCompile("^(.+) \\(.+\\)$")
+var DEFAULT_NAME = "com.example.myproject"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 var MARKET_STARTERS_REQUEST = `{
   market {
@@ -36,6 +37,7 @@ var MARKET_STARTERS_REQUEST = `{
       ... on com_enonic_app_market_Starter {
         data {
           ... on com_enonic_app_market_Starter_Data {
+			shortDescription
             gitUrl
             version {
               supportedVersions
@@ -209,20 +211,22 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 			if i == 0 {
 				defaultStarter = st.DisplayName
 			}
-			starterList = append(starterList, st.DisplayName)
+			starterList = append(starterList, fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription))
 		}
+		sort.Strings(starterList)
 
 		err := survey.AskOne(&survey.Select{
 			Message:  "Starter",
-			Options:  append([]string{customRepoOption}, starterList...),
+			Options:  append(starterList, customRepoOption),
 			Default:  defaultStarter,
 			PageSize: 10,
 		}, &starter, nil)
 		util.Fatal(err, "Starter select error: ")
 
 		if starter != customRepoOption {
+			starterName := STARTER_LIST_REGEX.FindStringSubmatch(starter)[1]
 			for _, st := range starters {
-				if st.DisplayName == starter {
+				if st.DisplayName == starterName {
 					repo = st.Data.GitUrl
 					if *hash == "" {
 						*hash = findLatestHash(&st.Data.Version)
@@ -231,27 +235,23 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 				}
 			}
 		} else {
-			repo = customRepoOption
-		}
-	}
-
-	if repo == customRepoOption {
-		var repoValidator = func(val interface{}) error {
-			str := val.(string)
-			if str == "" || len(strings.TrimSpace(str)) < 3 {
-				return errors.Errorf("Repository name can not be empty", val)
+			var repoValidator = func(val interface{}) error {
+				str := val.(string)
+				if str == "" || len(strings.TrimSpace(str)) < 3 {
+					return errors.Errorf("Repository name can not be empty", val)
+				}
+				return nil
 			}
-			return nil
+			repo = util.PromptString("Custom repository", "", "", repoValidator)
 		}
-		repo = util.PromptString("Custom repository", "", "", repoValidator)
 	}
 
 	if strings.Contains(repo, "://") {
 		return repo
-	} else if strings.Contains(repo, "/") {
-		return GITHUB_URL + repo + GIT_REPOSITORY_SUFFIX
+	} else if splitRepo := strings.Split(repo, "/"); len(splitRepo) == 2 {
+		return fmt.Sprintf(GITHUB_REPO_TPL, splitRepo[0], splitRepo[1])
 	} else {
-		return GITHUB_URL + ENONIC_REPOSITORY_PREFIX + repo + GIT_REPOSITORY_SUFFIX
+		return fmt.Sprintf(GITHUB_REPO_TPL, "enonic", repo)
 	}
 }
 
@@ -379,8 +379,9 @@ type StarterVersion struct {
 type Starter struct {
 	DisplayName string
 	Data        struct {
-		GitUrl  string
-		Version []StarterVersion
+		GitUrl           string
+		ShortDescription string
+		Version          []StarterVersion
 	}
 }
 
