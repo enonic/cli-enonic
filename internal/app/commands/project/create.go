@@ -121,7 +121,7 @@ func ensureVersion(c *cli.Context) string {
 		return nil
 	}
 
-	return util.PromptString("Application version", c.String("version"), DEFAULT_VERSION, versionValidator)
+	return util.PromptString("Project version", c.String("version"), DEFAULT_VERSION, versionValidator)
 }
 
 func ensureDestination(c *cli.Context, name string) string {
