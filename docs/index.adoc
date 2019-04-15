@@ -328,7 +328,7 @@ $ enonic sandbox upgrade myBox -v windows-sdk-7.0.0-B5
 
 Deletes a sandbox:
 
- $ enonic sandbox delete [name]
+ $ enonic sandbox delete [name] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -338,6 +338,9 @@ Options:
 
 |`name`
 |sandbox name
+
+|`-f, --force`
+|assume “Yes” as answer to all prompts and run non-interactively
 |===
 WARNING: All data that may have been created in this sandbox will be deleted.
 
@@ -761,7 +764,7 @@ Load data from a named system dump into Enonic XP. The dump read has to be store
 
 WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
 
- $ enonic dump load [--d <value>] [-y] [--upgrade] [--a <value>] [--na <value>]
+ $ enonic dump load [--d <value>] [-f] [--upgrade] [--a <value>] [--na <value>]
 
 Options:
 [cols="1,3", options="header"]
@@ -772,7 +775,7 @@ Options:
 |`-d`
 |dump name to load
 
-|`-y`
+|`-f, --force`
 |assume “Yes” as answer to all prompts and run non-interactively
 
 |`--upgrade`

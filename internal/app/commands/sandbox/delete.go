@@ -11,9 +11,15 @@ var Delete = cli.Command{
 	Name:    "delete",
 	Usage:   "Delete a sandbox",
 	Aliases: []string{"del", "rm"},
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:  "f, force",
+			Usage: "assume “Yes” as answer to all prompts and run non-interactively",
+		},
+	},
 	Action: func(c *cli.Context) error {
 		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to delete:", true, false)
-		if sandbox == nil || !acceptToDeleteSandbox(sandbox.Name) {
+		if sandbox == nil || !(c.Bool("f") || acceptToDeleteSandbox(sandbox.Name)) {
 			os.Exit(0)
 		}
 

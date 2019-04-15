@@ -24,7 +24,7 @@ var Load = cli.Command{
 			Usage: "Authentication token for basic authentication in a new dump (user:password)",
 		},
 		cli.BoolFlag{
-			Name:  "y",
+			Name:  "f, force",
 			Usage: "assume “Yes” as answer to all prompts and run non-interactively",
 		},
 		cli.BoolFlag{
@@ -34,7 +34,7 @@ var Load = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		if c.Bool("y") || util.PromptBool("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?", false) {
+		if c.Bool("f") || util.PromptBool("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?", false) {
 
 			name := ensureNameFlag(c.String("d"), false)
 
