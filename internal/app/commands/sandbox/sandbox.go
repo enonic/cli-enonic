@@ -168,7 +168,7 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, showSuccessMessage bool) (*Sandbox, bool) {
+func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption bool) (*Sandbox, bool) {
 	existingBoxes := listSandboxes()
 
 	if len(existingBoxes) == 0 {
@@ -188,7 +188,10 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 		}
 	}
 
-	selectOptions := []string{CREATE_NEW_BOX}
+	var selectOptions []string
+	if showCreateOption {
+		selectOptions = append(selectOptions, CREATE_NEW_BOX)
+	}
 	var boxName, defaultBox string
 	for i, box := range existingBoxes {
 		boxName = fmt.Sprintf("%s ( %s )", box.Name, box.Distro)
@@ -213,8 +216,11 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 		return newBox, true
 	}
 
-	// subtract 1 because of 'new sandbox' option
-	return existingBoxes[util.IndexOf(name, selectOptions)-1], false
+	optionIndex := util.IndexOf(name, selectOptions)
+	if showCreateOption {
+		optionIndex -= 1 // subtract 1 because of 'new sandbox' option
+	}
+	return existingBoxes[optionIndex], false
 }
 
 func CopyHomeFolder(distroPath, sandboxName string) {

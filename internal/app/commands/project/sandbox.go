@@ -1,10 +1,10 @@
 package project
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
-	"os"
 	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
+	"github.com/urfave/cli"
+	"os"
 )
 
 var Sandbox = cli.Command{
@@ -15,7 +15,7 @@ var Sandbox = cli.Command{
 
 		ensureValidProjectFolder(".")
 
-		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true)
+		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true, true)
 		if sandbox == nil {
 			os.Exit(0)
 		}

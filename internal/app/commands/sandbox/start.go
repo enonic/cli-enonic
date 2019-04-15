@@ -32,7 +32,7 @@ var Start = cli.Command{
 			os.Exit(0)
 		}
 
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true)
+		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
 		if sandbox == nil {
 			os.Exit(0)
 		}

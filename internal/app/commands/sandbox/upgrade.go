@@ -1,11 +1,11 @@
 package sandbox
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
-	"os"
-	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/Masterminds/semver"
+	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/urfave/cli"
+	"os"
 )
 
 var Upgrade = cli.Command{
@@ -20,7 +20,7 @@ var Upgrade = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:", true)
+		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:", true, false)
 		if sandbox == nil {
 			os.Exit(0)
 		}
