@@ -346,7 +346,7 @@ WARNING: All data that may have been created in this sandbox will be deleted.
 
 .Example deleting 'myBox' sandbox:
 ----
-$ enonic sandbox delete myBox
+$ enonic sandbox delete myBox -f
 ----
 
 ////
@@ -792,7 +792,7 @@ NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and 
 
 .Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:
 ----
-$ enonic dump load -a su:password --na newSu:newPassword -d newDump -y --upgrade
+$ enonic dump load -a su:password --na newSu:newPassword -d newDump -f --upgrade
 ----
 
 ////
