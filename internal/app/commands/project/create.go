@@ -10,6 +10,7 @@ import (
 	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"github.com/enonic/enonic-cli/internal/app/util"
 	"github.com/otiai10/copy"
+	"github.com/pkg/browser"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"gopkg.in/src-d/go-git.v4"
@@ -37,6 +38,7 @@ var MARKET_STARTERS_REQUEST = `{
         data {
           ... on com_enonic_app_market_Starter_Data {
 			shortDescription
+			documentationUrl
             gitUrl
             version {
               supportedVersions
@@ -84,7 +86,7 @@ var Create = cli.Command{
 
 		branch := c.String("branch")
 		hash := c.String("checkout")
-		gitUrl := ensureGitRepositoryUri(c, &hash)
+		gitUrl, starter := ensureGitRepositoryUri(c, &hash)
 		name := ensureNameArg(c)
 		dest := ensureDestination(c, name)
 		version := ensureVersion(c)
@@ -96,6 +98,7 @@ var Create = cli.Command{
 
 		fmt.Fprintln(os.Stderr, "\nInitializing project...")
 		cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
+		fmt.Fprint(os.Stderr, "\n")
 
 		propsFile := filepath.Join(dest, "gradle.properties")
 		processGradleProperties(propsFile, name, version)
@@ -106,11 +109,16 @@ var Create = cli.Command{
 		pData := ensureProjectDataExists(nil, dest, "A sandbox is required for your project, create one?")
 
 		if pData == nil {
-			fmt.Fprintf(os.Stderr, "\nProject created in '%s'", absDest)
+			fmt.Fprintf(os.Stderr, "\nProject created in '%s'\n", absDest)
 		} else {
-			fmt.Fprintf(os.Stderr, "Project created in '%s' and linked to '%s'", absDest, pData.Sandbox)
+			fmt.Fprintf(os.Stderr, "Project created in '%s' and linked to '%s'\n", absDest, pData.Sandbox)
 		}
-		fmt.Fprint(os.Stderr, "\n\n")
+		fmt.Fprint(os.Stderr, "\n")
+
+		if starter != nil && util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), true) {
+			err := browser.OpenURL(starter.Data.DocumentationUrl)
+			util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
+		}
 
 		return nil
 	},
@@ -202,11 +210,12 @@ func processGradleProperties(propsFile, name, version string) {
 	}
 }
 
-func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
+func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 	var (
-		customRepoOption = "Custom repo"
+		customRepoOption  = "Custom repo"
 		starterList      []string
 		selectedOption   string
+		starter          *Starter
 	)
 	repo := c.String("repository")
 
@@ -230,6 +239,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 			for _, st := range starters {
 				if fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription) == selectedOption {
 					repo = st.Data.GitUrl
+					starter = &st
 					if *hash == "" {
 						*hash = findLatestHash(&st.Data.Version)
 					}
@@ -249,11 +259,11 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) string {
 	}
 
 	if strings.Contains(repo, "://") {
-		return repo
+		return repo, starter
 	} else if splitRepo := strings.Split(repo, "/"); len(splitRepo) == 2 {
-		return fmt.Sprintf(GITHUB_REPO_TPL, splitRepo[0], splitRepo[1])
+		return fmt.Sprintf(GITHUB_REPO_TPL, splitRepo[0], splitRepo[1]), starter
 	} else {
-		return fmt.Sprintf(GITHUB_REPO_TPL, "enonic", repo)
+		return fmt.Sprintf(GITHUB_REPO_TPL, "enonic", repo), starter
 	}
 }
 
@@ -383,6 +393,7 @@ type Starter struct {
 	Data        struct {
 		GitUrl           string
 		ShortDescription string
+		DocumentationUrl string
 		Version          []StarterVersion
 	}
 }
