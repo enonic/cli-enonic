@@ -115,9 +115,13 @@ var Create = cli.Command{
 		}
 		fmt.Fprint(os.Stderr, "\n")
 
-		if starter != nil && util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), true) {
-			err := browser.OpenURL(starter.Data.DocumentationUrl)
-			util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
+		if starter != nil {
+			if util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), true) {
+				err := browser.OpenURL(starter.Data.DocumentationUrl)
+				util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
+			} else {
+				fmt.Fprintf(os.Stderr, "%s docs: %s", starter.DisplayName, starter.Data.DocumentationUrl)
+			}
 		}
 
 		return nil
