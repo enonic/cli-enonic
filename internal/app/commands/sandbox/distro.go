@@ -160,19 +160,17 @@ func unzipDistro(zipFile string) string {
 
 func startDistro(distroName, sandbox string, detach bool) *exec.Cmd {
 	myOs := util.GetCurrentOs()
-	executable := "server.sh"
+	var executable, template string
 	if myOs == "windows" {
 		executable = "server.bat"
+		template = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
+	} else {
+		executable = "server.sh"
+		template = `-Dxp.home=%s` // other OSes work ok without em
 	}
 	version := parseDistroVersion(distroName, true)
 	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
-	var template string
-	if util.GetCurrentOs() == "windows" {
-		template = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
-	} else {
-		template = `-Dxp.home=%s` // other OSes work ok without em
-	}
 	args := []string{fmt.Sprintf(template, homePath)}
 
 	return system.Start(appPath, args, detach)
