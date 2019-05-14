@@ -120,7 +120,7 @@ var Create = cli.Command{
 				err := browser.OpenURL(starter.Data.DocumentationUrl)
 				util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
 			} else {
-				fmt.Fprintf(os.Stderr, "%s docs: %s", starter.DisplayName, starter.Data.DocumentationUrl)
+				fmt.Fprintf(os.Stderr, "%s docs: %s\n", starter.DisplayName, starter.Data.DocumentationUrl)
 			}
 		}
 
