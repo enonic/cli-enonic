@@ -116,11 +116,11 @@ scoop:
 
   # Your app's homepage.
   # Default is empty.
-  homepage: "https://enonic.com/"
+  homepage: https://enonic.com/
 
   # Your app's description.
   # Default is empty.
-  description: "Command-line interface for Enonic XP"
+  description: Command-line interface for Enonic XP
 
   # Your app's license
   # Default is empty.
@@ -159,11 +159,11 @@ brew:
 
   # Your app's homepage.
   # Default is empty.
-  homepage: "https://enonic.com/"
+  homepage: https://enonic.com/
 
   # Your app's description.
   # Default is empty.
-  description: "Command-line interface for Enonic XP"
+  description: Command-line interface for Enonic XP
 
 nfpm:
   # You can change the name of the package.
@@ -204,6 +204,53 @@ nfpm:
   formats:
     - deb
 #    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
+
+snapcraft:
+  # You can change the name of the package.
+  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  # Replacements for GOOS and GOARCH in the package name.
+  # Keys should be valid GOOSs or GOARCHs.
+  # Values are the respective replacements.
+  # Default is empty.
+  replacements:
+    darwin: Mac
+    linux: Linux
+    windows: Windows
+    amd64: 64-bit
+    386: 32-bit
+
+  # The name of the snap. This is optional.
+  # Default is project name.
+  name: enonic
+
+  # Wether to publish the snap to the snapcraft store.
+  # Remember you need to `snapcraft login` first.
+  # Defaults to false.
+  publish: true
+
+  # Single-line elevator pitch for your amazing snap.
+  # 79 char long at most.
+  summary: Command-line interface for Enonic XP
+
+  description: Tool for managing XP instances, home folders and projects
+
+  # A guardrail to prevent you from releasing a snap to all your users before
+  # it is ready.
+  # `devel` will let you release only to the `edge` and `beta` channels in the
+  # store. `stable` will let you release also to the `candidate` and `stable`
+  # channels. More info about channels here:
+  # https://snapcraft.io/docs/reference/channels
+  grade: stable
+
+  # Snaps can be setup to follow three different confinement policies:
+  # `strict`, `devmode` and `classic`. A strict confinement where the snap
+  # can only read and write in its own namespace is recommended. Extra
+  # permissions for strict snaps can be declared as `plugs` for the app, which
+  # are explained later. More info about confinement here:
+  # https://snapcraft.io/docs/reference/confinement
+  confinement: strict
 
 artifactories:
   - name: repo
