@@ -2,7 +2,7 @@ package system
 
 import (
 	"fmt"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/enonic/cli-enonic/internal/app/util"
 	"os"
 	"os/exec"
 )

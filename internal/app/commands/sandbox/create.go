@@ -2,7 +2,7 @@ package sandbox
 
 import (
 	"fmt"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"os"

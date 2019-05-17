@@ -1,15 +1,15 @@
 package repo
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"strconv"
-	"encoding/json"
 	"bytes"
-	"net/http"
+	"encoding/json"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
 	"os"
+	"strconv"
 )
 
 var ReadOnly = cli.Command{

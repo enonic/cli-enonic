@@ -1,15 +1,15 @@
 package snapshot
 
 import (
-	"github.com/urfave/cli"
-	"net/http"
-	"fmt"
 	"bytes"
 	"encoding/json"
-	"os"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
+	"fmt"
 	"github.com/AlecAivazis/survey"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
+	"os"
 )
 
 var Restore = cli.Command{

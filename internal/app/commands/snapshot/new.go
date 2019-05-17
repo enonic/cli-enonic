@@ -1,14 +1,14 @@
 package snapshot
 
 import (
-	"github.com/urfave/cli"
-	"net/http"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
 	"os"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 var Create = cli.Command{

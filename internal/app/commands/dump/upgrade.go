@@ -1,14 +1,14 @@
 package dump
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"fmt"
-	"os"
-	"net/http"
 	"bytes"
 	"encoding/json"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
+	"os"
 )
 
 var Upgrade = cli.Command{

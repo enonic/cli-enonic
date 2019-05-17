@@ -1,11 +1,11 @@
 package vacuum
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
 	"os"
-	"github.com/enonic/enonic-cli/internal/app/util"
 )
 
 var Vacuum = cli.Command{

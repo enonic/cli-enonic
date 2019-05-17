@@ -1,12 +1,12 @@
 package remote
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"strings"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"strings"
 )
 
 var Add = cli.Command{

@@ -1,13 +1,13 @@
 package dump
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/util"
 	"fmt"
 	"github.com/AlecAivazis/survey"
-	"strings"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
 	"os"
 	"regexp"
+	"strings"
 )
 
 func All() []cli.Command {

@@ -1,19 +1,19 @@
 package app
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"fmt"
-	"os"
-	"net/http"
 	"bytes"
 	"encoding/json"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"strings"
-	"net/url"
-	"mime/multipart"
-	"path/filepath"
+	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
 	"io"
+	"mime/multipart"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 

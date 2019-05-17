@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/enonic/cli-enonic/internal/app/commands"
+	"github.com/urfave/cli"
+	survey "gopkg.in/AlecAivazis/survey.v1/core"
 	"log"
 	"os"
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands"
-	survey "gopkg.in/AlecAivazis/survey.v1/core"
 )
 
 // set by goreleaser

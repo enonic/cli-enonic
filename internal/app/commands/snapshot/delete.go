@@ -1,16 +1,16 @@
 package snapshot
 
 import (
-	"github.com/urfave/cli"
-	"fmt"
-	"os"
-	"net/http"
-	"encoding/json"
 	"bytes"
-	"time"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"encoding/json"
+	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
+	"net/http"
+	"os"
 	"strings"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
+	"time"
 )
 
 const DATE_FORMAT = "2 Jan 06"

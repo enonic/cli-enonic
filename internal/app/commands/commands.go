@@ -1,16 +1,16 @@
 package commands
 
 import (
+	"github.com/enonic/cli-enonic/internal/app/commands/app"
+	"github.com/enonic/cli-enonic/internal/app/commands/cms"
+	"github.com/enonic/cli-enonic/internal/app/commands/dump"
+	"github.com/enonic/cli-enonic/internal/app/commands/export"
+	"github.com/enonic/cli-enonic/internal/app/commands/project"
+	"github.com/enonic/cli-enonic/internal/app/commands/repo"
+	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
+	"github.com/enonic/cli-enonic/internal/app/commands/snapshot"
+	"github.com/enonic/cli-enonic/internal/app/commands/system"
 	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
-	"github.com/enonic/enonic-cli/internal/app/commands/project"
-	"github.com/enonic/enonic-cli/internal/app/commands/snapshot"
-	"github.com/enonic/enonic-cli/internal/app/commands/dump"
-	"github.com/enonic/enonic-cli/internal/app/commands/export"
-	"github.com/enonic/enonic-cli/internal/app/commands/app"
-	"github.com/enonic/enonic-cli/internal/app/commands/repo"
-	"github.com/enonic/enonic-cli/internal/app/commands/cms"
-	"github.com/enonic/enonic-cli/internal/app/commands/system"
 )
 
 func All() []cli.Command {

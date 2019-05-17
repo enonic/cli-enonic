@@ -1,14 +1,14 @@
 package common
 
 import (
-	"net/http"
-	"time"
+	"encoding/json"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"gopkg.in/cheggaaa/pb.v1"
+	"net/http"
 	"os"
 	"strings"
-	"encoding/json"
-	"gopkg.in/cheggaaa/pb.v1"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"time"
 )
 
 const TASK_FINISHED = "FINISHED"

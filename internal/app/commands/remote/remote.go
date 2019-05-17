@@ -1,12 +1,12 @@
 package remote
 
 import (
+	"bytes"
+	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"net/url"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"path/filepath"
-	"bytes"
 	"os"
+	"path/filepath"
 	"strings"
 )
 

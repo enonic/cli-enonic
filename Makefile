@@ -16,7 +16,7 @@ help:
 
 build: deps
 	@echo "$(ansi_grn)Building...$(ansi_end)"
-	go build -o build/enonic github.com/enonic/enonic-cli/internal/app
+	go build -o build/enonic github.com/enonic/cli-enonic/internal/app
 
 .PHONY: clean
 clean:

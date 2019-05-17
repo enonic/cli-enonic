@@ -1,13 +1,13 @@
 package project
 
 import (
-	"github.com/urfave/cli"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"os"
-	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
-	"os/exec"
-	"github.com/enonic/enonic-cli/internal/app/util"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
+	"os"
+	"os/exec"
 )
 
 var Shell = cli.Command{

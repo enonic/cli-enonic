@@ -1,18 +1,18 @@
 package common
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/briandowns/spinner"
+	"github.com/enonic/cli-enonic/internal/app/commands/remote"
+	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/urfave/cli"
 	"io"
 	"net/http"
-	"github.com/enonic/enonic-cli/internal/app/util"
-	"fmt"
-	"os"
-	"encoding/json"
-	"github.com/urfave/cli"
-	"time"
-	"strings"
-	"github.com/enonic/enonic-cli/internal/app/commands/remote"
 	"net/url"
-	"github.com/briandowns/spinner"
+	"os"
+	"strings"
+	"time"
 )
 
 var ENV_XP_HOME = "XP_HOME"

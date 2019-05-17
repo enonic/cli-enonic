@@ -1,13 +1,13 @@
 package dump
 
 import (
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"github.com/urfave/cli"
-	"path/filepath"
-	"io/ioutil"
-	"github.com/enonic/enonic-cli/internal/app/commands/sandbox"
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
+	"github.com/urfave/cli"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 var List = cli.Command{

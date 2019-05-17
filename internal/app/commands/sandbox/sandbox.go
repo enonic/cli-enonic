@@ -3,8 +3,8 @@ package sandbox
 import (
 	"fmt"
 	"github.com/AlecAivazis/survey"
-	"github.com/enonic/enonic-cli/internal/app/commands/common"
-	"github.com/enonic/enonic-cli/internal/app/util"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/otiai10/copy"
 	"github.com/urfave/cli"
 	"io/ioutil"
