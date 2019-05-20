@@ -116,7 +116,7 @@ var Create = cli.Command{
 		fmt.Fprint(os.Stderr, "\n")
 
 		if starter != nil {
-			if util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), true) {
+			if util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), false) {
 				err := browser.OpenURL(starter.Data.DocumentationUrl)
 				util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
 			} else {

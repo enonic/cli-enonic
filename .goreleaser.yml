@@ -254,5 +254,5 @@ snapcraft:
 
 artifactories:
   - name: repo
-    target: http://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
+    target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
     username: ci
