@@ -30,12 +30,12 @@ func setStartDetachedParams(cmd *exec.Cmd) {
  *	Taken from https://blog.csdn.net/fyxichen/article/details/51857864
  */
 
-func SetPgid(pid, pgid int) error {
+func Setpgid(pid, pgid int) error {
 	return syscall.Setpgid(pid, pgid)
 }
 
-func GetPPids(pid int) ([]int, error) {
-	return []int{}, nil
+func Getppids(pid int) ([]uint32, error) {
+	return []uint32{}, nil
 }
 
 func Kill(pids []uint32) {

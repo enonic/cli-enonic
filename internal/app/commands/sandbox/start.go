@@ -3,6 +3,7 @@ package sandbox
 import (
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"os"
 	"os/signal"
@@ -20,7 +21,20 @@ var Start = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		sData := ReadSandboxesData()
+		isSandboxRunning := false
+
 		if sData.Running != "" && sData.PID != 0 {
+			proc, _ := ps.FindProcess(sData.PID)
+
+			// make sure that process is still alive and has the same name
+			if proc != nil && proc.Executable() == "enonic" {
+				isSandboxRunning = true
+			} else {
+				writeRunningSandbox("", 0)
+			}
+		}
+
+		if isSandboxRunning {
 			if sData.Running == c.Args().First() {
 				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", sData.Running)
 				os.Exit(0)

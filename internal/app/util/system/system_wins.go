@@ -81,7 +81,7 @@ var (
 	procCloseHandle              = modkernel32.NewProc("CloseHandle")
 )
 
-func SetPgid(pid, pgid int) error {
+func Setpgid(pid, pgid int) error {
 	return nil
 }
 

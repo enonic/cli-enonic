@@ -60,3 +60,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/pkg/browser"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mitchellh/go-ps"
