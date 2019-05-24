@@ -20,6 +20,7 @@ func All() []cli.Command {
 		Deploy,
 		Install,
 		Shell,
+		Gradle,
 	}
 }
 
@@ -98,16 +99,18 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 	return projectData
 }
 
-func runGradleTask(projectData *ProjectData, task, message string) {
+func runGradleTask(projectData *ProjectData, message string, tasks ...string) {
 
 	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
 
 	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", sandbox.GetDistroJdkPath(sandboxData.Distro))
 	xpHome := fmt.Sprintf("-Dxp.home=%s", sandbox.GetSandboxHomePath(projectData.Sandbox))
+	args := append(tasks, javaHome, xpHome)
 
 	fmt.Fprintln(os.Stderr, message)
+
 	command := getOsGradlewFile()
-	cmd := exec.Command(command, task, javaHome, xpHome)
+	cmd := exec.Command(command, args...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin

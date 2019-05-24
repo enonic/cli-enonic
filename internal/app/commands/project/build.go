@@ -1,8 +1,8 @@
 package project
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
 )
 
 var Build = cli.Command{
@@ -18,6 +18,6 @@ var Build = cli.Command{
 
 func buildProject(c *cli.Context) {
 	if projectData := ensureProjectDataExists(c, ".", "A sandbox is required for your project, create one?"); projectData != nil {
-		runGradleTask(projectData, "build", fmt.Sprintf("Building using sandbox '%s'...", projectData.Sandbox))
+		runGradleTask(projectData, fmt.Sprintf("Building in sandbox '%s'...", projectData.Sandbox), "build")
 	}
 }

@@ -13,9 +13,9 @@ var Deploy = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to deploy the project, do you want to create one?"); projectData != nil {
-			runGradleTask(projectData, "deploy", fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox))
+			runGradleTask(projectData, fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox), "deploy")
 
-			sData := sandbox.ReadSandboxesData();
+			sData := sandbox.ReadSandboxesData()
 			if sData.PID == 0 {
 				if util.PromptBool(fmt.Sprintf("\nDo you want to start sandbox '%s'?", projectData.Sandbox), true) {
 					sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false)

@@ -1,8 +1,10 @@
 package project
 
 import (
-	"strings"
+	"fmt"
+	"github.com/urfave/cli"
 	"regexp"
+	"strings"
 )
 
 const GROUP_KEY = "group"
@@ -12,6 +14,26 @@ const APP_NAME_KEY = "appName"
 const DISPLAY_NAME_KEY = "displayName"
 const PROPERTY_PATTERN = "^(\\s*(" + GROUP_KEY + "|" + VERSION_KEY + "|" + PROJECT_NAME_KEY + "|" + APP_NAME_KEY + "|" +
 	DISPLAY_NAME_KEY + ")\\s*=\\s*)"
+
+var Gradle = cli.Command{
+	Name:  "gradle",
+	Usage: "Run arbitrary gradle task in current project",
+	Action: func(c *cli.Context) error {
+
+		tasks := make([]string, 0, c.NArg())
+		for i := 0; i < c.NArg(); i++ {
+			arg := c.Args().Get(i)
+			tasks = append(tasks, arg)
+		}
+
+		if projectData := ensureProjectDataExists(nil, ".", "A sandbox is required to run gradle in the project, do you want to create one?"); projectData != nil {
+			text := fmt.Sprintf("Running gradle %v in sandbox '%s'...", tasks, projectData.Sandbox)
+			runGradleTask(projectData, text, tasks...)
+		}
+
+		return nil
+	},
+}
 
 type GradleProcessor struct {
 	group         string

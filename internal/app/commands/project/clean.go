@@ -1,8 +1,8 @@
 package project
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
 )
 
 var Clean = cli.Command{
@@ -11,7 +11,7 @@ var Clean = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to clean the project, do you want to create one?"); projectData != nil {
-			runGradleTask(projectData, "clean", fmt.Sprintf("Cleaning using sandbox '%s'...", projectData.Sandbox))
+			runGradleTask(projectData, fmt.Sprintf("Cleaning in sandbox '%s'...", projectData.Sandbox), "clean")
 		}
 
 		return nil
