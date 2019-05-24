@@ -2,13 +2,13 @@ package project
 
 import (
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 )
 
 func All() []cli.Command {
@@ -22,26 +22,6 @@ func All() []cli.Command {
 		Shell,
 		Gradle,
 	}
-}
-
-type ProjectData struct {
-	Sandbox string `toml:"sandbox"`
-}
-
-func readProjectData(prjPath string) *ProjectData {
-	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), true)
-	defer file.Close()
-
-	var data ProjectData
-	util.DecodeTomlFile(file, &data)
-	return &data
-}
-
-func writeProjectData(data *ProjectData, prjPath string) {
-	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), false)
-	defer file.Close()
-
-	util.EncodeTomlFile(file, data)
 }
 
 func getOsGradlewFile() string {
@@ -63,13 +43,13 @@ func ensureValidProjectFolder(prjPath string) {
 	}
 }
 
-func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *ProjectData {
+func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *common.ProjectData {
 	var newBox bool
 	var sBox *sandbox.Sandbox
 
 	ensureValidProjectFolder(prjPath)
 
-	projectData := readProjectData(prjPath)
+	projectData := common.ReadProjectData(prjPath)
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
@@ -79,7 +59,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 		}
 		projectData.Sandbox = sBox.Name
 		if badSandbox {
-			writeProjectData(projectData, prjPath)
+			common.WriteProjectData(projectData, prjPath)
 		}
 	} else {
 		sBox = sandbox.ReadSandboxData(projectData.Sandbox)
@@ -99,7 +79,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *Proj
 	return projectData
 }
 
-func runGradleTask(projectData *ProjectData, message string, tasks ...string) {
+func runGradleTask(projectData *common.ProjectData, message string, tasks ...string) {
 
 	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
 

@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -30,6 +32,33 @@ var FLAGS = []cli.Flag{
 		Name:  "auth, a",
 		Usage: "Authentication token for basic authentication (user:password)",
 	},
+}
+
+type ProjectData struct {
+	Sandbox string `toml:"sandbox"`
+}
+
+func HasProjectData(prjPath string) bool {
+	if _, err := os.Stat(path.Join(prjPath, ".enonic")); err == nil {
+		return true
+	}
+	return false
+}
+
+func ReadProjectData(prjPath string) *ProjectData {
+	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), true)
+	defer file.Close()
+
+	var data ProjectData
+	util.DecodeTomlFile(file, &data)
+	return &data
+}
+
+func WriteProjectData(data *ProjectData, prjPath string) {
+	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), false)
+	defer file.Close()
+
+	util.EncodeTomlFile(file, data)
 }
 
 func EnsureAuth(authString string) (string, string) {

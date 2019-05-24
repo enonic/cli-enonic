@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
 	"github.com/urfave/cli"
 	"os"
@@ -19,7 +20,7 @@ var Sandbox = cli.Command{
 		if sandbox == nil {
 			os.Exit(0)
 		}
-		writeProjectData(&ProjectData{sandbox.Name}, ".")
+		common.WriteProjectData(&common.ProjectData{sandbox.Name}, ".")
 
 		fmt.Fprintf(os.Stderr, "\nSandbox '%s' set as default.\n", sandbox.Name)
 

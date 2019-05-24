@@ -17,7 +17,7 @@ var Shell = cli.Command{
 
 		ensureValidProjectFolder(".")
 
-		pData := readProjectData(".")
+		pData := common.ReadProjectData(".")
 		sBox := sandbox.ReadSandboxData(pData.Sandbox)
 
 		cmd := createNewTerminalCommand()

@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
@@ -46,9 +47,17 @@ var Start = cli.Command{
 			os.Exit(0)
 		}
 
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
+		var sandbox *Sandbox
+		// use configured sandbox if we're in a project folder
+		if common.HasProjectData(".") {
+			pData := common.ReadProjectData(".")
+			sandbox = ReadSandboxData(pData.Sandbox)
+		}
 		if sandbox == nil {
-			os.Exit(0)
+			sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
+			if sandbox == nil {
+				os.Exit(0)
+			}
 		}
 
 		StartSandbox(sandbox, c.Bool("detach"))
