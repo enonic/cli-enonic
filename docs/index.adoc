@@ -491,11 +491,34 @@ Options:
 |sandbox name to deploy to (overrides associated sandbox)
 |===
 
-NOTE: If sandbox name is provided, it overrides the sandbox associated with the project.
+NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
 
 .Example deploying current project to 'otherSandbox' sandbox:
 ----
 $ enonic project deploy otherSandbox
+----
+
+=== Gradle
+
+In case you want to run arbitrary gradle task or group multiple ones in one command you can use following command:
+
+ $ enonic project gradle [tasks...]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`tasks`
+|a space delimited list of gradle tasks to invoke
+|===
+
+NOTE: The difference between `enonic project gradle clean build deploy` and `gradlew clean build deploy` is that the former uses sandbox and enonic XP distribution configured for the project, while latter uses system wide settings.
+
+.Example running gradle clean build deploy:
+----
+$ enonic project gradle clean build deploy
 ----
 
 === Install
