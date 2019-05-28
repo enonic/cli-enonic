@@ -19,10 +19,6 @@ var Load = cli.Command{
 			Name:  "d",
 			Usage: "Dump name",
 		},
-		cli.StringFlag{
-			Name:  "new-auth, na",
-			Usage: "Authentication token for basic authentication in a new dump (user:password)",
-		},
 		cli.BoolFlag{
 			Name:  "f, force",
 			Usage: "assume “Yes” as answer to all prompts and run non-interactively",
@@ -40,13 +36,8 @@ var Load = cli.Command{
 
 			req := createLoadRequest(c, name)
 			var result LoadDumpResponse
-			params := make(map[string]string)
-			if newAuth := c.String("new-auth"); newAuth != "" {
-				user, pass := common.EnsureAuth(newAuth)
-				params["user"] = user
-				params["pass"] = pass
-			}
-			status := common.RunTaskWithParams(req, "Loading dump", &result, params)
+
+			status := common.RunTask(req, "Loading dump", &result)
 
 			switch status.State {
 			case common.TASK_FINISHED:

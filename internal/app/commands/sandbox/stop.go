@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -11,20 +12,20 @@ var Stop = cli.Command{
 	Usage: "Stop the sandbox started in detached mode.",
 	Action: func(c *cli.Context) error {
 
-		sData := ReadSandboxesData()
-		if sData.Running == "" || sData.PID == 0 {
+		rData := common.ReadRuntimeData()
+		if rData.Running == "" || rData.PID == 0 {
 			fmt.Fprintln(os.Stderr, "No sandbox is currently running.")
 			os.Exit(0)
 		}
-		StopSandbox(sData)
+		StopSandbox(rData)
 
 		return nil
 	},
 }
 
-func StopSandbox(sData SandboxesData) {
-	stopDistro(sData.PID)
+func StopSandbox(rData common.RuntimeData) {
+	stopDistro(rData.PID)
 	writeRunningSandbox("", 0)
 
-	fmt.Fprintf(os.Stderr, "Sandbox '%s' stopped\n", sData.Running)
+	fmt.Fprintf(os.Stderr, "Sandbox '%s' stopped\n", rData.Running)
 }

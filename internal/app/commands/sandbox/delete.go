@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"os"
@@ -23,8 +24,8 @@ var Delete = cli.Command{
 			os.Exit(0)
 		}
 
-		if boxesData := ReadSandboxesData(); boxesData.Running == sandbox.Name {
-			AskToStopSandbox(boxesData)
+		if rData := common.ReadRuntimeData(); rData.Running == sandbox.Name {
+			AskToStopSandbox(rData)
 		}
 
 		boxes := getSandboxesUsingDistro(sandbox.Distro)

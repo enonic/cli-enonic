@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"fmt"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -11,10 +12,10 @@ var List = cli.Command{
 	Aliases: []string{"ls"},
 	Usage:   "List all sandboxes",
 	Action: func(c *cli.Context) error {
-		data := ReadSandboxesData()
+		rData := common.ReadRuntimeData()
 
 		for _, box := range listSandboxes() {
-			if data.Running == box.Name {
+			if rData.Running == box.Name {
 				fmt.Fprintf(os.Stderr, "* %s ( %s )\n", box.Name, box.Distro)
 			} else {
 				fmt.Fprintf(os.Stderr, "  %s ( %s )\n", box.Name, box.Distro)

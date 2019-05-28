@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/briandowns/spinner"
@@ -8,6 +9,7 @@ import (
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -20,6 +22,7 @@ import (
 var ENV_XP_HOME = "XP_HOME"
 var ENV_JAVA_HOME = "JAVA_HOME"
 var MARKET_URL = "https://market.enonic.com/api/graphql"
+var JSESSIONID = "JSESSIONID"
 var spin *spinner.Spinner
 
 func init() {
@@ -36,6 +39,16 @@ var FLAGS = []cli.Flag{
 
 type ProjectData struct {
 	Sandbox string `toml:"sandbox"`
+}
+
+type RuntimeData struct {
+	Running   string `toml:"running"`
+	PID       int    `toml:"PID"`
+	SessionID string `toml:sessionID`
+}
+
+func GetEnonicDir() string {
+	return filepath.Join(util.GetHomeDir(), ".enonic")
 }
 
 func HasProjectData(prjPath string) bool {
@@ -56,6 +69,24 @@ func ReadProjectData(prjPath string) *ProjectData {
 
 func WriteProjectData(data *ProjectData, prjPath string) {
 	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), false)
+	defer file.Close()
+
+	util.EncodeTomlFile(file, data)
+}
+
+func ReadRuntimeData() RuntimeData {
+	path := filepath.Join(GetEnonicDir(), ".enonic")
+	file := util.OpenOrCreateDataFile(path, true)
+	defer file.Close()
+
+	var data RuntimeData
+	util.DecodeTomlFile(file, &data)
+	return data
+}
+
+func WriteRuntimeData(data RuntimeData) {
+	path := filepath.Join(GetEnonicDir(), ".enonic")
+	file := util.OpenOrCreateDataFile(path, false)
 	defer file.Close()
 
 	util.EncodeTomlFile(file, data)
@@ -87,7 +118,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	auth := c.String("auth")
 	var user, pass string
 
-	if url != MARKET_URL {
+	if url != MARKET_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
 		if auth == "" {
 			activeRemote := remote.GetActiveRemote()
 			if activeRemote.User != "" || activeRemote.Pass != "" {
@@ -135,7 +166,22 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 		os.Exit(1)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(user, pass)
+
+	rData := ReadRuntimeData()
+	if user != "" {
+		req.SetBasicAuth(user, pass)
+
+		if rData.SessionID != "" {
+			rData.SessionID = ""
+			WriteRuntimeData(rData)
+		}
+	} else if rData.SessionID != "" {
+		req.AddCookie(&http.Cookie{
+			Name:  JSESSIONID,
+			Value: rData.SessionID,
+		})
+	}
+
 	return req
 }
 
@@ -158,7 +204,54 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 		spin.Start()
 		defer spin.Stop()
 	}
-	return client.Do(req)
+	bodyCopy := copyBody(req)
+	res, err := client.Do(req)
+
+	rData := ReadRuntimeData()
+	switch res.StatusCode {
+	case http.StatusForbidden:
+
+		if rData.SessionID != "" {
+			fmt.Fprintln(os.Stderr, "Session is no longer valid.")
+			rData.SessionID = ""
+			WriteRuntimeData(rData)
+		}
+
+		var auth string
+		user, pass, _ := res.Request.BasicAuth()
+		if user == "" && pass == "" {
+			activeRemote := remote.GetActiveRemote()
+			if activeRemote.User != "" || activeRemote.Pass != "" {
+				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+			}
+		} else {
+			fmt.Fprintln(os.Stderr, "Environment defined user and password are not valid.")
+		}
+		user, pass = EnsureAuth(auth)
+
+		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy)
+		res, err = SendRequestCustom(newReq, message, timeoutMin)
+
+	case http.StatusOK:
+
+		for _, cookie := range res.Cookies() {
+			if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
+				rData.SessionID = cookie.Value
+				WriteRuntimeData(rData)
+			}
+		}
+	}
+
+	return res, err
+}
+
+func copyBody(req *http.Request) io.ReadCloser {
+	if req.Body == nil {
+		return nil
+	}
+	buf, _ := ioutil.ReadAll(req.Body)
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+	return ioutil.NopCloser(bytes.NewBuffer(buf))
 }
 
 func ParseResponse(resp *http.Response, target interface{}) {

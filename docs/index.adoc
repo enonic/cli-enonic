@@ -72,7 +72,13 @@ To download the latest available CLI and install it on your PC with native insta
 [#configuration]
 == Configuration
 
-CLI acts as an interface to a running enonic XP instance. You can customize connection settings with following environment variables:
+CLI acts as an interface to a running enonic XP instance.
+
+It saves the session after first successful authentication and uses it for all future ones so you don't have to specify credentials every time.
+
+Sessions expire after some time of inactivity or enonic XP restart. When this happens CLI will first search for the auth environment variables and then will prompt for auth token if there are none.
+
+You can customize connection settings with following environment variables:
 
 [cols="1,3", options="header"]
 |===
@@ -89,7 +95,7 @@ CLI acts as an interface to a running enonic XP instance. You can customize conn
 |User password for authentication in enonic XP
 |===
 
-NOTE: Authentication credentials passed to CLI command override environment settings.
+NOTE: Authentication credentials passed to CLI command override environment settings and active session.
 
 
 ////
@@ -544,7 +550,7 @@ Options:
 |Authentication token for basic authentication in the following format <user:password>
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 === Shell
 
@@ -601,7 +607,7 @@ Options:
 |the name of the repository to snapshot.
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example creating new snapshot from 'cms-repo':
 ----
@@ -624,7 +630,7 @@ Options:
 |authentication token for basic authentication (user:password).
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 === Restore
 
@@ -648,7 +654,7 @@ Options:
 |authentication token for basic authentication (user:password).
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 === Delete
 
@@ -672,7 +678,7 @@ Options:
 |authentication token for basic authentication (user:password).
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 ////
         Dump tasks
@@ -728,7 +734,7 @@ Options:
 |authentication token for basic authentication (user:password).
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example creating new dump named 'myDump':
 ----
@@ -756,7 +762,7 @@ Options:
 |authentication token for basic authentication (user:password).
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example upgrading dump named 'myDump' to current version:
 ----
@@ -779,7 +785,7 @@ Options:
 |authentication token for basic authentication (user:password).
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 === Load
 
@@ -787,7 +793,7 @@ Load data from a named system dump into Enonic XP. The dump read has to be store
 
 WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
 
- $ enonic dump load [--d <value>] [-f] [--upgrade] [--a <value>] [--na <value>]
+ $ enonic dump load [--d <value>] [-f] [--upgrade] [--a <value>]
 
 Options:
 [cols="1,3", options="header"]
@@ -807,11 +813,9 @@ Options:
 |`-a, --auth`
 |authentication token for basic authentication (user:password)
 
-|`--na, --new-auth`
-|authentication token for basic authentication in the new dump (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:
 ----
@@ -874,7 +878,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:
 ----
@@ -918,7 +922,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example:
 ----
@@ -977,7 +981,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example installing app from URL:
 ----
@@ -1037,7 +1041,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example reprocessing media in branch 'draft' and content path '/some-content':
 ----
@@ -1094,7 +1098,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:
 ----
@@ -1123,7 +1127,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example setting 'cms-repo' repository to read-only mode:
 ----
@@ -1149,7 +1153,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example setting number of replicas to 3:
 ----
@@ -1172,7 +1176,7 @@ Options:
 |authentication token for basic authentication (user:password)
 |===
 
-NOTE: if `auth` param is missing CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example listing repositories:
 ----

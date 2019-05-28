@@ -27,11 +27,6 @@ func All() []cli.Command {
 
 var CREATE_NEW_BOX = "Create new sandbox"
 
-type SandboxesData struct {
-	Running string `toml:"running"`
-	PID     int    `toml:"PID"`
-}
-
 type SandboxData struct {
 	Distro string `toml:"distro"`
 }
@@ -53,24 +48,6 @@ func createSandbox(name string, version string) *Sandbox {
 	return &Sandbox{name, data.Distro}
 }
 
-func ReadSandboxesData() SandboxesData {
-	path := filepath.Join(getSandboxesDir(), ".enonic")
-	file := util.OpenOrCreateDataFile(path, true)
-	defer file.Close()
-
-	var data SandboxesData
-	util.DecodeTomlFile(file, &data)
-	return data
-}
-
-func writeSandboxesData(data SandboxesData) {
-	path := filepath.Join(getSandboxesDir(), ".enonic")
-	file := util.OpenOrCreateDataFile(path, false)
-	defer file.Close()
-
-	util.EncodeTomlFile(file, data)
-}
-
 func ReadSandboxData(name string) *Sandbox {
 	path := filepath.Join(getSandboxesDir(), name, ".enonic")
 	file := util.OpenOrCreateDataFile(path, true)
@@ -90,14 +67,14 @@ func writeSandboxData(data *Sandbox) {
 }
 
 func getSandboxesDir() string {
-	return filepath.Join(util.GetHomeDir(), ".enonic", "sandboxes")
+	return filepath.Join(common.GetEnonicDir(), "sandboxes")
 }
 
 func GetActiveHomePath() string {
 	var homePath string
-	sboxesData := ReadSandboxesData()
-	if sboxesData.Running != "" {
-		homePath = GetSandboxHomePath(sboxesData.Running)
+	rData := common.ReadRuntimeData()
+	if rData.Running != "" {
+		homePath = GetSandboxHomePath(rData.Running)
 	} else {
 		homePath = os.Getenv(common.ENV_XP_HOME)
 	}

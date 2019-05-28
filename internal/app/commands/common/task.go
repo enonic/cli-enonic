@@ -17,10 +17,6 @@ const TASK_WAITING = "WAITING"
 const TASK_RUNNING = "RUNNING"
 
 func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
-	return RunTaskWithParams(req, msg, target, make(map[string]string))
-}
-
-func RunTaskWithParams(req *http.Request, msg string, target interface{}, params map[string]string) *TaskStatus {
 	resp, err := SendRequestCustom(req, "", 3)
 	util.Fatal(err, "Request error")
 
@@ -29,18 +25,7 @@ func RunTaskWithParams(req *http.Request, msg string, target interface{}, params
 
 	doneCh := make(chan *TaskStatus)
 
-	user := params["user"]
-	pass := params["pass"]
-	if user == "" || pass == "" {
-		originalUser, originalPass, _ := req.BasicAuth()
-		if user == "" {
-			user = originalUser
-		}
-		if pass == "" {
-			pass = originalPass
-		}
-	}
-	go displayTaskProgress(result.TaskId, msg, user, pass, doneCh)
+	go displayTaskProgress(result.TaskId, msg, doneCh)
 
 	status := <-doneCh
 	close(doneCh)
@@ -56,7 +41,7 @@ func RunTaskWithParams(req *http.Request, msg string, target interface{}, params
 	return status
 }
 
-func displayTaskProgress(taskId, msg, user, pass string, doneCh chan<- *TaskStatus) {
+func displayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
 	bar := pb.New(100)
 	bar.ShowSpeed = false
 	bar.ShowCounters = false
@@ -68,27 +53,31 @@ func displayTaskProgress(taskId, msg, user, pass string, doneCh chan<- *TaskStat
 	var exitFlag bool
 	for {
 		time.Sleep(time.Second)
-		status := fetchTaskStatus(taskId, user, pass)
-		switch status.State {
-		case TASK_WAITING:
-			if time.Now().Sub(status.StartTime).Seconds() > 120 {
-				fmt.Fprintf(os.Stderr, "Timeout waiting for a task\n")
+		status, statusOk := fetchTaskStatus(taskId)
+		if statusOk {
+			switch status.State {
+			case TASK_WAITING:
+				if time.Now().Sub(status.StartTime).Seconds() > 120 {
+					fmt.Fprintf(os.Stderr, "Timeout waiting for a task\n")
+					exitFlag = true
+				}
+			case TASK_FINISHED:
+				bar.Set(100)
 				exitFlag = true
+			case TASK_FAILED:
+				fmt.Fprintln(os.Stderr, "")
+				exitFlag = true
+			case TASK_RUNNING:
+				var percent int64
+				if status.Progress.Total != 0 {
+					percent = int64(float64(status.Progress.Current) / float64(status.Progress.Total) * 100)
+				}
+				if percent != bar.Get() {
+					bar.Set64(percent)
+				}
 			}
-		case TASK_FINISHED:
-			bar.Set(100)
+		} else {
 			exitFlag = true
-		case TASK_FAILED:
-			fmt.Fprintln(os.Stderr, "")
-			exitFlag = true
-		case TASK_RUNNING:
-			var percent int64
-			if status.Progress.Total != 0 {
-				percent = int64(float64(status.Progress.Current) / float64(status.Progress.Total) * 100)
-			}
-			if percent != bar.Get() {
-				bar.Set64(percent)
-			}
 		}
 
 		if exitFlag {
@@ -99,12 +88,12 @@ func displayTaskProgress(taskId, msg, user, pass string, doneCh chan<- *TaskStat
 	}
 }
 
-func fetchTaskStatus(taskId, user, pass string) *TaskStatus {
-	req := doCreateRequest("GET", "/task/"+taskId, user, pass, nil)
+func fetchTaskStatus(taskId string) (*TaskStatus, bool) {
+	req := doCreateRequest("GET", "/task/"+taskId, "", "", nil)
 	resp := SendRequest(req, "")
 	var taskStatus TaskStatus
 	ParseResponse(resp, &taskStatus)
-	return &taskStatus
+	return &taskStatus, resp.StatusCode == http.StatusOK
 }
 
 type TaskResponse struct {

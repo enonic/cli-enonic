@@ -21,11 +21,11 @@ var Start = cli.Command{
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
 
-		sData := ReadSandboxesData()
+		rData := common.ReadRuntimeData()
 		isSandboxRunning := false
 
-		if sData.Running != "" && sData.PID != 0 {
-			proc, _ := ps.FindProcess(sData.PID)
+		if rData.Running != "" && rData.PID != 0 {
+			proc, _ := ps.FindProcess(rData.PID)
 
 			// make sure that process is still alive and has the same name
 			if proc != nil && proc.Executable() == "enonic" {
@@ -36,11 +36,11 @@ var Start = cli.Command{
 		}
 
 		if isSandboxRunning {
-			if sData.Running == c.Args().First() {
-				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", sData.Running)
+			if rData.Running == c.Args().First() {
+				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
 				os.Exit(0)
 			} else {
-				AskToStopSandbox(sData)
+				AskToStopSandbox(rData)
 			}
 		} else if !util.IsPortAvailable(8080) {
 			fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
@@ -82,9 +82,9 @@ func StartSandbox(sandbox *Sandbox, detach bool) {
 	}
 }
 
-func AskToStopSandbox(sData SandboxesData) {
-	if util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", sData.Running), true) {
-		StopSandbox(sData)
+func AskToStopSandbox(rData common.RuntimeData) {
+	if util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", rData.Running), true) {
+		StopSandbox(rData)
 	} else {
 		os.Exit(0)
 	}
@@ -105,8 +105,8 @@ func listenForInterrupt(name string) {
 }
 
 func writeRunningSandbox(name string, pid int) {
-	data := ReadSandboxesData()
+	data := common.ReadRuntimeData()
 	data.Running = name
 	data.PID = pid
-	writeSandboxesData(data)
+	common.WriteRuntimeData(data)
 }
