@@ -51,6 +51,27 @@ var MARKET_STARTERS_REQUEST = `{
     }
   }
 }`
+var MARKET_DOCS_QUERY_TPL = "data.gitUrl='%s' AND data.version.supportedVersions LIKE '7.*'"
+var MARKET_DOCS_REQUEST = `query($query: String!){
+  market {
+    query(
+      query: $query
+    ) {
+      displayName
+      ... on com_enonic_app_market_Starter {
+        data {
+          ... on com_enonic_app_market_Starter_Data {
+            documentationUrl
+            gitUrl
+            version {
+              supportedVersions
+            }
+          }
+        }
+      }
+    }
+  }
+}`
 
 var Create = cli.Command{
 	Name:  "create",
@@ -114,6 +135,11 @@ var Create = cli.Command{
 			fmt.Fprintf(os.Stderr, "Project created in '%s' and linked to '%s'\n", absDest, pData.Sandbox)
 		}
 		fmt.Fprint(os.Stderr, "\n")
+
+		if starter == nil {
+			// see if we have docs for that url
+			starter = lookupStarterDocs(c, gitUrl)
+		}
 
 		if starter != nil {
 			if util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), false) {
@@ -216,7 +242,7 @@ func processGradleProperties(propsFile, name, version string) {
 
 func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 	var (
-		customRepoOption  = "Custom repo"
+		customRepoOption = "Custom repo"
 		starterList      []string
 		selectedOption   string
 		starter          *Starter
@@ -303,6 +329,35 @@ func isSupports7(versions []string) bool {
 		}
 	}
 	return false
+}
+
+func lookupStarterDocs(c *cli.Context, repo string) *Starter {
+
+	gitUrl := strings.TrimSuffix(repo, ".git")
+	body := new(bytes.Buffer)
+	params := map[string]interface{}{
+		"query": MARKET_DOCS_REQUEST,
+		"variables": map[string]string{
+			"query": fmt.Sprintf(MARKET_DOCS_QUERY_TPL, gitUrl),
+		},
+	}
+	json.NewEncoder(body).Encode(params)
+
+	req := common.CreateRequest(c, "POST", common.MARKET_URL, body)
+	res, err := common.SendRequestCustom(req, "", 1)
+	if err != nil {
+		return nil
+	}
+
+	var result StartersResponse
+	common.ParseResponse(res, &result)
+
+	starters := result.Data.Market.Query
+	if len(starters) == 1 {
+		return &starters[0]
+	} else {
+		return nil
+	}
 }
 
 func fetchStarters(c *cli.Context) []Starter {
