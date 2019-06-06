@@ -52,7 +52,7 @@ func GetEnonicDir() string {
 }
 
 func HasProjectData(prjPath string) bool {
-	if _, err := os.Stat(path.Join(prjPath, ".enonic")); err == nil {
+	if stat, err := os.Stat(path.Join(prjPath, ".enonic")); err == nil && !stat.IsDir() {
 		return true
 	}
 	return false
