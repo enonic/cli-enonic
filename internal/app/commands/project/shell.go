@@ -20,17 +20,16 @@ var Shell = cli.Command{
 		pData := common.ReadProjectData(".")
 		sBox := sandbox.ReadSandboxData(pData.Sandbox)
 
-		cmd := createNewTerminalCommand()
-
 		prjJavaHome := sandbox.GetDistroJdkPath(sBox.Distro)
 		prjXpHome := sandbox.GetSandboxHomePath(pData.Sandbox)
 		os.Setenv(common.ENV_JAVA_HOME, prjJavaHome)
 		os.Setenv(common.ENV_XP_HOME, prjXpHome)
-		cmd.Env = os.Environ()
 
+		cmd := createNewShellCommand()
 		err := cmd.Start()
-		util.Warn(err, "Could not start new shell")
-		fmt.Fprintf(os.Stderr, "Started new project shell with PID %d.\n", cmd.Process.Pid)
+		util.Fatal(err, "Could not start new shell")
+
+		fmt.Fprintf(os.Stderr, "Started new project shell with PID %d.\nType 'exit' to close it.\n", cmd.Process.Pid)
 
 		cmd.Wait()
 		fmt.Fprintln(os.Stderr, "Project shell has finished.")
@@ -39,25 +38,25 @@ var Shell = cli.Command{
 	},
 }
 
-func createNewTerminalCommand() *exec.Cmd {
-	prjDir, err := os.Getwd()
-	util.Warn(err, "Could not get current working dir")
+func createNewShellCommand() *exec.Cmd {
+	var cmd *exec.Cmd
 
 	switch util.GetCurrentOs() {
 	case "windows":
-		return exec.Command("cmd", "/C", "start", "/d", prjDir)
-	case "mac":
-		return exec.Command("open", "-F", "-n", "-b", "com.apple.Terminal", prjDir)
+		cmd = exec.Command("cmd", "/K", "prompt enonic$G && enonic")
 	default:
-		shell := os.Getenv("SHELL")
-		if shell == "" {
-			shell = "bash"
-		}
-		cmd := exec.Command(shell, "--init-file", "'<(enonic)'")
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-
-		return cmd
+		cmd = exec.Command("bash", "-c", `bash --init-file <(echo "export PS1='enonic> ' && enonic")`)
 	}
+
+	if !util.IsCommandAvailable(cmd.Path) {
+		fmt.Fprintln(os.Stderr, "Shell is not available in your system")
+		os.Exit(0)
+	}
+
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Env = os.Environ()
+
+	return cmd
 }

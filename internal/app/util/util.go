@@ -1,21 +1,22 @@
 package util
 
 import (
+	"archive/zip"
+	"bufio"
 	"bytes"
 	"encoding/json"
-	"bufio"
-	"os"
 	"fmt"
-	"runtime"
+	"github.com/AlecAivazis/survey"
+	"github.com/BurntSushi/toml"
 	"github.com/mitchellh/go-homedir"
-	"archive/zip"
-	"path/filepath"
 	"io"
 	"net"
-	"github.com/BurntSushi/toml"
-	"time"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
-	"github.com/AlecAivazis/survey"
+	"time"
 )
 
 func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
@@ -189,4 +190,11 @@ func EncodeTomlFile(file *os.File, data interface{}) {
 
 func TimeFromNow(start time.Time) time.Duration {
 	return time.Now().Round(time.Second).Sub(start.Round(time.Second))
+}
+
+func IsCommandAvailable(cmd string) bool {
+	if _, err := exec.LookPath(cmd); err != nil {
+		return false
+	}
+	return true
 }
