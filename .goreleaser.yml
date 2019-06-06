@@ -254,7 +254,7 @@ snapcraft:
 
   apps:
     enonic:
-      plugs: ["network", "network-bind", "personal-files", "system-files"]
+      plugs: ["home", "network", "network-bind", "personal-files"]
 
   plugs:
     personal-files:
@@ -262,9 +262,6 @@ snapcraft:
         - $HOME/.enonic
       write:
         - $HOME/.enonic
-    system-files:
-      read:
-        - $JAVA_HOME
 
 artifactories:
   - name: repo
