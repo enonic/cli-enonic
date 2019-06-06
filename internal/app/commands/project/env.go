@@ -26,11 +26,11 @@ var Env = cli.Command{
 		switch util.GetCurrentOs() {
 		case "windows":
 			exportStr = fmt.Sprintf("\n# Exports enonic environment variables as string to be used in any third-party shell\n"+
-				"# Usage: enonic project env > tmpFile && set /p myvar= < tmpFile && del tmpFile && %%myvar%%\n\n"+
+				"# Usage in cmd: enonic project env > tmpFile && set /p myvar= < tmpFile && del tmpFile && %%myvar%%\n\n"+
 				"set XP_HOME=\"%s\" & set JAVA_HOME=\"%s\"", prjXpHome, prjJavaHome)
 		default:
 			exportStr = fmt.Sprintf("\n`# Exports enonic environment variables as string to be used in any third-party shell`\n"+
-				"`# Usage: eval $(enonic project env)`\n\n"+
+				"`# Usage in bash terminal: eval $(enonic project env)`\n\n"+
 				"export XP_HOME=\"%s\"\n"+
 				"JAVA_HOME=\"%s\"\n", prjXpHome, prjJavaHome)
 		}
