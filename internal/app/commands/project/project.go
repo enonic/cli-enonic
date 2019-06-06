@@ -12,7 +12,7 @@ import (
 )
 
 func All() []cli.Command {
-	return []cli.Command{
+	commands := []cli.Command{
 		Create,
 		Sandbox,
 		Clean,
@@ -22,6 +22,15 @@ func All() []cli.Command {
 		Shell,
 		Gradle,
 	}
+
+	switch util.GetCurrentOs() {
+	case "windows":
+		// do not add Env to windows as it's not supported
+	default:
+		commands = append(commands, Env)
+	}
+
+	return commands
 }
 
 func getOsGradlewFile() string {
