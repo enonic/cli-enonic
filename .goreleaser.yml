@@ -252,6 +252,20 @@ snapcraft:
   # https://snapcraft.io/docs/reference/confinement
   confinement: strict
 
+  apps:
+    enonic:
+      plugs: ["network", "network-bind", "personal-files", "system-files"]
+
+  plugs:
+    personal-files:
+      read:
+        - $HOME/.enonic
+      write:
+        - $HOME/.enonic
+    system-files:
+      read:
+        - $JAVA_HOME
+
 artifactories:
   - name: repo
     target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
