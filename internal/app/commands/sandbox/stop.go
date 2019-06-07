@@ -27,5 +27,5 @@ func StopSandbox(rData common.RuntimeData) {
 	stopDistro(rData.PID)
 	writeRunningSandbox("", 0)
 
-	fmt.Fprintf(os.Stderr, "Sandbox '%s' stopped\n", rData.Running)
+	fmt.Fprintf(os.Stdout, "Sandbox '%s' stopped\n", rData.Running)
 }

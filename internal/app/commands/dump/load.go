@@ -45,7 +45,7 @@ var Load = cli.Command{
 			case common.TASK_FAILED:
 				fmt.Fprintf(os.Stderr, "Failed to load dump: %s\n", status.Progress.Info)
 			}
-			fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 		}
 
 		return nil

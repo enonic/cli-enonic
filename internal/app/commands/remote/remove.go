@@ -26,7 +26,7 @@ var Remove = cli.Command{
 		}
 		writeRemotesData(data)
 
-		fmt.Fprintf(os.Stderr, "Deleted remote '%s'.\n", name)
+		fmt.Fprintf(os.Stdout, "Deleted remote '%s'.\n", name)
 
 		return nil
 	},

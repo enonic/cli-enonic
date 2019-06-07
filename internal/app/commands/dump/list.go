@@ -19,7 +19,7 @@ var List = cli.Command{
 
 		dumps := listExistingDumpNames()
 		for _, dump := range dumps {
-			fmt.Fprintln(os.Stderr, dump)
+			fmt.Fprintln(os.Stdout, dump)
 		}
 
 		return nil

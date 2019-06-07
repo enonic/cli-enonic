@@ -40,7 +40,7 @@ var Delete = cli.Command{
 		var result DeleteResult
 		common.ParseResponse(resp, &result)
 		fmt.Fprintf(os.Stderr, "%d Deleted\n", len(result.DeletedSnapshots))
-		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
 	},

@@ -22,7 +22,7 @@ var Sandbox = cli.Command{
 		}
 		common.WriteProjectData(&common.ProjectData{sandbox.Name}, ".")
 
-		fmt.Fprintf(os.Stderr, "\nSandbox '%s' set as default.\n", sandbox.Name)
+		fmt.Fprintf(os.Stdout, "\nSandbox '%s' set as default.\n", sandbox.Name)
 
 		return nil
 	},

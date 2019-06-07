@@ -53,7 +53,7 @@ func installApp(c *cli.Context, file, url string) InstallResult {
 	} else {
 		fmt.Fprintln(os.Stderr, "Done")
 	}
-	fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+	fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 	return result
 }

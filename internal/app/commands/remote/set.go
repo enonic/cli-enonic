@@ -1,8 +1,8 @@
 package remote
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -15,7 +15,7 @@ var Set = cli.Command{
 		data := readRemotesData()
 		data.Active = name
 		writeRemotesData(data)
-		fmt.Fprintf(os.Stderr, "Remote '%s' set active", name)
+		fmt.Fprintf(os.Stdout, "Remote '%s' set active", name)
 
 		return nil
 	},

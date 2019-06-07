@@ -78,7 +78,7 @@ func StartSandbox(sandbox *Sandbox, detach bool) {
 		listenForInterrupt(sandbox.Name)
 		cmd.Wait()
 	} else {
-		fmt.Fprintf(os.Stderr, "Started sandbox '%s' in detached mode.", sandbox.Name)
+		fmt.Fprintf(os.Stdout, "Started sandbox '%s' in detached mode.", sandbox.Name)
 	}
 }
 

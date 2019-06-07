@@ -16,7 +16,7 @@ var List = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		snapshots := listSnapshots(c)
-		fmt.Println(util.PrettyPrintJSON(snapshots))
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(snapshots))
 
 		return nil
 	},

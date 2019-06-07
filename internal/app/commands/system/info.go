@@ -21,7 +21,7 @@ var Info = cli.Command{
 		var result InfoResponse
 		common.ParseResponse(res, &result)
 
-		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
 	},

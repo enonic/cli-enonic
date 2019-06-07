@@ -27,7 +27,7 @@ var Replicas = cli.Command{
 		var result ReplicasResponse
 		common.ParseResponse(res, &result)
 		fmt.Fprintln(os.Stderr, "Done")
-		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
 	},

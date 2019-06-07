@@ -16,9 +16,9 @@ var List = cli.Command{
 
 		for _, box := range listSandboxes() {
 			if rData.Running == box.Name {
-				fmt.Fprintf(os.Stderr, "* %s ( %s )\n", box.Name, box.Distro)
+				fmt.Fprintf(os.Stdout, "* %s ( %s )\n", box.Name, box.Distro)
 			} else {
-				fmt.Fprintf(os.Stderr, "  %s ( %s )\n", box.Name, box.Distro)
+				fmt.Fprintf(os.Stdout, "  %s ( %s )\n", box.Name, box.Distro)
 			}
 		}
 		return nil

@@ -29,7 +29,7 @@ var Create = cli.Command{
 		var snap Snapshot
 		if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {
 			fmt.Fprintln(os.Stderr, "Done")
-			fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(snap))
+			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(snap))
 		}
 
 		return nil

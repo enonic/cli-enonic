@@ -44,7 +44,7 @@ func SandboxCreateWizard(name, versionStr string, showSuccessMessage bool) *Sand
 	CopyHomeFolder(distroPath, box.Name)
 
 	if showSuccessMessage {
-		fmt.Fprintf(os.Stderr, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
+		fmt.Fprintf(os.Stdout, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
 	}
 
 	return box

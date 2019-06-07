@@ -33,7 +33,7 @@ var Add = cli.Command{
 		data.Remotes[name] = RemoteData{remoteUrl, userName, userPass}
 		writeRemotesData(data)
 
-		fmt.Fprintf(os.Stderr, "Remote '%s' created.", name)
+		fmt.Fprintf(os.Stdout, "Remote '%s' created.", name)
 		return nil
 	},
 }

@@ -1,8 +1,8 @@
 package remote
 
 import (
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -15,9 +15,9 @@ var List = cli.Command{
 		data := readRemotesData()
 		for name, remote := range data.Remotes {
 			if data.Active == name {
-				fmt.Fprintf(os.Stderr, "* %s ( %s )\n", name, remote.Url)
+				fmt.Fprintf(os.Stdout, "* %s ( %s )\n", name, remote.Url)
 			} else {
-				fmt.Fprintf(os.Stderr, "  %s ( %s )\n", name, remote.Url)
+				fmt.Fprintf(os.Stdout, "  %s ( %s )\n", name, remote.Url)
 			}
 		}
 

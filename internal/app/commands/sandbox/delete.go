@@ -34,7 +34,7 @@ var Delete = cli.Command{
 		}
 
 		deleteSandbox(sandbox.Name)
-		fmt.Fprintf(os.Stderr, "Sandbox '%s' deleted.\n", sandbox.Name)
+		fmt.Fprintf(os.Stdout, "Sandbox '%s' deleted.\n", sandbox.Name)
 
 		return nil
 	},

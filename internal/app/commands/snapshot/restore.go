@@ -40,7 +40,7 @@ var Restore = cli.Command{
 		} else {
 			fmt.Fprintln(os.Stderr, result.Message)
 		}
-		fmt.Fprintln(os.Stderr, util.PrettyPrintJSON(result))
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
 	},
