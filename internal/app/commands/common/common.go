@@ -22,6 +22,7 @@ import (
 var ENV_XP_HOME = "XP_HOME"
 var ENV_JAVA_HOME = "JAVA_HOME"
 var MARKET_URL = "https://market.enonic.com/api/graphql"
+var SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/master/enonic.json"
 var JSESSIONID = "JSESSIONID"
 var spin *spinner.Spinner
 
@@ -42,9 +43,11 @@ type ProjectData struct {
 }
 
 type RuntimeData struct {
-	Running   string `toml:"running"`
-	PID       int    `toml:"PID"`
-	SessionID string `toml:sessionID`
+	Running       string    `toml:"running"`
+	PID           int       `toml:"PID"`
+	SessionID     string    `toml:sessionID`
+	LatestVersion string    `toml:latestVersion`
+	LatestCheck   time.Time `toml:latestCheck`
 }
 
 func GetEnonicDir() string {
@@ -115,10 +118,12 @@ func EnsureAuth(authString string) (string, string) {
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	auth := c.String("auth")
-	var user, pass string
+	var auth, user, pass string
+	if c != nil {
+		auth = c.String("auth")
+	}
 
-	if url != MARKET_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
 		if auth == "" {
 			activeRemote := remote.GetActiveRemote()
 			if activeRemote.User != "" || activeRemote.Pass != "" {

@@ -63,7 +63,12 @@ OPTIONS:
 var appHelp = `
 {{.Name}} v.{{.Version}}
 {{.Usage}}
-
+{{if .Metadata}}
+{{- if .Metadata.LatestVersion}}
+Latest available version is {{.Metadata.LatestVersion}}. Consider upgrading using your package manager{{end}}
+{{- if .Metadata.LatestCheck}}
+Last version check was {{.Metadata.LatestCheck}} days ago. Consider running 'enonic latest'{{end}}
+{{end}}
 USAGE:
    {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{if .VisibleCommands}}
 
