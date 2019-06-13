@@ -206,6 +206,9 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 	}
 	bodyCopy := copyBody(req)
 	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	rData := ReadRuntimeData()
 	switch res.StatusCode {
