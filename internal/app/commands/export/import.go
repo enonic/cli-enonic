@@ -101,15 +101,12 @@ func createLoadRequest(c *cli.Context) *http.Request {
 	if len(xslParams) > 0 {
 		params["xslParams"] = xslParams
 	}
-	if skipIds := c.Bool("skip-ids"); skipIds {
-		params["importWithIds"] = !skipIds
-	}
-	if skipPermissions := c.Bool("skip-permissions"); skipPermissions {
-		params["importWithPermissions"] = !skipPermissions
-	}
-	if dry := c.Bool("dry"); dry {
-		params["dryRun"] = dry
-	}
+	params["importWithIds"] = !c.Bool("skip-ids")
+
+	params["importWithPermissions"] = !c.Bool("skip-permissions")
+
+	params["dryRun"] = c.Bool("dry")
+
 	json.NewEncoder(body).Encode(params)
 
 	return common.CreateRequest(c, "POST", "repo/import", body)

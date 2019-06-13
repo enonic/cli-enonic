@@ -64,15 +64,12 @@ func createNewRequest(c *cli.Context) *http.Request {
 		"sourceRepoPath": c.String("path"),
 	}
 
-	if skipIds := c.Bool("skip-ids"); skipIds {
-		params["exportWithIds"] = !skipIds
-	}
-	if skipVersions := c.Bool("skip-versions"); skipVersions {
-		params["includeVersions"] = !skipVersions
-	}
-	if dry := c.Bool("dry"); dry {
-		params["dryRun"] = dry
-	}
+	params["exportWithIds"] = !c.Bool("skip-ids")
+
+	params["includeVersions"] = !c.Bool("skip-versions")
+
+	params["dryRun"] = c.Bool("dry")
+
 	json.NewEncoder(body).Encode(params)
 
 	return common.CreateRequest(c, "POST", "repo/export", body)

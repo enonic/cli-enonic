@@ -19,7 +19,7 @@ var Create = cli.Command{
 			Name:  "d",
 			Usage: "Dump name.",
 		},
-		cli.StringFlag{
+		cli.BoolFlag{
 			Name:  "skip-versions",
 			Usage: "Don't dump version-history, only current versions included.",
 		},
@@ -59,9 +59,8 @@ func createNewRequest(c *cli.Context, name string) *http.Request {
 		"name": name,
 	}
 
-	if includeVersions := c.String("skip-versions"); includeVersions != "" {
-		params["includeVersions"] = includeVersions
-	}
+	params["includeVersions"] = !c.Bool("skip-versions")
+
 	if maxAge := c.String("max-version-age"); maxAge != "" {
 		params["maxAge"] = maxAge
 	}

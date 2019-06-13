@@ -21,6 +21,7 @@ var List = cli.Command{
 		var result RepositoriesResult
 		common.ParseResponse(res, &result)
 
+		fmt.Fprintln(os.Stderr, "Done")
 		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
