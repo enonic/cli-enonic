@@ -30,10 +30,11 @@ var Vacuum = cli.Command{
 
 		switch status.State {
 		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stdout, "Done %d tasks in %s", len(result.TaskResults), util.TimeFromNow(status.StartTime))
+			fmt.Fprintf(os.Stdout, "Done %d tasks in %s\n", len(result.TaskResults), util.TimeFromNow(status.StartTime))
 		case common.TASK_FAILED:
-			fmt.Fprintf(os.Stdout, "Failed: %s", status.Progress.Info)
+			fmt.Fprintf(os.Stdout, "Failed: %s\n", status.Progress.Info)
 		}
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
 	},
