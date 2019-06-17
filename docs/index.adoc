@@ -1225,3 +1225,18 @@ $ enonic system info
 }
 ----
 
+////
+        Latest
+////
+
+== Latest
+
+Checks the latest available version of CLI.
+----
+$ enonic latest
+
+Loading...
+Latest version: 1.0.7
+Local version: 1.0.7
+----
+
