@@ -28,9 +28,9 @@ var Latest = cli.Command{
 
 		currentVer := semver.MustParse(rData.LatestVersion)
 		latestVer := semver.MustParse(result.Version)
+		rData.LatestVersion = result.Version
 		if latestVer.GreaterThan(currentVer) {
 			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(result.Version))
-			rData.LatestVersion = result.Version
 		}
 
 		common.WriteRuntimeData(rData)
