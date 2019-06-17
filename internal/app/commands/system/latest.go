@@ -14,7 +14,7 @@ var Latest = cli.Command{
 	Usage: "Check for latest version",
 	Flags: common.FLAGS,
 	Action: func(c *cli.Context) error {
-
+		fmt.Fprintln(os.Stderr, "")
 		req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
 		res := common.SendRequest(req, "Loading")
 
@@ -23,11 +23,13 @@ var Latest = cli.Command{
 
 		rData := common.ReadRuntimeData()
 		rData.LatestCheck = time.Now()
-		fmt.Fprintf(os.Stdout, "Latest avilable version is %s\n", result.Version)
+		fmt.Fprintf(os.Stdout, "\nLatest version: %s\n", result.Version)
+		fmt.Fprintf(os.Stdout, "Local version: %s\n", c.App.Version)
 
 		currentVer := semver.MustParse(rData.LatestVersion)
 		latestVer := semver.MustParse(result.Version)
-		if !latestVer.Equal(currentVer) {
+		if latestVer.GreaterThan(currentVer) {
+			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(result.Version))
 			rData.LatestVersion = result.Version
 		}
 
