@@ -17,6 +17,10 @@ var Start = cli.Command{
 			Name:  "detach,d",
 			Usage: "Run in the background even after console is closed",
 		},
+		cli.BoolFlag{
+			Name:  "dev",
+			Usage: "Run enonic XP distribution in development mode",
+		},
 	},
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
@@ -60,16 +64,16 @@ var Start = cli.Command{
 			}
 		}
 
-		StartSandbox(sandbox, c.Bool("detach"))
+		StartSandbox(sandbox, c.Bool("detach"), c.Bool("dev"))
 
 		return nil
 	},
 }
 
-func StartSandbox(sandbox *Sandbox, detach bool) {
+func StartSandbox(sandbox *Sandbox, detach, devMode bool) {
 	EnsureDistroExists(sandbox.Distro)
 
-	cmd := startDistro(sandbox.Distro, sandbox.Name, detach)
+	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode)
 
 	pid := os.Getpid()
 	writeRunningSandbox(sandbox.Name, pid)
