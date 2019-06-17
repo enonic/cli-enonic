@@ -282,13 +282,16 @@ Options:
 |`name`
 |sandbox name
 
+|`--dev`
+|Run enonic XP distribution in development mode
+
 |`-d, --detach`
 |flag to start sandbox in detached mode (background process)
 |===
 
-.Example starting 'myBox' sandbox in a detached mode:
+.Example starting 'myBox' sandbox in a dev mode:
 ----
-$ enonic sandbox start myBox -d
+$ enonic sandbox start myBox --dev
 ----
 
 === Stop
@@ -492,6 +495,9 @@ Options:
 |===
 |Option
 |Description
+
+|`--dev`
+|Run enonic XP distribution in development mode
 
 |`name`
 |sandbox name to deploy to (overrides associated sandbox)
