@@ -2,8 +2,11 @@ package util
 
 import (
 	"github.com/AlecAivazis/survey"
+	"github.com/mgutz/ansi"
 	"github.com/urfave/cli"
 	surveyCore "gopkg.in/AlecAivazis/survey.v1/core"
+	"io"
+	"text/template"
 )
 
 func SetupTemplates(app *cli.App) {
@@ -14,6 +17,23 @@ func SetupTemplates(app *cli.App) {
 	surveyCore.ErrorIcon = ">>"
 	surveyCore.ErrorTemplate = `{{color "red"}}{{ ErrorIcon }}{{color "reset"}} {{color "white"}}{{.Error}}{{color "reset"}}
 `
+
+	funcMap := template.FuncMap{
+		"color": ansi.ColorCode,
+	}
+	var originalHelpPrinter = cli.HelpPrinterCustom
+	cli.HelpPrinterCustom = func(out io.Writer, templ string, data interface{}, customFunc map[string]interface{}) {
+		if customFunc != nil {
+			for key, value := range customFunc {
+				funcMap[key] = value
+			}
+		}
+		originalHelpPrinter(out, templ, data, funcMap)
+	}
+
+	cli.HelpPrinter = func(out io.Writer, templ string, data interface{}) {
+		cli.HelpPrinterCustom(out, templ, data, funcMap)
+	}
 }
 
 var selectTemplate = `
@@ -33,7 +53,10 @@ var selectTemplate = `
 
 var subCommandHelp = `
 {{if .Description}}{{.Description}}{{else}}{{.Usage}}{{end}}
-
+{{if .Metadata}}
+{{- if .Metadata.Message}}
+{{color "cyan+b"}}{{.Metadata.Message}}{{color "default"}}{{end}}
+{{end}}
 USAGE:
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} command{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}
 
@@ -48,7 +71,10 @@ OPTIONS:
 
 var commandHelp = `
 {{if .Description}}{{.Description}}{{else}}{{.Usage}}{{end}}
-
+{{if .Metadata}}
+{{- if .Metadata.Message}}
+{{color "cyan+b"}}{{.Metadata.Message}}{{color "default"}}{{end}}
+{{end}}
 USAGE:
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Category}}
 
@@ -63,7 +89,10 @@ OPTIONS:
 var appHelp = `
 {{.Name}} v.{{.Version}}
 {{.Usage}}
-
+{{if .Metadata}}
+{{- if .Metadata.Message}}
+{{color "cyan+b"}}{{.Metadata.Message}}{{color "default"}}{{end}}
+{{end}}
 USAGE:
    {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{if .VisibleCommands}}
 

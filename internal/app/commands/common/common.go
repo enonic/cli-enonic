@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/Masterminds/semver"
 	"github.com/briandowns/spinner"
 	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -22,7 +24,11 @@ import (
 var ENV_XP_HOME = "XP_HOME"
 var ENV_JAVA_HOME = "JAVA_HOME"
 var MARKET_URL = "https://market.enonic.com/api/graphql"
+var SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/master/enonic.json"
 var JSESSIONID = "JSESSIONID"
+var LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
+var LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
+var CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
 var spin *spinner.Spinner
 
 func init() {
@@ -42,9 +48,11 @@ type ProjectData struct {
 }
 
 type RuntimeData struct {
-	Running   string `toml:"running"`
-	PID       int    `toml:"PID"`
-	SessionID string `toml:sessionID`
+	Running       string    `toml:"running"`
+	PID           int       `toml:"PID"`
+	SessionID     string    `toml:sessionID`
+	LatestVersion string    `toml:latestVersion`
+	LatestCheck   time.Time `toml:latestCheck`
 }
 
 func GetEnonicDir() string {
@@ -115,10 +123,12 @@ func EnsureAuth(authString string) (string, string) {
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	auth := c.String("auth")
-	var user, pass string
+	var auth, user, pass string
+	if c != nil {
+		auth = c.String("auth")
+	}
 
-	if url != MARKET_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
 		if auth == "" {
 			activeRemote := remote.GetActiveRemote()
 			if activeRemote.User != "" || activeRemote.Pass != "" {
@@ -273,6 +283,65 @@ func ParseResponse(resp *http.Response, target interface{}) {
 			fmt.Fprintln(os.Stderr, resp.Status)
 		}
 		os.Exit(1)
+	}
+}
+
+func PopulateMeta(app *cli.App) map[string]interface{} {
+	meta := make(map[string]interface{})
+	var message string
+
+	rData := ReadRuntimeData()
+	if rData.LatestCheck.IsZero() {
+		// this is the first check so set it to now
+		rData.LatestCheck = time.Now()
+		rData.LatestVersion = app.Version
+		WriteRuntimeData(rData)
+	}
+
+	daysSinceLastCheck := time.Since(rData.LatestCheck).Hours() / 24
+	if daysSinceLastCheck > 30 {
+		message = fmt.Sprintf(LATEST_CHECK_MSG, int(math.Floor(daysSinceLastCheck)))
+	} else {
+		latestVer := semver.MustParse(rData.LatestVersion)
+		currentVer := semver.MustParse(app.Version)
+		if latestVer.GreaterThan(currentVer) {
+			message = FormatLatestVersionMessage(rData.LatestVersion)
+		}
+	}
+
+	if message != "" {
+		meta["Message"] = message
+	}
+
+	return meta
+}
+
+func FormatLatestVersionMessage(latest string) string {
+	return fmt.Sprintf(LATEST_VERSION_MSG, latest, getOSUpdateCommand())
+}
+
+func getOSDownloadUrl(version string) string {
+	os := util.GetCurrentOs()
+	var ext string
+	switch os {
+	case "windows":
+		ext = "zip"
+	default:
+		ext = "tar.gz"
+	}
+	return fmt.Sprintf(CLI_DOWNLOAD_URL, version, strings.Title(os), ext)
+}
+
+func getOSUpdateCommand() string {
+	switch util.GetCurrentOs() {
+	case "windows":
+		return "scoop update enonic"
+	case "mac":
+		return "brew update enonic"
+	case "linux":
+		return "snap refresh enonic"
+	default:
+		return ""
 	}
 }
 

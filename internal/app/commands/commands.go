@@ -71,6 +71,7 @@ func All() []cli.Command {
 			HelpName:    "Project",
 			Category:    "PROJECT COMMANDS",
 		},
+		system.Latest,
 		/*
 				{
 					Name:        "remote",
