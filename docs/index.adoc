@@ -111,7 +111,7 @@ To get a list of commands, simply type the following in your terminal:
 ----
 $ enonic
 
-Enonic CLI v.1.0.2
+Enonic CLI v.1.0.9
 Manage XP instances, home folders and projects
 
 USAGE:
@@ -125,6 +125,7 @@ COMMANDS:
      repo      Tune and manage repositories
      cms       CMS commands
      system    System commands
+     latest    Check for latest version
      help, h   Shows a list of commands or help for one command
 
 PROJECT COMMANDS:
@@ -374,22 +375,24 @@ Command list is available by running following command:
 ----
 $ enonic project
 
- Manage XP development projects
+Manage XP development projects
 
- USAGE:
-    Enonic CLI project command [command options] [arguments...]
+USAGE:
+   Enonic CLI project command [command options] [arguments...]
 
- COMMANDS:
-      create             Create new project
-      sandbox, sbox, sb  Set the default sandbox associated with the current project
-      clean              Clean current project
-      build              Build current project
-      deploy             Deploy current project to a sandbox
-      install, i         Build current project and install it to Enonic XP
-      shell              Creates a new shell with project environment variables
+COMMANDS:
+     create             Create new project
+     sandbox, sbox, sb  Set the default sandbox associated with the current project
+     clean              Clean current project
+     build              Build current project
+     deploy             Deploy current project to a sandbox
+     install, i         Build current project and install it to Enonic XP
+     shell              Creates a new shell with project environment variables
+     env                Exports project environment variables as string to be used in any third-party shell
+     gradle             Run arbitrary gradle task in current project
 
- OPTIONS:
-    --help, -h  show help
+OPTIONS:
+   --help, -h  show help
 ----
 
 === Create
@@ -560,11 +563,21 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 === Shell
 
-This is an advanced command to export project sandbox `JAVA_HOME` and `XP_HOME` variables to a new shell. This gives you ability to run 3-rd party software in that sandbox.
+This is an advanced command to export project `JAVA_HOME` and `XP_HOME` variables to a new shell. Following command starts a new shell bound to project sandbox and enonic XP distribution
 
  $ enonic project shell
 
-WARNING: This is an experimental feature, use it at your own risk !
+NOTE: Run `quit` command to exit enonic shell. Parent shell environment is not modified.
+
+=== Env
+
+NOTE: This command is currently not available on Windows.
+
+If you are an expert user loving your shell you can export project `JAVA_HOME` and `XP_HOME` environment variables as strings to be used there
+
+ $ eval $(enonic project env)
+
+WARNING: Unlike `enonic project shell` command, this one will modify your _current_ shell environment varialbes. Shell restart is needed to undo the changes.
 
 ////
         Snapshot tasks
