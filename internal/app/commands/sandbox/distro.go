@@ -122,7 +122,7 @@ func downloadDistro(osName, version string) string {
 	req, err := http.NewRequest("GET", url, nil)
 	util.Fatal(err, "Could not create request to: "+url)
 
-	resp, err := common.SendRequestCustom(req, "Loading", 5)
+	resp, err := common.SendRequestCustom(req, "Loading", 15)
 	if err != nil || resp.StatusCode != 200 {
 		message := resp.Status
 		if err != nil {
