@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
+	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
@@ -31,6 +32,7 @@ func listExistingDumpNames() []string {
 	dumpsDir := filepath.Join(homePath, "data", "dump")
 	dumps, err := ioutil.ReadDir(dumpsDir)
 	if err != nil {
+		util.Warn(err, "Error reading dumps folder:")
 		return []string{}
 	}
 
