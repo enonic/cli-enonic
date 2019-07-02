@@ -254,10 +254,11 @@ snapcraft:
 
   apps:
     enonic:
-      plugs: ["home", "network", "network-bind", "personal-files"]
+      plugs: ["home", "network", "network-bind", "dot-enonic"]
 
   plugs:
-    personal-files:
+    dot-enonic:
+      interface: personal-files
       read:
         - $HOME/.enonic
       write:
