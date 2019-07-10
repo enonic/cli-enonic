@@ -259,8 +259,6 @@ snapcraft:
   plugs:
     dot-enonic:
       interface: personal-files
-      read:
-        - $HOME/.enonic
       write:
         - $HOME/.enonic
 
