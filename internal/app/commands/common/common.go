@@ -67,7 +67,7 @@ func HasProjectData(prjPath string) bool {
 }
 
 func ReadProjectData(prjPath string) *ProjectData {
-	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), true)
+	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, "enonic.toml"), true)
 	defer file.Close()
 
 	var data ProjectData
@@ -76,7 +76,7 @@ func ReadProjectData(prjPath string) *ProjectData {
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {
-	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, ".enonic"), false)
+	file := util.OpenOrCreateDataFile(filepath.Join(prjPath, "enonic.toml"), false)
 	defer file.Close()
 
 	util.EncodeTomlFile(file, data)
