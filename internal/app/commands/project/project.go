@@ -92,9 +92,12 @@ func runGradleTask(projectData *common.ProjectData, message string, tasks ...str
 
 	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
 
-	javaHome := fmt.Sprintf("-Dorg.gradle.java.home=%s", sandbox.GetDistroJdkPath(sandboxData.Distro))
-	xpHome := fmt.Sprintf("-Dxp.home=%s", sandbox.GetSandboxHomePath(projectData.Sandbox))
-	args := append(tasks, javaHome, xpHome)
+	javaHome := sandbox.GetDistroJdkPath(sandboxData.Distro)
+	xpHome := sandbox.GetSandboxHomePath(projectData.Sandbox)
+
+	javaHomeArg := fmt.Sprintf("-Dorg.gradle.java.home=%s", javaHome)
+	xpHomeArg := fmt.Sprintf("-Dxp.home=%s", xpHome)
+	args := append(tasks, javaHomeArg, xpHomeArg)
 
 	fmt.Fprintln(os.Stderr, message)
 
@@ -103,6 +106,9 @@ func runGradleTask(projectData *common.ProjectData, message string, tasks ...str
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, fmt.Sprintf("JAVA_HOME=%s", javaHome))
+	cmd.Env = append(cmd.Env, fmt.Sprintf("XP_HOME=%s", xpHome))
 
 	cmd.Run()
 }
