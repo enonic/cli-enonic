@@ -79,7 +79,7 @@ release:
   # Default is extracted from the origin remote URL.
   github:
     owner: enonic
-    name: cli-scoop
+    name: cli-enonic
 
   # If set to true, will not auto-publish the release.
   # Default is false.
@@ -87,7 +87,7 @@ release:
 
   # If set to true, will mark the release as not ready for production.
   # Default is false.
-  prerelease: true
+  prerelease: false
 
   # You can change the name of the GitHub release.
   # Default is ``
@@ -96,7 +96,9 @@ release:
   # You can disable this pipe in order to not upload any artifacts to
   # GitHub.
   # Defaults to false.
-  disable: true
+  # NB! Disabling this prevents brew/scoop pipes from working currently
+  # https://github.com/goreleaser/goreleaser/issues/1119
+  disable: false
 
 scoop:
   # Template for the url.
