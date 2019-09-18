@@ -67,7 +67,7 @@ func createSymLink(snapCommon, distroName string) {
 
 	symLinkDir := filepath.Dir(symLink)
 	if _, err := os.Stat(symLinkDir); os.IsNotExist(err) {
-		err = os.Mkdir(symLinkDir, os.ModeDir)
+		err = os.MkdirAll(symLinkDir, os.ModeDir)
 		util.Fatal(err, fmt.Sprintf("Could not create directory '%s'", symLinkDir))
 	}
 
