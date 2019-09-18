@@ -25,6 +25,7 @@ const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
+const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 
 type VersionResult struct {
 	Version     string `json:version`
@@ -50,7 +51,7 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	distroPath := unzipDistro(zipPath)
 
 	if osName == "linux" {
-		if snapCommon, snapExists := os.LookupEnv("SNAP_COMMON"); snapExists {
+		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
 			createSymLink(snapCommon, distroName)
 		}
 	}
@@ -204,7 +205,7 @@ func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
 		appPath = getDistroExecutablePath(distroName)
 	} else {
 		argsTemplate = `-Dxp.home=%s` // other OSes work ok without em
-		if snapCommon, snapExists := os.LookupEnv("SNAP_COMMON"); snapExists {
+		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
 			appPath = getDistroSymLinkPath(snapCommon, distroName)
 		} else {
 			appPath = getDistroExecutablePath(distroName)
@@ -231,7 +232,7 @@ func deleteDistro(distroName string) {
 	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", distroName))
 
 	if myOs == "linux" {
-		if snapCommon, snapExists := os.LookupEnv("SNAP_COMMON"); snapExists {
+		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
 			// delete the symlink as well
 			err = os.Remove(getDistroSymLinkPath(snapCommon, distroName))
 			util.Warn(err, fmt.Sprintf("Could not delete symbolic link for '%s': ", distroName))
