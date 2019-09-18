@@ -36,7 +36,7 @@ The CLI is available for Mac, Linux and Windows. To install the CLI on your loca
 
 If you know exact version you need you can download CLI archive directly from our repository:
 
- curl -O http://repo.enonic.com/public/com/enonic/cli/enonic/1.0.2/enonic_1.0.2_Linux_64-bit.tar.gz
+ curl -O http://repo.enonic.com/public/com/enonic/cli/enonic/1.0.12/enonic_1.0.12_Linux_64-bit.tar.gz
 
 
 === Windows
@@ -111,7 +111,7 @@ To get a list of commands, simply type the following in your terminal:
 ----
 $ enonic
 
-Enonic CLI v.1.0.9
+Enonic CLI v.1.0.12
 Manage XP instances, home folders and projects
 
 USAGE:
@@ -1255,7 +1255,7 @@ Checks the latest available version of CLI.
 $ enonic latest
 
 Loading...
-Latest version: 1.0.7
-Local version: 1.0.7
+Latest version: 1.0.12
+Local version: 1.0.12
 ----
 
