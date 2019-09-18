@@ -49,10 +49,30 @@ func EnsureDistroExists(distroName string) (string, bool) {
 
 	distroPath := unzipDistro(zipPath)
 
+	if osName == "linux" {
+		if snapCommon, snapExists := os.LookupEnv("SNAP_COMMON"); snapExists {
+			createSymLink(snapCommon, distroName)
+		}
+	}
+
 	err := os.Remove(zipPath)
 	util.Warn(err, "Could not delete distro zip file: ")
 
 	return distroPath, true
+}
+
+func createSymLink(snapCommon, distroName string) {
+	symLink := getDistroSymLinkPath(snapCommon, distroName)
+	distro := getDistroExecutablePath(distroName)
+
+	symLinkDir := filepath.Dir(symLink)
+	if _, err := os.Stat(symLinkDir); os.IsNotExist(err) {
+		util.Fatal(err, fmt.Sprintf("Could not read directory info '%s'", symLinkDir))
+		err = os.Mkdir(symLinkDir, os.ModeDir)
+	}
+
+	err := os.Symlink(distro, symLink)
+	util.Fatal(err, fmt.Sprintf("Error creating a symbolic link to distro %s:", distroName))
 }
 
 func getAllVersions(osName string) []VersionResult {
@@ -158,20 +178,40 @@ func unzipDistro(zipFile string) string {
 	return targetPath
 }
 
-func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
+func getDistroExecutablePath(distroName string) string {
 	myOs := util.GetCurrentOs()
-	var executable, template string
+	var executable string
 	if myOs == "windows" {
 		executable = "server.bat"
-		template = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
 	} else {
 		executable = "server.sh"
-		template = `-Dxp.home=%s` // other OSes work ok without em
 	}
 	version := parseDistroVersion(distroName, true)
-	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
+	return filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
+}
+
+func getDistroSymLinkPath(snapCommon, distroName string) string {
+	myOs := util.GetCurrentOs()
+	version := parseDistroVersion(distroName, true)
+	return filepath.Join(snapCommon, "dot-enonic", "distributions", formatDistroVersion(version, myOs, false), "startDistro")
+}
+
+func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
+	myOs := util.GetCurrentOs()
+	var argsTemplate, appPath string
+	if myOs == "windows" {
+		argsTemplate = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
+		appPath = getDistroExecutablePath(distroName)
+	} else {
+		argsTemplate = `-Dxp.home=%s` // other OSes work ok without em
+		if snapCommon, snapExists := os.LookupEnv("SNAP_COMMON"); snapExists {
+			appPath = getDistroSymLinkPath(snapCommon, distroName)
+		} else {
+			appPath = getDistroExecutablePath(distroName)
+		}
+	}
 	homePath := GetSandboxHomePath(sandbox)
-	args := []string{fmt.Sprintf(template, homePath)}
+	args := []string{fmt.Sprintf(argsTemplate, homePath)}
 	if devMode {
 		args = append(args, "dev")
 	}
@@ -189,6 +229,15 @@ func deleteDistro(distroName string) {
 	distroVersion := parseDistroVersion(distroName, true)
 	err := os.RemoveAll(filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs, false)))
 	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", distroName))
+
+	if myOs == "linux" {
+		if snapCommon, snapExists := os.LookupEnv("SNAP_COMMON"); snapExists {
+			// delete the symlink as well
+			err = os.Remove(getDistroSymLinkPath(snapCommon, distroName))
+			util.Warn(err, fmt.Sprintf("Could not delete symbolic link for '%s': ", distroName))
+		}
+	}
+
 }
 
 func listDistros() []string {
