@@ -219,7 +219,7 @@ func ensureDirStructure() {
 		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
 			linkPath := filepath.Join(snapCommon, "dot-enonic")
 			if _, err := os.Stat(linkPath); os.IsNotExist(err) {
-				err := os.Symlink(filepath.Join(home, ".enonic"), linkPath)
+				err := os.Link(filepath.Join(home, ".enonic"), linkPath)
 				util.Fatal(err, "Error creating a symbolic link to '.enonic' folder")
 			}
 		}
