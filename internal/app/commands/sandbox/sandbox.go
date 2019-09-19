@@ -214,6 +214,13 @@ func ensureDirStructure() {
 	home := util.GetHomeDir()
 	createFolderIfNotExist(home, ".enonic", "distributions")
 	createFolderIfNotExist(home, ".enonic", "sandboxes")
+
+	if util.GetCurrentOs() == "linux" {
+		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
+			err := os.Symlink(filepath.Join(home, ".enonic"), filepath.Join(snapCommon, "dot-enonic"))
+			util.Fatal(err, "Error creating a symbolic link to '.enonic' folder")
+		}
+	}
 }
 
 func createFolderIfNotExist(paths ...string) string {
