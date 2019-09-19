@@ -25,7 +25,7 @@ const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
-const SNAP_ENV_VAR = "SNAP_COMMON"
+const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 
 type VersionResult struct {
 	Version     string `json:version`
