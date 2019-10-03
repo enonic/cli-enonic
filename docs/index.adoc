@@ -36,7 +36,7 @@ The CLI is available for Mac, Linux and Windows. To install the CLI on your loca
 
 If you know exact version you need you can download CLI archive directly from our repository:
 
- curl -O http://repo.enonic.com/public/com/enonic/cli/enonic/1.0.12/enonic_1.0.12_Linux_64-bit.tar.gz
+ curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.0.12/enonic_1.0.12_Linux_64-bit.tar.gz
 
 
 === Windows
@@ -1004,7 +1004,7 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 .Example installing app from URL:
 ----
-$ enonic app install -a su:password -u http://repo.enonic.com/public/com/enonic/app/superhero/1.2.0/superhero-1.2.0.jar
+$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/1.2.0/superhero-1.2.0.jar
 ----
 .Example installing app from file:
 ----
