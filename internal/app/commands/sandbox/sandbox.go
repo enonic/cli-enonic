@@ -212,19 +212,20 @@ func ensureDirStructure() {
 	// Using go-homedir instead of user.Current()
 	// because of https://github.com/golang/go/issues/6376
 	home := util.GetHomeDir()
-	createFolderIfNotExist(home, ".enonic", "distributions")
-	createFolderIfNotExist(home, ".enonic", "sandboxes")
 
 	if util.GetCurrentOs() == "linux" {
 		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
-			linkPath := filepath.Join(snapCommon, "dot-enonic")
+			snapPath := filepath.Join(snapCommon, "dot-enonic")
 			targetPath := filepath.Join(home, ".enonic")
-			if _, err := os.Stat(linkPath); os.IsNotExist(err) {
-				err := os.Symlink(targetPath, linkPath)
-				util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", linkPath, targetPath))
+			if _, err := os.Stat(snapPath); os.IsNotExist(err) {
+				err := os.Symlink(snapPath, targetPath)
+				util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", snapPath, targetPath))
 			}
 		}
 	}
+
+	createFolderIfNotExist(home, ".enonic", "distributions")
+	createFolderIfNotExist(home, ".enonic", "sandboxes")
 }
 
 func createFolderIfNotExist(paths ...string) string {
