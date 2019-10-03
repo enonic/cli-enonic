@@ -215,11 +215,12 @@ func ensureDirStructure() {
 
 	if util.GetCurrentOs() == "linux" {
 		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
-			snapPath := filepath.Join(snapCommon, "dot-enonic")
-			targetPath := filepath.Join(home, ".enonic")
-			if _, err := os.Stat(snapPath); os.IsNotExist(err) {
-				err := os.Symlink(snapPath, targetPath)
-				util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", snapPath, targetPath))
+			snapPath := createFolderIfNotExist(snapCommon, "dot-enonic")
+
+			enonicPath := filepath.Join(home, ".enonic")
+			if _, err := os.Stat(enonicPath); os.IsNotExist(err) {
+				err := os.Symlink(snapPath, enonicPath)
+				util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", enonicPath, snapPath))
 			}
 		}
 	}
@@ -232,10 +233,7 @@ func createFolderIfNotExist(paths ...string) string {
 	fullPath := filepath.Join(paths...)
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		err = os.MkdirAll(fullPath, 0755)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Could not create dir: ", err)
-			os.Exit(1)
-		}
+		util.Fatal(err, "Could not create dir: ")
 	}
 	return fullPath
 }
