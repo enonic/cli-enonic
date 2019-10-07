@@ -83,11 +83,11 @@ release:
 
   # If set to true, will not auto-publish the release.
   # Default is false.
-  draft: true
+  draft: false
 
   # If set to true, will mark the release as not ready for production.
   # Default is false.
-  prerelease: true
+  prerelease: false
 
   # You can change the name of the GitHub release.
   # Default is ``
@@ -100,112 +100,112 @@ release:
   # https://github.com/goreleaser/goreleaser/issues/1119
   disable: false
 
-#scoop:
-#  # Template for the url.
-#  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
-#
-#  # Repository to push the app manifest to.
-#  bucket:
-#    owner: enonic
-#    name: cli-scoop
-#
-#  # Git author used to commit to the repository.
-#  # Defaults are shown.
-#  commit_author:
-#    name: goreleaserbot
-#    email: goreleaser@carlosbecker.com
-#
-#  # Your app's homepage.
-#  # Default is empty.
-#  homepage: https://enonic.com/
-#
-#  # Your app's description.
-#  # Default is empty.
-#  description: Command-line interface for Enonic XP
-#
-#  # Your app's license
-#  # Default is empty.
-#  license: GPLv3
-#
-#  # Persist data between application updates
-##  persist:
-##  - "data"
-##  - "config.toml"
+scoop:
+  # Template for the url.
+  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
 
-#brew:
-#  skip_upload: false
-#
-#  # Repository to push the tap to.
-#  github:
-#    owner: enonic
-#    name: homebrew-cli
-#
-#  # Template for the url.
-#  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
-#
-#  # Allows you to set a custom download strategy.
-#  # Default is empty.
-#  #  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
-#
-#  # Git author used to commit to the repository.
-#  # Defaults are shown.
-#  commit_author:
-#    name: goreleaserbot
-#    email: goreleaser@carlosbecker.com
-#
-#  # Folder inside the repository to put the formula.
-#  # Default is the root folder.
-#  folder: Formula
-#
-#  # Your app's homepage.
-#  # Default is empty.
-#  homepage: https://enonic.com/
-#
-#  # Your app's description.
-#  # Default is empty.
-#  description: Command-line interface for Enonic XP
+  # Repository to push the app manifest to.
+  bucket:
+    owner: enonic
+    name: cli-scoop
 
-#nfpm:
-#  # You can change the name of the package.
-#  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-#  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-#
-#  # Replacements for GOOS and GOARCH in the package name.
-#  # Keys should be valid GOOSs or GOARCHs.
-#  # Values are the respective replacements.
-#  # Default is empty.
-#  replacements:
-#    darwin: Mac
-#    linux: Linux
-#    windows: Windows
-#    amd64: 64-bit
-#    386: 32-bit
-#
-#  # Your app's vendor.
-#  # Default is empty.
-#  vendor: Enonic AS.
-#  # Your app's homepage.
-#  # Default is empty.
-#  homepage: https://enonic.com/
-#
-#  # Your app's maintainer (probably you).
-#  # Default is empty.
-#  maintainer: Pavel Milkevich <pmi@enonic.com>
-#
-#  # Your app's description.
-#  # Default is empty.
-#  description: Command-line interface for Enonic XP
-#
-#  # Your app's license.
-#  # Default is empty.
-#  license: GPLv3
-#
-#  # Formats to be generated.
-#  formats:
-#    - deb
-##    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
+  # Git author used to commit to the repository.
+  # Defaults are shown.
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+
+  # Your app's homepage.
+  # Default is empty.
+  homepage: https://enonic.com/
+
+  # Your app's description.
+  # Default is empty.
+  description: Command-line interface for Enonic XP
+
+  # Your app's license
+  # Default is empty.
+  license: GPLv3
+
+  # Persist data between application updates
+#  persist:
+#  - "data"
+#  - "config.toml"
+
+brew:
+  skip_upload: false
+
+  # Repository to push the tap to.
+  github:
+    owner: enonic
+    name: homebrew-cli
+
+  # Template for the url.
+  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
+
+  # Allows you to set a custom download strategy.
+  # Default is empty.
+  #  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
+
+  # Git author used to commit to the repository.
+  # Defaults are shown.
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+
+  # Folder inside the repository to put the formula.
+  # Default is the root folder.
+  folder: Formula
+
+  # Your app's homepage.
+  # Default is empty.
+  homepage: https://enonic.com/
+
+  # Your app's description.
+  # Default is empty.
+  description: Command-line interface for Enonic XP
+
+nfpm:
+  # You can change the name of the package.
+  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  # Replacements for GOOS and GOARCH in the package name.
+  # Keys should be valid GOOSs or GOARCHs.
+  # Values are the respective replacements.
+  # Default is empty.
+  replacements:
+    darwin: Mac
+    linux: Linux
+    windows: Windows
+    amd64: 64-bit
+    386: 32-bit
+
+  # Your app's vendor.
+  # Default is empty.
+  vendor: Enonic AS.
+  # Your app's homepage.
+  # Default is empty.
+  homepage: https://enonic.com/
+
+  # Your app's maintainer (probably you).
+  # Default is empty.
+  maintainer: Pavel Milkevich <pmi@enonic.com>
+
+  # Your app's description.
+  # Default is empty.
+  description: Command-line interface for Enonic XP
+
+  # Your app's license.
+  # Default is empty.
+  license: GPLv3
+
+  # Formats to be generated.
+  formats:
+    - deb
+#    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
 
 snapcraft:
   # You can change the name of the package.
@@ -244,7 +244,7 @@ snapcraft:
   # store. `stable` will let you release also to the `candidate` and `stable`
   # channels. More info about channels here:
   # https://snapcraft.io/docs/reference/channels
-  grade: devel
+  grade: stable
 
   # Snaps can be setup to follow three different confinement policies:
   # `strict`, `devmode` and `classic`. A strict confinement where the snap
@@ -264,7 +264,7 @@ snapcraft:
       write:
         - $HOME/.enonic
 
-#artifactories:
-#  - name: repo
-#    target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
-#    username: ci
+artifactories:
+  - name: repo
+    target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
+    username: ci

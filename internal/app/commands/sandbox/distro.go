@@ -25,7 +25,6 @@ const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
-const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 
 type VersionResult struct {
 	Version     string `json:version`
@@ -159,29 +158,20 @@ func unzipDistro(zipFile string) string {
 	return targetPath
 }
 
-func getDistroExecutablePath(distroName string) string {
-	myOs := util.GetCurrentOs()
-	var executable string
-	if myOs == "windows" {
-		executable = "server.bat"
-	} else {
-		executable = "server.sh"
-	}
-	version := parseDistroVersion(distroName, true)
-	return filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
-}
-
 func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
 	myOs := util.GetCurrentOs()
-	var argsTemplate string
+	var executable, template string
 	if myOs == "windows" {
-		argsTemplate = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
+		executable = "server.bat"
+		template = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
 	} else {
-		argsTemplate = `-Dxp.home=%s` // other OSes work ok without em
+		executable = "server.sh"
+		template = `-Dxp.home=%s` // other OSes work ok without em
 	}
+	version := parseDistroVersion(distroName, true)
+	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs, false), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
-	appPath := getDistroExecutablePath(distroName)
-	args := []string{fmt.Sprintf(argsTemplate, homePath)}
+	args := []string{fmt.Sprintf(template, homePath)}
 	if devMode {
 		args = append(args, "dev")
 	}
@@ -304,12 +294,5 @@ func ensureVersionCorrect(versionStr string) string {
 }
 
 func getDistrosDir() string {
-
-	if util.GetCurrentOs() == "linux" {
-		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
-			return filepath.Join(snapCommon, "dot-enonic", "distributions")
-		}
-	}
-
 	return filepath.Join(util.GetHomeDir(), ".enonic", "distributions")
 }
