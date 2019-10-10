@@ -286,7 +286,7 @@ func ensureVersionCorrect(versionStr string) string {
 			Default:  formatDistroVersion(defaultVersion, myOs, true),
 			PageSize: 10,
 		}, &distro, nil)
-		util.Fatal(err, "Distribution select error: ")
+		util.Fatal(err, "Exiting: ")
 
 		return parseDistroVersion(distro, true)
 	}

@@ -263,7 +263,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 			Options:  append(starterList, customRepoOption),
 			PageSize: 10,
 		}, &selectedOption, nil)
-		util.Fatal(err, "Starter select error: ")
+		util.Fatal(err, "Exiting: ")
 
 		if selectedOption != customRepoOption {
 			for _, st := range starters {

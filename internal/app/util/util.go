@@ -46,7 +46,8 @@ func PromptString(text, val, defaultVal string, validator func(val interface{}) 
 		Default: defaultVal,
 	}
 
-	survey.AskOne(prompt, &val, validator)
+	err := survey.AskOne(prompt, &val, validator)
+	Fatal(err, "Exiting: ")
 
 	return val
 }
@@ -59,7 +60,8 @@ func PromptBool(text string, defaultVal bool) bool {
 		Default: defaultVal,
 	}
 
-	survey.AskOne(prompt, &val, nil)
+	err := survey.AskOne(prompt, &val, nil)
+	Fatal(err, "Exiting: ")
 
 	return val
 }
