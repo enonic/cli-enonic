@@ -437,8 +437,6 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 
 func clearGitData(dest string) {
 	os.RemoveAll(filepath.Join(dest, ".git"))
-	os.Remove(filepath.Join(dest, "README.md"))
-	os.Remove(filepath.Join(dest, ".gitignore"))
 }
 
 type StarterVersion struct {
