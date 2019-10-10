@@ -286,34 +286,32 @@ func ParseResponse(resp *http.Response, target interface{}) {
 	}
 }
 
-func PopulateMeta(app *cli.App) map[string]interface{} {
-	meta := make(map[string]interface{})
-	var message string
+func ProduceCheckVersionFunction(appVersion string) func() string {
+	return func() string {
+		var message string
 
-	rData := ReadRuntimeData()
-	if rData.LatestCheck.IsZero() {
-		// this is the first check so set it to now
-		rData.LatestCheck = time.Now()
-		rData.LatestVersion = app.Version
-		WriteRuntimeData(rData)
-	}
+		rData := ReadRuntimeData()
 
-	daysSinceLastCheck := time.Since(rData.LatestCheck).Hours() / 24
-	if daysSinceLastCheck > 30 {
-		message = fmt.Sprintf(LATEST_CHECK_MSG, int(math.Floor(daysSinceLastCheck)))
-	} else {
-		latestVer := semver.MustParse(rData.LatestVersion)
-		currentVer := semver.MustParse(app.Version)
-		if latestVer.GreaterThan(currentVer) {
-			message = FormatLatestVersionMessage(rData.LatestVersion)
+		if rData.LatestCheck.IsZero() {
+			// this is the first check so set it to now
+			rData.LatestCheck = time.Now()
+			rData.LatestVersion = appVersion
+			WriteRuntimeData(rData)
 		}
-	}
 
-	if message != "" {
-		meta["Message"] = message
-	}
+		daysSinceLastCheck := time.Since(rData.LatestCheck).Hours() / 24
+		if daysSinceLastCheck > 30 {
+			message = fmt.Sprintf(LATEST_CHECK_MSG, int(math.Floor(daysSinceLastCheck)))
+		} else {
+			latestVer := semver.MustParse(rData.LatestVersion)
+			currentVer := semver.MustParse(appVersion)
+			if latestVer.GreaterThan(currentVer) {
+				message = FormatLatestVersionMessage(rData.LatestVersion)
+			}
+		}
 
-	return meta
+		return message
+	}
 }
 
 func FormatLatestVersionMessage(latest string) string {
