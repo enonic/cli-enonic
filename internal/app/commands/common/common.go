@@ -335,7 +335,7 @@ func getOSUpdateCommand() string {
 	case "windows":
 		return "scoop update enonic"
 	case "mac":
-		return "brew update enonic"
+		return "brew upgrade enonic"
 	case "linux":
 		return "snap refresh enonic"
 	default:
