@@ -17,6 +17,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -248,6 +249,13 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 		starter          *Starter
 	)
 	repo := c.String("repository")
+	if repo != "" {
+		if parsedRepo, err := expandToAbsoluteURl(repo, true); err != nil {
+			repo = ""
+		} else {
+			repo = parsedRepo
+		}
+	}
 
 	if repo == "" {
 		starters := fetchStarters(c)
@@ -279,21 +287,36 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 		} else {
 			var repoValidator = func(val interface{}) error {
 				str := val.(string)
-				if str == "" || len(strings.TrimSpace(str)) < 3 {
-					return errors.Errorf("Repository name can not be empty", val)
+				if str == "" {
+					return errors.New("Repository name can not be empty")
+				} else if _, err := expandToAbsoluteURl(str, true); err != nil {
+					return err
 				}
 				return nil
 			}
-			repo = util.PromptString("Custom repository", "", "", repoValidator)
+			repo = util.PromptString("Custom github repository", "", "", repoValidator)
 		}
+		repo, _ = expandToAbsoluteURl(repo, true) // Safe to ignore error cuz it's either was validated or predefined starter
 	}
 
-	if strings.Contains(repo, "://") {
-		return repo, starter
-	} else if splitRepo := strings.Split(repo, "/"); len(splitRepo) == 2 {
-		return fmt.Sprintf(GITHUB_REPO_TPL, splitRepo[0], splitRepo[1]), starter
+	return repo, starter
+}
+
+func expandToAbsoluteURl(repo string, guessShortUrls bool) (string, error) {
+	if parsedUrl, err := url.ParseRequestURI(repo); err == nil {
+		return parsedUrl.String(), nil
+	} else if guessShortUrls {
+		repo = strings.TrimSuffix(repo, ".git")
+		splitRepo := strings.Split(repo, "/")
+		switch len(splitRepo) {
+		case 2:
+			repo = fmt.Sprintf(GITHUB_REPO_TPL, splitRepo[0], splitRepo[1])
+		case 1:
+			repo = fmt.Sprintf(GITHUB_REPO_TPL, "enonic", repo)
+		}
+		return expandToAbsoluteURl(repo, false)
 	} else {
-		return fmt.Sprintf(GITHUB_REPO_TPL, "enonic", repo), starter
+		return "", errors.New("Not a valid repository")
 	}
 }
 
@@ -403,7 +426,7 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		URL:      url,
 		Progress: os.Stderr,
 	})
-	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s", url))
+	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s':", url))
 
 	if branch != "" || hash != "" {
 		err2 := repo.Fetch(&git.FetchOptions{
