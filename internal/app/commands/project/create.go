@@ -294,7 +294,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 				}
 				return nil
 			}
-			repo = util.PromptString("Custom github repository", "", "", repoValidator)
+			repo = util.PromptString("Custom Git repository", "", "", repoValidator)
 		}
 		repo, _ = expandToAbsoluteURl(repo, true) // Safe to ignore error cuz it's either was validated or predefined starter
 	}
