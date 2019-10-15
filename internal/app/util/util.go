@@ -52,6 +52,21 @@ func PromptString(text, val, defaultVal string, validator func(val interface{}) 
 	return val
 }
 
+func PromptPassword(text, val string, validator func(val interface{}) error) string {
+	if err := validator(val); err == nil {
+		return val
+	}
+
+	prompt := &survey.Password{
+		Message: text,
+	}
+
+	err := survey.AskOne(prompt, &val, validator)
+	Fatal(err, "Exiting: ")
+
+	return val
+}
+
 func PromptBool(text string, defaultVal bool) bool {
 	var val bool
 

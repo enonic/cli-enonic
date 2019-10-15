@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/briandowns/spinner"
@@ -102,22 +103,17 @@ func WriteRuntimeData(data RuntimeData) {
 
 func EnsureAuth(authString string) (string, string) {
 	var splitAuth []string
-	util.PromptUntilTrue(authString, func(val *string, ind byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			switch ind {
-			case 0:
-				return "Enter authentication token (<user>:<password>): "
-			default:
-				return "Authentication token can not be empty (<user>:<password>): "
-			}
+	util.PromptPassword("Authentication token (<user>:<password>): ", authString, func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			return errors.New("authentication token can not be empty")
 		} else {
-			splitAuth = strings.Split(*val, ":")
+			splitAuth = strings.Split(str, ":")
 			if len(splitAuth) != 2 {
-				return fmt.Sprintf("Authentication token '%s' must have the following format <user>:<password>: ", *val)
-			} else {
-				return ""
+				return errors.New("authentication token must have the following format <user>:<password>")
 			}
 		}
+		return nil
 	})
 	return splitAuth[0], splitAuth[1]
 }
