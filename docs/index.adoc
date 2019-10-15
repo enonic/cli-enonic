@@ -399,7 +399,7 @@ OPTIONS:
 
 Navigate to the folder you wish to place your project in and run the following command:
 
- $ enonic project create [name] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>]
+ $ enonic project create [name] [-n <value>] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>]
 
 Follow wizard instructions that will set everything up for you.
 
@@ -410,7 +410,10 @@ Options:
 |Description
 
 |`name`
-|name of the project. Default value is `com.example.myapp`
+|project name. E.g. `com.example.myapp`. Can also be specified using `--name` flag
+
+|`-n, --name`
+|project name. Overrides [name] argument if specified
 
 |`-r, --repo, +
 --repository`
@@ -435,6 +438,11 @@ TIP: `name`, `repository`, `destination` and `version` params are sufficient to 
 .Example creating 'myProject' project in 'myFolder' folder from vanilla starter and setting '1.0.0-SNAPSHOT' version:
 ----
 $ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
+----
+
+.Same example but providing name as a flag:
+----
+$ enonic project create -n myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
 ----
 
 [#project-sandbox]

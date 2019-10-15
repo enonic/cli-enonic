@@ -102,6 +102,10 @@ var Create = cli.Command{
 			Name:  "version, ver, v",
 			Usage: "Version number. Format: 1.0.0-SNAPSHOT",
 		},
+		cli.StringFlag{
+			Name:  "name, n",
+			Usage: "Project name.",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		fmt.Fprint(os.Stderr, "\n")
@@ -194,8 +198,8 @@ func ensureDestination(c *cli.Context, name string) string {
 }
 
 func ensureNameArg(c *cli.Context) string {
-	var name string
-	if c.NArg() > 0 {
+	name := c.String("name")
+	if name == "" && c.NArg() > 0 {
 		name = c.Args().First()
 	}
 	appNameRegex, _ := regexp.Compile("^[a-z0-9.]{3,}$")
