@@ -208,47 +208,55 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 		spin.Prefix = message
 		spin.FinalMSG = "\r" + message + "..." //r fixes empty spaces before final msg on windows
 		spin.Start()
-		defer spin.Stop()
 	}
-	bodyCopy := copyBody(req)
+
 	res, err := client.Do(req)
+	if message != "" {
+		spin.Stop()
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	rData := ReadRuntimeData()
 	switch res.StatusCode {
-	case http.StatusForbidden:
-
-		if rData.SessionID != "" {
-			fmt.Fprintln(os.Stderr, "Session is no longer valid.")
-			rData.SessionID = ""
-			WriteRuntimeData(rData)
-		}
-
-		var auth string
-		user, pass, _ := res.Request.BasicAuth()
-		if user == "" && pass == "" {
-			activeRemote := remote.GetActiveRemote()
-			if activeRemote.User != "" || activeRemote.Pass != "" {
-				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
-			}
-		} else {
-			fmt.Fprintln(os.Stderr, "Environment defined user and password are not valid.")
-		}
-		user, pass = EnsureAuth(auth)
-
-		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy)
-		res, err = SendRequestCustom(newReq, message, timeoutMin)
-
 	case http.StatusOK:
-
 		for _, cookie := range res.Cookies() {
 			if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
 				rData.SessionID = cookie.Value
 				WriteRuntimeData(rData)
 			}
 		}
+	case http.StatusForbidden:
+		if rData.SessionID != "" {
+			fmt.Fprint(os.Stderr, "User session is not valid.")
+			rData.SessionID = ""
+			WriteRuntimeData(rData)
+		}
+
+		var auth string
+		user, pass, _ := res.Request.BasicAuth()
+		activeRemote := remote.GetActiveRemote()
+		if user == "" && pass == "" {
+			if activeRemote.User != "" {
+				fmt.Fprintln(os.Stderr, "Using environment defined user and password.")
+				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+			} else {
+				fmt.Fprintln(os.Stderr, "")
+			}
+		} else {
+			if activeRemote.User != "" {
+				fmt.Fprintln(os.Stderr, "Environment defined user and password are not valid.")
+			} else {
+				fmt.Fprintln(os.Stderr, "User and password are not valid.")
+			}
+			auth = ""
+		}
+		user, pass = EnsureAuth(auth)
+		fmt.Fprintln(os.Stderr, "")
+
+		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, copyBody(req))
+		res, err = SendRequestCustom(newReq, message, timeoutMin)
 	}
 
 	return res, err
