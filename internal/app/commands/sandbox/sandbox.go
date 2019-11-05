@@ -42,7 +42,7 @@ func createSandbox(name string, version string) *Sandbox {
 	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
 
-	data := SandboxData{formatDistroVersion(version, util.GetCurrentOs(), true)}
+	data := SandboxData{formatDistroVersion(version, util.GetCurrentOs())}
 	util.EncodeTomlFile(file, data)
 
 	return &Sandbox{name, data.Distro}
