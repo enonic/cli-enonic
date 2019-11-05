@@ -55,7 +55,7 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	return distroPath, true
 }
 
-func getAllVersions(osName string) []VersionResult {
+func getAllVersions(osName string, includeUnstable bool) []VersionResult {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
 	resp := common.SendRequest(req, "Loading")
@@ -70,9 +70,10 @@ func getAllVersions(osName string) []VersionResult {
 		util.Warn(tempErr, "Could not parse distro version: "+value.Version)
 
 		// excluding only SNAPSHOTS
-		if strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" {
+		if strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" && (includeUnstable || tempVersion.Prerelease() == "") {
 			filteredVersions = append(filteredVersions, value)
 		}
+
 	}
 
 	return filteredVersions
@@ -250,7 +251,7 @@ func GetDistroJdkPath(distroName string) string {
 	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs, false), "jdk")
 }
 
-func ensureVersionCorrect(versionStr string) string {
+func ensureVersionCorrect(versionStr string, includeUnstable bool) string {
 	var (
 		version       *semver.Version
 		versionErr    error
@@ -259,12 +260,12 @@ func ensureVersionCorrect(versionStr string) string {
 
 	if len(strings.TrimSpace(versionStr)) > 0 {
 		if version, versionErr = semver.NewVersion(versionStr); versionErr != nil {
-			fmt.Fprintf(os.Stderr, "'%s' is not a valid distro version.", versionStr)
+			fmt.Fprintf(os.Stderr, "'%s' is not a valid distro version.\n", versionStr)
 		}
 	}
 
 	myOs := util.GetCurrentOs()
-	versions := getAllVersions(myOs)
+	versions := getAllVersions(myOs, includeUnstable || version != nil && version.Prerelease() != "")
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
 		textVersions[key] = formatDistroVersion(value.Version, myOs, true)
@@ -273,8 +274,7 @@ func ensureVersionCorrect(versionStr string) string {
 		}
 	}
 
-	if version != nil || versionExists {
-
+	if version != nil && versionExists {
 		return version.String()
 	} else {
 

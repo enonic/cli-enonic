@@ -19,6 +19,10 @@ var Create = cli.Command{
 			Name:  "version, v",
 			Usage: "Use specific distro version.",
 		},
+		cli.BoolFlag{
+			Name:  "all, a",
+			Usage: "List all distro versions.",
+		},
 	},
 	Action: func(c *cli.Context) error {
 
@@ -27,16 +31,16 @@ var Create = cli.Command{
 			name = c.Args().First()
 		}
 
-		SandboxCreateWizard(name, c.String("version"), true)
+		SandboxCreateWizard(name, c.String("version"), c.Bool("all"), true)
 
 		return nil
 	},
 }
 
-func SandboxCreateWizard(name, versionStr string, showSuccessMessage bool) *Sandbox {
+func SandboxCreateWizard(name, versionStr string, includeUnstable, showSuccessMessage bool) *Sandbox {
 
 	name = ensureUniqueNameArg(name)
-	version := ensureVersionCorrect(versionStr)
+	version := ensureVersionCorrect(versionStr, includeUnstable)
 
 	box := createSandbox(name, version)
 

@@ -152,7 +152,7 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 		if !util.PromptBool(noBoxMessage, true) {
 			return nil, false
 		}
-		newBox := SandboxCreateWizard("", "", showSuccessMessage)
+		newBox := SandboxCreateWizard("", "", false, showSuccessMessage)
 		return newBox, true
 	}
 
@@ -189,7 +189,7 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 	util.Fatal(err, "Select failed: ")
 
 	if name == CREATE_NEW_BOX {
-		newBox := SandboxCreateWizard("", "", showSuccessMessage)
+		newBox := SandboxCreateWizard("", "", false, showSuccessMessage)
 		return newBox, true
 	}
 

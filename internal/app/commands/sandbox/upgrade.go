@@ -17,6 +17,10 @@ var Upgrade = cli.Command{
 			Name:  "version, v",
 			Usage: "Distro version to upgrade to.",
 		},
+		cli.BoolFlag{
+			Name:  "all, a",
+			Usage: "List all distro versions.",
+		},
 	},
 	Action: func(c *cli.Context) error {
 
@@ -24,7 +28,7 @@ var Upgrade = cli.Command{
 		if sandbox == nil {
 			os.Exit(0)
 		}
-		version := ensureVersionCorrect(c.String("version"))
+		version := ensureVersionCorrect(c.String("version"), c.Bool("all"))
 		preventVersionDowngrade(sandbox, version)
 
 		sandbox.Distro = formatDistroVersion(version, util.GetCurrentOs(), true)
