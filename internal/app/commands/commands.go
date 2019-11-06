@@ -27,12 +27,8 @@ func All() []cli.Command {
 			HelpName:    "Dump",
 			Subcommands: dump.All(),
 		},
-		{
-			Name:        "export",
-			Usage:       "Export and load repository structures",
-			HelpName:    "Export",
-			Subcommands: export.All(),
-		},
+		export.Export,
+		export.Import,
 		{
 			Name:        "app",
 			Usage:       "Install, stop and start applications",
