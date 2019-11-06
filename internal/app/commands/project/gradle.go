@@ -16,8 +16,9 @@ const PROPERTY_PATTERN = "^(\\s*(" + GROUP_KEY + "|" + VERSION_KEY + "|" + PROJE
 	DISPLAY_NAME_KEY + ")\\s*=\\s*)"
 
 var Gradle = cli.Command{
-	Name:  "gradle",
-	Usage: "Run arbitrary gradle task in current project",
+	Name:            "gradle",
+	SkipFlagParsing: true,
+	Usage:           "Run arbitrary gradle task in current project",
 	Action: func(c *cli.Context) error {
 
 		tasks := make([]string, 0, c.NArg())
