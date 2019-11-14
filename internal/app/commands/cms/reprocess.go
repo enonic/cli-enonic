@@ -58,7 +58,7 @@ func createReprocessRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "content/reprocess", body)
+	return common.CreateRequest(c, "POST", "content/reprocessTask", body)
 }
 
 func ensurePathFlag(c *cli.Context) {
