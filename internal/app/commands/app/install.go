@@ -133,7 +133,9 @@ func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Reque
 
 	if filePath != "" {
 		baseUrl = "app/install"
-		file, _ := os.Open(filePath)
+
+		file, err := os.Open(filePath)
+		util.Fatal(err, "Error opening file:")
 		defer file.Close()
 
 		writer := multipart.NewWriter(body)
