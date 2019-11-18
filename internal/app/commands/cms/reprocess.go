@@ -31,11 +31,16 @@ var Reprocess = cli.Command{
 
 		req := createReprocessRequest(c)
 
-		res := common.SendRequest(req, "Reprocessing")
-
 		var result ReprocessResponse
-		common.ParseResponse(res, &result)
-		fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
+
+		status := common.RunTask(req, "Reprocessing", &result)
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Failed to reprocess: %s\n", status.Progress.Info)
+		}
 		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
@@ -53,7 +58,7 @@ func createReprocessRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "content/reprocess", body)
+	return common.CreateRequest(c, "POST", "content/reprocessTask", body)
 }
 
 func ensurePathFlag(c *cli.Context) {
