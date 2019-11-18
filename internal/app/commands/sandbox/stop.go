@@ -13,7 +13,7 @@ var Stop = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		rData := common.ReadRuntimeData()
-		if rData.Running == "" || rData.PID == 0 {
+		if !common.VerifyRuntimeData(&rData) {
 			fmt.Fprintln(os.Stderr, "No sandbox is currently running.")
 			os.Exit(0)
 		}

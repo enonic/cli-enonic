@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
-	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"os"
 	"os/signal"
@@ -26,18 +25,7 @@ var Start = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		rData := common.ReadRuntimeData()
-		isSandboxRunning := false
-
-		if rData.Running != "" && rData.PID != 0 {
-			proc, _ := ps.FindProcess(rData.PID)
-
-			// make sure that process is still alive and has the same name
-			if proc != nil && proc.Executable() == "enonic" {
-				isSandboxRunning = true
-			} else {
-				writeRunningSandbox("", 0)
-			}
-		}
+		isSandboxRunning := common.VerifyRuntimeData(&rData)
 
 		if isSandboxRunning {
 			if rData.Running == c.Args().First() {

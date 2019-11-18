@@ -9,6 +9,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"io"
 	"io/ioutil"
@@ -91,6 +92,27 @@ func ReadRuntimeData() RuntimeData {
 	var data RuntimeData
 	util.DecodeTomlFile(file, &data)
 	return data
+}
+
+func VerifyRuntimeData(rData *RuntimeData) bool {
+	if rData.PID == 0 {
+		if rData.Running != "" {
+			rData.Running = ""
+			WriteRuntimeData(*rData)
+		}
+		return false
+	} else {
+		// make sure that process is still alive and has the same name
+		proc, _ := ps.FindProcess(rData.PID)
+		if proc != nil && strings.Index(proc.Executable(), "enonic") == 0 {
+			return true
+		} else {
+			rData.PID = 0
+			rData.Running = ""
+			WriteRuntimeData(*rData)
+			return false
+		}
+	}
 }
 
 func WriteRuntimeData(data RuntimeData) {

@@ -24,11 +24,13 @@ var Deploy = cli.Command{
 			runGradleTask(projectData, fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox), "deploy")
 
 			rData := common.ReadRuntimeData()
-			if rData.PID == 0 {
+			processRunning := common.VerifyRuntimeData(&rData)
+
+			if !processRunning {
 				if util.PromptBool(fmt.Sprintf("\nDo you want to start sandbox '%s'?", projectData.Sandbox), true) {
 					sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false, devMode)
 				}
-			} else if rData.Running != projectData.Sandbox {
+			} else {
 				if util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead ?", rData.Running, projectData.Sandbox), true) {
 					sandbox.StopSandbox(rData)
 					sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false, devMode)
