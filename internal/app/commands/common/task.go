@@ -23,9 +23,13 @@ func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
 	var result TaskResponse
 	ParseResponse(resp, &result)
 
+	return DisplayTaskProgress(result.TaskId, msg, target)
+}
+
+func DisplayTaskProgress(taskId, msg string, target interface{}) *TaskStatus {
 	doneCh := make(chan *TaskStatus)
 
-	go displayTaskProgress(result.TaskId, msg, doneCh)
+	go doDisplayTaskProgress(taskId, msg, doneCh)
 
 	status := <-doneCh
 	close(doneCh)
@@ -41,7 +45,7 @@ func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
 	return status
 }
 
-func displayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
+func doDisplayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
 	bar := pb.New(100)
 	bar.ShowSpeed = false
 	bar.ShowCounters = false
@@ -108,7 +112,7 @@ type TaskStatus struct {
 	Application string
 	User        string
 	StartTime   time.Time
-	Progress struct {
+	Progress    struct {
 		Current uint32
 		Total   uint32
 		Info    string

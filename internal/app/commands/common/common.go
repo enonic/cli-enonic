@@ -131,7 +131,7 @@ func EnsureAuth(authString string) (string, string) {
 			return errors.New("authentication token can not be empty")
 		} else {
 			splitAuth = strings.Split(str, ":")
-			if len(splitAuth) != 2 {
+			if len(splitAuth) != 2 || len(splitAuth[0]) == 0 {
 				return errors.New("authentication token must have the following format <user>:<password>")
 			}
 		}
@@ -232,6 +232,9 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 		spin.Start()
 	}
 
+	// make a copy of request body prior to sending cuz it vanishes after!
+	bodyCopy := copyBody(req)
+
 	res, err := client.Do(req)
 	if message != "" {
 		spin.Stop()
@@ -277,7 +280,7 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 		user, pass = EnsureAuth(auth)
 		fmt.Fprintln(os.Stderr, "")
 
-		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, copyBody(req))
+		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy)
 		res, err = SendRequestCustom(newReq, message, timeoutMin)
 	}
 
@@ -294,22 +297,32 @@ func copyBody(req *http.Request) io.ReadCloser {
 }
 
 func ParseResponse(resp *http.Response, target interface{}) {
+	enonicErr, err := ParseResponseCustom(resp, target)
+	if enonicErr != nil {
+		fmt.Fprintf(os.Stderr, "%d %s\n", enonicErr.Status, enonicErr.Message)
+		os.Exit(0)
+	} else if err != nil {
+		fmt.Fprint(os.Stderr, "Error parsing response ", err)
+		os.Exit(0)
+	}
+}
+
+func ParseResponseCustom(resp *http.Response, target interface{}) (*EnonicError, error) {
 	defer resp.Body.Close()
 	decoder := json.NewDecoder(resp.Body)
 	if resp.StatusCode == http.StatusOK {
 		if err := decoder.Decode(target); err != nil {
-			fmt.Fprint(os.Stderr, "Error parsing response ", err)
-			os.Exit(1)
+			return nil, err
 		}
 	} else {
 		var enonicError EnonicError
 		if err := decoder.Decode(&enonicError); err == nil && enonicError.Message != "" {
-			fmt.Fprintf(os.Stderr, "%d %s\n", enonicError.Status, enonicError.Message)
+			return &enonicError, nil
 		} else {
-			fmt.Fprintln(os.Stderr, resp.Status)
+			return nil, errors.New(resp.Status)
 		}
-		os.Exit(1)
 	}
+	return nil, nil
 }
 
 func ProduceCheckVersionFunction(appVersion string) func() string {

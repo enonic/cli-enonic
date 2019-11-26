@@ -27,19 +27,52 @@ var Reprocess = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
+		var result ReprocessResponse
+		requestLabel := "Reprocessing"
+
 		ensurePathFlag(c)
 
-		req := createReprocessRequest(c)
+		req := createReprocessRequest(c, "content/reprocessTask")
+		res, err := common.SendRequestCustom(req, "", 3)
+		util.Fatal(err, "Request error")
 
-		var result ReprocessResponse
+		var taskResult common.TaskResponse
+		enonicErr, err := common.ParseResponseCustom(res, &taskResult)
 
-		status := common.RunTask(req, "Reprocessing", &result)
+		if enonicErr != nil {
+			if enonicErr.Context.Authenticated {
+				if user, pass, ok := res.Request.BasicAuth(); ok {
+					// save the auth for future requests if any
+					c.Set("auth", fmt.Sprintf("%s:%s", user, pass))
+				}
+			}
 
-		switch status.State {
-		case common.TASK_FINISHED:
-			fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
-		case common.TASK_FAILED:
-			fmt.Fprintf(os.Stderr, "Failed to reprocess: %s\n", status.Progress.Info)
+			if enonicErr.Status == http.StatusNotFound {
+				// Async endpoint was not found, most likely XP version < 7.2 so trying synchronous endpoint
+				newReq := createReprocessRequest(c, "content/reprocess")
+				newRes := common.SendRequest(newReq, requestLabel)
+				common.ParseResponse(newRes, &result)
+
+				fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
+			} else {
+				fmt.Fprintf(os.Stderr, "%d %s\n", enonicErr.Status, enonicErr.Message)
+				os.Exit(0)
+			}
+
+		} else if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(0)
+
+		} else {
+			status := common.DisplayTaskProgress(taskResult.TaskId, requestLabel, &result)
+
+			switch status.State {
+			case common.TASK_FINISHED:
+				fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
+			case common.TASK_FAILED:
+				fmt.Fprintf(os.Stderr, "Failed to reprocess: %s\n", status.Progress.Info)
+			}
+
 		}
 		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
@@ -47,7 +80,7 @@ var Reprocess = cli.Command{
 	},
 }
 
-func createReprocessRequest(c *cli.Context) *http.Request {
+func createReprocessRequest(c *cli.Context, url string) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"sourceBranchPath": c.String("path"),
@@ -58,7 +91,7 @@ func createReprocessRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "content/reprocessTask", body)
+	return common.CreateRequest(c, "POST", url, body)
 }
 
 func ensurePathFlag(c *cli.Context) {
