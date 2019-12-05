@@ -32,15 +32,54 @@ var Reindex = cli.Command{
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
+		var result ReindexResponse
+		requestLabel := "Reindexing"
+
 		ensureRepoFlag(c)
 		ensureBranchesFlag(c)
 
-		req := createNewRequest(c)
+		req := createReindexRequest(c, "repo/index/reindexTask")
+		res, err := common.SendRequestCustom(req, "", 3)
+		util.Fatal(err, "Reindex request error")
 
-		resp := common.SendRequest(req, "Reindexing")
-		var result ReindexResponse
-		common.ParseResponse(resp, &result)
-		fmt.Fprintf(os.Stderr, "Done %d nodes\n", result.NumberReindexed)
+		var taskResult common.TaskResponse
+		enonicErr, err := common.ParseResponseCustom(res, &taskResult)
+
+		if enonicErr != nil {
+			if enonicErr.Context.Authenticated {
+				if user, pass, ok := res.Request.BasicAuth(); ok {
+					// save the auth for future requests if any
+					c.Set("auth", fmt.Sprintf("%s:%s", user, pass))
+				}
+			}
+
+			if enonicErr.Status == http.StatusNotFound {
+				// Async endpoint was not found, most likely XP version < 7.2 so trying synchronous endpoint
+				newReq := createReindexRequest(c, "repo/index/reindex")
+				resp := common.SendRequest(newReq, requestLabel)
+				common.ParseResponse(resp, &result)
+
+				fmt.Fprintf(os.Stderr, "Reindexed %d node(s)\n", result.NumberReindexed)
+			} else {
+				fmt.Fprintf(os.Stderr, "%d %s\n", enonicErr.Status, enonicErr.Message)
+				os.Exit(0)
+			}
+
+		} else if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(0)
+
+		} else {
+			status := common.DisplayTaskProgress(taskResult.TaskId, requestLabel, &result)
+
+			switch status.State {
+			case common.TASK_FINISHED:
+				fmt.Fprintf(os.Stderr, "Reindexed %d node(s)\n", result.NumberReindexed)
+			case common.TASK_FAILED:
+				fmt.Fprintf(os.Stderr, "Failed to reindex: %s\n", status.Progress.Info)
+			}
+
+		}
 		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
@@ -93,7 +132,7 @@ func ensureBranchesFlag(c *cli.Context) {
 	}
 }
 
-func createNewRequest(c *cli.Context) *http.Request {
+func createReindexRequest(c *cli.Context, url string) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"repository": c.String("r"),
@@ -104,7 +143,7 @@ func createNewRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "repo/index/reindex", body)
+	return common.CreateRequest(c, "POST", url, body)
 }
 
 type ReindexResponse struct {
