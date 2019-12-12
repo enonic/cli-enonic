@@ -21,6 +21,10 @@ import (
 
 const DISTRO_FOLDER_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
 const DISTRO_FOLDER_NAME_TPL = "enonic-xp-%s-sdk-%s"
+
+// old CLI used this format to store distro name in sandbox, new format will apply after first sandbox distro change
+const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
+
 const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
@@ -231,6 +235,10 @@ func parseDistroVersion(distro string, isDisplay bool) string {
 		distroRegexp = regexp.MustCompile(DISTRO_LIST_NAME_REGEXP)
 	} else {
 		distroRegexp = regexp.MustCompile(DISTRO_FOLDER_NAME_REGEXP)
+		if !distroRegexp.MatchString(distro) {
+			// check old format in case there's no match
+			distroRegexp = regexp.MustCompile(OLD_DISTRO_FOLDER_NAME_REGEXP)
+		}
 	}
 	match := distroRegexp.FindStringSubmatch(distro)
 	if len(match) == 2 {
