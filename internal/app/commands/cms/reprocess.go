@@ -34,7 +34,7 @@ var Reprocess = cli.Command{
 
 		req := createReprocessRequest(c, "content/reprocessTask")
 		res, err := common.SendRequestCustom(req, "", 3)
-		util.Fatal(err, "Request error")
+		util.Fatal(err, "Reprocess request error")
 
 		var taskResult common.TaskResponse
 		enonicErr, err := common.ParseResponseCustom(res, &taskResult)
