@@ -10,6 +10,7 @@ import (
 	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
 	"github.com/enonic/cli-enonic/internal/app/commands/snapshot"
 	"github.com/enonic/cli-enonic/internal/app/commands/system"
+	"github.com/enonic/cli-enonic/internal/app/commands/vacuum"
 	"github.com/urfave/cli"
 )
 
@@ -68,13 +69,11 @@ func All() []cli.Command {
 			Category:    "PROJECT COMMANDS",
 		},
 		system.Latest,
-		/*
-				{
-					Name:        "remote",
-					Usage:       "Remote commands",
-					Subcommands: remote.All(),
-				},
-				vacuum.Vacuum,
-		*/
+		vacuum.Vacuum,
+		/*{
+			Name:        "remote",
+			Usage:       "Remote commands",
+			Subcommands: remote.All(),
+		},*/
 	}
 }
