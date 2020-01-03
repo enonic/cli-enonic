@@ -1,10 +1,13 @@
 package vacuum
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
+	"net/http"
 	"os"
 )
 
@@ -12,18 +15,13 @@ var Vacuum = cli.Command{
 	Name:  "vacuum",
 	Usage: "Removes unused blobs and binaries from blobstore",
 	Flags: append([]cli.Flag{
-		cli.StringFlag{
-			Name:  "repo, r",
-			Usage: "The name of the repository to restore",
-		},
-		cli.StringFlag{
-			Name:  "snapshot, snap",
-			Usage: "The name of the snapshot to restore",
+		cli.BoolFlag{
+			Name:  "blob, b",
+			Usage: "Remove unused blobs",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
-
-		req := common.CreateRequest(c, "POST", "system/vacuum", nil)
+		req := createVacuumRequest(c)
 
 		var result VacuumResponse
 		status := common.RunTask(req, "Vacuuming", &result)
@@ -38,6 +36,19 @@ var Vacuum = cli.Command{
 
 		return nil
 	},
+}
+
+func createVacuumRequest(c *cli.Context) *http.Request {
+	body := new(bytes.Buffer)
+	params := map[string]interface{}{}
+	if c.Bool("blob") {
+		params["tasks"] = []string{
+			"NodeBlobVacuumTask", "BinaryBlobVacuumTask", "SegmentVacuumTask", "VersionTableVacuumTask",
+		}
+	}
+	json.NewEncoder(body).Encode(params)
+
+	return common.CreateRequest(c, "POST", "system/vacuum", body)
 }
 
 type VacuumResponse struct {
