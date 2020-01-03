@@ -13,11 +13,11 @@ import (
 
 var Vacuum = cli.Command{
 	Name:  "vacuum",
-	Usage: "Removes unused blobs and binaries from blobstore",
+	Usage: "Removes old version history and segments from content storage",
 	Flags: append([]cli.Flag{
 		cli.BoolFlag{
 			Name:  "blob, b",
-			Usage: "Remove unused blobs",
+			Usage: "Also removes unused blobs from the blobstore",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
