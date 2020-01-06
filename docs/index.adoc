@@ -231,7 +231,7 @@ OPTIONS:
 
 Starts a new sandbox wizard asking for a name and an enonic distribution version:
 
- $ enonic sandbox create [name] [-v <value>]
+ $ enonic sandbox create [name] [-v <value>] [-a]
 
 Options:
 [cols="1,3", options="header"]
@@ -243,7 +243,10 @@ Options:
 |sandbox name
 
 |`-v, --version`
-|enonic distribution version
+|Use specific distro version
+
+|`-a, --all`
+|List all distro versions
 |===
 
 TIP: If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
@@ -527,7 +530,9 @@ $ enonic project deploy otherSandbox
 
 In case you want to run arbitrary gradle task or group multiple ones in one command you can use following command:
 
- $ enonic project gradle [tasks...]
+ $ enonic project gradle [tasks / flags ...]
+
+The text after `gradle` is sent directly to `gradlew`, without modifications.
 
 Options:
 [cols="1,3", options="header"]
@@ -536,7 +541,7 @@ Options:
 |Description
 
 |`tasks`
-|a space delimited list of gradle tasks to invoke
+|a space delimited list of gradle tasks and flags to invoke
 |===
 
 NOTE: The difference between `enonic project gradle clean build deploy` and `gradlew clean build deploy` is that the former uses sandbox and enonic XP distribution configured for the project, while latter uses system wide settings.
