@@ -1242,14 +1242,14 @@ Shows info about currently running enonic XP instance.
 $ enonic system info
 
 {
-    "Version": "7.0.0-B1",
+    "Version": "7.2.0",
     "Installation": "demo",
     "RunMode": "PROD",
     "Build": {
-        "Hash": "934a05d947a8ab238295f74b9c1a5ab2b9f13794",
-        "ShortHash": "934a05d",
+        "Hash": "39d4b215fd2009d7ba65e07efc54ebad50638741",
+        "ShortHash": "39d4b21",
         "Branch": "master",
-        "Timestamp": "2019-02-26T21:03:13+0100"
+        "Timestamp": "2019-12-19T15:18:13Z"
     }
 }
 ----
@@ -1265,7 +1265,7 @@ Checks the latest available version of CLI.
 $ enonic latest
 
 Loading...
-Latest version: 1.1.0
-Local version: 1.1.0
+Local version: 1.1.0.
+Latest available version is 1.1.0.
 ----
 
