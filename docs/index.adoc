@@ -36,7 +36,7 @@ The CLI is available for Mac, Linux and Windows. To install the CLI on your loca
 
 If you know exact version you need you can download CLI archive directly from our repository:
 
- curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.0.12/enonic_1.0.12_Linux_64-bit.tar.gz
+ curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.0/enonic_1.1.0_Linux_64-bit.tar.gz
 
 
 === Windows
@@ -111,21 +111,23 @@ To get a list of commands, simply type the following in your terminal:
 ----
 $ enonic
 
-Enonic CLI v.1.0.12
+Enonic CLI v.1.1.0
 Manage XP instances, home folders and projects
 
 USAGE:
-   enonic.exe [global options] command [command options] [arguments...]
+   enonic [global options] command [command options] [arguments...]
 
 COMMANDS:
      snapshot  Create and restore snapshots
      dump      Dump and load complete repositories
-     export    Export and load repository structures
+     export    Export data from a given repository, branch and content path.
+     import    Import data from a named export.
      app       Install, stop and start applications
      repo      Tune and manage repositories
      cms       CMS commands
      system    System commands
      latest    Check for latest version
+     vacuum    Removes unused blobs and binaries from blobstore
      help, h   Shows a list of commands or help for one command
 
 PROJECT COMMANDS:
@@ -1263,7 +1265,7 @@ Checks the latest available version of CLI.
 $ enonic latest
 
 Loading...
-Latest version: 1.0.12
-Local version: 1.0.12
+Latest version: 1.1.0
+Local version: 1.1.0
 ----
 
