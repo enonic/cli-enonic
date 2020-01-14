@@ -169,9 +169,11 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 	if showCreateOption {
 		selectOptions = append(selectOptions, CREATE_NEW_BOX)
 	}
+	var myOs = util.GetCurrentOs()
 	var boxName, defaultBox string
 	for i, box := range existingBoxes {
-		boxName = fmt.Sprintf("%s ( %s )", box.Name, box.Distro)
+		version := parseDistroVersion(box.Distro, false)
+		boxName = formatSandboxListItemName(box.Name, version, myOs)
 		if i == 0 {
 			defaultBox = boxName
 		}

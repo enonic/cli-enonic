@@ -26,6 +26,7 @@ const DISTRO_FOLDER_NAME_TPL = "enonic-xp-%s-sdk-%s"
 const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
 
 const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
+const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
 const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
@@ -250,6 +251,12 @@ func parseDistroVersion(distro string, isDisplay bool) string {
 
 func formatDistroVersion(version, myOs string) string {
 	return fmt.Sprintf(DISTRO_FOLDER_NAME_TPL, myOs, version)
+}
+
+func formatSandboxListItemName(boxName, version, myOs string) string {
+	var tpl = SANDBOX_LIST_NAME_TPL
+
+	return fmt.Sprintf(tpl, boxName, myOs, version)
 }
 
 func formatDistroVersionDisplay(version, myOs, latestVersion string) string {
