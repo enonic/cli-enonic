@@ -30,7 +30,8 @@ var Deploy = cli.Command{
 				if util.PromptBool(fmt.Sprintf("\nDo you want to start sandbox '%s'?", projectData.Sandbox), true) {
 					sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false, devMode)
 				}
-			} else {
+			} else if rData.Running != projectData.Sandbox {
+				// Ask to stop running box if it differs from project selected only
 				if util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead ?", rData.Running, projectData.Sandbox), true) {
 					sandbox.StopSandbox(rData)
 					sandbox.StartSandbox(sandbox.ReadSandboxData(projectData.Sandbox), false, devMode)
