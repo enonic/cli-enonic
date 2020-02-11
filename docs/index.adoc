@@ -34,9 +34,17 @@ The CLI is available for Mac, Linux and Windows. To install the CLI on your loca
 
 === Linux
 
-If you know exact version you need you can download CLI archive directly from our repository:
+Open the Shell and run the following:
 
- curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.0/enonic_1.1.0_Linux_64-bit.tar.gz
+ wget -qO- https://repo.enonic.com/public/com/enonic/cli/installer/cli-linux/1.0.0/cli-linux-1.0.0.sh | sh
+
+...or you can install it from Snapcraft:
+
+ $ sudo snap install enonic
+
+...or, if you know exact version you need, you can download CLI binary directly from our repository:
+
+ curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.1/enonic_1.1.1_Linux_64-bit.tar.gz
 
 
 === Windows
@@ -61,7 +69,7 @@ There are two ways to install CLI on windows
 ==== Windows native installer
 To download the latest available CLI and install it on your PC with native installer:
 
-. Download https://enonic.com/downloads[windows installer].
+. Download https://repo.enonic.com/public/com/enonic/cli/installer/cli-windows/1.0.0/cli-windows-1.0.0.exe[windows installer].
 . Run it and follow the wizard instructions.
 . If you need to update the CLI later, just run the installer once again to fetch the latest version.
 
