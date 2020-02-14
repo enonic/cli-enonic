@@ -8,8 +8,6 @@
 
 The Enonic Command Line Interface (CLI) automates tasks related to development, as well as common management tasks for both local and remote instances of Enonic XP.
 
-WARNING: This documentation is currently under construction, and will be completed with the release of XP 7.
-
 ////
         Installation
 ////
@@ -34,15 +32,22 @@ The CLI is available for Mac, Linux and Windows. To install the CLI on your loca
 
 === Linux
 
+==== Install with script
+
 Open the Shell and run the following:
 
  wget -qO- https://repo.enonic.com/public/com/enonic/cli/installer/cli-linux/1.0.0/cli-linux-1.0.0.sh | sh
 
-...or you can install it from Snapcraft:
+
+==== Install from Snapcraft
+
+Open the Shell and run the following:
 
  $ sudo snap install enonic
 
-...or, if you know exact version you need, you can download CLI binary directly from our repository:
+==== Install via direct download
+
+If you know exact version you need, you can download CLI binary directly from our repository:
 
  curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.1/enonic_1.1.1_Linux_64-bit.tar.gz
 
