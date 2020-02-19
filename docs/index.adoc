@@ -264,9 +264,9 @@ Options:
 
 TIP: If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
 
-.Example creating a 'myBox' sandbox using 'mac-sdk-7.0.0-B5' enonic distribution:
+.Example creating a 'myBox' sandbox using Enonic XP version 7.2.1
 ----
-$ enonic sandbox create myBox mac-sdk-7.0.0-B5
+$ enonic sandbox create myBox -v 7.2.1
 ----
 
 === List
@@ -279,10 +279,10 @@ $ enonic sandbox list
 ----
 $ enonic sandbox ls
 
-* Sandbox1 ( windows-sdk-7.0.0-B1 )
-  Sandbox2 ( windows-sdk-7.0.0-B1 )
-  Sandbox3 ( windows-sdk-7.0.0-B4 )
-  Sandbox4 ( windows-sdk-7.0.0-B5 )
+* Sandbox1 ( windows-sdk-7.2.1 )
+  Sandbox2 ( windows-sdk-7.2.0 )
+  Sandbox3 ( windows-sdk-7.0.3 )
+  Sandbox4 ( windows-sdk-7.2.1 )
 ----
 NOTE: Asterisk marks currently running sandbox
 
@@ -347,9 +347,9 @@ Options:
 
 NOTE: Downgrades are not permitted.
 
-.Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.0.0-B5':
+.Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':
 ----
-$ enonic sandbox upgrade myBox -v windows-sdk-7.0.0-B5
+$ enonic sandbox upgrade myBox -v 7.2.1
 ----
 
 === Delete
@@ -1026,11 +1026,11 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 .Example installing app from URL:
 ----
-$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/1.2.0/superhero-1.2.0.jar
+$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
 ----
 .Example installing app from file:
 ----
-$ enonic app install -a su:password -f /Users/rmy/Dev/apps/superhero/build/libs/superhero-1.2.0-SNAPSHOT.jar
+$ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
 ----
 
 ////
@@ -1277,7 +1277,7 @@ Checks the latest available version of CLI.
 $ enonic latest
 
 Loading...
-Local version: 1.1.0.
-Latest available version is 1.1.0.
+Local version: 1.1.1.
+Latest available version is 1.1.1.
 ----
 
