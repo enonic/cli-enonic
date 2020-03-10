@@ -8,5 +8,6 @@ func All() []cli.Command {
 	return []cli.Command{
 		Login,
 		Logout,
+		App,
 	}
 }
