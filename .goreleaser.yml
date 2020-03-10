@@ -30,6 +30,13 @@ builds:
   env:
   - CGO_ENABLED=0
 
+# Set ldflags
+  ldflags:
+  - -s -w
+  - -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+  - -X github.com/enonic/cli-enonic/internal/app/commands/cloud/auth.clientID={{ .Env.AUTH0_CLIENT_ID }}
+  - -X github.com/enonic/cli-enonic/internal/app/commands/cloud/auth.clientSecret={{ .Env.AUTH0_CLIENT_SECRET }}
+
 # GOOS list to build for.
 # For more info refer to: https://golang.org/doc/install/source#environment
 # Defaults are darwin and linux.
@@ -47,8 +54,8 @@ builds:
   hooks:
     post: chmod 755 ./dist/enonic_darwin_amd64/enonic ./dist/enonic_linux_amd64/enonic
 
-archive:
-  replacements:
+archives:
+- replacements:
     darwin: Mac
     linux: Linux
     windows: Windows
@@ -133,8 +140,8 @@ scoop:
 #  - "data"
 #  - "config.toml"
 
-brew:
-  skip_upload: false
+brews:
+- skip_upload: false
 
   # Repository to push the tap to.
   github:
@@ -167,10 +174,13 @@ brew:
   # Default is empty.
   description: Command-line interface for Enonic XP
 
-nfpm:
+  install: |
+      bin.install "enonic"
+
+nfpms:
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+- file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
   # Replacements for GOOS and GOARCH in the package name.
   # Keys should be valid GOOSs or GOARCHs.
@@ -207,10 +217,10 @@ nfpm:
     - deb
 #    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
 
-snapcraft:
+snapcrafts:
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+- name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
   # Replacements for GOOS and GOARCH in the package name.
   # Keys should be valid GOOSs or GOARCHs.
