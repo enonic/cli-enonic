@@ -56,7 +56,7 @@ func (t tokens) isExpired() bool {
 }
 
 // Login to Auth0 using the Device Authorization Flow
-func Login(instructions func(flow *Flow)) error {
+func Login(instructions func(flow *Flow), afterTokenFetch func()) error {
 	flow, err := oAuthStartVerificationFlow()
 	if err != nil {
 		return err
@@ -64,6 +64,7 @@ func Login(instructions func(flow *Flow)) error {
 
 	instructions(flow)
 	tokens, err := oAuthGetTokens(flow)
+	afterTokenFetch()
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,6 @@ func Login(instructions func(flow *Flow)) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 

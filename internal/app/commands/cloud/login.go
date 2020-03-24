@@ -7,6 +7,7 @@ import (
 
 	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 	auth "github.com/enonic/cli-enonic/internal/app/commands/cloud/auth"
+	util "github.com/enonic/cli-enonic/internal/app/commands/cloud/util"
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
 )
@@ -33,17 +34,20 @@ var Login = cli.Command{
 		}
 
 		// Done!
-		fmt.Fprintf(os.Stdout, "You are now logged in!\n")
+		fmt.Fprintf(os.Stdout, "success!\n")
 		return nil
 	},
 }
 
 func login(printQrCode bool) error {
-	return auth.Login(func(flow *auth.Flow) {
+	spin := util.CreateSpinner("Waiting for you to login")
+
+	instructions := func(flow *auth.Flow) {
 		fmt.Fprintf(os.Stdout, "Your login code is %s\n\n", flow.UserCode)
 		if printQrCode {
 			obj := qrcodeTerminal.New()
 			obj.Get(flow.URI).Print()
+			fmt.Fprintf(os.Stdout, "\n")
 		} else {
 			browser.Stdout = ioutil.Discard
 			browser.Stderr = ioutil.Discard
@@ -53,5 +57,12 @@ func login(printQrCode bool) error {
 				}
 			}()
 		}
-	})
+		spin.Start()
+	}
+
+	afterTokenFetch := func() {
+		spin.Stop()
+	}
+
+	return auth.Login(instructions, afterTokenFetch)
 }

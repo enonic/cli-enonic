@@ -7,8 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 // CloudConfigFolder returns the folder of cloud configuration
@@ -19,7 +22,7 @@ func CloudConfigFolder() (string, error) {
 
 // ReadFile opens a file and pipes it to a reader
 func ReadFile(file string, handler func(io.Reader) error) error {
-	if err := fileExist(file); err != nil {
+	if err := FileExist(file); err != nil {
 		return fmt.Errorf("file '%s' does not exist", file)
 	}
 	f, err := os.Open(file)
@@ -75,8 +78,8 @@ func WriteFile(file string, perm os.FileMode, write func(io.Writer) error) error
 
 // Util functions
 
-// Checks if file exists
-func fileExist(file string) error {
+// FileExist checks if file exists
+func FileExist(file string) error {
 	info, err := os.Stat(file)
 	if os.IsNotExist(err) {
 		return errors.New("file '" + file + "' does not exist")
@@ -110,4 +113,27 @@ func writeFileWithReader(file string, perm os.FileMode, r io.Reader) error {
 		}
 	}
 	return nil
+}
+
+// CreateProgressBar creates a progress bar
+func CreateProgressBar(total int64, prefix string) *pb.ProgressBar {
+	bar := pb.New(int(total))
+	bar.ShowSpeed = false
+	bar.ShowCounters = false
+	bar.ShowPercent = true
+	bar.ShowTimeLeft = false
+	bar.ShowElapsedTime = false
+	bar.ShowFinalTime = true
+	bar = bar.Prefix(prefix).SetUnits(pb.U_BYTES_DEC).SetRefreshRate(200 * time.Millisecond)
+	return bar
+}
+
+// CreateSpinner creates a spinner
+func CreateSpinner(message string) *spinner.Spinner {
+	message = message + " "
+	spin := spinner.New(spinner.CharSets[26], 300*time.Millisecond)
+	spin.Writer = os.Stderr
+	spin.Prefix = message
+	spin.FinalMSG = "\r" + message + "... " //r fixes empty spaces before final msg on windows
+	return spin
 }
