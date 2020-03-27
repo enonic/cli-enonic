@@ -223,8 +223,14 @@ func SendRequest(req *http.Request, message string) *http.Response {
 }
 
 func SendRequestCustom(req *http.Request, message string, timeoutMin time.Duration) (*http.Response, error) {
+	activeRemote := remote.GetActiveRemote()
+	var proxyTransport *http.Transport
+	if activeRemote.Proxy != nil {
+		proxyTransport = &http.Transport{Proxy: http.ProxyURL(&activeRemote.Proxy.URL)}
+	}
 	client := &http.Client{
-		Timeout: timeoutMin * time.Minute,
+		Timeout:   timeoutMin * time.Minute,
+		Transport: proxyTransport,
 	}
 	if message != "" {
 		spin.Prefix = message
