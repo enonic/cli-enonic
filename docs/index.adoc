@@ -106,6 +106,9 @@ You can customize connection settings with following environment variables:
 
 |`ENONIC_CLI_REMOTE_PASS`
 |User password for authentication in enonic XP
+
+|`ENONIC_CLI_HTTP_PROXY`
+|URL of proxy server to use
 |===
 
 NOTE: Authentication credentials passed to CLI command override environment settings and active session.

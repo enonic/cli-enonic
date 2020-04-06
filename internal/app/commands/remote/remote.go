@@ -15,6 +15,7 @@ const DEFAULT_REMOTE_URL = "http://localhost:4848"
 const CLI_REMOTE_URL = "ENONIC_CLI_REMOTE_URL"
 const CLI_REMOTE_USER = "ENONIC_CLI_REMOTE_USER"
 const CLI_REMOTE_PASS = "ENONIC_CLI_REMOTE_PASS"
+const CLI_REMOTE_PROXY = "ENONIC_CLI_HTTP_PROXY"
 
 func All() []cli.Command {
 	// enable if file-based remotes are used
@@ -64,9 +65,10 @@ func (r *MarshalledUrl) MarshalText() ([]byte, error) {
 }
 
 type RemoteData struct {
-	Url  *MarshalledUrl
-	User string
-	Pass string
+	Url   *MarshalledUrl
+	User  string
+	Pass  string
+	Proxy *MarshalledUrl
 }
 
 type RemotesData struct {
@@ -107,17 +109,24 @@ func getRemoteByName(name string, remotes map[string]RemoteData) (*RemoteData, b
 Env vars remote implementation
 */
 func GetActiveRemote() *RemoteData {
-	urlString := os.Getenv(CLI_REMOTE_URL)
-	if urlString != "" && strings.Index(urlString, "http") != 0 {
+	remoteUrl := parseUrl(os.Getenv(CLI_REMOTE_URL), DEFAULT_REMOTE_URL)
+	user := os.Getenv(CLI_REMOTE_USER)
+	pass := os.Getenv(CLI_REMOTE_PASS)
+	proxyUrl := parseUrl(os.Getenv(CLI_REMOTE_PROXY), "")
+	return &RemoteData{remoteUrl, user, pass, proxyUrl}
+}
+
+func parseUrl(urlString string, defaultUrl string) *MarshalledUrl {
+	if urlString == "" {
+		return nil
+	} else if strings.Index(urlString, "http") != 0 {
 		urlString = "http://" + urlString
 	}
 	parsedUrl, err := ParseMarshalledUrl(urlString)
 	if err != nil {
-		parsedUrl, _ = ParseMarshalledUrl(DEFAULT_REMOTE_URL)
+		parsedUrl, err = ParseMarshalledUrl(defaultUrl)
 	}
-	user := os.Getenv(CLI_REMOTE_USER)
-	pass := os.Getenv(CLI_REMOTE_PASS)
-	return &RemoteData{parsedUrl, user, pass}
+	return parsedUrl
 }
 
 /*
@@ -139,7 +148,7 @@ func ensureDefaultRemoteExists() {
 	defaultUrl, _ := ParseMarshalledUrl(DEFAULT_REMOTE_URL)
 	if remote, exists := getRemoteByName(DEFAULT_REMOTE_NAME, data.Remotes); !exists || remote.Url != defaultUrl || data.Active == "" {
 		if !exists || remote.Url != defaultUrl {
-			data.Remotes[DEFAULT_REMOTE_NAME] = RemoteData{defaultUrl, "", ""}
+			data.Remotes[DEFAULT_REMOTE_NAME] = RemoteData{defaultUrl, "", "", nil}
 		}
 		if data.Active == "" {
 			data.Active = DEFAULT_REMOTE_NAME

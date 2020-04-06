@@ -3,6 +3,7 @@ package remote
 import (
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/bcrypt"
 	"os"
@@ -16,12 +17,16 @@ var Add = cli.Command{
 			Name:  "url, u",
 			Usage: "Remote url in the following format: [scheme]://[user:password]@[host]:[port]",
 		},
+		cli.StringFlag{
+			Name:  "proxy, p",
+			Usage: "Proxy url in the following format: [scheme]://[user:password]@[host]:[port]",
+		},
 	},
-	Usage: "Add a new remote to list. Format: [name] [scheme]://[user:password]@[host]:[port]",
+	Usage: "Add a new remote to list. Format: [name] -u [url] -p [proxy]",
 	Action: func(c *cli.Context) error {
 
 		name := ensureUniqueNameArg(c)
-		remoteUrl := ensureUrlFlag(c)
+		remoteUrl := ensureUrl(c.String("url"), "Remote url")
 
 		userName := remoteUrl.User.Username()
 		userPass, passSet := remoteUrl.User.Password()
@@ -29,8 +34,13 @@ var Add = cli.Command{
 			userPass = generateHash(userPass)
 		}
 
+		var proxyUrl *MarshalledUrl
+		if proxyText := c.String("proxy"); proxyText != "" {
+			proxyUrl = ensureUrl(proxyText, "Proxy url")
+		}
+
 		data := readRemotesData()
-		data.Remotes[name] = RemoteData{remoteUrl, userName, userPass}
+		data.Remotes[name] = RemoteData{remoteUrl, userName, userPass, proxyUrl}
 		writeRemotesData(data)
 
 		fmt.Fprintf(os.Stdout, "Remote '%s' created.", name)
@@ -47,26 +57,26 @@ func generateHash(s string) string {
 	return string(hashedBytes[:])
 }
 
-func ensureUrlFlag(c *cli.Context) *MarshalledUrl {
-	remoteText := c.String("url")
+func ensureUrl(urlString, promptString string) *MarshalledUrl {
 	var (
 		parsedUrl *MarshalledUrl
 		err       error
 	)
-	util.PromptUntilTrue(remoteText, func(val *string, i byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			if i == 0 {
-				return "Enter remote URL: "
-			} else {
-				return "Remote URL can not be empty: "
-			}
+
+	var urlValidator = func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			return errors.New("URL can not be empty: ")
 		} else {
-			if parsedUrl, err = ParseMarshalledUrl(*val); err != nil {
-				return "Incorrect URL. Format: [scheme]://[user:password]@[host]:[port]: "
+			if parsedUrl, err = ParseMarshalledUrl(str); err != nil {
+				return errors.New("Incorrect URL. Format: [scheme]://[user:password]@[host]:[port]: ")
 			}
-			return ""
 		}
-	})
+		return nil
+	}
+
+	util.PromptString(promptString, urlString, "", urlValidator)
+
 	return parsedUrl
 }
 
