@@ -26,14 +26,6 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:740f0e477ddda011071f5e076ac9d38a0f6cee3ad3a924ab2acdd45b74a3c05c"
-  name = "github.com/apex/log"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "941dea75d3ebfbdd905a5d8b7b232965c5e5c684"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:2fd83c8c2b1ff53fd7c4376a63c3a2f31e002e9296df9d7f150b07da524de88d"
   name = "github.com/briandowns/spinner"
   packages = ["."]
@@ -363,9 +355,8 @@
     "github.com/AlecAivazis/survey",
     "github.com/BurntSushi/toml",
     "github.com/Masterminds/semver",
-    "github.com/apex/log",
     "github.com/briandowns/spinner",
-    "github.com/mitchellh/go-homedir",
+    "github.com/mgutz/ansi",
     "github.com/mitchellh/go-ps",
     "github.com/otiai10/copy",
     "github.com/pkg/browser",

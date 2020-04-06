@@ -47,7 +47,9 @@ builds:
   hooks:
     post: chmod 755 ./dist/enonic_darwin_amd64/enonic ./dist/enonic_linux_amd64/enonic
 
-archive:
+archives:
+
+  -
   replacements:
     darwin: Mac
     linux: Linux
@@ -133,7 +135,9 @@ scoop:
 #  - "data"
 #  - "config.toml"
 
-brew:
+brews:
+
+  -
   skip_upload: false
 
   # Repository to push the tap to.
@@ -167,7 +171,9 @@ brew:
   # Default is empty.
   description: Command-line interface for Enonic XP
 
-nfpm:
+nfpms:
+
+  -
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
@@ -207,7 +213,9 @@ nfpm:
     - deb
 #    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
 
-snapcraft:
+snapcrafts:
+
+  -
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
