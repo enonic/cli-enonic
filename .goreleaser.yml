@@ -5,63 +5,60 @@ project_name: enonic
 
 before:
   hooks:
-    # you may remove this if you don't use vgo
-    # - go mod download
-    # you may remove this if you don't need go generate
-    # - go generate ./...
+  # you may remove this if you don't use vgo
+  # - go mod download
+  # you may remove this if you don't need go generate
+  # - go generate ./...
 
 env_files:
   github_token: ./configs/goreleaser.github.token
 
 builds:
- # You can have multiple builds defined as a yaml list
--
+  # You can have multiple builds defined as a yaml list
+  - # Path to main.go file or main package.
+    # Default is `.`.
+    main: ./internal/app/cli.go
 
-# Path to main.go file or main package.
-# Default is `.`.
-  main: ./internal/app/cli.go
+    # Name template for the binary final name.
+    # Default is the name of the project directory.
+    binary: enonic
 
-# Name template for the binary final name.
-# Default is the name of the project directory.
-  binary: enonic
+    # Custom environment variables to be set during the builds.
+    # Default is empty.
+    env:
+      - CGO_ENABLED=0
 
-# Custom environment variables to be set during the builds.
-# Default is empty.
-  env:
-  - CGO_ENABLED=0
+    # GOOS list to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    # Defaults are darwin and linux.
+    goos:
+      - linux
+      - darwin
+      - windows
 
-# GOOS list to build for.
-# For more info refer to: https://golang.org/doc/install/source#environment
-# Defaults are darwin and linux.
-  goos:
-  - linux
-  - darwin
-  - windows
+    # GOARCH to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    # Defaults are 386 and amd64.
+    goarch:
+      - amd64
 
-# GOARCH to build for.
-# For more info refer to: https://golang.org/doc/install/source#environment
-# Defaults are 386 and amd64.
-  goarch:
-  - amd64
-
-  hooks:
-    post: chmod 755 ./dist/enonic_darwin_amd64/enonic ./dist/enonic_linux_amd64/enonic
+    hooks:
+      post: chmod 755 ./dist/enonic_darwin_amd64/enonic ./dist/enonic_linux_amd64/enonic
 
 archives:
 
-  -
-  replacements:
-    darwin: Mac
-    linux: Linux
-    windows: Windows
-    amd64: 64-bit
-    386: 32-bit
+  - replacements:
+      darwin: Mac
+      linux: Linux
+      windows: Windows
+      amd64: 64-bit
+      386: 32-bit
 
-  format: tar.gz  # set to binary to omit archiving
+    format: tar.gz  # set to binary to omit archiving
 
-  format_overrides:
-    - goos: windows
-      format: zip
+    format_overrides:
+      - goos: windows
+        format: zip
 
 checksum:
   name_template: 'checksums.txt'
@@ -73,8 +70,8 @@ changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
-    - '^test:'
+      - '^docs:'
+      - '^test:'
 
 release:
   # Repo in which the release will be created.
@@ -137,142 +134,140 @@ scoop:
 
 brews:
 
-  -
-  skip_upload: false
+  - skip_upload: false
 
-  # Repository to push the tap to.
-  github:
-    owner: enonic
-    name: homebrew-cli
+    # Repository to push the tap to.
+    github:
+      owner: enonic
+      name: homebrew-cli
 
-  # Template for the url.
-  # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-  url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
+    # Template for the url.
+    # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
 
-  # Allows you to set a custom download strategy.
-  # Default is empty.
-  #  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
+    # Allows you to set a custom download strategy.
+    # Default is empty.
+    #  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
 
-  # Git author used to commit to the repository.
-  # Defaults are shown.
-  commit_author:
-    name: goreleaserbot
-    email: goreleaser@carlosbecker.com
+    # Git author used to commit to the repository.
+    # Defaults are shown.
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@carlosbecker.com
 
-  # Folder inside the repository to put the formula.
-  # Default is the root folder.
-  folder: Formula
+    # Folder inside the repository to put the formula.
+    # Default is the root folder.
+    folder: Formula
 
-  # Your app's homepage.
-  # Default is empty.
-  homepage: https://enonic.com/
+    # Your app's homepage.
+    # Default is empty.
+    homepage: https://enonic.com/
 
-  # Your app's description.
-  # Default is empty.
-  description: Command-line interface for Enonic XP
+    # Your app's description.
+    # Default is empty.
+    description: Command-line interface for Enonic XP
 
 nfpms:
 
-  -
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
-  # Replacements for GOOS and GOARCH in the package name.
-  # Keys should be valid GOOSs or GOARCHs.
-  # Values are the respective replacements.
-  # Default is empty.
-  replacements:
-    darwin: Mac
-    linux: Linux
-    windows: Windows
-    amd64: 64-bit
-    386: 32-bit
+    # Replacements for GOOS and GOARCH in the package name.
+    # Keys should be valid GOOSs or GOARCHs.
+    # Values are the respective replacements.
+    # Default is empty.
+    replacements:
+      darwin: Mac
+      linux: Linux
+      windows: Windows
+      amd64: 64-bit
+      386: 32-bit
 
-  # Your app's vendor.
-  # Default is empty.
-  vendor: Enonic AS.
-  # Your app's homepage.
-  # Default is empty.
-  homepage: https://enonic.com/
+    # Your app's vendor.
+    # Default is empty.
+    vendor: Enonic AS.
+    # Your app's homepage.
+    # Default is empty.
+    homepage: https://enonic.com/
 
-  # Your app's maintainer (probably you).
-  # Default is empty.
-  maintainer: Pavel Milkevich <pmi@enonic.com>
+    # Your app's maintainer (probably you).
+    # Default is empty.
+    maintainer: Pavel Milkevich <pmi@enonic.com>
 
-  # Your app's description.
-  # Default is empty.
-  description: Command-line interface for Enonic XP
+    # Your app's description.
+    # Default is empty.
+    description: Command-line interface for Enonic XP
 
-  # Your app's license.
-  # Default is empty.
-  license: GPLv3
+    # Your app's license.
+    # Default is empty.
+    license: GPLv3
 
-  # Formats to be generated.
-  formats:
-    - deb
+    # Formats to be generated.
+    formats:
+      - deb
 #    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
 
 snapcrafts:
 
-  -
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
-  # Replacements for GOOS and GOARCH in the package name.
-  # Keys should be valid GOOSs or GOARCHs.
-  # Values are the respective replacements.
-  # Default is empty.
-  replacements:
-    darwin: Mac
-    linux: Linux
-    windows: Windows
-    amd64: 64-bit
-    386: 32-bit
+    # Replacements for GOOS and GOARCH in the package name.
+    # Keys should be valid GOOSs or GOARCHs.
+    # Values are the respective replacements.
+    # Default is empty.
+    replacements:
+      darwin: Mac
+      linux: Linux
+      windows: Windows
+      amd64: 64-bit
+      386: 32-bit
 
-  # The name of the snap. This is optional.
-  # Default is project name.
-  name: enonic
+    # The name of the snap. This is optional.
+    # Default is project name.
+    name: enonic
 
-  # Wether to publish the snap to the snapcraft store.
-  # Remember you need to `snapcraft login` first.
-  # Defaults to false.
-  publish: true
+    # Wether to publish the snap to the snapcraft store.
+    # Remember you need to `snapcraft login` first.
+    # Defaults to false.
+    publish: true
 
-  # Single-line elevator pitch for your amazing snap.
-  # 79 char long at most.
-  summary: Command-line interface for Enonic XP
+    # Single-line elevator pitch for your amazing snap.
+    # 79 char long at most.
+    summary: Command-line interface for Enonic XP
 
-  description: Tool for managing XP instances, home folders and projects
+    description: Tool for managing XP instances, home folders and projects
 
-  # A guardrail to prevent you from releasing a snap to all your users before
-  # it is ready.
-  # `devel` will let you release only to the `edge` and `beta` channels in the
-  # store. `stable` will let you release also to the `candidate` and `stable`
-  # channels. More info about channels here:
-  # https://snapcraft.io/docs/reference/channels
-  grade: stable
+    # A guardrail to prevent you from releasing a snap to all your users before
+    # it is ready.
+    # `devel` will let you release only to the `edge` and `beta` channels in the
+    # store. `stable` will let you release also to the `candidate` and `stable`
+    # channels. More info about channels here:
+    # https://snapcraft.io/docs/reference/channels
+    grade: stable
 
-  # Snaps can be setup to follow three different confinement policies:
-  # `strict`, `devmode` and `classic`. A strict confinement where the snap
-  # can only read and write in its own namespace is recommended. Extra
-  # permissions for strict snaps can be declared as `plugs` for the app, which
-  # are explained later. More info about confinement here:
-  # https://snapcraft.io/docs/reference/confinement
-  confinement: strict
+    # Snaps can be setup to follow three different confinement policies:
+    # `strict`, `devmode` and `classic`. A strict confinement where the snap
+    # can only read and write in its own namespace is recommended. Extra
+    # permissions for strict snaps can be declared as `plugs` for the app, which
+    # are explained later. More info about confinement here:
+    # https://snapcraft.io/docs/reference/confinement
+    confinement: strict
 
-  apps:
-    enonic:
-      plugs: ["home", "network", "network-bind", "dot-enonic"]
+    apps:
+      enonic:
+        plugs: ["home", "network", "network-bind", "dot-enonic"]
 
-  plugs:
-    dot-enonic:
-      interface: personal-files
-      write:
-        - $HOME/.enonic
+    plugs:
+      dot-enonic:
+        interface: personal-files
+        write:
+          - $HOME/.enonic
 
 artifactories:
+
   - name: repo
     target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
     username: ci
