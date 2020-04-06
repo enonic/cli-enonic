@@ -182,7 +182,7 @@ func loadDeployContext(deployConfigFile string, deployContextName string, deploy
 
 	// If no context is found, create one
 	if c == nil {
-		newCtx, err := createDeployContext(deployContextName, solutions)
+		newCtx, err := createDeployContext(deployContextName, appName, solutions)
 		if err != nil {
 			return nil, err
 		}
@@ -235,7 +235,7 @@ func saveDeployConfigFile(deployConfigFile string, deployConfig *DeployConfig) e
 	})
 }
 
-func createDeployContext(name string, solutions map[string]string) (*Context, error) {
+func createDeployContext(name string, appName string, solutions map[string]string) (*Context, error) {
 	// Get solution
 	solution, err := promptForSolution(solutions)
 	if err != nil {
@@ -243,7 +243,7 @@ func createDeployContext(name string, solutions map[string]string) (*Context, er
 	}
 
 	// Get config file
-	configFile, err := promptForConfigFile()
+	configFile, err := promptForConfigFile(appName + ".cfg")
 	if err != nil {
 		return nil, err
 	}
@@ -350,9 +350,10 @@ func promptForSolution(solutions map[string]string) (string, error) {
 }
 
 // Ask what config file the user want to deploy
-func promptForConfigFile() (string, error) {
+func promptForConfigFile(def string) (string, error) {
 	prompt := &survey.Input{
 		Message: "What config file would you like to deploy with the app?",
+		Default: def,
 	}
 	var val string
 	err := survey.AskOne(prompt, &val, nil)
