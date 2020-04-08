@@ -11,6 +11,7 @@ import (
 	"github.com/enonic/cli-enonic/internal/app/commands/snapshot"
 	"github.com/enonic/cli-enonic/internal/app/commands/system"
 	"github.com/enonic/cli-enonic/internal/app/commands/vacuum"
+	"github.com/enonic/cli-enonic/internal/app/commands/cloud"
 	"github.com/urfave/cli"
 )
 
@@ -67,6 +68,13 @@ func All() []cli.Command {
 			Subcommands: project.All(),
 			HelpName:    "Project",
 			Category:    "PROJECT COMMANDS",
+		},
+		{
+			Name:        "cloud",
+			Usage:       "Manage Enonic cloud",
+			Subcommands: cloud.All(),
+			HelpName:    "Cloud",
+			Category:    "CLOUD COMMANDS",
 		},
 		system.Latest,
 		vacuum.Vacuum,

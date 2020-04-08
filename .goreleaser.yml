@@ -28,6 +28,14 @@ builds:
     env:
       - CGO_ENABLED=0
 
+    # Set ldflags
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+      - -X github.com/enonic/cli-enonic/internal/app/commands/cloud/client.api={{ .Env.CLOUD_API_URL }}
+      - -X github.com/enonic/cli-enonic/internal/app/commands/cloud/auth.clientID={{ .Env.AUTH0_CLIENT_ID }}
+      - -X github.com/enonic/cli-enonic/internal/app/commands/cloud/auth.clientSecret={{ .Env.AUTH0_CLIENT_SECRET }}
+      -
     # GOOS list to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
     # Defaults are darwin and linux.

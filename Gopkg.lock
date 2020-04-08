@@ -10,6 +10,14 @@
   version = "v1.8.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:98441688941416464a9f56869d7d5dbc149200716e4f0ac952119d4f544cf7fd"
+  name = "github.com/Baozisoftware/qrcode-terminal-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c0650d8dff0f053901ff16185217b950d5e7743c"
+
+[[projects]]
   digest = "1:9f3b30d9f8e0d7040f729b82dcbc8f0dead820a133b3147ce355fc451f32d761"
   name = "github.com/BurntSushi/toml"
   packages = ["."]
@@ -130,7 +138,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c1072f27d5b8be1032af14ed7776f475bc58d35723a753c4b92c953d92e3eb33"
+  digest = "1:6d4d9067e639d96a804ee9a30fa89c7233c5c5edbfe736072ff00d48c97bccc4"
   name = "github.com/otiai10/copy"
   packages = ["."]
   pruneopts = "UT"
@@ -167,6 +175,18 @@
   pruneopts = "UT"
   revision = "1744e2970ca51c86172c8190fadad617561ed6e7"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:4e8371530875271d3a2a08645767384855616989a7cab2b1fecfc4f7a48232d8"
+  name = "github.com/skip2/go-qrcode"
+  packages = [
+    ".",
+    "bitset",
+    "reedsolomon",
+  ]
+  pruneopts = "UT"
+  revision = "9434209cb0863a5f3c316b49a8abb7f7dc80610a"
 
 [[projects]]
   digest = "1:e4ed0afd67bf7be353921665cdac50834c867ff1bba153efc0745b755a7f5905"
@@ -353,6 +373,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlecAivazis/survey",
+    "github.com/Baozisoftware/qrcode-terminal-go",
     "github.com/BurntSushi/toml",
     "github.com/Masterminds/semver",
     "github.com/briandowns/spinner",
