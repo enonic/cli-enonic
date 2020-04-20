@@ -36,17 +36,17 @@ type DeployConfig struct {
 // Context is the deploy configuration context
 type Context struct {
 	Name       string `json:"name"`
-	Solution   string `json:"solution"`
+	Service    string `json:"service"`
 	ConfigFile string `json:"configFile"`
 }
 
 // Internal struct passed around when actually deploying a jar
 type deployContext struct {
-	solutionID   string
-	solutionName string
-	appName      string
-	configFile   string
-	jarFile      string
+	serviceID   string
+	serviceName string
+	appName     string
+	configFile  string
+	jarFile     string
 }
 
 // Cli command
@@ -102,7 +102,7 @@ var ProjectDeploy = cli.Command{
 
 		doDeploy := c.Bool("y")
 		if !doDeploy {
-			doDeploy = commonUtil.PromptBool(fmt.Sprintf("Deploy '%s' with config '%s' to '%s'. Is this correct?", deployCtx.appName, deployCtx.configFile, deployCtx.solutionName), false)
+			doDeploy = commonUtil.PromptBool(fmt.Sprintf("Deploy '%s' with config '%s' to '%s'. Is this correct?", deployCtx.appName, deployCtx.configFile, deployCtx.serviceName), false)
 		}
 
 		if !doDeploy {
@@ -125,29 +125,33 @@ var ProjectDeploy = cli.Command{
 
 // Get from deploy configuration file a deploy context
 func getDeployContext(deployConfigFile string, deployContextName string, deploymentJar string) (*deployContext, error) {
-	// Query api and create solution map
+	// Query api and create service map
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
-	res, err := queries.GetSolutions(ctx)
+	res, err := queries.GetServices(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not retrieve solutions: %v", err)
+		return nil, fmt.Errorf("could not retrieve services: %v", err)
 	}
 
-	solutions := make(map[string]string)
+	xp7Services := make(map[string]string)
 	for _, cloud := range res.Account.Clouds {
-		for _, project := range cloud.Projects {
-			for _, solution := range project.Solutions {
-				solutions[fmt.Sprintf("%s/%s/%s", cloud.Name, project.Name, solution.Name)] = solution.ID
+		for _, solution := range cloud.Solutions {
+			for _, environment := range solution.Environments {
+				for _, service := range environment.Services {
+					if service.Kind == "xp7" {
+						xp7Services[fmt.Sprintf("%s/%s/%s/%s", cloud.Name, solution.Name, environment.Name, service.Name)] = service.ID
+					}
+				}
 			}
 		}
 	}
 
 	// Load config
-	return loadDeployContext(deployConfigFile, deployContextName, deploymentJar, solutions)
+	return loadDeployContext(deployConfigFile, deployContextName, deploymentJar, xp7Services)
 }
 
-func loadDeployContext(deployConfigFile string, deployContextName string, deploymentJar string, solutions map[string]string) (*deployContext, error) {
+func loadDeployContext(deployConfigFile string, deployContextName string, deploymentJar string, xp7Services map[string]string) (*deployContext, error) {
 	var deployConfig DeployConfig
 
 	// Check and create deploy config file if needed
@@ -182,7 +186,7 @@ func loadDeployContext(deployConfigFile string, deployContextName string, deploy
 
 	// If no context is found, create one
 	if c == nil {
-		newCtx, err := createDeployContext(deployContextName, appName, solutions)
+		newCtx, err := createDeployContext(deployContextName, appName, xp7Services)
 		if err != nil {
 			return nil, err
 		}
@@ -196,13 +200,13 @@ func loadDeployContext(deployConfigFile string, deployContextName string, deploy
 	}
 	deployCtx.configFile = c.ConfigFile
 
-	// Find solution id
-	val, ok := solutions[c.Solution]
+	// Find service id
+	val, ok := xp7Services[c.Service]
 	if !ok {
-		return nil, fmt.Errorf("could not find solution '%s'", c.Solution)
+		return nil, fmt.Errorf("could not find service '%s'", c.Service)
 	}
-	deployCtx.solutionID = val
-	deployCtx.solutionName = c.Solution
+	deployCtx.serviceID = val
+	deployCtx.serviceName = c.Service
 
 	// Find jar to deploy
 	if deploymentJar != "" {
@@ -235,9 +239,9 @@ func saveDeployConfigFile(deployConfigFile string, deployConfig *DeployConfig) e
 	})
 }
 
-func createDeployContext(name string, appName string, solutions map[string]string) (*Context, error) {
-	// Get solution
-	solution, err := promptForSolution(solutions)
+func createDeployContext(name string, appName string, xp7Services map[string]string) (*Context, error) {
+	// Get service
+	service, err := promptForService(xp7Services)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +256,7 @@ func createDeployContext(name string, appName string, solutions map[string]strin
 
 	return &Context{
 		Name:       name,
-		Solution:   solution,
+		Service:    service,
 		ConfigFile: configFile,
 	}, nil
 }
@@ -325,21 +329,21 @@ func getAppName() (string, error) {
 	return name, err
 }
 
-// Ask what solution the user wants to deploy to
-func promptForSolution(solutions map[string]string) (string, error) {
+// Ask what service the user wants to deploy to
+func promptForService(xp7Services map[string]string) (string, error) {
 	var keys []string
-	for k := range solutions {
+	for k := range xp7Services {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
 	if len(keys) == 0 {
-		return "", fmt.Errorf("You do not have any solutions to deploy to")
+		return "", fmt.Errorf("You do not have any services to deploy to")
 	}
 
 	var key string
 	prompt := &survey.Select{
-		Message: "What solution do you want do deploy to?",
+		Message: "What service do you want do deploy to?",
 		Options: keys,
 	}
 	err := survey.AskOne(prompt, &key, nil)
@@ -367,7 +371,8 @@ func uploadConfig(ctx context.Context, deployCtx *deployContext) (string, error)
 	spin := util.CreateSpinner("Uploading config")
 	spin.Start()
 
-	createXp7ConfigRes, err := mutations.CreateXp7Config(ctx, deployCtx.solutionID, deployCtx.appName, deployCtx.configFile)
+	// TODO: Add ability to select nodes
+	createXp7ConfigRes, err := mutations.CreateXp7ConfigRequest(ctx, deployCtx.serviceID, deployCtx.appName, "all", deployCtx.configFile)
 	if err != nil {
 		spin.Stop()
 		fmt.Fprintf(os.Stdout, "failed!\n")
@@ -377,7 +382,7 @@ func uploadConfig(ctx context.Context, deployCtx *deployContext) (string, error)
 	spin.Stop()
 	fmt.Fprintf(os.Stdout, "done!\n")
 
-	return createXp7ConfigRes.CreateXp7Config, nil
+	return createXp7ConfigRes.CreateXp7Config.Token, nil
 }
 
 // Deploy app given a valid deploy context
