@@ -9,6 +9,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/enonic/cli-enonic/internal/app/util/system"
 	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"io"
@@ -19,6 +20,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -104,14 +106,17 @@ func VerifyRuntimeData(rData *RuntimeData) bool {
 	} else {
 		// make sure that process is still alive and has the same name
 		proc, _ := ps.FindProcess(rData.PID)
-		if proc != nil && strings.Index(proc.Executable(), "enonic") == 0 {
-			return true
-		} else {
-			rData.PID = 0
-			rData.Running = ""
-			WriteRuntimeData(*rData)
-			return false
+		if proc != nil {
+			detachedName := system.GetDetachedProcName()
+			if match, _ := regexp.MatchString("^(?:enonic|"+detachedName+")(?:.exe)?$", proc.Executable()); match {
+				return true
+			}
 		}
+		// process is either nil, or PID is taken by other process already, so erase its info
+		rData.PID = 0
+		rData.Running = ""
+		WriteRuntimeData(*rData)
+		return false
 	}
 }
 

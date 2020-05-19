@@ -25,3 +25,7 @@ func Start(app string, args []string, detach bool) *exec.Cmd {
 	util.Fatal(err, fmt.Sprintf("Could not start process: %s", app))
 	return cmd
 }
+
+func GetDetachedProcName() string {
+	return detachedProcName
+}

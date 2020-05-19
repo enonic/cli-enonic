@@ -63,7 +63,14 @@ func StartSandbox(sandbox *Sandbox, detach, devMode bool) {
 
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode)
 
-	pid := os.Getpid()
+	var pid int
+	if !detach {
+		// current process' PID
+		pid = os.Getpid()
+	} else {
+		// current process will finish so use detached process' PID
+		pid = cmd.Process.Pid
+	}
 	writeRunningSandbox(sandbox.Name, pid)
 
 	if !detach {

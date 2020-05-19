@@ -7,6 +7,8 @@ import (
 	"syscall"
 )
 
+const detachedProcName = ""
+
 func prepareCmd(app string, args []string) *exec.Cmd {
 	cmd := exec.Command(app, args...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{}

@@ -11,8 +11,10 @@ import (
 	"unsafe"
 )
 
+const detachedProcName = "cmd"
+
 func prepareCmd(app string, args []string) *exec.Cmd {
-	cmd := exec.Command("cmd")
+	cmd := exec.Command(detachedProcName)
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 	return cmd
 }
