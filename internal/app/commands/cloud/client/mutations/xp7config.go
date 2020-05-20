@@ -8,20 +8,26 @@ import (
 	"github.com/machinebox/graphql"
 )
 
-type CreateXp7ConfigResponse struct {
-	CreateXp7Config string
+type CreateXp7ConfigData struct {
+	CreateXp7Config CreateXp7Config `json:"createXp7Config"`
+}
+
+type CreateXp7Config struct {
+	Token string `json:"token"`
 }
 
 // CreateXp7Config starts the flow of uploading an app to the Cloud API
-func CreateXp7Config(ctx context.Context, solutionId string, appName string, configFile string) (*CreateXp7ConfigResponse, error) {
+func CreateXp7ConfigRequest(ctx context.Context, serviceId string, appName string, nodeId string, configFile string) (*CreateXp7ConfigData, error) {
 	// TODO: Actually send config
 
 	req := graphql.NewRequest(fmt.Sprintf(`
 	mutation {
-		createXp7Config(solutionId: "%s", appName: "%s")
+		createXp7Config(serviceId: "%s", appName: "%s", nodeId: "%s") {
+			token
+		}
 	}
-	`, solutionId, appName))
+	`, serviceId, appName, nodeId))
 
-	var res CreateXp7ConfigResponse
+	var res CreateXp7ConfigData
 	return &res, cloudApi.DoGraphQLRequest(ctx, req, &res)
 }

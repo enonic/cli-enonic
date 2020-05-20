@@ -7,18 +7,22 @@ import (
 	"github.com/machinebox/graphql"
 )
 
-// GetSolutions gets all solutions for the logged in user
-func GetSolutions(ctx context.Context) (*Solutions, error) {
+// GetServices gets all services for the logged in user
+func GetServices(ctx context.Context) (*GetServicesData, error) {
 	req := graphql.NewRequest(`
 	{
 		account {
 			clouds {
 				name
-				projects {
+				solutions {
 					name
-					solutions {
-						id
+					environments {
 						name
+						services {
+							id
+							name
+							kind
+						}
 					}
 				}
 			}
@@ -26,11 +30,11 @@ func GetSolutions(ctx context.Context) (*Solutions, error) {
 	}
 	`)
 
-	var res Solutions
+	var res GetServicesData
 	return &res, cloudApi.DoGraphQLRequest(ctx, req, &res)
 }
 
-type Solutions struct {
+type GetServicesData struct {
 	Account Account `json:"account"`
 }
 
@@ -39,16 +43,22 @@ type Account struct {
 }
 
 type Cloud struct {
-	Name     string    `json:"name"`
-	Projects []Project `json:"projects"`
-}
-
-type Project struct {
 	Name      string     `json:"name"`
 	Solutions []Solution `json:"solutions"`
 }
 
 type Solution struct {
+	Name         string        `json:"name"`
+	Environments []Environment `json:"environments"`
+}
+
+type Environment struct {
+	Name     string    `json:"name"`
+	Services []Service `json:"services"`
+}
+
+type Service struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+	Kind string `json:"kind"`
 }
