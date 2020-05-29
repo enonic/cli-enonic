@@ -1,0 +1,65 @@
+== Installation
+
+The CLI is available for Mac, Linux and Windows. To install the CLI on your local device, visit our https://enonic.com/downloads[downloads page] or follow the instructions below
+
+=== MacOS
+
+. Enonic CLI is available from the https://brew.sh/[Homebrew package service]. With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:
+
+ brew tap enonic/cli
+
+. Now you can install CLI by running:
+
+ brew install enonic
+
+. If you later want to update the CLI, simply run:
+
+ brew upgrade enonic
+
+=== Linux
+
+==== Install with script
+
+Open the Shell and run the following:
+
+ wget -qO- https://repo.enonic.com/public/com/enonic/cli/installer/cli-linux/1.0.0/cli-linux-1.0.0.sh | sh
+
+
+==== Install from Snapcraft
+
+Open the Shell and run the following:
+
+ $ sudo snap install enonic
+
+==== Install via direct download
+
+If you know exact version you need, you can download CLI binary directly from our repository:
+
+ curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.1/enonic_1.1.1_Linux_64-bit.tar.gz
+
+
+=== Windows
+
+There are two ways to install CLI on windows
+
+==== Install using Scoop
+
+. After having https://scoop.sh/[Scoop command-line installer] installed, open command prompt and add CLI github repo to scoop known repositories with the following command:
+
+ scoop bucket add enonic https://github.com/enonic/cli-scoop.git
+
+. Now you can install CLI by running:
+
+ scoop install enonic
+
+. Updating CLI is done with the following comand:
+
+ scoop update enonic
+
+
+==== Windows native installer
+To download the latest available CLI and install it on your PC with native installer:
+
+. Download https://repo.enonic.com/public/com/enonic/cli/installer/cli-windows/1.0.0/cli-windows-1.0.0.exe[windows installer].
+. Run it and follow the wizard instructions.
+. If you need to update the CLI later, just run the installer once again to fetch the latest version.

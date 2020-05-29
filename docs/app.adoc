@@ -1,0 +1,51 @@
+== Applications
+
+Commands to install applications to the running enonic XP instance. Currently only one command is available here:
+
+----
+$ enonic app
+
+Install, stop and start applications
+
+USAGE:
+   Enonic CLI app command [command options] [arguments...]
+
+COMMANDS:
+     install, i  Install an application from URL or file
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Install
+
+Installs an application on all nodes.
+
+ $ enonic app install [-u <value>] [-f <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-u, --url`
+|the URL of the application
+
+|`-f, --file`
+|path to an application file (mutually exclusive with url, used if both are present)
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example installing app from URL:
+----
+$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
+----
+.Example installing app from file:
+----
+$ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
+----

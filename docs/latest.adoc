@@ -1,0 +1,9 @@
+== Latest
+
+Checks the latest available version of CLI.
+----
+$ enonic latest
+
+Loading...
+You are using the latest version of Enonic CLI: 1.2.0
+----

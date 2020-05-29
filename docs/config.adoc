@@ -1,0 +1,30 @@
+[#configuration]
+== Configuration
+
+CLI acts as an interface to a running enonic XP instance.
+
+It saves the session after first successful authentication and uses it for all future ones so you don't have to specify credentials every time.
+
+Sessions expire after some time of inactivity or enonic XP restart. When this happens CLI will first search for the auth environment variables and then will prompt for auth token if there are none.
+
+You can customize connection settings with following environment variables:
+
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`ENONIC_CLI_REMOTE_URL`
+|URL of the running enonic XP instance ( Default is `localhost:4848` )
+
+|`ENONIC_CLI_REMOTE_USER`
+|User name for authentication in enonic XP
+
+|`ENONIC_CLI_REMOTE_PASS`
+|User password for authentication in enonic XP
+
+|`ENONIC_CLI_HTTP_PROXY`
+|URL of proxy server to use
+|===
+
+NOTE: Authentication credentials passed to CLI command override environment settings and active session.
