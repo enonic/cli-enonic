@@ -1,10 +1,6 @@
 {
   "menuItems": [
     {
-      "title": "Installation",
-      "document": "install"
-    },
-    {
       "title": "Configuration",
       "document": "config"
     },

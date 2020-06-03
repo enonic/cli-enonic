@@ -8,3 +8,5 @@
 
 The Enonic Command Line Interface (CLI) automates tasks related to development, as well as common management tasks for both local and remote instances of Enonic XP.
 
+include::install.adoc[]
+
