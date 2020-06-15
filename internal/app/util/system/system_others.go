@@ -24,7 +24,7 @@ func setStartAttachedParams(cmd *exec.Cmd) {
 }
 
 func setStartDetachedParams(cmd *exec.Cmd) {
-	cmd.SysProcAttr.Noctty = true
+	cmd.SysProcAttr.Noctty = false
 	cmd.SysProcAttr.Setpgid = true
 }
 
