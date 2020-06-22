@@ -9,6 +9,8 @@ import (
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 var Load = cli.Command{
@@ -26,6 +28,10 @@ var Load = cli.Command{
 		cli.BoolFlag{
 			Name:  "upgrade",
 			Usage: "Upgrade the dump if necessary (default is false)",
+		},
+		cli.BoolFlag{
+			Name:  "archive",
+			Usage: "Load dump from archive.",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
@@ -54,8 +60,14 @@ var Load = cli.Command{
 
 func createLoadRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
+	normalizedName, isZip := normalizeName(name)
 	params := map[string]interface{}{
-		"name": name,
+		"name": normalizedName,
+	}
+
+	if archive := c.Bool("archive") || isZip; archive {
+		// force archive param if zip is detected
+		params["archive"] = archive
 	}
 
 	if upgrade := c.Bool("upgrade"); upgrade {
@@ -66,10 +78,22 @@ func createLoadRequest(c *cli.Context, name string) *http.Request {
 	return common.CreateRequest(c, "POST", "system/load", body)
 }
 
+func normalizeName(name string) (string, bool) {
+	isZip := filepath.Ext(name) == ".zip"
+	var normalName string
+	if isZip {
+		normalName = strings.TrimSuffix(name, ".zip")
+	} else {
+		normalName = name
+	}
+
+	return normalName, isZip
+}
+
 type LoadDumpResponse struct {
 	Repositories []struct {
 		Repository string `json:repository`
-		Versions struct {
+		Versions   struct {
 			Errors []struct {
 				message string `json:message`
 			} `json:errors`
@@ -78,7 +102,7 @@ type LoadDumpResponse struct {
 		Branches []struct {
 			Branch     string `json:branch`
 			Successful int64  `json:successful`
-			Errors []struct {
+			Errors     []struct {
 				message string `json:message`
 			} `json:errors`
 		} `json:branches`
