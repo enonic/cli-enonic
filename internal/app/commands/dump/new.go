@@ -31,6 +31,10 @@ var Create = cli.Command{
 			Name:  "max-versions",
 			Usage: "Max number of versions to dump in addition to current version.",
 		},
+		cli.BoolFlag{
+			Name:  "archive",
+			Usage: "Archive created dump.",
+		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
 
@@ -61,6 +65,9 @@ func createNewRequest(c *cli.Context, name string) *http.Request {
 
 	params["includeVersions"] = !c.Bool("skip-versions")
 
+	if archive := c.Bool("archive"); archive {
+		params["archive"] = archive
+	}
 	if maxAge := c.String("max-version-age"); maxAge != "" {
 		params["maxAge"] = maxAge
 	}
