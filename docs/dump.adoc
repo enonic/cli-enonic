@@ -44,6 +44,9 @@ Options:
 |`--max-versions`
 |max number of versions to dump in addition to current version
 
+|`--archive`
+|outputs dump output to an archive (%name%.zip) file (default is false)
+
 |`-a, --auth`
 |authentication token for basic authentication (user:password).
 |===
@@ -123,6 +126,9 @@ Options:
 
 |`--upgrade`
 |upgrade the dump if necessary (default is false)
+
+|`--archive`
+|loads dump form an archive (%name%.zip) file (default is false)
 
 |`-a, --auth`
 |authentication token for basic authentication (user:password)
