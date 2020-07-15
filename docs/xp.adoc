@@ -1,0 +1,682 @@
+= XP specific commands
+
+The following commands are used when communicating directly with an Enonic XP instance. 
+For these commands to work, the CLI must have access to the https://developer.enonic.com/docs/xp/stable/runtime/management[management API] of your XP instance.
+
+
+== Authentication
+
+Enonic CLI communicates with XP's management API which require credentials. Also, for some networks
+To avoid specifying parameters for each command, we recommend using environment variables instead:
+
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`ENONIC_CLI_REMOTE_URL`
+|URL of the running enonic XP instance ( Default is `localhost:4848` )
+
+|`ENONIC_CLI_REMOTE_USER`
+|User name for authentication in enonic XP
+
+|`ENONIC_CLI_REMOTE_PASS`
+|User password for authentication in enonic XP
+|===
+
+NOTE: Credentials passed to CLI via command line overrides the environment variables.
+
+== Proxy 
+
+For some networks, you may be required to use a proxy. Specify the following environment variable to route your traffic through the proxy.
+
+[cols="1,3", options="header"]
+|===
+|`ENONIC_CLI_HTTP_PROXY`
+|URL of proxy server to use
+|===
+
+
+== Snapshot command
+
+List of commands for manipulating repository snapshots can be seen by typing:
+
+----
+$ enonic snapshot
+
+Create and restore snapshots
+
+USAGE:
+   Enonic CLI snapshot command [command options] [arguments...]
+
+COMMANDS:
+     list, ls     Returns a list of existing snapshots with name and status.
+     create       Stores a snapshot of the current state of the repository.
+     restore      Restores a snapshot of a previous state of the repository.
+     delete, del  Deletes snapshots, either before a given timestamp or by name.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+WARNING: For a clustered installation, the snapshot-location must be on a shared file-system.
+
+ $ enonic snapshot create [-r <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+
+|`-r, --repo`
+|the name of the repository to snapshot.
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example creating new snapshot from 'cms-repo':
+----
+$ enonic snapshot create -a su:password -r cms-repo
+----
+
+=== List
+
+List all the snapshots for the installation. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+ $ enonic snapshot ls
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+=== Restore command
+
+Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+
+ $ enonic snapshot restore [--snap <value>] [--repo <value>] [--a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--snap, --snapshot`
+|snapshot name to restore
+
+|`-r, --repo`
+|the name of the repository to restore
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+=== Delete
+
+Deletes a snapshot by name or date:
+
+ $ enonic snapshot delete [-before <value>] [--snap <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-b, --before`
+|_"2 Jan 06"_ formatted date to delete snapshots up to
+
+|`--snap, --snapshot`
+|snapshot name to delete
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+
+== Dump command
+
+List of command for manipulating all repositories can be seen by typing:
+
+----
+$ enonic dump
+
+Dump and load complete repositories
+
+USAGE:
+   Enonic CLI dump command [command options] [arguments...]
+
+COMMANDS:
+     create       Export data from every repository.
+     upgrade, up  Upgrade a dump.
+     load         Import data from a dump.
+     list, ls     List available dumps
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Export data from every repository. The result will be stored in the `$XP_HOME/data/dump` directory.
+
+ $ enonic dump create [-d <value>] [--skip-versions <value>] [--max-version-age <value>] [--max-versions <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-d`
+|dump name
+
+|`--skip-versions`
+|don't dump version-history, only current versions included
+
+|`--max-version-age`
+|max age of versions to include, in days, in addition to current version
+
+|`--max-versions`
+|max number of versions to dump in addition to current version
+
+|`--archive`
+|outputs dump output to an archive (%name%.zip) file (default is false)
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example creating new dump named 'myDump':
+----
+$ enonic dump create -a su:password -d myDump
+----
+
+=== Upgrade
+
+Upgrade a data dump from a previous version to the current version. The output of the upgrade will be placed alongside the dump that is being upgraded and will have the name `<dump-name>_upgraded_<new-version>`.
+
+NOTE: The current version XP installation must be running with the upgraded app deployed.
+
+ $ enonic dump upgrade [-d <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-d`
+|dump name
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example upgrading dump named 'myDump' to current version:
+----
+$ enonic dump upgrade -a su:password -d myDump
+----
+
+=== List
+
+Lists all the dumps
+
+ $ enonic dump ls
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password).
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+=== Load
+
+Load data from a named system dump into Enonic XP. The dump read has to be stored in the `$XP_HOME/data/dump` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on system dump/load.
+
+WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
+
+ $ enonic dump load [--d <value>] [-f] [--upgrade] [--a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-d`
+|dump name to load
+
+|`-f, --force`
+|assume “Yes” as answer to all prompts and run non-interactively
+
+|`--upgrade`
+|upgrade the dump if necessary (default is false)
+
+|`--archive`
+|loads dump form an archive (%name%.zip) file (default is false)
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password)
+
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:
+----
+$ enonic dump load -a su:password --na newSu:newPassword -d newDump -f --upgrade
+----
+
+
+== Export command
+
+Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+
+WARNING: Exporting content will not include the version history of the content, just the current version.
+
+To list available configuration options, type:
+
+----
+$ enonic export -h
+
+Export data from a given repository, branch and content path.
+
+USAGE:
+   enonic export [command options] [arguments...]
+
+OPTIONS:
+   -t value                Target name to save export.
+   --path value            Path of data to export. Format: <repo-name>:<branch-name>:<node-path> e.g. 'cms-repo:draft:/'
+   --skip-ids              Flag to skip ids in data when exporting.
+   --skip-versions         Flag to skip versions in data when exporting.
+   --dry                   Show the result without making actual changes.
+   --auth value, -a value  Authentication token for basic authentication (user:password)
+----
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:
+----
+$ enonic export -a su:password -t myExport --path cms-repo:draft:/some-content
+----
+
+
+== Import command
+
+Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the `$XP_HOME/data/export` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+
+To list available configuration options, type:
+
+----
+$ enonic import -h
+
+  Import data from a named export.
+
+  USAGE:
+     enonic import [command options] [arguments...]
+
+  OPTIONS:
+     -t value                A named export to import.
+     --path value            Target path for import. Format: <repo-name>:<branch-name>:<node-path> e.g. 'cms-repo:draft:/'
+     --xsl-source value      Path to xsl file (relative to <XP_HOME>/data/export) for applying transformations to node.xml before importing.
+     --xsl-param value       Parameters to pass to the XSL transformations before importing nodes. Format: <parameter-name>=<parameter-value> e.g. 'applicationId=com.enonic.myapp'
+     --skip-ids              Flag to skips ids when importing
+     --skip-permissions      Flag to skips permissions when importing
+     --dry                   Show the result without making actual changes.
+     --auth value, -a value  Authentication token for basic authentication (user:password)
+----
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example:
+----
+$ enonic import -a su:password -t myExport --path cms-repo:draft:/some-content
+----
+
+[TIP]
+====
+An XSL file and a set of name=value parameters can be optionally passed for applying transformations to each node.xml file, before importing it.
+
+This option could for example be used for renaming types or fields. The .xsl file must be located in the `$XP_HOME/data/export` directory.
+====
+
+
+== App command
+
+Commands to install applications to the running enonic XP instance. Currently only one command is available here:
+
+----
+$ enonic app
+
+Install, stop and start applications
+
+USAGE:
+   Enonic CLI app command [command options] [arguments...]
+
+COMMANDS:
+     install, i  Install an application from URL or file
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Install
+
+Installs an application on all nodes.
+
+ $ enonic app install [-u <value>] [-f <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-u, --url`
+|the URL of the application
+
+|`-f, --file`
+|path to an application file (mutually exclusive with url, used if both are present)
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example installing app from URL:
+----
+$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
+----
+.Example installing app from file:
+----
+$ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
+----
+
+
+== Repo command
+
+Commands for configuring and managing repositories. Full list is available by typing:
+----
+$ enonic repo
+
+Tune and manage repositories
+
+USAGE:
+   Enonic CLI repo command [command options] [arguments...]
+
+COMMANDS:
+     reindex   Reindex content in search indices for the given repository and branches.
+     readonly  Toggle read-only mode for server or single repository
+     replicas  Set the number of replicas in the cluster.
+     list, ls  List available repos
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Reindex
+
+Reindex the content in the search indices for the given repository and branches. This is usually required after upgrades, and may be useful in many other situation.
+
+ $ enonic repo reindex [--b <value, value...>] [-r <value>] [-i] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-b`
+|a comma-separated list of branches to be reindexed
+
+|`-r`
+|the name of the repository to reindex
+
+|`-i`
+|if true, the indices will be deleted before recreated
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:
+----
+$ enonic repo reindex -a su:password -b draft,master -i -r cms-repo
+----
+
+=== Readonly
+
+Toggle read-only mode. In read-only mode, no changes can be made on the server, or a single repo if specified
+
+ $ enonic repo readonly [readOnly] [-r <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`readOnly`
+|boolean value to set
+
+|`-r`
+|single repository to toggle read-only mode for
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example setting 'cms-repo' repository to read-only mode:
+----
+$ enonic repo readonly true -a su:password -r cms-repo
+----
+
+=== Replicas
+
+Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: https://xp.readthedocs.io/en/stable/operations/clustering.html#replica-setup[Replica setup].
+
+ $ enonic repo replicas [replicasNum] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`replicasNum`
+|whole number between 1 and 99 to set
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example setting number of replicas to 3:
+----
+$ enonic repo replicas 3 -a su:password
+----
+
+=== List
+
+List available repositories.
+
+ $ enonic repo list [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example listing repositories:
+----
+$ enonic repo list -a su:password
+----
+
+
+
+== Cms command
+
+Content metadata commands. Currently only one command present here:
+
+----
+$ enonic cms
+
+CMS commands
+
+USAGE:
+   Enonic CLI cms command [command options] [arguments...]
+
+COMMANDS:
+     reprocess  Reprocesses content in the repository.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Reprocess
+
+Reprocesses content in the repository and *regenerates metadata for the media attachments*. Only content of a media type (super-type = _base:media_) are processed.
+
+Unless the `–skip-children` flag is specified, it processes all descendants of the specified content path.
+
+NOTE: This command should be used after migrating content from Enonic CMS using the cms2xp tool.
+
+ $ enonic cms reprocess [--path <value>] [--skip-children] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--path`
+|target content path to be reprocessed. Format: `<branch-name>:<content-path>`. e.g `draft:/`
+
+|`--skip-children`
+|flag to skip processing of content children
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example reprocessing media in branch 'draft' and content path '/some-content':
+----
+$ enonic reprocess -a su:password -s draft:/some-content
+----
+
+
+
+
+== System command
+
+System tasks show info about currently running enonic XP instance. Currently there is only one command as can be seen by running:
+
+----
+$ enonic system
+
+System commands
+
+USAGE:
+   Enonic CLI system command [command options] [arguments...]
+
+COMMANDS:
+     info, i  XP distribution info
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Info
+
+Shows info about currently running enonic XP instance.
+----
+$ enonic system info
+
+{
+    "Version": "7.2.0",
+    "Installation": "demo",
+    "RunMode": "PROD",
+    "Build": {
+        "Hash": "39d4b215fd2009d7ba65e07efc54ebad50638741",
+        "ShortHash": "39d4b21",
+        "Branch": "master",
+        "Timestamp": "2019-12-19T15:18:13Z"
+    }
+}
+----
+
+
+== Vacuum command
+
+Removes unused data from storage.
+
+Working with the current running sandbox, the vacuum command will clean up the version history and the index segments that are not in use.
+To also clean up binary files and data, add the `-b` option.
+
+To list available configuration options, type:
+
+----
+$ enonic vacuum -h
+
+  Removes old version history and segments from content storage.
+
+  USAGE:
+     enonic vacuum [command options] [arguments...]
+
+  OPTIONS:
+     --blob, -b              Also removes unused blobs
+     --auth value, -a value  Authentication token for basic authentication (user:password)
+----
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example
+----
+$ enonic vacuum -b
+----

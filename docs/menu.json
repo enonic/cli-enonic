@@ -1,60 +1,20 @@
 {
   "menuItems": [
     {
-      "title": "Configuration",
-      "document": "config"
+      "title": "Installation",
+      "document": "install"
     },
     {
-      "title": "Getting Started",
-      "document": "started"
+      "title": "Usage",
+      "document": "start"
     },
     {
-      "title": "Sandbox Commands",
-      "document": "sandbox"
-    },
-    {
-      "title": "Project Commands",
+      "title": "Project commands",
       "document": "project"
     },
     {
-      "title": "Snapshot Commands",
-      "document": "snapshot"
-    },
-    {
-      "title": "Dump Commands",
-      "document": "dump"
-    },
-    {
-      "title": "Export Command",
-      "document": "export"
-    },
-    {
-      "title": "Import Command",
-      "document": "import"
-    },
-    {
-      "title": "Vacuum Command",
-      "document": "Vacuum"
-    },
-    {
-      "title": "Application Commands",
-      "document": "app"
-    },
-    {
-      "title": "CMS Commands",
-      "document": "cms"
-    },
-    {
-      "title": "Repository Commands",
-      "document": "repo"
-    },
-    {
-      "title": "System Commands",
-      "document": "system"
-    },
-    {
-      "title": "Latest Command",
-      "document": "latest"
+      "title": "XP commands",
+      "document": "xp"
     }
   ]
 }

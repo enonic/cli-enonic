@@ -1,12 +1,13 @@
-== Getting started
-
-NOTE: Enonic XP should be started and running to use CLI.
+= Getting started with Enonic CLI
 
 Once installed, the CLI includes standard CLI help functions for listing available commands and options.
 To get a list of commands, simply type the following in your terminal:
-----
-$ enonic
 
+   enonic
+
+The feedback will contain available commands and options:
+
+----
 Enonic CLI v.1.1.0
 Manage XP instances, home folders and projects
 
@@ -36,6 +37,7 @@ GLOBAL OPTIONS:
 ----
 
 Most of the top-level commands contain sub-commands that can be printed out by typing the command name:
+
 ----
 $ enonic snapshot
 

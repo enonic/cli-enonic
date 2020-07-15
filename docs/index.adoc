@@ -1,11 +1,15 @@
-= Enonic Command Line Interface
-:toc: macro
-:toc: right
-:toclevels: 4
+= Enonic CLI documentation
 :sourcedir: ../javascript
 :imagesdir: images
 
-The Enonic Command Line Interface (CLI) automates tasks related to development, as well as common management tasks for both local and remote instances of Enonic XP.
+The Enonic Command Line Interface (CLI) automates tasks related to software development tasks, as well as common management tasks for both local and remote instances of Enonic XP.
 
-include::install.adoc[]
+== Overview
+
+Check out the following sections of the documentation to get started:
+
+* <<install#, Installing or upgrading Enonic CLI>>
+* <<usage#, Get familiar with the CLI basics>>
+* <<project#, Commands for software developers>>
+* <<xp#, Managing XP instances>>
 
