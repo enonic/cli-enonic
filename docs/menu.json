@@ -6,14 +6,14 @@
     },
     {
       "title": "Usage",
-      "document": "start"
+      "document": "usage"
     },
     {
-      "title": "Project commands",
-      "document": "project"
+      "title": "SDK and development",
+      "document": "dev"
     },
     {
-      "title": "XP commands",
+      "title": "XP management",
       "document": "xp"
     }
   ]

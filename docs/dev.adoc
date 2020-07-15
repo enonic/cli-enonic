@@ -1,11 +1,10 @@
-= Project commands
+= Development commands
+
 By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
 There are two main commands available to assist developers with setting up and managing projects:
 
 
-== Project command
-
-By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
+== Project
 Projects are commonly hosted in a Git repo and need to follow a set of principles to work with Enonic XP.
 Each project is associated with a <<sandbox-command, sandbox>> to which it will be deployed.
 
@@ -230,7 +229,7 @@ If you are an expert user loving your shell you can export project `JAVA_HOME` a
 WARNING: Unlike `enonic project shell` command, this one will modify your _current_ shell environment varialbes. Shell restart is needed to undo the changes.
 
 [[sandbox-command]]
-== Sandbox command
+== Sandbox
 
 Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
 Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.

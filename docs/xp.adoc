@@ -1,13 +1,14 @@
-= XP specific commands
+= XP management commands
 
 The following commands are used when communicating directly with an Enonic XP instance. 
 For these commands to work, the CLI must have access to the https://developer.enonic.com/docs/xp/stable/runtime/management[management API] of your XP instance.
 
 
-== Authentication
+== Environment variables
 
-Enonic CLI communicates with XP's management API which require credentials. Also, for some networks
-To avoid specifying parameters for each command, we recommend using environment variables instead:
+Enonic CLI communicates with XP's management API which require both endpoint details and credentials to be defined. These parameters may be specified directly via command line, but it is recommended to specify these as environment variables instead.
+
+Use the following environment variables in your terminal to simplify the communication with XP:
 
 [cols="1,3", options="header"]
 |===
@@ -22,22 +23,16 @@ To avoid specifying parameters for each command, we recommend using environment 
 
 |`ENONIC_CLI_REMOTE_PASS`
 |User password for authentication in enonic XP
-|===
 
-NOTE: Credentials passed to CLI via command line overrides the environment variables.
-
-== Proxy 
-
-For some networks, you may be required to use a proxy. Specify the following environment variable to route your traffic through the proxy.
-
-[cols="1,3", options="header"]
-|===
 |`ENONIC_CLI_HTTP_PROXY`
 |URL of proxy server to use
 |===
 
+NOTE: Credentials passed via command line overrides the environment variables.
 
-== Snapshot command
+
+
+== Snapshot
 
 List of commands for manipulating repository snapshots can be seen by typing:
 
@@ -105,7 +100,7 @@ Options:
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
-=== Restore command
+=== Restore
 
 Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
 
@@ -154,7 +149,7 @@ Options:
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 
-== Dump command
+== Dump
 
 List of command for manipulating all repositories can be seen by typing:
 
@@ -299,7 +294,7 @@ $ enonic dump load -a su:password --na newSu:newPassword -d newDump -f --upgrade
 ----
 
 
-== Export command
+== Export
 
 Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
 
@@ -332,7 +327,7 @@ $ enonic export -a su:password -t myExport --path cms-repo:draft:/some-content
 ----
 
 
-== Import command
+== Import
 
 Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the `$XP_HOME/data/export` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
 
@@ -372,7 +367,7 @@ This option could for example be used for renaming types or fields. The .xsl fil
 ====
 
 
-== App command
+== App
 
 Commands to install applications to the running enonic XP instance. Currently only one command is available here:
 
@@ -425,7 +420,7 @@ $ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/c
 ----
 
 
-== Repo command
+== Repo
 
 Commands for configuring and managing repositories. Full list is available by typing:
 ----
@@ -558,7 +553,7 @@ $ enonic repo list -a su:password
 
 
 
-== Cms command
+== Cms
 
 Content metadata commands. Currently only one command present here:
 
@@ -613,7 +608,7 @@ $ enonic reprocess -a su:password -s draft:/some-content
 
 
 
-== System command
+== System
 
 System tasks show info about currently running enonic XP instance. Currently there is only one command as can be seen by running:
 
@@ -652,7 +647,7 @@ $ enonic system info
 ----
 
 
-== Vacuum command
+== Vacuum
 
 Removes unused data from storage.
 
