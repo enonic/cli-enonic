@@ -1,4 +1,4 @@
-= XP management commands
+= XP commands
 
 The following commands are used when communicating directly with an Enonic XP instance. 
 For these commands to work, the CLI must have access to the https://developer.enonic.com/docs/xp/stable/runtime/management[management API] of your XP instance.

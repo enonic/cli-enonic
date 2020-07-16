@@ -9,11 +9,11 @@
       "document": "usage"
     },
     {
-      "title": "SDK and development",
+      "title": "Development commands",
       "document": "dev"
     },
     {
-      "title": "XP management",
+      "title": "XP commands",
       "document": "xp"
     }
   ]
