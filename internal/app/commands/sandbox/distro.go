@@ -30,7 +30,6 @@ const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
 const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "https://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
-const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 
 type VersionResult struct {
 	Version     string `json:version`
@@ -334,12 +333,5 @@ func ensureVersionCorrect(versionStr string, includeUnstable bool) string {
 }
 
 func getDistrosDir() string {
-
-	if util.GetCurrentOs() == "linux" {
-		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
-			return filepath.Join(snapCommon, "dot-enonic", "distributions")
-		}
-	}
-
-	return filepath.Join(util.GetHomeDir(), ".enonic", "distributions")
+	return common.GetInEnonicDir("distributions")
 }

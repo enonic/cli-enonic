@@ -67,7 +67,7 @@ func writeSandboxData(data *Sandbox) {
 }
 
 func getSandboxesDir() string {
-	return filepath.Join(common.GetEnonicDir(), "sandboxes")
+	return common.GetInEnonicDir("sandboxes")
 }
 
 func GetActiveHomePath() string {
@@ -216,7 +216,7 @@ func ensureDirStructure() {
 	home := util.GetHomeDir()
 
 	if util.GetCurrentOs() == "linux" {
-		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
+		if snapCommon, snapExists := os.LookupEnv(common.SNAP_ENV_VAR); snapExists {
 			snapPath := createFolderIfNotExist(snapCommon, "dot-enonic")
 
 			enonicPath := filepath.Join(home, ".enonic")

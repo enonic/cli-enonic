@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/briandowns/spinner"
-	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/enonic/cli-enonic/internal/app/util/system"
 	"github.com/mitchellh/go-ps"
@@ -25,14 +24,16 @@ import (
 	"time"
 )
 
-var ENV_XP_HOME = "XP_HOME"
-var ENV_JAVA_HOME = "JAVA_HOME"
-var MARKET_URL = "https://market.enonic.com/api/graphql"
-var SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/master/enonic.json"
-var JSESSIONID = "JSESSIONID"
-var LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
-var LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
-var CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
+const ENV_XP_HOME = "XP_HOME"
+const ENV_JAVA_HOME = "JAVA_HOME"
+const MARKET_URL = "https://market.enonic.com/api/graphql"
+const SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/master/enonic.json"
+const JSESSIONID = "JSESSIONID"
+const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
+const LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
+const CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
+const SNAP_ENV_VAR = "SNAP_USER_COMMON"
+
 var spin *spinner.Spinner
 
 func init() {
@@ -59,8 +60,20 @@ type RuntimeData struct {
 	LatestCheck   time.Time `toml:latestCheck`
 }
 
-func GetEnonicDir() string {
-	return filepath.Join(util.GetHomeDir(), ".enonic")
+func GetInEnonicDir(children ...string) string {
+	var joinArgs []string
+	if util.GetCurrentOs() == "linux" {
+		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
+			joinArgs = []string{snapCommon, "dot-enonic"}
+		}
+	}
+	if joinArgs == nil {
+		joinArgs = []string{util.GetHomeDir(), ".enonic"}
+	}
+	if len(children) > 0 {
+		joinArgs = append(joinArgs, children...)
+	}
+	return filepath.Join(joinArgs...)
 }
 
 func HasProjectData(prjPath string) bool {
@@ -87,8 +100,8 @@ func WriteProjectData(data *ProjectData, prjPath string) {
 }
 
 func ReadRuntimeData() RuntimeData {
-	path := filepath.Join(GetEnonicDir(), ".enonic")
-	file := util.OpenOrCreateDataFile(path, true)
+	enonicPath := GetInEnonicDir(".enonic")
+	file := util.OpenOrCreateDataFile(enonicPath, true)
 	defer file.Close()
 
 	var data RuntimeData
@@ -121,8 +134,8 @@ func VerifyRuntimeData(rData *RuntimeData) bool {
 }
 
 func WriteRuntimeData(data RuntimeData) {
-	path := filepath.Join(GetEnonicDir(), ".enonic")
-	file := util.OpenOrCreateDataFile(path, false)
+	enonicPath := GetInEnonicDir(".enonic")
+	file := util.OpenOrCreateDataFile(enonicPath, false)
 	defer file.Close()
 
 	util.EncodeTomlFile(file, data)
@@ -153,7 +166,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 
 	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
 		if auth == "" {
-			activeRemote := remote.GetActiveRemote()
+			activeRemote := util.GetActiveRemote()
 			if activeRemote.User != "" || activeRemote.Pass != "" {
 				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
 			}
@@ -178,7 +191,7 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 		scheme = parsedUrl.Scheme
 		path = parsedUrl.Path
 	} else {
-		activeRemote := remote.GetActiveRemote()
+		activeRemote := util.GetActiveRemote()
 		host = activeRemote.Url.Hostname()
 		port = activeRemote.Url.Port()
 		scheme = activeRemote.Url.Scheme
@@ -228,7 +241,7 @@ func SendRequest(req *http.Request, message string) *http.Response {
 }
 
 func SendRequestCustom(req *http.Request, message string, timeoutMin time.Duration) (*http.Response, error) {
-	activeRemote := remote.GetActiveRemote()
+	activeRemote := util.GetActiveRemote()
 	var client *http.Client
 	if activeRemote.Proxy != nil {
 		client = &http.Client{
@@ -275,7 +288,7 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 
 		var auth string
 		user, pass, _ := res.Request.BasicAuth()
-		activeRemote := remote.GetActiveRemote()
+		activeRemote := util.GetActiveRemote()
 		if user == "" && pass == "" {
 			if activeRemote.User != "" {
 				fmt.Fprintln(os.Stderr, "Using environment defined user and password.")
