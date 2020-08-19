@@ -28,8 +28,8 @@ const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-
 const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
 const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
-const REMOTE_DISTRO_URL = "http://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
-const REMOTE_VERSION_URL = "http://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
+const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
+const REMOTE_VERSION_URL = "https://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
 
 type VersionResult struct {
 	Version     string `json:version`

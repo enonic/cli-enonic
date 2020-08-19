@@ -26,7 +26,7 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 		os.Exit(0)
 	}
 
-	nameRegex, _ := regexp.Compile("^[a-zA-Z0-9_]+$")
+	nameRegex, _ := regexp.Compile("^[a-zA-Z0-9_.]+$")
 
 	return util.PromptUntilTrue(name, func(val *string, ind byte) string {
 
@@ -41,7 +41,7 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 			}
 		} else {
 			if !nameRegex.MatchString(*val) {
-				return fmt.Sprintf("Dump name '%s' is not valid. Use letters, digits and underscore (_) only: ", *val)
+				return fmt.Sprintf("Dump name '%s' is not valid. Use letters, digits, dot (.) or underscore (_) only: ", *val)
 			} else {
 				lowerVal := strings.ToLower(*val)
 				for _, dumpName := range existingDumps {

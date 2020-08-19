@@ -1,0 +1,394 @@
+= Development commands
+
+By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
+There are two main commands available to assist developers with setting up and managing projects:
+
+
+== Project
+Projects are commonly hosted in a Git repo and need to follow a set of principles to work with Enonic XP.
+Each project is associated with a <<sandbox-command, sandbox>> to which it will be deployed.
+
+NOTE: All project commands should be run from the project root folder.
+
+Command list is available by running following command:
+----
+$ enonic project
+
+Manage XP development projects
+
+USAGE:
+   Enonic CLI project command [command options] [arguments...]
+
+COMMANDS:
+     create             Create new project
+     sandbox, sbox, sb  Set the default sandbox associated with the current project
+     clean              Clean current project
+     build              Build current project
+     deploy             Deploy current project to a sandbox
+     install, i         Build current project and install it to Enonic XP
+     shell              Creates a new shell with project environment variables
+     env                Exports project environment variables as string to be used in any third-party shell
+     gradle             Run arbitrary gradle task in current project
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Navigate to the folder you wish to place your project in and run the following command:
+
+ $ enonic project create [name] [-n <value>] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>]
+
+Follow wizard instructions that will set everything up for you.
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|project name. E.g. `com.example.myapp`. Can also be specified using `--name` flag
+
+|`-n, --name`
+|project name. Overrides [name] argument if specified
+
+|`-r, --repo, +
+--repository`
+|repository path. Format: <enonic repo> or <organisation>/<repo> on github or <full repo url>
+
+|`-b, --branch`
+|repository branch to use. `master` is used if none specified
+
+|`-c, --checkout`
+|commit hash to use (mutually exclusive with branch option, used if both are present)
+
+|`-d, --dest, +
+--destination`
+|destination folder name. Defaults to last word of the project name, i.e. `myapp`
+
+|`-v, --ver, --version`
+|version number to assign to new project. Default value `1.0.0-SNAPSHOT`
+|===
+
+TIP: `name`, `repository`, `destination` and `version` params are sufficient to create a project without a wizard allowing it to be used in script files.
+
+.Example creating 'myProject' project in 'myFolder' folder from vanilla starter and setting '1.0.0-SNAPSHOT' version:
+----
+$ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
+----
+
+.Same example but providing name as a flag:
+----
+$ enonic project create -n myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT
+----
+
+[#project-sandbox]
+=== Sandbox
+
+Project create will configure the default sandbox for your project. To change it later run this command inside the project folder:
+
+ $ enonic project sandbox [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+|===
+
+NOTE: If name is not provided or does not exist, you will be asked for it.
+
+.Example setting 'myOtherBox' as default sandbox for current project:
+----
+$ enonic project sandbox myOtherBox
+----
+
+[#project-build]
+=== Build
+
+You can build your project by running following command inside the project folder:
+
+ $ enonic project build
+
+The build command helps you with:
+
+* Compiling code
+* Running tests
+* Creating artifacts (executables)
+
+The build system is based on https://gradle.org/[Gradle] and the https://plugins.gradle.org/plugin/com.enonic.xp.app[XP Gradle plugin].
+
+The "project build" command is an alias for the Gradle Wrapper, which must be located in your project through a file called .gradlew (linux/mac) or gradlew.bat (windows).
+The Gradle Wrapper is by default available with all https://market.enonic.com/starters[Starter Kits on Enonic Market].
+
+NOTE: You may also use the Gradle Wrapper directly by running `./gradlew build` (linux/mac) or `gradlew build` (windows) from your projects directory.
+
+=== Clean
+
+Alias for the `gradlew clean` command
+
+ $ enonic project clean
+
+=== Deploy
+
+As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <<project-sandbox, sandbox>>:
+
+ $ enonic project deploy [name]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--dev`
+|Run enonic XP distribution in development mode
+
+|`name`
+|sandbox name to deploy to (overrides associated sandbox)
+|===
+
+NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
+
+.Example deploying current project to 'otherSandbox' sandbox:
+----
+$ enonic project deploy otherSandbox
+----
+
+=== Gradle
+
+In case you want to run arbitrary gradle task or group multiple ones in one command you can use following command:
+
+ $ enonic project gradle [tasks / flags ...]
+
+The text after `gradle` is sent directly to `gradlew`, without modifications.
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`tasks`
+|a space delimited list of gradle tasks and flags to invoke
+|===
+
+NOTE: The difference between `enonic project gradle clean build deploy` and `gradlew clean build deploy` is that the former uses sandbox and enonic XP distribution configured for the project, while latter uses system wide settings.
+
+.Example running gradle clean build deploy:
+----
+$ enonic project gradle clean build deploy
+----
+
+=== Install
+
+To install current project to running enonic instance
+
+ $ enonic project install
+
+NOTE: Enonic XP instance must be running when executing this command !
+
+Install command does 2 things:
+
+* <<project-build, Builds>> the project
+* Installs built project to a running enonic XP instance using XP API
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|Authentication token for basic authentication in the following format <user:password>
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+=== Shell
+
+This is an advanced command to export project `JAVA_HOME` and `XP_HOME` variables to a new shell. Following command starts a new shell bound to project sandbox and enonic XP distribution
+
+ $ enonic project shell
+
+NOTE: Run `quit` command to exit enonic shell. Parent shell environment is not modified.
+
+=== Env
+
+NOTE: This command is currently not available on Windows.
+
+If you are an expert user loving your shell you can export project `JAVA_HOME` and `XP_HOME` environment variables as strings to be used there
+
+ $ eval $(enonic project env)
+
+WARNING: Unlike `enonic project shell` command, this one will modify your _current_ shell environment varialbes. Shell restart is needed to undo the changes.
+
+[[sandbox-command]]
+== Sandbox
+
+Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
+Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.
+
+The CLI automates setting up, starting, stopping and upgrading sandboxes.
+Sandbox commands list is available by running following command:
+----
+$ enonic sandbox
+
+Manage XP development instances
+
+USAGE:
+   Enonic CLI sandbox command [command options] [arguments...]
+
+COMMANDS:
+     list, ls         List all sandboxes
+     start            Start the sandbox.
+     stop             Stop the sandbox started in detached mode.
+     create           Create a new sandbox.
+     delete, del, rm  Delete a sandbox
+     upgrade, up      Upgrades the distribution version.
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Create
+
+Starts a new sandbox wizard asking for a name and an enonic distribution version:
+
+ $ enonic sandbox create [name] [-v <value>] [-a]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-v, --version`
+|Use specific distro version
+
+|`-a, --all`
+|List all distro versions
+|===
+
+TIP: If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
+
+.Example creating a 'myBox' sandbox using Enonic XP version 7.2.1
+----
+$ enonic sandbox create myBox -v 7.2.1
+----
+
+=== List
+
+Lists all sandboxes previously created by user:
+----
+$ enonic sandbox list
+----
+.Example output:
+----
+$ enonic sandbox ls
+
+* Sandbox1 ( windows-sdk-7.2.1 )
+  Sandbox2 ( windows-sdk-7.2.0 )
+  Sandbox3 ( windows-sdk-7.0.3 )
+  Sandbox4 ( windows-sdk-7.2.1 )
+----
+NOTE: Asterisk marks currently running sandbox
+
+=== Start
+
+Starts a sandbox and ensures that only one is started at a time:
+
+ $ enonic sandbox start [name] [-d]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`--dev`
+|Run enonic XP distribution in development mode
+
+|`-d, --detach`
+|flag to start sandbox in detached mode (background process)
+|===
+
+.Example starting 'myBox' sandbox in a dev mode:
+----
+$ enonic sandbox start myBox --dev
+----
+
+=== Stop
+
+Stops a running sandbox:
+
+ $ enonic sandbox stop
+
+NOTE: only sandboxes started with CLI can be stopped using this command.
+
+.Example stopping sandbox:
+----
+$ enonic sandbox stop
+----
+
+=== Upgrade
+
+Upgrades enonic distribution used for a sandbox:
+
+ $ enonic sandbox upgrade [name] [-v <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-v, --version`
+|enonic distribution version
+|===
+
+NOTE: Downgrades are not permitted.
+
+.Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':
+----
+$ enonic sandbox upgrade myBox -v 7.2.1
+----
+
+=== Delete
+
+Deletes a sandbox:
+
+ $ enonic sandbox delete [name] [-f]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-f, --force`
+|assume “Yes” as answer to all prompts and run non-interactively
+|===
+WARNING: All data that may have been created in this sandbox will be deleted.
+
+.Example deleting 'myBox' sandbox:
+----
+$ enonic sandbox delete myBox -f
+----

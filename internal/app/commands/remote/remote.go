@@ -117,8 +117,8 @@ func GetActiveRemote() *RemoteData {
 }
 
 func parseUrl(urlString string, defaultUrl string) *MarshalledUrl {
-	if urlString == "" {
-		return nil
+	if strings.TrimSpace(urlString) == "" {
+		urlString = defaultUrl
 	} else if strings.Index(urlString, "http") != 0 {
 		urlString = "http://" + urlString
 	}

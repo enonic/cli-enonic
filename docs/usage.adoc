@@ -1,0 +1,94 @@
+= Getting started with Enonic CLI
+
+Once installed, the CLI includes standard CLI help functions for listing available commands and options.
+To get a list of commands, simply type the following in your terminal:
+
+   enonic
+
+The feedback will contain available commands and options:
+
+----
+Enonic CLI v.1.1.0
+Manage XP instances, home folders and projects
+
+USAGE:
+   enonic [global options] command [command options] [arguments...]
+
+COMMANDS:
+     snapshot  Create and restore snapshots
+     dump      Dump and load complete repositories
+     export    Export data from a given repository, branch and content path.
+     import    Import data from a named export.
+     app       Install, stop and start applications
+     repo      Tune and manage repositories
+     cms       CMS commands
+     system    System commands
+     latest    Check for latest version
+     vacuum    Removes unused blobs and binaries from blobstore
+     help, h   Shows a list of commands or help for one command
+
+PROJECT COMMANDS:
+     sandbox  Manage XP development instances
+     project  Manage XP development projects
+
+GLOBAL OPTIONS:
+   --help, -h     show help
+   --version, -v  print the version
+----
+
+Most of the top-level commands contain sub-commands that can be printed out by typing the command name:
+
+----
+$ enonic snapshot
+
+Create and restore snapshots
+
+USAGE:
+   Enonic CLI snapshot command [command options] [arguments...]
+
+COMMANDS:
+     list, ls     Returns a list of existing snapshots with name and status.
+     create       Stores a snapshot of the current state of the repository.
+     restore      Restores a snapshot of a previous state of the repository.
+     delete, del  Deletes snapshots, either before a given timestamp or by name.
+
+OPTIONS:
+   --help, -h  show help
+----
+NOTE: some commands have aliases for convenience like `ls` for `list`
+
+To execute a sub-command you need to type full path to that command:
+----
+$ enonic snapshot list
+
+Loading snapshots...Done
+{
+    "Results": [
+        {
+            "Name": "2019-04-05t11-31-26.184z",
+            "Reason": "",
+            "State": "SUCCESS",
+            "Timestamp": "2019-04-05T11:31:26.47Z",
+            "Indices": [
+                "search-com.enonic.cms.default",
+                "storage-com.enonic.cms.default",
+                "search-system-repo",
+                "storage-system-repo"
+            ]
+        }
+    ]
+}
+----
+
+To get help for any command at any level type its name followed by `-h` or `--help`:
+----
+$ enonic snapshot list -h
+
+Returns a list of existing snapshots with name and status.
+
+USAGE:
+   Enonic CLI snapshot list [command options] [arguments...]
+
+OPTIONS:
+   --auth value, -a value  Authentication token for basic authentication (user:password)
+----

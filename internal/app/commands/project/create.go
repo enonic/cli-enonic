@@ -155,6 +155,8 @@ var Create = cli.Command{
 			}
 		}
 
+		fmt.Printf("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\ncd %s\nenonic project deploy\n\n", dest)
+
 		return nil
 	},
 }

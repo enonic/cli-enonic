@@ -46,7 +46,7 @@ var ReadOnly = cli.Command{
 func createReadOnlyRequest(c *cli.Context, readOnly bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
-		"requireClosedIndex": true,
+		"requireClosedIndex": false,
 		"settings": map[string]interface{}{
 			"index": map[string]interface{}{
 				"blocks.write": readOnly,

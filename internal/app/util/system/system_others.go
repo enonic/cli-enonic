@@ -7,6 +7,8 @@ import (
 	"syscall"
 )
 
+const detachedProcName = ""
+
 func prepareCmd(app string, args []string) *exec.Cmd {
 	cmd := exec.Command(app, args...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
@@ -22,7 +24,7 @@ func setStartAttachedParams(cmd *exec.Cmd) {
 }
 
 func setStartDetachedParams(cmd *exec.Cmd) {
-	cmd.SysProcAttr.Noctty = true
+	cmd.SysProcAttr.Noctty = false
 	cmd.SysProcAttr.Setpgid = true
 }
 
