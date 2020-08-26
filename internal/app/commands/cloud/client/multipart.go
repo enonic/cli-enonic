@@ -12,36 +12,55 @@ import (
 	"github.com/enonic/cli-enonic/internal/app/commands/cloud/util"
 )
 
+type UploadAppResponse struct {
+	Data JarInfo `json:"data"`
+}
+
+type JarInfo struct {
+	ID       string `json:"id"`
+	Key      string `json:"key"`
+	Name     string `json:"name"`
+	Version  string `json:"version"`
+	Icon     string `json:"icon"`
+	IconType string `json:"iconType"`
+}
+
 // UploadApp uses deploy key to upload an app to the Cloud API
-func UploadApp(ctx context.Context, deployKey string, jar string, pbMessage string) error {
+func UploadApp(ctx context.Context, solutionID string, jar string, pbMessage string) (string, error) {
 	// Open jar
 	jarR, err := os.Open(jar)
 	if err != nil {
-		return fmt.Errorf("could not open file '%s': %v", jar, err)
+		return "", fmt.Errorf("could not open file '%s': %v", jar, err)
 	}
 	defer jarR.Close()
 
 	// Get Jar info
 	fi, err := jarR.Stat()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Create multipart body
 	values := map[string]io.Reader{
-		"token": strings.NewReader(deployKey),
-		"file":  jarR,
+		"solutionId": strings.NewReader(solutionID),
+		"file":       jarR,
 	}
 	contentType, reader, processFunc := createMultipartBody(values)
 
 	extraBytes := 300 // This is set to the progress bar ends at 100%
 
-	pb := util.CreateProgressBar(fi.Size()+int64(len(deployKey)+extraBytes), pbMessage)
+	pb := util.CreateProgressBar(fi.Size()+int64(len(solutionID)+extraBytes), pbMessage)
 	pb.Start()
 	defer pb.Finish()
 
 	// Do request
-	return postMultiPart(ctx, appUploadURL, contentType, pb.NewProxyReader(reader), processFunc)
+	res := new(UploadAppResponse)
+	err = postMultiPart(ctx, appUploadURL, contentType, pb.NewProxyReader(reader), processFunc, &res)
+	if err != nil {
+		return "", err
+	}
+
+	return res.Data.ID, nil
 }
 
 // Create a multipart body for http request. This function returns the content type header, byte reader and a function to
@@ -83,7 +102,7 @@ func createMultipartBody(values map[string]io.Reader) (string, io.Reader, func()
 }
 
 // This function executes a multipart request
-func postMultiPart(ctx context.Context, url string, contentType string, reader io.Reader, processFunc func() error) error {
+func postMultiPart(ctx context.Context, url string, contentType string, reader io.Reader, processFunc func() error, res interface{}) error {
 	// Create request
 	req, err := http.NewRequest("POST", url, reader)
 	if err != nil {
@@ -97,7 +116,7 @@ func postMultiPart(ctx context.Context, url string, contentType string, reader i
 	}()
 
 	// Do request
-	err = doHTTPRequest(ctx, req)
+	err = doHTTPRequest(ctx, req, res)
 
 	// Return errors if present
 	if err != nil {

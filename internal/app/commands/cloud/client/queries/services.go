@@ -15,6 +15,7 @@ func GetServices(ctx context.Context) (*GetServicesData, error) {
 			clouds {
 				name
 				solutions {
+					id
 					name
 					environments {
 						name
@@ -48,6 +49,7 @@ type Cloud struct {
 }
 
 type Solution struct {
+	ID           string        `json:"id"`
 	Name         string        `json:"name"`
 	Environments []Environment `json:"environments"`
 }

@@ -1,8 +1,11 @@
 package client
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	auth "github.com/enonic/cli-enonic/internal/app/commands/cloud/auth"
@@ -28,7 +31,7 @@ func createGraphQLClient() *graphql.Client {
 	return client
 }
 
-func doHTTPRequest(ctx context.Context, req *http.Request) error {
+func doHTTPRequest(ctx context.Context, req *http.Request, res interface{}) error {
 	// Set access token in request
 	accessToken, err := auth.GetAccessToken()
 	if err != nil {
@@ -38,14 +41,24 @@ func doHTTPRequest(ctx context.Context, req *http.Request) error {
 
 	// Do request
 	client := &http.Client{}
-	res, err := client.Do(req.WithContext(ctx))
+	actualRes, err := client.Do(req.WithContext(ctx))
 	if err != nil {
 		return err
 	}
 
 	// Check the response
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad response: %s", res.Status)
+	if actualRes.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad response: %s", actualRes.Status)
+	}
+
+	defer actualRes.Body.Close()
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, actualRes.Body); err != nil {
+		return err
+	}
+
+	if err := json.NewDecoder(&buf).Decode(&res); err != nil {
+		return err
 	}
 
 	return nil
