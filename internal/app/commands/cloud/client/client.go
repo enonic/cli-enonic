@@ -9,11 +9,10 @@ import (
 	"net/http"
 
 	auth "github.com/enonic/cli-enonic/internal/app/commands/cloud/auth"
-	"github.com/machinebox/graphql"
 )
 
 // DoGraphQLRequest execute a GraphQL request
-func DoGraphQLRequest(ctx context.Context, req *graphql.Request, res interface{}) error {
+func DoGraphQLRequest(ctx context.Context, req *GQLRequest, res interface{}) error {
 	// Set access token in request
 	accessToken, err := auth.GetAccessToken()
 	if err != nil {
@@ -25,8 +24,8 @@ func DoGraphQLRequest(ctx context.Context, req *graphql.Request, res interface{}
 	return createGraphQLClient().Run(ctx, req, res)
 }
 
-func createGraphQLClient() *graphql.Client {
-	client := graphql.NewClient(graphQLURL)
+func createGraphQLClient() *GQLClient {
+	client := NewGQLClient(graphQLURL)
 	// client.Log = func(s string) { fmt.Println(s) }
 	return client
 }

@@ -4,12 +4,11 @@ import (
 	"context"
 
 	cloudApi "github.com/enonic/cli-enonic/internal/app/commands/cloud/client"
-	"github.com/machinebox/graphql"
 )
 
 // GetServices gets all services for the logged in user
 func GetServices(ctx context.Context) (*GetServicesData, error) {
-	req := graphql.NewRequest(`
+	req := cloudApi.NewGQLRequest(`
 	{
 		account {
 			clouds {

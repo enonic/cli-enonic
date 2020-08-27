@@ -170,7 +170,7 @@ func createDeployContext(target string, deploymentJar string) (*deployContext, e
 	}
 
 	if len(xp7Services) == 0 {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("No eligable service found")
 	}
 
 	var targetContext deployContext
