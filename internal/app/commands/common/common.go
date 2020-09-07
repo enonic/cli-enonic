@@ -345,8 +345,7 @@ func ProduceCheckVersionFunction(appVersion string) func() string {
 
 		rData := ReadRuntimeData()
 
-		if rData.LatestCheck.IsZero() {
-			// this is the first check so set it to now
+		if rData.LatestVersion == "" {
 			rData.LatestCheck = time.Now()
 			rData.LatestVersion = appVersion
 			WriteRuntimeData(rData)

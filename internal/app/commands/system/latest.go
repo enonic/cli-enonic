@@ -24,12 +24,12 @@ var Latest = cli.Command{
 		rData := common.ReadRuntimeData()
 		rData.LatestCheck = time.Now()
 
-		currentVer := semver.MustParse(rData.LatestVersion)
+		currentVer := semver.MustParse(c.App.Version)
 		latestVer := semver.MustParse(result.Version)
 		rData.LatestVersion = result.Version
 
 		if latestVer.Equal(currentVer) || latestVer.LessThan(currentVer) {
-			fmt.Fprintf(os.Stdout, "\nYou are using the latest version of Enonic CLI: %s", c.App.Version)
+			fmt.Fprintf(os.Stdout, "\nYou are using the latest version of Enonic CLI: %s.\n", c.App.Version)
 		} else if latestVer.GreaterThan(currentVer) {
 			fmt.Fprintf(os.Stdout, "\nLocal version: %s.\n", c.App.Version)
 			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(result.Version))
