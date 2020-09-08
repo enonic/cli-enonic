@@ -62,12 +62,12 @@ var Reindex = cli.Command{
 				fmt.Fprintf(os.Stderr, "Reindexed %d node(s)\n", result.NumberReindexed)
 			} else {
 				fmt.Fprintf(os.Stderr, "%d %s\n", enonicErr.Status, enonicErr.Message)
-				os.Exit(0)
+				os.Exit(1)
 			}
 
 		} else if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(0)
+			os.Exit(1)
 
 		} else {
 			status := common.DisplayTaskProgress(taskResult.TaskId, requestLabel, &result)

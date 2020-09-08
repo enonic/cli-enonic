@@ -15,7 +15,7 @@ var Stop = cli.Command{
 		rData := common.ReadRuntimeData()
 		if !common.VerifyRuntimeData(&rData) {
 			fmt.Fprintln(os.Stderr, "No sandbox is currently running.")
-			os.Exit(0)
+			os.Exit(1)
 		}
 		StopSandbox(rData)
 

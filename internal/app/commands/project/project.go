@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"syscall"
 )
 
 func All() []cli.Command {
@@ -48,7 +49,7 @@ func getOsGradlewFile() string {
 func ensureValidProjectFolder(prjPath string) {
 	if _, err := os.Stat(path.Join(prjPath, getOsGradlewFile())); os.IsNotExist(err) {
 		fmt.Fprintln(os.Stderr, "Not a valid project folder")
-		os.Exit(0)
+		os.Exit(1)
 	}
 }
 
@@ -110,5 +111,13 @@ func runGradleTask(projectData *common.ProjectData, message string, tasks ...str
 	cmd.Env = append(cmd.Env, fmt.Sprintf("JAVA_HOME=%s", javaHome))
 	cmd.Env = append(cmd.Env, fmt.Sprintf("XP_HOME=%s", xpHome))
 
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		os.Stderr.WriteString(fmt.Sprintf("\n%s\n", err.Error()))
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus := exitError.Sys().(syscall.WaitStatus)
+			os.Exit(waitStatus.ExitStatus())
+		} else {
+			os.Exit(1)
+		}
+	}
 }

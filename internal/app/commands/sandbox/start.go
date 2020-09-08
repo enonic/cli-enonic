@@ -30,13 +30,13 @@ var Start = cli.Command{
 		if isSandboxRunning {
 			if rData.Running == c.Args().First() {
 				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
-				os.Exit(0)
+				os.Exit(1)
 			} else {
 				AskToStopSandbox(rData)
 			}
 		} else if !util.IsPortAvailable(8080) {
 			fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
-			os.Exit(0)
+			os.Exit(1)
 		}
 
 		var sandbox *Sandbox
@@ -48,7 +48,7 @@ var Start = cli.Command{
 		if sandbox == nil {
 			sandbox, _ = EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
 			if sandbox == nil {
-				os.Exit(0)
+				os.Exit(1)
 			}
 		}
 
@@ -85,7 +85,7 @@ func AskToStopSandbox(rData common.RuntimeData) {
 	if util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", rData.Running), true) {
 		StopSandbox(rData)
 	} else {
-		os.Exit(0)
+		os.Exit(1)
 	}
 }
 

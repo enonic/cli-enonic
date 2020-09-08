@@ -23,7 +23,7 @@ func ensureNameFlag(name string, mustNotExist bool) string {
 	existingDumps := listExistingDumpNames()
 	if len(existingDumps) == 0 && !mustNotExist {
 		fmt.Fprintln(os.Stderr, "No existing dumps found")
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	nameRegex, _ := regexp.Compile("^[a-zA-Z0-9_.]+$")

@@ -314,10 +314,10 @@ func ParseResponse(resp *http.Response, target interface{}) {
 	enonicErr, err := ParseResponseCustom(resp, target)
 	if enonicErr != nil {
 		fmt.Fprintf(os.Stderr, "%d %s\n", enonicErr.Status, enonicErr.Message)
-		os.Exit(0)
+		os.Exit(1)
 	} else if err != nil {
 		fmt.Fprint(os.Stderr, "Error parsing response ", err)
-		os.Exit(0)
+		os.Exit(1)
 	}
 }
 

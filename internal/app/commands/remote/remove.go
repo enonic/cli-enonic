@@ -17,7 +17,7 @@ var Remove = cli.Command{
 		name := ensureExistingNameArg(c, true)
 		if name == DEFAULT_REMOTE_NAME {
 			fmt.Fprintln(os.Stderr, "Default remote can not be deleted.")
-			os.Exit(0)
+			os.Exit(1)
 		}
 		data := readRemotesData()
 		delete(data.Remotes, name)

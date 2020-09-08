@@ -26,7 +26,7 @@ var Upgrade = cli.Command{
 
 		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:", true, false)
 		if sandbox == nil {
-			os.Exit(0)
+			os.Exit(1)
 		}
 		version := ensureVersionCorrect(c.String("version"), c.Bool("all"))
 		preventVersionDowngrade(sandbox, version)

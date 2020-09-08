@@ -52,7 +52,7 @@ func ensureSnapshotFlag(c *cli.Context) {
 		snapshotList := listSnapshots(c)
 		if len(snapshotList.Results) == 0 {
 			fmt.Fprintln(os.Stderr, "No existing snapshots found")
-			os.Exit(0)
+			os.Exit(1)
 		}
 
 		var name string

@@ -50,7 +50,7 @@ func createNewShellCommand() *exec.Cmd {
 
 	if !util.IsCommandAvailable(cmd.Path) {
 		fmt.Fprintln(os.Stderr, "Shell is not available in your system")
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	cmd.Stderr = os.Stderr

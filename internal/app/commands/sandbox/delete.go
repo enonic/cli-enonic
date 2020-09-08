@@ -21,7 +21,7 @@ var Delete = cli.Command{
 	Action: func(c *cli.Context) error {
 		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to delete:", true, false)
 		if sandbox == nil || !(c.Bool("f") || acceptToDeleteSandbox(sandbox.Name)) {
-			os.Exit(0)
+			os.Exit(1)
 		}
 
 		if rData := common.ReadRuntimeData(); rData.Running == sandbox.Name {

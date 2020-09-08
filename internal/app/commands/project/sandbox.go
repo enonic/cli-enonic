@@ -18,7 +18,7 @@ var Sandbox = cli.Command{
 
 		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true, true)
 		if sandbox == nil {
-			os.Exit(0)
+			os.Exit(1)
 		}
 		common.WriteProjectData(&common.ProjectData{sandbox.Name}, ".")
 
