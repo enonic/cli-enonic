@@ -1,11 +1,21 @@
 package client
 
+import (
+	"os"
+	"strings"
+)
+
+const CLI_CLOUD_API_URL = "ENONIC_CLI_CLOUD_API_URL"
+
 var (
-	api          = "<SET_DURING_BUILD>"
-	graphQLURL   = apiURL("/")
-	appUploadURL = apiURL("/app")
+	graphQLURL   = apiURL("")
+	appUploadURL = apiURL("app")
 )
 
 func apiURL(path string) string {
-	return api + path
+	url := os.Getenv(CLI_CLOUD_API_URL)
+	if strings.HasSuffix(url, "/") {
+		return url + path
+	}
+	return url + "/" + path
 }
