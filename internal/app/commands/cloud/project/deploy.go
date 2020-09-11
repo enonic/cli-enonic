@@ -49,8 +49,8 @@ type deployContext struct {
 // Cli command
 
 var ProjectDeploy = cli.Command{
-	Name:    "deploy",
-	Usage:   "Deploy project to Enonic Cloud",
+	Name:    "install",
+	Usage:   "Install project jar to Enonic Cloud",
 	Aliases: []string{},
 	Flags: []cli.Flag{
 		cli.StringFlag{
