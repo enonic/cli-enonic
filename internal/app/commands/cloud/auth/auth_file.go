@@ -33,7 +33,8 @@ func GetAccessToken() (string, error) {
 	if t.isExpired() {
 		t, err := oAuthRefreshTokens(t)
 		if err != nil {
-			return "", err
+			Logout()
+			return "", fmt.Errorf("failed to refresh tokens, logged out: %v", err)
 		}
 		err = saveTokens(t)
 		if err != nil {
