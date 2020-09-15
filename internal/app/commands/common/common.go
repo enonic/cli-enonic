@@ -81,7 +81,12 @@ func ReadProjectData(prjPath string) *ProjectData {
 }
 
 func ReadProjectDistroVersion(prjPath string) string {
-	return properties.MustLoadFile(filepath.Join(prjPath, "gradle.properties"), properties.UTF8).GetString("xpVersion", "7.0.0")
+	const defaultVer = "7.0.0"
+	if props, _ := properties.LoadFile(filepath.Join(prjPath, "gradle.properties"), properties.UTF8); props != nil {
+		return props.GetString("xpVersion", defaultVer)
+	} else {
+		return defaultVer
+	}
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {
