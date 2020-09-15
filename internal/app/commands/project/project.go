@@ -84,6 +84,8 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *comm
 		sBox = sandbox.ReadSandboxData(projectData.Sandbox)
 	}
 
+	sandbox.EnsureSanboxSupportsProjectVersion(sBox, minDistroVer)
+
 	fmt.Fprint(os.Stderr, "\n")
 	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
 

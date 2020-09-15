@@ -295,6 +295,14 @@ func GetDistroJdkPath(distroName string) string {
 	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs), "jdk")
 }
 
+func EnsureSanboxSupportsProjectVersion(sBox *Sandbox, minDistroVersion *semver.Version) {
+	sandboxDistroVer := semver.MustParse(parseDistroVersion(sBox.Distro, false))
+	if sandboxDistroVer.LessThan(minDistroVersion) {
+		fmt.Fprintf(os.Stderr, "The project requires XP %v or higher. Associated sandbox '%s' uses XP %v.\nUpgrade sandbox XP version with 'enonic sandbox upgrade'\nor set a different project sandbox with 'enonic project sandbox'.\n", minDistroVersion, sBox.Name, sandboxDistroVer)
+		os.Exit(1)
+	}
+}
+
 func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable bool) string {
 	var (
 		version       *semver.Version
