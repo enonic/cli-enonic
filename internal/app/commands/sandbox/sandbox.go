@@ -3,6 +3,7 @@ package sandbox
 import (
 	"fmt"
 	"github.com/AlecAivazis/survey"
+	"github.com/Masterminds/semver"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/otiai10/copy"
@@ -87,7 +88,7 @@ func GetSandboxHomePath(name string) string {
 
 func getSandboxesUsingDistro(distroName string) []*Sandbox {
 	usedBy := make([]*Sandbox, 0)
-	for _, box := range listSandboxes() {
+	for _, box := range listSandboxes("") {
 		if data := ReadSandboxData(box.Name); data.Distro == distroName {
 			usedBy = append(usedBy, box)
 		}
@@ -100,22 +101,26 @@ func deleteSandbox(name string) {
 	util.Warn(err, fmt.Sprintf("Could not delete sandbox '%s' folder: ", name))
 }
 
-func listSandboxes() []*Sandbox {
+func listSandboxes(minDistroVersion string) []*Sandbox {
 	sandboxesDir := getSandboxesDir()
 	files, err := ioutil.ReadDir(sandboxesDir)
 	util.Fatal(err, "Could not list sandboxes: ")
-	return filterSandboxes(files, sandboxesDir)
+	return filterSandboxes(files, sandboxesDir, minDistroVersion)
 }
 
-func filterSandboxes(vs []os.FileInfo, sandboxDir string) []*Sandbox {
+func filterSandboxes(vs []os.FileInfo, sandboxDir, minDistroVersion string) []*Sandbox {
+	minDistroVer, _ := semver.NewVersion(minDistroVersion)
 	vsf := make([]*Sandbox, 0)
 	for _, v := range vs {
 		if !v.IsDir() {
 			continue
 		}
 		if isSandbox(v, sandboxDir) {
-			data := ReadSandboxData(v.Name())
-			vsf = append(vsf, data)
+			sandboxData := ReadSandboxData(v.Name())
+			distroVer, _ := semver.NewVersion(parseDistroVersion(sandboxData.Distro, false))
+			if distroVer == nil || minDistroVer == nil || !distroVer.LessThan(minDistroVer) {
+				vsf = append(vsf, sandboxData)
+			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Warning: '%s' is not a valid sandbox folder.\n", v.Name())
 		}
@@ -145,14 +150,14 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption bool) (*Sandbox, bool) {
-	existingBoxes := listSandboxes()
+func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption bool) (*Sandbox, bool) {
+	existingBoxes := listSandboxes(minDistroVersion)
 
 	if len(existingBoxes) == 0 {
 		if !util.PromptBool(noBoxMessage, true) {
 			return nil, false
 		}
-		newBox := SandboxCreateWizard("", "", false, showSuccessMessage)
+		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage)
 		return newBox, true
 	}
 
@@ -191,7 +196,7 @@ func EnsureSandboxExists(c *cli.Context, noBoxMessage, selectBoxMessage string, 
 	util.Fatal(err, "Select failed: ")
 
 	if name == CREATE_NEW_BOX {
-		newBox := SandboxCreateWizard("", "", false, showSuccessMessage)
+		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage)
 		return newBox, true
 	}
 

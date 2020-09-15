@@ -10,6 +10,7 @@ import (
 	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/enonic/cli-enonic/internal/app/util/system"
+	"github.com/magiconair/properties"
 	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"io"
@@ -77,6 +78,10 @@ func ReadProjectData(prjPath string) *ProjectData {
 	var data ProjectData
 	util.DecodeTomlFile(file, &data)
 	return &data
+}
+
+func ReadProjectDistroVersion(prjPath string) string {
+	return properties.MustLoadFile(filepath.Join(prjPath, "gradle.properties"), properties.UTF8).GetString("xpVersion", "7.*")
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {

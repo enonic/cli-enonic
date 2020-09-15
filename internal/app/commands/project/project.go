@@ -60,10 +60,12 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *comm
 	ensureValidProjectFolder(prjPath)
 
 	projectData := common.ReadProjectData(prjPath)
+	minDistroVersion := common.ReadProjectDistroVersion(prjPath)
+
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "A sandbox is required for your project, select one:", false, true)
+		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one:", false, true)
 		if sBox == nil {
 			return nil
 		}

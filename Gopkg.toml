@@ -55,12 +55,16 @@
 
 [[constraint]]
   name = "github.com/briandowns/spinner"
-  version = "1.4.0"
+version = "1.4.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/pkg/browser"
+branch = "master"
+name = "github.com/pkg/browser"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/mitchellh/go-ps"
+branch = "master"
+name = "github.com/mitchellh/go-ps"
+
+[[constraint]]
+name = "github.com/magiconair/properties"
+version = "1.8.3"

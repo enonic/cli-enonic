@@ -40,13 +40,15 @@ var Start = cli.Command{
 		}
 
 		var sandbox *Sandbox
+		var minDistroVersion string
 		// use configured sandbox if we're in a project folder
 		if c.NArg() == 0 && common.HasProjectData(".") {
 			pData := common.ReadProjectData(".")
+			minDistroVersion = common.ReadProjectDistroVersion(".")
 			sandbox = ReadSandboxData(pData.Sandbox)
 		}
 		if sandbox == nil {
-			sandbox, _ = EnsureSandboxExists(c, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
+			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
 			if sandbox == nil {
 				os.Exit(1)
 			}

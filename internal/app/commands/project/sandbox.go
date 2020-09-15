@@ -16,7 +16,8 @@ var Sandbox = cli.Command{
 
 		ensureValidProjectFolder(".")
 
-		sandbox, _ := sandbox.EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true, true)
+		minDistroVersion := common.ReadProjectDistroVersion(".")
+		sandbox, _ := sandbox.EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true, true)
 		if sandbox == nil {
 			os.Exit(1)
 		}

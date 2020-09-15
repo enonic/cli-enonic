@@ -24,11 +24,11 @@ var Upgrade = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		sandbox, _ := EnsureSandboxExists(c, "No sandboxes found, do you want to create one?", "Select sandbox:", true, false)
+		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one?", "Select sandbox:", true, false)
 		if sandbox == nil {
 			os.Exit(1)
 		}
-		version := ensureVersionCorrect(c.String("version"), c.Bool("all"))
+		version := ensureVersionCorrect(c.String("version"), "", c.Bool("all"))
 		preventVersionDowngrade(sandbox, version)
 
 		sandbox.Distro = formatDistroVersion(version, util.GetCurrentOs())

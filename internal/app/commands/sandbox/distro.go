@@ -60,11 +60,13 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	return distroPath, true
 }
 
-func getAllVersions(osName string, includeUnstable bool) ([]VersionResult, VersionResult) {
+func getAllVersions(osName, minDistro string, includeUnstable bool) ([]VersionResult, VersionResult) {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
 	resp := common.SendRequest(req, "Loading")
 	util.Fatal(err, "Could not load latest version for os: "+osName)
+
+	minDistroVer, _ := semver.NewVersion(minDistro)
 
 	var versions VersionsResult
 	common.ParseResponse(resp, &versions)
@@ -77,7 +79,10 @@ func getAllVersions(osName string, includeUnstable bool) ([]VersionResult, Versi
 		util.Warn(tempErr, "Could not parse distro version: "+value.Version)
 
 		// excluding only SNAPSHOTS
-		if strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" && (includeUnstable || tempVersion.Prerelease() == "") {
+		if (minDistroVer == nil || !tempVersion.LessThan(minDistroVer)) &&
+			strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" &&
+			(includeUnstable || tempVersion.Prerelease() == "") {
+
 			filteredVersions = append(filteredVersions, value)
 			if latestVersion == nil || latestVersion.LessThan(tempVersion) {
 				latestVersion = tempVersion
@@ -290,7 +295,7 @@ func GetDistroJdkPath(distroName string) string {
 	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs), "jdk")
 }
 
-func ensureVersionCorrect(versionStr string, includeUnstable bool) string {
+func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable bool) string {
 	var (
 		version       *semver.Version
 		versionErr    error
@@ -304,7 +309,7 @@ func ensureVersionCorrect(versionStr string, includeUnstable bool) string {
 	}
 
 	myOs := util.GetCurrentOs()
-	versions, latest := getAllVersions(myOs, includeUnstable || version != nil && version.Prerelease() != "")
+	versions, latest := getAllVersions(myOs, minDistroVer, includeUnstable || version != nil && version.Prerelease() != "")
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
 		textVersions[key] = formatDistroVersionDisplay(value.Version, myOs, latest.Version)
