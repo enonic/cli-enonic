@@ -348,7 +348,7 @@ func isSupports7(versions []string) bool {
 		latestSemver, semver7 *semver.Version
 		err                   error
 	)
-	semver7, _ = semver.NewVersion("7.0.0")
+	semver7 = semver.MustParse(common.MIN_XP_VERSION)
 	for _, ver := range versions {
 		latestSemver, err = semver.NewVersion(ver)
 		util.Warn(err, fmt.Sprintf("Could not parse version '%s'", ver))
