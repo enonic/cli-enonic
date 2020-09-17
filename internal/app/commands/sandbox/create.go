@@ -31,16 +31,16 @@ var Create = cli.Command{
 			name = c.Args().First()
 		}
 
-		SandboxCreateWizard(name, c.String("version"), c.Bool("all"), true)
+		SandboxCreateWizard(name, c.String("version"), "", c.Bool("all"), true)
 
 		return nil
 	},
 }
 
-func SandboxCreateWizard(name, versionStr string, includeUnstable, showSuccessMessage bool) *Sandbox {
+func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage bool) *Sandbox {
 
-	name = ensureUniqueNameArg(name)
-	version := ensureVersionCorrect(versionStr, includeUnstable)
+	name = ensureUniqueNameArg(name, minDistroVersion)
+	version := ensureVersionCorrect(versionStr, minDistroVersion, includeUnstable)
 
 	box := createSandbox(name, version)
 
@@ -54,8 +54,8 @@ func SandboxCreateWizard(name, versionStr string, includeUnstable, showSuccessMe
 	return box
 }
 
-func ensureUniqueNameArg(name string) string {
-	existingBoxes := listSandboxes()
+func ensureUniqueNameArg(name, minDistroVersion string) string {
+	existingBoxes := listSandboxes(minDistroVersion)
 	defaultSandboxName := getFirstValidSandboxName(existingBoxes)
 
 	var sandboxValidator = func(val interface{}) error {

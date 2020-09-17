@@ -10,6 +10,7 @@ import (
 	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/enonic/cli-enonic/internal/app/util/system"
+	"github.com/magiconair/properties"
 	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"io"
@@ -25,14 +26,16 @@ import (
 	"time"
 )
 
-var ENV_XP_HOME = "XP_HOME"
-var ENV_JAVA_HOME = "JAVA_HOME"
-var MARKET_URL = "https://market.enonic.com/api/graphql"
-var SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/master/enonic.json"
-var JSESSIONID = "JSESSIONID"
-var LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
-var LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
-var CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
+const MIN_XP_VERSION = "7.0.0"
+const ENV_XP_HOME = "XP_HOME"
+const ENV_JAVA_HOME = "JAVA_HOME"
+const MARKET_URL = "https://market.enonic.com/api/graphql"
+const SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/master/enonic.json"
+const JSESSIONID = "JSESSIONID"
+const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
+const LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
+const CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
+
 var spin *spinner.Spinner
 
 func init() {
@@ -77,6 +80,14 @@ func ReadProjectData(prjPath string) *ProjectData {
 	var data ProjectData
 	util.DecodeTomlFile(file, &data)
 	return &data
+}
+
+func ReadProjectDistroVersion(prjPath string) string {
+	if props, _ := properties.LoadFile(filepath.Join(prjPath, "gradle.properties"), properties.UTF8); props != nil {
+		return props.GetString("xpVersion", MIN_XP_VERSION)
+	} else {
+		return MIN_XP_VERSION
+	}
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {

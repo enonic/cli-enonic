@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	"github.com/Masterminds/semver"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
 	"github.com/enonic/cli-enonic/internal/app/util"
@@ -60,10 +61,18 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *comm
 	ensureValidProjectFolder(prjPath)
 
 	projectData := common.ReadProjectData(prjPath)
+	minDistroVersion := common.ReadProjectDistroVersion(prjPath)
+
+	minDistroVer := semver.MustParse(minDistroVersion)
+	if minDistroVer.LessThan(semver.MustParse(common.MIN_XP_VERSION)) {
+		fmt.Fprintf(os.Stderr, "XP version in your application is not supported by CLI. Got %s, expected %s or higher.\n", minDistroVersion, common.MIN_XP_VERSION)
+		os.Exit(1)
+	}
+
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
 	argExist := c != nil && c.NArg() > 0
 	if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, noBoxMessage, "A sandbox is required for your project, select one:", false, true)
+		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one:", false, true)
 		if sBox == nil {
 			return nil
 		}

@@ -16,7 +16,7 @@ var List = cli.Command{
 		rData := common.ReadRuntimeData()
 		myOs := util.GetCurrentOs()
 
-		for _, box := range listSandboxes() {
+		for _, box := range listSandboxes("") {
 			version := parseDistroVersion(box.Distro, false)
 			boxVersion := formatSandboxListItemName(box.Name, version, myOs)
 			if rData.Running == box.Name {
