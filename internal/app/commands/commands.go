@@ -70,6 +70,7 @@ func All() []cli.Command {
 		},
 		system.Latest,
 		vacuum.Vacuum,
+		system.Changelog,
 		/*{
 			Name:        "remote",
 			Usage:       "Remote commands",
