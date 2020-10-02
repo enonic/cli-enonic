@@ -1,5 +1,23 @@
 = Release notes
 
+== v1.4.0
+
+=== Features
+
+* Cloud API
+
+=== Improvements
+
+* Update CLI with new cloud api App upload flow
+* Filter the list of distributions based on XP version of the project
+* Check compatibility with sandbox' XP version before deploying an app
+* Enable cloud api with env variable
+
+=== Bugs
+
+* `latest` returns incorrect result when called the first time
+* Command 'enonic project ?' always return exit code 0
+
 == v1.3.0
 
 === Improvements
