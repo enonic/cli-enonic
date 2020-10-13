@@ -42,6 +42,12 @@ builds:
     goarch:
       - amd64
 
+    gcflags:
+      - -trimpath={{ .Env.PWD }}
+
+    asmflags:
+      - -trimpath={{ .Env.PWD }}
+
     hooks:
       post: chmod 755 ./dist/enonic_darwin_amd64/enonic ./dist/enonic_linux_amd64/enonic
 
