@@ -17,7 +17,7 @@ import (
 // CloudConfigFolder returns the folder of cloud configuration
 func CloudConfigFolder() (string, error) {
 	folder := filepath.Join(common.GetEnonicDir(), "cloud")
-	return folder, os.MkdirAll(folder, os.ModeDir)
+	return folder, os.MkdirAll(folder, os.ModeDir|os.ModePerm)
 }
 
 // ReadFile opens a file and pipes it to a reader
