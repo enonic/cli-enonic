@@ -24,10 +24,12 @@ var Restore = cli.Command{
 			Name:  "snapshot, snap",
 			Usage: "The name of the snapshot to restore",
 		},
+		cli.BoolFlag{
+			Name:  "latest",
+			Usage: "The name of the snapshot to restore",
+		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
-
-		ensureSnapshotFlag(c)
 
 		req := createRestoreRequest(c)
 
@@ -46,8 +48,9 @@ var Restore = cli.Command{
 	},
 }
 
-func ensureSnapshotFlag(c *cli.Context) {
-	if c.String("snapshot") == "" {
+func ensureSnapshotFlag(c *cli.Context) string {
+	snapName := c.String("snapshot")
+	if snapName == "" {
 
 		snapshotList := listSnapshots(c)
 		if len(snapshotList.Results) == 0 {
@@ -62,15 +65,21 @@ func ensureSnapshotFlag(c *cli.Context) {
 		}
 		survey.AskOne(prompt, &name, nil)
 
-		c.Set("snapshot", name)
+		return name
 	}
+	return snapName
 }
 
 func createRestoreRequest(c *cli.Context) *http.Request {
 	body := new(bytes.Buffer)
-	params := map[string]interface{}{
-		"snapshotName": c.String("snapshot"),
+	params := map[string]interface{}{}
+
+	if c.Bool("latest") {
+		params["latest"] = true
+	} else {
+		params["snapshotName"] = ensureSnapshotFlag(c)
 	}
+
 	if repo := c.String("repo"); repo != "" {
 		params["repository"] = repo
 	}
