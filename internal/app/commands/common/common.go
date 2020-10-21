@@ -252,9 +252,7 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 		}
 	}
 	if message != "" {
-		spin.Prefix = message
-		spin.FinalMSG = "\r" + message + "..." //r fixes empty spaces before final msg on windows
-		spin.Start()
+		StartSpinner(message)
 	}
 
 	// make a copy of request body prior to sending cuz it vanishes after!
@@ -262,7 +260,7 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 
 	res, err := client.Do(req)
 	if message != "" {
-		spin.Stop()
+		StopSpinner()
 	}
 	if err != nil {
 		return nil, err
@@ -310,6 +308,16 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 	}
 
 	return res, err
+}
+
+func StartSpinner(message string) {
+	spin.Prefix = message
+	spin.FinalMSG = "\r" + message + "..." //r fixes empty spaces before final msg on windows
+	spin.Start()
+}
+
+func StopSpinner() {
+	spin.Stop()
 }
 
 func copyBody(req *http.Request) io.ReadCloser {
