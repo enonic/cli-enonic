@@ -6,8 +6,8 @@ import (
 )
 
 var Project = cli.Command{
-	Name:    "project",
-	Usage:   "Manage projects in Enonic Cloud",
+	Name:    "app",
+	Usage:   "Manage apps in Enonic Cloud",
 	Aliases: []string{},
 	Subcommands: []cli.Command{
 		project.ProjectDeploy,
