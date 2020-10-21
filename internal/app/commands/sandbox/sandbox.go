@@ -97,8 +97,10 @@ func getSandboxesUsingDistro(distroName string) []*Sandbox {
 }
 
 func deleteSandbox(name string) {
+	common.StartSpinner("Deleting sandbox")
 	err := os.RemoveAll(filepath.Join(getSandboxesDir(), name))
-	util.Warn(err, fmt.Sprintf("Could not delete sandbox '%s' folder: ", name))
+	common.StopSpinner()
+	util.Fatal(err, fmt.Sprintf("Could not delete sandbox '%s' folder: ", name))
 }
 
 func listSandboxes(minDistroVersion string) []*Sandbox {
