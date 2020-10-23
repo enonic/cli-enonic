@@ -44,7 +44,7 @@ var Install = cli.Command{
 func installApp(c *cli.Context, file, url string) InstallResult {
 	req := createInstallRequest(c, file, url)
 
-	resp := common.SendRequest(req, "Installing")
+	resp := common.SendRequest(req, fmt.Sprintf("Installing \"%s\"", file))
 
 	var result InstallResult
 	common.ParseResponse(resp, &result)
@@ -70,25 +70,11 @@ func ensureURLOrFileFlag(c *cli.Context) (string, string) {
 	urlString := strings.TrimSpace(c.String("u"))
 	fileString := strings.TrimSpace(c.String("f"))
 
-	if (urlString == "") == (fileString == "") {
-		var val string
-		val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
-			if *val == "" && ind == 0 {
-				return "Must provide either URL [u] or file [f] option: "
-			} else if upper := strings.ToUpper(*val); upper != "U" && upper != "F" {
-				return "Please type [u] for URL or [f] for file:  "
-			} else {
-				return ""
-			}
-		})
-		switch val {
-		case "U", "u":
-			return "", ensureURLFlag(c)
-		case "F", "f":
-			return ensureFileFlag(c), ""
-		}
+	if urlString == "" && fileString == "" || fileString != "" {
+		return ensureFileFlag(c), ""
+	} else {
+		return "", ensureURLFlag(c)
 	}
-	return fileString, urlString
 }
 
 func ensureURLFlag(c *cli.Context) string {
@@ -110,21 +96,7 @@ func ensureURLFlag(c *cli.Context) string {
 }
 
 func ensureFileFlag(c *cli.Context) string {
-	return util.PromptUntilTrue(c.String("f"), func(val *string, ind byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			switch ind {
-			case 0:
-				return "Enter path to file: "
-			default:
-				return "Path to file can not be empty: "
-			}
-		} else {
-			if _, err := os.Stat(*val); err != nil {
-				return fmt.Sprintf("File '%s' does not exist: ", *val)
-			}
-			return ""
-		}
-	})
+	return util.PromptProjectJar(c.String("f"))
 }
 
 func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Request {

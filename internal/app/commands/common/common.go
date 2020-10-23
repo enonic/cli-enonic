@@ -306,6 +306,8 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 		fmt.Fprintln(os.Stderr, "")
 
 		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy)
+		// need to set it for install requests, because their content type may vary
+		newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
 		res, err = SendRequestCustom(newReq, message, timeoutMin)
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/AlecAivazis/survey"
 	"github.com/BurntSushi/toml"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
 	"os/exec"
@@ -79,6 +80,61 @@ func PromptBool(text string, defaultVal bool) bool {
 	Fatal(err, "Exiting: ")
 
 	return val
+}
+
+func filterJars(libs []os.FileInfo) []string {
+	jars := make([]string, 0)
+	for _, lib := range libs {
+		if !lib.IsDir() && strings.HasSuffix(lib.Name(), ".jar") {
+			jars = append(jars, lib.Name())
+		}
+	}
+	return jars
+}
+
+func PromptProjectJar(inputJar string) string {
+	var projectJar string
+	var fileValidator = func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			libs, err := ioutil.ReadDir(filepath.Join("build", "libs"))
+			if err != nil {
+				return errors.New("Could not read project build folder")
+			}
+			jars := filterJars(libs)
+			if len(jars) == 0 {
+				return errors.New("Could not find project jar")
+			} else if len(jars) == 1 {
+				projectJar = jars[0]
+			} else {
+				jars = append(jars, "Custom")
+				prompt := &survey.Select{
+					Message: "Select app to deploy",
+					Options: jars,
+				}
+				if err = survey.AskOne(prompt, &projectJar, nil); err != nil {
+					return err
+				}
+				if projectJar == "Custom" {
+					return errors.New("Custom option")
+				}
+			}
+			projectJar, err = filepath.Abs(filepath.Join("build", "libs", projectJar))
+			if err != nil {
+				return fmt.Errorf("Could not build absolute path for '%s'", projectJar)
+			}
+		} else {
+			if _, err := os.Stat(str); err != nil {
+				return fmt.Errorf("File '%s' does not exist", str)
+			}
+			projectJar = str
+		}
+		return nil
+	}
+
+	PromptString("Enter path to file", inputJar, "", fileValidator)
+
+	return projectJar
 }
 
 func PromptUntilTrue(val string, assessFunc func(val *string, i byte) string) string {

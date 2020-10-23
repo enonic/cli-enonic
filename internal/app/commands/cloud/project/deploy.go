@@ -4,20 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
-	"time"
-
 	"github.com/AlecAivazis/survey"
 	"github.com/enonic/cli-enonic/internal/app/commands/cloud/auth"
 	multipart "github.com/enonic/cli-enonic/internal/app/commands/cloud/client"
 	mutations "github.com/enonic/cli-enonic/internal/app/commands/cloud/client/mutations"
 	queries "github.com/enonic/cli-enonic/internal/app/commands/cloud/client/queries"
-	util "github.com/enonic/cli-enonic/internal/app/commands/cloud/util"
 	commonUtil "github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"time"
 )
 
 const (
@@ -123,21 +121,7 @@ var ProjectDeploy = cli.Command{
 func createDeployContext(target string, deploymentJar string) (*deployContext, error) {
 	var jar string
 	// Find jar to deploy
-	if deploymentJar != "" {
-		// This is a user specified jar
-		if err := util.FileExist(deploymentJar); err != nil {
-			return nil, err
-		} else {
-			jar = deploymentJar
-		}
-	} else {
-		// Find jar file in project dir
-		deploymentJar, err := findProjectJar()
-		if err != nil {
-			return nil, fmt.Errorf("could not locate project jar: %v", err)
-		}
-		jar = deploymentJar
-	}
+	jar = commonUtil.PromptProjectJar(deploymentJar)
 
 	// Query api and create service map
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
