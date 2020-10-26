@@ -26,7 +26,7 @@ var Restore = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "latest",
-			Usage: "The name of the snapshot to restore",
+			Usage: "Flag to use latest snapshot, takes precedence over name flag",
 		},
 	}, common.FLAGS...),
 	Action: func(c *cli.Context) error {
