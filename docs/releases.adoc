@@ -1,5 +1,21 @@
 = Release notes
 
+== v1.5.0
+
+=== Features
+
+* Support `snapshot restore --latest`
+
+=== Improvements
+
+* Install apps from the project directory by default
+* Show progress of `sandbox delete` command
+
+=== Bugs
+
+* Fixed permissions on `cloud` folder
+* Command `enonic project ?` always returns exit code 0
+
 == v1.4.0
 
 === Improvements
@@ -10,27 +26,27 @@
 === Bugs
 
 * `latest` returns incorrect result when called the first time
-* Command 'enonic project ?' always returns exit code 0
+* Command `enonic project ?` always returns exit code 0
 
 == v1.3.0
 
 === Improvements
 
-* Add --archive parameter to dump create command
-* Add --archive parameter to dump load command
+* Add `--archive` parameter to dump create command
+* Add `--archive` parameter to dump load command
 * Show instructions on project deployment upon completing new project wizard
 
 === Bugs
 
-* enonic repo readonly command unnecessarily closes indices
+* `enonic repo readonly` command unnecessarily closes indices
 
 == v1.2.1
 
 === Bugs
 
 * Enonic sandbox does not start in detached mode on CentOS7/macOS
-* deploy command erases runtime PID info when sandbox was started in detached mode
-* install command gives NPE when env variable is not defined and host is not provided
+* `deploy` command erases runtime PID info when sandbox was started in detached mode
+* `install` command gives NPE when env variable is not defined and host is not provided
 
 == v1.2.0
 
@@ -47,34 +63,34 @@
 === Bugs
 
 * CLI asks to start the sandbox that is already running
-* Remove enonic-xp- from distro name in the sandbox list
+* Remove _enonic-xp-_ from distro name in the sandbox list
 
 == v.1.1.0
 
 === Features
 
-* Allow to pass flags to gradlew
-* Enable Vacuum command
+* Allow passing flags to Gradle
+* Enable `vacuum` command
 * keep-alive in cms reprocess
 * keep-alive in repo reindex
 
 === Improvements
 
-* Add backwards compatibility for reprocess command
+* Add backwards compatibility for `reprocess` command
 * Change update message when local version of CLI is the latest
-* Flag to list B- and RC- versions of the distro on "create sandbox"
+* Flag to list B- and RC- versions of the distro on `create sandbox
 * Hide password when dump upgrading
 * Indicate latest, stable and unstable releases
-* Make import top level command
+* Make `import` top level command
 * Show example of a custom repo path in project create wizard
-* enonic app install --file panics when file is not found
-* enonic project create project name cmdline parameter
+* `enonic app install --file` panics when file is not found
+* `enonic project create` project name cmdline parameter
 
 === Bugs
 
 * After restart of server - token is invalid but no revalidation is attempted
 * CLI does not exit on SIGINT (Crtl + C) when creating new projects
-* Change update to upgrade in the description of how to upgrade CLI with brew
-* deploy task is interrupted when processId of previously running sandbox cannot be not found
-* enonic project create --help parameters not documented
-* enonic project create doesn't include .gitignore
+* Change `update` to `upgrade` in the description of how to upgrade CLI with brew
+* `deploy` task is interrupted when processId of previously running sandbox cannot be not found
+* `enonic project create --help` parameters not documented
+* `enonic project create` doesn't include `.gitignore`
