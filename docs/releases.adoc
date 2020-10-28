@@ -32,8 +32,8 @@
 
 === Improvements
 
-* Add `--archive` parameter to dump create command
-* Add `--archive` parameter to dump load command
+* Add `--archive` parameter to `dump create` command
+* Add `--archive` parameter to `dump load` command
 * Show instructions on project deployment upon completing new project wizard
 
 === Bugs
@@ -71,8 +71,8 @@
 
 * Allow passing flags to Gradle
 * Enable `vacuum` command
-* keep-alive in cms reprocess
-* keep-alive in repo reindex
+* keep-alive in `cms reprocess`
+* keep-alive in `repo reindex`
 
 === Improvements
 
