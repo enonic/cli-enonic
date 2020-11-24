@@ -88,7 +88,7 @@ var ProjectDeploy = cli.Command{
 
 		// Confirm deploy context
 		if !doDeploy {
-			doDeploy = commonUtil.PromptBool(fmt.Sprintf("Deploy '%s' to '%s'. Is this correct?", deployCtx.jarFile, deployCtx.serviceName), false)
+			doDeploy = commonUtil.PromptBool(fmt.Sprintf("Deploy '%s' to '%s'. Is this correct?", deployCtx.jarFile, deployCtx.serviceName), true)
 		}
 		if !doDeploy {
 			return fmt.Errorf("deployment not confirmed by user")
