@@ -5,6 +5,7 @@ import (
 	"github.com/AlecAivazis/survey"
 	"github.com/Masterminds/semver"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
+	"github.com/enonic/cli-enonic/internal/app/commands/remote"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/enonic/cli-enonic/internal/app/util/system"
 	"gopkg.in/cheggaaa/pb.v1"
@@ -176,20 +177,29 @@ func unzipDistro(zipFile string) string {
 
 func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
 	myOs := util.GetCurrentOs()
-	var executable, template string
+	var executable, homeTemplate string
 	if myOs == "windows" {
 		executable = "server.bat"
-		template = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
+		homeTemplate = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
 	} else {
 		executable = "server.sh"
-		template = `-Dxp.home=%s` // other OSes work ok without em
+		homeTemplate = `-Dxp.home=%s` // other OSes work ok without em
 	}
 	version := parseDistroVersion(distroName, false)
 	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
-	args := []string{fmt.Sprintf(template, homePath)}
+	args := []string{fmt.Sprintf(homeTemplate, homePath)}
 	if devMode {
 		args = append(args, "dev")
+	}
+
+	if proxy := remote.GetActiveRemote().Proxy; proxy != nil {
+		args = append(args,
+			fmt.Sprintf(`-Dhttp.proxyHost=%s`, proxy.Hostname()),
+			fmt.Sprintf(`-Dhttp.proxyPort=%s`, proxy.Port()),
+			fmt.Sprintf(`-Dhttps.proxyHost=%s`, proxy.Hostname()),
+			fmt.Sprintf(`-Dhttps.proxyPort=%s`, proxy.Port()),
+		)
 	}
 
 	return system.Start(appPath, args, detach)
