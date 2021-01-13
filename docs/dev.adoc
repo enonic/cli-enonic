@@ -56,7 +56,7 @@ Options:
 
 |`-r, --repo, +
 --repository`
-|repository path. Format: <enonic repo> or <organisation>/<repo> on github or <full repo url>
+|repository path of the starter to base the project on. Format: <enonic repo> or <organisation>/<repo> on github or <full repo url>
 
 |`-b, --branch`
 |repository branch to use. `master` is used if none specified
