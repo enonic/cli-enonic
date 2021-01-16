@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
@@ -33,7 +34,7 @@ var Replicas = cli.Command{
 	},
 }
 
-func createReprocessRequest(c *cli.Context, replicasNum int64) *http.Request {
+func createReprocessRequest(c *cli.Context, replicasNum int) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"settings": map[string]interface{}{
@@ -47,26 +48,21 @@ func createReprocessRequest(c *cli.Context, replicasNum int64) *http.Request {
 	return common.CreateRequest(c, "POST", "repo/index/updateSettings", body)
 }
 
-func ensureReplicasNumberArg(c *cli.Context) int64 {
-	var replicasNum int64
-	util.PromptUntilTrue(c.Args().First(), func(val *string, ind byte) string {
-		if *val == "" {
-			switch ind {
-			case 0:
-				return "Enter number of replicas (1-99): "
-			default:
-				return "Number of replicas can not be empty: "
-			}
+func ensureReplicasNumberArg(c *cli.Context) int {
+	var numValidator = func(val interface{}) error {
+		if val == "" {
+			return errors.New("Number of replicas can not be empty: ")
 		} else {
-			var err error
-			if replicasNum, err = strconv.ParseInt(*val, 10, 32); err != nil || replicasNum < 1 || replicasNum > 99 {
-				return fmt.Sprintf("Not a valid number of replicas '%s'. Use whole numbers from 1 to 99: ", *val)
+			num, err := strconv.Atoi(val.(string))
+			if err != nil || num < 0 || num > 99 {
+				return errors.Errorf("Not a valid number of replicas '%s'. Use whole numbers from 0 to 99: ", val)
 			}
-			return ""
 		}
-	})
-
-	return replicasNum
+		return nil
+	}
+	// There will be no errors here because validator above has made sure it's a number already
+	result, _ := strconv.Atoi(util.PromptString("Enter number of replicas (0-99)", c.Args().First(), "0", numValidator))
+	return result
 }
 
 type ReplicasResponse struct {
