@@ -271,6 +271,14 @@ snapcrafts:
         interface: personal-files
         write:
           - $HOME/.enonic
+      dot-gradle:
+        interface: personal-files
+        write:
+          - $HOME/.gradle
+      dot-m2:
+        interface: personal-files
+        read:
+          - $HOME/.m2
 
 artifactories:
 
