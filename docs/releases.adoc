@@ -1,5 +1,11 @@
 = Release notes
 
+== v1.5.1
+
+=== Bugs
+
+* Allow setting number of replicas to 0
+
 == v1.5.0
 
 === Features
