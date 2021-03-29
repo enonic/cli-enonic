@@ -372,5 +372,5 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 }
 
 func getDistrosDir() string {
-	return filepath.Join(util.GetHomeDir(), ".enonic", "distributions")
+	return common.GetInEnonicDir("distributions")
 }
