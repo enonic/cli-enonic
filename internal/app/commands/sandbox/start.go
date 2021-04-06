@@ -24,6 +24,11 @@ var Start = cli.Command{
 			Name:  "debug",
 			Usage: "Run enonic XP server with debug enabled on port 5005",
 		},
+		cli.UintFlag{
+			Name:  "http.port",
+			Usage: "Set to the http port used by Enonic XP to check availability on startup",
+			Value: 8080,
+		},
 	},
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
@@ -31,6 +36,7 @@ var Start = cli.Command{
 		rData := common.ReadRuntimeData()
 		isSandboxRunning := common.VerifyRuntimeData(&rData)
 
+		port := uint16(c.Uint("http.port"))
 		if isSandboxRunning {
 			if rData.Running == c.Args().First() {
 				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
@@ -38,8 +44,8 @@ var Start = cli.Command{
 			} else {
 				AskToStopSandbox(rData)
 			}
-		} else if !util.IsPortAvailable(8080) {
-			fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
+		} else if !util.IsPortAvailable(port) {
+			fmt.Fprintf(os.Stderr, "Port %d is not available, stop the app using it first!\n", port)
 			os.Exit(1)
 		}
 
