@@ -147,11 +147,14 @@ Options:
 |Description
 
 |`--dev`
-|Run enonic XP distribution in development mode
+|Start enonic XP distribution in development mode
 
 |`name`
 |sandbox name to deploy to (overrides associated sandbox)
 |===
+
+IMPORTANT: If the sandbox is already running, `--dev` parameter will be ignored. In this case
+you'll have to make sure the sandbox is running in dev mode.
 
 NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
 
