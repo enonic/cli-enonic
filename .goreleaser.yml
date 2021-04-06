@@ -27,6 +27,7 @@ builds:
     # Default is empty.
     env:
       - CGO_ENABLED=0
+      - GO111MODULE=off
 
     # GOOS list to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -106,6 +107,7 @@ release:
   disable: false
 
 scoop:
+  skip_upload: false
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
   url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
@@ -143,7 +145,7 @@ brews:
   - skip_upload: false
 
     # Repository to push the tap to.
-    github:
+    tap:
       owner: enonic
       name: homebrew-cli
 
