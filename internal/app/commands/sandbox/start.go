@@ -20,6 +20,10 @@ var Start = cli.Command{
 			Name:  "dev",
 			Usage: "Run enonic XP distribution in development mode",
 		},
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "Run enonic XP server with debug enabled on port 5005",
+		},
 	},
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
@@ -54,16 +58,16 @@ var Start = cli.Command{
 			}
 		}
 
-		StartSandbox(sandbox, c.Bool("detach"), c.Bool("dev"))
+		StartSandbox(sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"))
 
 		return nil
 	},
 }
 
-func StartSandbox(sandbox *Sandbox, detach, devMode bool) {
+func StartSandbox(sandbox *Sandbox, detach, devMode, debug bool) {
 	EnsureDistroExists(sandbox.Distro)
 
-	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode)
+	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode, debug)
 
 	var pid int
 	if !detach {
