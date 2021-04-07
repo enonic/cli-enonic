@@ -175,7 +175,7 @@ func unzipDistro(zipFile string) string {
 	return targetPath
 }
 
-func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
+func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.Cmd {
 	myOs := util.GetCurrentOs()
 	var executable, homeTemplate string
 	if myOs == "windows" {
@@ -188,10 +188,15 @@ func startDistro(distroName, sandbox string, detach, devMode bool) *exec.Cmd {
 	version := parseDistroVersion(distroName, false)
 	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
-	args := []string{fmt.Sprintf(homeTemplate, homePath)}
+	var args []string
+	if debug {
+		// should go as 1st param !
+		args = append(args, "debug")
+	}
 	if devMode {
 		args = append(args, "dev")
 	}
+	args = append(args, fmt.Sprintf(homeTemplate, homePath))
 
 	if proxy := remote.GetActiveRemote().Proxy; proxy != nil {
 		args = append(args,

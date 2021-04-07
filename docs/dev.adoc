@@ -136,12 +136,12 @@ Alias for the `gradlew clean` command
 
 === Deploy
 
-As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <<project-sandbox, sandbox>>:
+As developers, we continuously need to deploy and test our code.Following command will build current project and deploy it to associated <<project-sandbox, sandbox>>:
 
  $ enonic project deploy [name]
 
 Options:
-[cols="1,3", options="header"]
+[cols="1,3",options="header"]
 |===
 |Option
 |Description
@@ -149,11 +149,14 @@ Options:
 |`--dev`
 |Start enonic XP distribution in development mode
 
+|`--debug`
+|Run enonic XP server with debug enabled on port 5005
+
 |`name`
 |sandbox name to deploy to (overrides associated sandbox)
 |===
 
-IMPORTANT: If the sandbox is already running, `--dev` parameter will be ignored. In this case
+IMPORTANT: If the sandbox is already running, `--dev` parameter will be ignored.In this case
 you'll have to make sure the sandbox is running in dev mode.
 
 NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
@@ -234,7 +237,7 @@ WARNING: Unlike `enonic project shell` command, this one will modify your _curre
 [[sandbox-command]]
 == Sandbox
 
-Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
+Developers may use the CLI to run different instances of XP locally.These instances are called sandboxes.
 Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.
 
 The CLI automates setting up, starting, stopping and upgrading sandboxes.
@@ -312,7 +315,8 @@ Starts a sandbox and ensures that only one is started at a time:
  $ enonic sandbox start [name] [-d]
 
 Options:
-[cols="1,3", options="header"]
+
+[cols="1,3",options="header"]
 |===
 |Option
 |Description
@@ -322,6 +326,9 @@ Options:
 
 |`--dev`
 |Run enonic XP distribution in development mode
+
+|`--debug`
+|Run enonic XP server with debug enabled on port 5005
 
 |`-d, --detach`
 |flag to start sandbox in detached mode (background process)
