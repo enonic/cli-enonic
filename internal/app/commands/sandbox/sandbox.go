@@ -189,9 +189,10 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 
 	var name string
 	prompt := &survey.Select{
-		Message: selectBoxMessage,
-		Options: selectOptions,
-		Default: defaultBox,
+		Message:  selectBoxMessage,
+		Options:  selectOptions,
+		Default:  defaultBox,
+		PageSize: len(selectOptions),
 	}
 
 	err := survey.AskOne(prompt, &name, nil)
