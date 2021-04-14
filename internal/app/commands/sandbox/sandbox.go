@@ -152,24 +152,37 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption bool) (*Sandbox, bool) {
+func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption, parseArgs bool) (*Sandbox, bool) {
 	existingBoxes := listSandboxes(minDistroVersion)
+	force := common.IsForceMode(c)
 
 	if len(existingBoxes) == 0 {
+		if force {
+			fmt.Fprintln(os.Stderr, "No sandboxes found. Create one using 'enonic sandbox create' first.")
+			os.Exit(1)
+		}
 		if !util.PromptBool(noBoxMessage, true) {
 			return nil, false
 		}
-		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage)
+		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage, force)
 		return newBox, true
 	}
 
-	if c != nil && c.NArg() > 0 {
+	if parseArgs && c != nil && c.NArg() > 0 {
 		name := c.Args().First()
 		for _, existingBox := range existingBoxes {
 			if existingBox.Name == name {
 				return existingBox, false
 			}
 		}
+		if force {
+			fmt.Fprintf(os.Stderr, "Sandbox with name '%s' can not be found\n", name)
+			os.Exit(1)
+		}
+	}
+	if force {
+		fmt.Fprintln(os.Stderr, "Sandbox name can not be empty in non-interactive mode")
+		os.Exit(1)
 	}
 
 	var selectOptions []string
@@ -199,7 +212,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 	util.Fatal(err, "Select failed: ")
 
 	if name == CREATE_NEW_BOX {
-		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage)
+		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage, force)
 		return newBox, true
 	}
 

@@ -54,7 +54,7 @@ func ensureValidProjectFolder(prjPath string) {
 	}
 }
 
-func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *common.ProjectData {
+func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string, parseArgs bool) *common.ProjectData {
 	var newBox bool
 	var sBox *sandbox.Sandbox
 
@@ -70,9 +70,18 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string) *comm
 	}
 
 	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
-	argExist := c != nil && c.NArg() > 0
-	if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one:", false, true)
+	argExist := parseArgs && c != nil && c.NArg() > 0
+	force := common.IsForceMode(c)
+
+	if force && badSandbox {
+		if projectData.Sandbox == "" {
+			fmt.Fprintln(os.Stderr, "Project sandbox is not set. Set it using 'enonic project sandbox' command")
+		} else {
+			fmt.Fprintf(os.Stderr, "Project sandbox '%s' can not be found. Update it using 'enonic project sandbox' command\n", projectData.Sandbox)
+		}
+		os.Exit(1)
+	} else if badSandbox || argExist {
+		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one:", false, true, parseArgs)
 		if sBox == nil {
 			return nil
 		}

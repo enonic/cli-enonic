@@ -318,7 +318,7 @@ func EnsureSanboxSupportsProjectVersion(sBox *Sandbox, minDistroVersion *semver.
 	}
 }
 
-func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable bool) string {
+func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, force bool) string {
 	var (
 		version       *semver.Version
 		versionErr    error
@@ -328,6 +328,9 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable bool)
 	if len(strings.TrimSpace(versionStr)) > 0 {
 		if version, versionErr = semver.NewVersion(versionStr); versionErr != nil {
 			fmt.Fprintf(os.Stderr, "'%s' is not a valid distro version.\n", versionStr)
+			if force {
+				os.Exit(1)
+			}
 		}
 	}
 
@@ -344,6 +347,14 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable bool)
 	if version != nil && versionExists {
 		return version.String()
 	} else {
+		if force {
+			if version == nil {
+				fmt.Fprintln(os.Stderr, "Version flag can not be empty in non-interactive mode.")
+			} else {
+				fmt.Fprintf(os.Stderr, "Version '%s' can not be found.\n", versionStr)
+			}
+			os.Exit(1)
+		}
 
 		defaultVersion := findLatestVersion(versions)
 		var distro string

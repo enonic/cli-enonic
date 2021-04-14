@@ -20,10 +20,10 @@ var Upgrade = cli.Command{
 			Name:  "d",
 			Usage: "Dump name.",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
-		name := ensureNameFlag(c.String("d"), false)
+		name := ensureNameFlag(c.String("d"), false, common.IsForceMode(c))
 
 		req := createUpgradeRequest(c, name)
 		var result UpgradeResult

@@ -12,12 +12,13 @@ var Sandbox = cli.Command{
 	Name:    "sandbox",
 	Aliases: []string{"sbox", "sb"},
 	Usage:   "Set the default sandbox associated with the current project",
+	Flags:   []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 
 		ensureValidProjectFolder(".")
 
 		minDistroVersion := common.ReadProjectDistroVersion(".")
-		sandbox, _ := sandbox.EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true, true)
+		sandbox, _ := sandbox.EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, do you want to create one?", "Select sandbox to use as default for this project:", true, true, true)
 		if sandbox == nil {
 			os.Exit(1)
 		}

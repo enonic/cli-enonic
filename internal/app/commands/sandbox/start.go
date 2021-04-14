@@ -29,6 +29,7 @@ var Start = cli.Command{
 			Usage: "Set to the http port used by Enonic XP to check availability on startup",
 			Value: 8080,
 		},
+		common.FORCE_FLAG,
 	},
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
@@ -42,7 +43,7 @@ var Start = cli.Command{
 				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
 				os.Exit(1)
 			} else {
-				AskToStopSandbox(rData)
+				AskToStopSandbox(rData, common.IsForceMode(c))
 			}
 		} else if !util.IsPortAvailable(port) {
 			fmt.Fprintf(os.Stderr, "Port %d is not available, stop the app using it first!\n", port)
@@ -58,19 +59,35 @@ var Start = cli.Command{
 			sandbox = ReadSandboxData(pData.Sandbox)
 		}
 		if sandbox == nil {
-			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, create one?", "Select sandbox to start:", true, true)
+			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, create one?", "Select sandbox to start:", true, true, true)
 			if sandbox == nil {
 				os.Exit(1)
 			}
 		}
 
-		StartSandbox(sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"))
+		StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"))
 
 		return nil
 	},
 }
 
-func StartSandbox(sandbox *Sandbox, detach, devMode, debug bool) {
+func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool) {
+	force := common.IsForceMode(c)
+	rData := common.ReadRuntimeData()
+	isSandboxRunning := common.VerifyRuntimeData(&rData)
+
+	if isSandboxRunning {
+		if rData.Running == c.Args().First() {
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
+			os.Exit(1)
+		} else {
+			AskToStopSandbox(rData, force)
+		}
+	} else if !util.IsPortAvailable(8080) {
+		fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
+		os.Exit(1)
+	}
+
 	EnsureDistroExists(sandbox.Distro)
 
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode, debug)
@@ -93,8 +110,8 @@ func StartSandbox(sandbox *Sandbox, detach, devMode, debug bool) {
 	}
 }
 
-func AskToStopSandbox(rData common.RuntimeData) {
-	if util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", rData.Running), true) {
+func AskToStopSandbox(rData common.RuntimeData, force bool) {
+	if force || util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", rData.Running), true) {
 		StopSandbox(rData)
 	} else {
 		os.Exit(1)

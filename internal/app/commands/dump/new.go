@@ -35,10 +35,10 @@ var Create = cli.Command{
 			Name:  "archive",
 			Usage: "Archive created dump.",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
-		name := ensureNameFlag(c.String("d"), true)
+		name := ensureNameFlag(c.String("d"), true, common.IsForceMode(c))
 
 		req := createNewRequest(c, name)
 
