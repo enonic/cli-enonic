@@ -209,12 +209,12 @@ func ensureNameArg(c *cli.Context) string {
 	var nameValidator = func(val interface{}) error {
 		str := val.(string)
 		if !appNameRegex.MatchString(str) {
-			return errors.Errorf("Name '%s' is not valid. Use at least 3 lowercase letters, digits or dot (.) symbols: ", val)
+			return errors.Errorf("Name '%s' is not valid. It must be min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.]", val)
 		}
 		return nil
 	}
 
-	return util.PromptString("Project name", name, DEFAULT_NAME, nameValidator)
+	return util.PromptString("Project name (min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.])", name, DEFAULT_NAME, nameValidator)
 }
 
 func processGradleProperties(propsFile, name, version string) {
