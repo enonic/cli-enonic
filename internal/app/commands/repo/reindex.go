@@ -29,7 +29,7 @@ var Reindex = cli.Command{
 			Name:  "i",
 			Usage: "If true, the indices will be deleted before recreated.",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		var result ReindexResponse

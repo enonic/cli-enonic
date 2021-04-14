@@ -10,6 +10,7 @@ import (
 var Stop = cli.Command{
 	Name:  "stop",
 	Usage: "Stop the sandbox started in detached mode.",
+	Flags: []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 
 		rData := common.ReadRuntimeData()

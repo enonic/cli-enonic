@@ -3,6 +3,7 @@ package sandbox
 import (
 	"fmt"
 	"github.com/Masterminds/semver"
+	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"os"
@@ -21,14 +22,15 @@ var Upgrade = cli.Command{
 			Name:  "all, a",
 			Usage: "List all distro versions.",
 		},
+		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 
-		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one?", "Select sandbox:", true, false)
+		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one?", "Select sandbox:", true, false, true)
 		if sandbox == nil {
 			os.Exit(1)
 		}
-		version := ensureVersionCorrect(c.String("version"), "", c.Bool("all"))
+		version := ensureVersionCorrect(c.String("version"), "", c.Bool("all"), common.IsForceMode(c))
 		preventVersionDowngrade(sandbox, version)
 
 		sandbox.Distro = formatDistroVersion(version, util.GetCurrentOs())

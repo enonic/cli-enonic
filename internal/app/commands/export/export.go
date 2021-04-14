@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/enonic/cli-enonic/internal/app/util"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
@@ -36,7 +37,7 @@ var Export = cli.Command{
 			Name:  "dry",
 			Usage: "Show the result without making actual changes.",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)
@@ -86,46 +87,52 @@ type NewExportResponse struct {
 }
 
 func ensureNameFlag(c *cli.Context) {
-	if c.String("t") == "" {
+	target := c.String("t")
 
-		var name string
-		name = util.PromptUntilTrue(name, func(val *string, ind byte) string {
-			if len(strings.TrimSpace(*val)) == 0 {
-				switch ind {
-				case 0:
-					return "Enter target name: "
-				default:
-					return "Target name can not be empty: "
-				}
-			} else {
-				return ""
+	targetValidator := func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			if common.IsForceMode(c) {
+				fmt.Fprintln(os.Stderr, "Target name can not be empty in non-interactive mode.")
+				os.Exit(1)
 			}
-		})
-
-		c.Set("t", name)
+			return errors.New("Target name can not be empty: ")
+		} else {
+			return nil
+		}
 	}
+	target = util.PromptString("Enter target name", target, "", targetValidator)
+
+	c.Set("t", target)
 }
 
 func ensurePathFlag(c *cli.Context) {
-	var path = c.String("path")
+	path := c.String("path")
+	force := common.IsForceMode(c)
 
-	path = util.PromptUntilTrue(path, func(val *string, ind byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			switch ind {
-			case 0:
-				return "Enter source repo path (<repo-name>:<branch-name>:<node-path>): "
-			default:
-				return "Source repo path can not be empty (<repo-name>:<branch-name>:<node-path>): "
+	pathValidator := func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			if force {
+				fmt.Fprintln(os.Stderr, "Source repo path can not be empty in non-interactive mode.")
+				os.Exit(1)
 			}
+			return errors.New("Source repo path can not be empty (<repo-name>:<branch-name>:<node-path>): ")
 		} else {
-			splitPathLen := len(strings.Split(*val, ":"))
+			splitPathLen := len(strings.Split(str, ":"))
 			if splitPathLen != 3 {
-				return fmt.Sprintf("Source repo path '%s' must have the following format <repo-name>:<branch-name>:<node-path>: ", *val)
+				if force {
+					fmt.Fprintf(os.Stderr, "Source repo path '%s' must have the following format <repo-name>:<branch-name>:<node-path>\n", str)
+					os.Exit(1)
+				}
+				return errors.Errorf("Source repo path '%s' must have the following format <repo-name>:<branch-name>:<node-path>: ", str)
 			} else {
-				return ""
+				return nil
 			}
 		}
-	})
+	}
+
+	path = util.PromptString("Enter source repo path (<repo-name>:<branch-name>:<node-path>)", path, "", pathValidator)
 
 	c.Set("path", path)
 }

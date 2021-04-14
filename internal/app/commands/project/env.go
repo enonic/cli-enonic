@@ -12,6 +12,7 @@ import (
 var Env = cli.Command{
 	Name:  "env",
 	Usage: "Exports enonic environment variables as string to be used in any third-party shell",
+	Flags: []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 
 		ensureValidProjectFolder(".")

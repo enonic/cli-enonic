@@ -22,6 +22,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -35,6 +36,7 @@ const JSESSIONID = "JSESSIONID"
 const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
 const LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
 const CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
+const FORCE_COOKIE = "forceFlag"
 
 var spin *spinner.Spinner
 
@@ -43,11 +45,18 @@ func init() {
 	spin.Writer = os.Stderr
 }
 
-var FLAGS = []cli.Flag{
-	cli.StringFlag{
-		Name:  "auth, a",
-		Usage: "Authentication token for basic authentication (user:password)",
-	},
+var AUTH_FLAG = cli.StringFlag{
+	Name:  "auth, a",
+	Usage: "Authentication token for basic authentication (user:password)",
+}
+
+var FORCE_FLAG = cli.BoolFlag{
+	Name:  "force, f",
+	Usage: "Accept default answers to all prompts and run non-interactively",
+}
+
+func IsForceMode(c *cli.Context) bool {
+	return c != nil && c.Bool("force")
 }
 
 type ProjectData struct {
@@ -139,15 +148,23 @@ func WriteRuntimeData(data RuntimeData) {
 	util.EncodeTomlFile(file, data)
 }
 
-func EnsureAuth(authString string) (string, string) {
+func EnsureAuth(authString string, force bool) (string, string) {
 	var splitAuth []string
 	util.PromptPassword("Authentication token (<user>:<password>): ", authString, func(val interface{}) error {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) == 0 {
+			if force {
+				fmt.Fprintln(os.Stderr, "Authentication token can not be empty in non-interactive mode")
+				os.Exit(1)
+			}
 			return errors.New("authentication token can not be empty")
 		} else {
 			splitAuth = strings.Split(str, ":")
 			if len(splitAuth) != 2 || len(splitAuth[0]) == 0 {
+				if force {
+					fmt.Fprintln(os.Stderr, "Authentication token must have the following format <user>:<password>")
+					os.Exit(1)
+				}
 				return errors.New("authentication token must have the following format <user>:<password>")
 			}
 		}
@@ -169,13 +186,13 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
 			}
 		}
-		user, pass = EnsureAuth(auth)
+		user, pass = EnsureAuth(auth, IsForceMode(c))
 	}
 
-	return doCreateRequest(method, url, user, pass, body)
+	return doCreateRequest(method, url, user, pass, body, IsForceMode(c))
 }
 
-func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Request {
+func doCreateRequest(method, reqUrl, user, pass string, body io.Reader, force bool) *http.Request {
 	var (
 		host, scheme, port, path string
 	)
@@ -210,6 +227,7 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader) *http.Re
 		os.Exit(1)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: FORCE_COOKIE, Value: strconv.FormatBool(force)})
 
 	rData := ReadRuntimeData()
 	if user != "" {
@@ -300,10 +318,20 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 			}
 			auth = ""
 		}
-		user, pass = EnsureAuth(auth)
+		forceCookie, cookieError := res.Request.Cookie(FORCE_COOKIE)
+		util.Warn(cookieError, fmt.Sprintf("Could not read '%s' cookie", FORCE_COOKIE))
+		forceBool, boolError := strconv.ParseBool(forceCookie.Value)
+		util.Warn(boolError, fmt.Sprintf("Could not parse '%s' cookie value: %s", FORCE_COOKIE, forceCookie.Value))
+
+		if forceBool {
+			// Just exit cuz there's no way we can ask new auth in non-interactive mode
+			os.Exit(1)
+		}
+
+		user, pass = EnsureAuth(auth, forceBool)
 		fmt.Fprintln(os.Stderr, "")
 
-		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy)
+		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy, forceBool)
 		// need to set it for install requests, because their content type may vary
 		newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
 		res, err = SendRequestCustom(newReq, message, timeoutMin)

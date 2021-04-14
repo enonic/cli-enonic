@@ -16,7 +16,7 @@ import (
 var Replicas = cli.Command{
 	Name:  "replicas",
 	Usage: "Set the number of replicas in the cluster.",
-	Flags: append([]cli.Flag{}, common.FLAGS...),
+	Flags: append([]cli.Flag{}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		replicasNum := ensureReplicasNumberArg(c)

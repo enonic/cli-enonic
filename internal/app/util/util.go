@@ -92,11 +92,16 @@ func filterJars(libs []os.FileInfo) []string {
 	return jars
 }
 
-func PromptProjectJar(inputJar string) string {
+func PromptProjectJar(inputJar string, force bool) string {
 	var projectJar string
 	var fileValidator = func(val interface{}) error {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) == 0 {
+			if force {
+				fmt.Fprintf(os.Stderr, "Snapshot name can not be empty in non-interactive mode.")
+				os.Exit(1)
+			}
+
 			libs, err := ioutil.ReadDir(filepath.Join("build", "libs"))
 			if err != nil {
 				return errors.New("Could not read project build folder")
@@ -125,6 +130,10 @@ func PromptProjectJar(inputJar string) string {
 			}
 		} else {
 			if _, err := os.Stat(str); err != nil {
+				if force {
+					fmt.Fprintf(os.Stderr, "File '%s' does not exist", str)
+					os.Exit(1)
+				}
 				return fmt.Errorf("File '%s' does not exist", str)
 			}
 			projectJar = str
@@ -137,6 +146,7 @@ func PromptProjectJar(inputJar string) string {
 	return projectJar
 }
 
+// Deprecated: use PropmtString, PromptPassword, PromptBool instead
 func PromptUntilTrue(val string, assessFunc func(val *string, i byte) string) string {
 	index := byte(0)
 	text := assessFunc(&val, index)
