@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"cli-enonic/internal/app/commands/common"
 	"github.com/briandowns/spinner"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"gopkg.in/cheggaaa/pb.v1"
 )
 

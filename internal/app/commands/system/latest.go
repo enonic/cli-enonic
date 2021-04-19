@@ -1,9 +1,9 @@
 package system
 
 import (
+	"cli-enonic/internal/app/commands/common"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
 	"github.com/urfave/cli"
 	"os"
 	"time"

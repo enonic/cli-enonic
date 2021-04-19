@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/enonic/cli-enonic/internal/app/commands/cloud/util"
+	"cli-enonic/internal/app/commands/cloud/util"
 )
 
 type UploadAppResponse struct {

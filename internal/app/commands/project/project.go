@@ -1,11 +1,11 @@
 package project
 
 import (
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/commands/sandbox"
+	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"os"
 	"os/exec"

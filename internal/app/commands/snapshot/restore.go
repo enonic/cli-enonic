@@ -2,12 +2,12 @@ package snapshot
 
 import (
 	"bytes"
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/AlecAivazis/survey"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
+	"gopkg.in/AlecAivazis/survey.v1"
 	"net/http"
 	"os"
 )

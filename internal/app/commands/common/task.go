@@ -1,9 +1,9 @@
 package common
 
 import (
+	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"gopkg.in/cheggaaa/pb.v1"
 	"net/http"
 	"os"

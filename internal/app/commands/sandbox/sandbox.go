@@ -1,13 +1,13 @@
 package sandbox
 
 import (
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/AlecAivazis/survey"
 	"github.com/Masterminds/semver"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/otiai10/copy"
 	"github.com/urfave/cli"
+	"gopkg.in/AlecAivazis/survey.v1"
 	"io/ioutil"
 	"os"
 	"path/filepath"

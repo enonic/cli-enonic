@@ -1,10 +1,10 @@
 package dump
 
 import (
+	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/AlecAivazis/survey"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
+	"gopkg.in/AlecAivazis/survey.v1"
 	"os"
 	"regexp"
 	"strings"

@@ -2,14 +2,14 @@ package common
 
 import (
 	"bytes"
+	"cli-enonic/internal/app/commands/remote"
+	"cli-enonic/internal/app/util"
+	"cli-enonic/internal/app/util/system"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/briandowns/spinner"
-	"github.com/enonic/cli-enonic/internal/app/commands/remote"
-	"github.com/enonic/cli-enonic/internal/app/util"
-	"github.com/enonic/cli-enonic/internal/app/util/system"
 	"github.com/magiconair/properties"
 	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"

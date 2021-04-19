@@ -3,7 +3,7 @@ package queries
 import (
 	"context"
 
-	cloudApi "github.com/enonic/cli-enonic/internal/app/commands/cloud/client"
+	cloudApi "cli-enonic/internal/app/commands/cloud/client"
 )
 
 // GetServices gets all services for the logged in user
