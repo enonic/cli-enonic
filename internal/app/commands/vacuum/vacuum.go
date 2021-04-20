@@ -19,7 +19,7 @@ var Vacuum = cli.Command{
 			Name:  "blob, b",
 			Usage: "Also removes unused blobs from the blobstore",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 		req := createVacuumRequest(c)
 

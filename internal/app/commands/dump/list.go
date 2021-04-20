@@ -15,7 +15,7 @@ var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "List available dumps",
-	Flags:   append([]cli.Flag{}, common.FLAGS...),
+	Flags:   append([]cli.Flag{}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		dumps := listExistingDumpNames()

@@ -46,7 +46,7 @@ var Import = cli.Command{
 			Name:  "dry",
 			Usage: "Show the result without making actual changes.",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)
@@ -72,6 +72,7 @@ var Import = cli.Command{
 
 func ensureXSLParamsFlagFormat(c *cli.Context) {
 	params := c.StringSlice("xsl-param")
+	force := common.IsForceMode(c)
 	xslParams = make(map[string]string)
 
 	for _, param := range params {
@@ -81,6 +82,10 @@ func ensureXSLParamsFlagFormat(c *cli.Context) {
 			if len(strings.TrimSpace(*val)) == 0 || len(splitParam) == 2 {
 				return ""
 			} else {
+				if force {
+					fmt.Fprintf(os.Stderr, "Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>\n", param)
+					os.Exit(1)
+				}
 				return fmt.Sprintf("Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>: ", param)
 			}
 		})

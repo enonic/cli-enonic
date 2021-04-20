@@ -79,10 +79,6 @@ var Create = cli.Command{
 	Usage: "Create new project",
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:  "auth, a",
-			Usage: "Authentication token for basic authentication (user:password).",
-		},
-		cli.StringFlag{
 			Name:  "branch, b",
 			Usage: "Branch to checkout.",
 		},
@@ -106,6 +102,8 @@ var Create = cli.Command{
 			Name:  "name, n",
 			Usage: "Project name.",
 		},
+		common.AUTH_FLAG,
+		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 		fmt.Fprint(os.Stderr, "\n")
@@ -119,7 +117,7 @@ var Create = cli.Command{
 
 		var user, pass string
 		if authString := c.String("auth"); authString != "" {
-			user, pass = common.EnsureAuth(authString)
+			user, pass = common.EnsureAuth(authString, common.IsForceMode(c))
 		}
 
 		fmt.Fprintln(os.Stderr, "\nInitializing project...")
@@ -132,7 +130,7 @@ var Create = cli.Command{
 		absDest, err := filepath.Abs(dest)
 		util.Fatal(err, "Error creating project")
 
-		pData := ensureProjectDataExists(nil, dest, "A sandbox is required for your project, create one?")
+		pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one?", false)
 
 		if pData == nil {
 			fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
@@ -147,7 +145,7 @@ var Create = cli.Command{
 		}
 
 		if starter != nil {
-			if util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), false) {
+			if !common.IsForceMode(c) && util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), false) {
 				err := browser.OpenURL(starter.Data.DocumentationUrl)
 				util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
 			} else {
@@ -162,45 +160,85 @@ var Create = cli.Command{
 }
 
 func ensureVersion(c *cli.Context) string {
-
+	force := common.IsForceMode(c)
 	var versionValidator = func(val interface{}) error {
 		str := val.(string)
 		if _, err := semver.NewVersion(str); err != nil {
+			if force {
+				// assume DEFAULT_VERSION in non-interactive mode instead of error
+				if str == "" {
+					fmt.Fprintf(os.Stderr, "Version was not supplied. Using default: %s\n", DEFAULT_VERSION)
+				} else {
+					fmt.Fprintf(os.Stderr, "Version '%s' is not valid. Using default: %s\n", str, DEFAULT_VERSION)
+				}
+				return nil
+			}
 			return errors.Errorf("Version '%s' is not valid: ", str)
 		}
 		return nil
 	}
 
-	return util.PromptString("Project version", c.String("version"), DEFAULT_VERSION, versionValidator)
+	version := util.PromptString("Project version", c.String("version"), DEFAULT_VERSION, versionValidator)
+	if !force || version != "" {
+		return version
+	} else {
+		return DEFAULT_VERSION
+	}
 }
 
 func ensureDestination(c *cli.Context, name string) string {
 	dest := c.String("destination")
+	force := common.IsForceMode(c)
 	var defaultDest string
 	if dest == "" && name != "" {
 		lastDot := strings.LastIndex(name, ".")
 		defaultDest = name[lastDot+1:]
 	}
 
-	var destValidator = func(val interface{}) error {
+	var destValidator func(val interface{}) error
+	destValidator = func(val interface{}) error {
 		str := val.(string)
 		if val == "" || len(strings.TrimSpace(str)) < 2 {
+			if force {
+				// Assume defaultDest in non-interactive mode
+				if val == "" {
+					fmt.Fprintf(os.Stderr, "Destination folder was not supplied. Using default: %s\n", defaultDest)
+				} else {
+					fmt.Fprintf(os.Stderr, "Destination folder '%s' must be at least 2 characters long. Using default: %s\n", str, defaultDest)
+				}
+				// validate defaultDest as well in case it already exists
+				return destValidator(defaultDest)
+			}
 			return errors.New("Destination folder must be at least 2 characters long: ")
 		} else if stat, err := os.Stat(str); stat != nil {
+			if force {
+				fmt.Fprintf(os.Stderr, "Destination folder '%s' already exists.\n", str)
+				os.Exit(1)
+			}
 			return errors.Errorf("Destination folder '%s' already exists: ", str)
 		} else if os.IsNotExist(err) {
 			return nil
 		} else if err != nil {
+			if force {
+				fmt.Fprintf(os.Stderr, "Folder '%s' could not be created: %s\n", str, err.Error())
+				os.Exit(1)
+			}
 			return errors.Errorf("Folder '%s' could not be created: ", str)
 		}
 		return nil
 	}
 
-	return util.PromptString("Destination folder", dest, defaultDest, destValidator)
+	userDest := util.PromptString("Destination folder", dest, defaultDest, destValidator)
+	if !force || userDest != "" {
+		return userDest
+	} else {
+		return defaultDest
+	}
 }
 
 func ensureNameArg(c *cli.Context) string {
 	name := c.String("name")
+	force := common.IsForceMode(c)
 	if name == "" && c.NArg() > 0 {
 		name = c.Args().First()
 	}
@@ -209,12 +247,25 @@ func ensureNameArg(c *cli.Context) string {
 	var nameValidator = func(val interface{}) error {
 		str := val.(string)
 		if !appNameRegex.MatchString(str) {
+			if force {
+				if str == "" {
+					fmt.Fprintf(os.Stderr, "Name was not supplied. Using default: %s\n", DEFAULT_NAME)
+				} else {
+					fmt.Fprintf(os.Stderr, "Name '%s' is not valid. Using default: %s\n", val, DEFAULT_NAME)
+				}
+				return nil
+			}
 			return errors.Errorf("Name '%s' is not valid. It must be min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.]", val)
 		}
 		return nil
 	}
 
-	return util.PromptString("Project name (min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.])", name, DEFAULT_NAME, nameValidator)
+	projectName := util.PromptString("Project name (min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.])", name, DEFAULT_NAME, nameValidator)
+	if !force || projectName != "" {
+		return projectName
+	} else {
+		return DEFAULT_NAME
+	}
 }
 
 func processGradleProperties(propsFile, name, version string) {
@@ -264,6 +315,11 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 	}
 
 	if repo == "" {
+		if common.IsForceMode(c) {
+			fmt.Fprintln(os.Stderr, "Repository flag can not be empty in non-interactive mode.")
+			os.Exit(1)
+		}
+
 		starters := fetchStarters(c)
 		sort.SliceStable(starters, func(i, j int) bool {
 			return starters[i].DisplayName < starters[j].DisplayName

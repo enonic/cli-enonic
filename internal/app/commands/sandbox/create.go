@@ -1,6 +1,7 @@
 package sandbox
 
 import (
+	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/pkg/errors"
@@ -23,6 +24,7 @@ var Create = cli.Command{
 			Name:  "all, a",
 			Usage: "List all distro versions.",
 		},
+		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 
@@ -31,16 +33,16 @@ var Create = cli.Command{
 			name = c.Args().First()
 		}
 
-		SandboxCreateWizard(name, c.String("version"), "", c.Bool("all"), true)
+		SandboxCreateWizard(name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
 
 		return nil
 	},
 }
 
-func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage bool) *Sandbox {
+func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage, force bool) *Sandbox {
 
-	name = ensureUniqueNameArg(name, minDistroVersion)
-	version := ensureVersionCorrect(versionStr, minDistroVersion, includeUnstable)
+	name = ensureUniqueNameArg(name, minDistroVersion, force)
+	version := ensureVersionCorrect(versionStr, minDistroVersion, includeUnstable, force)
 
 	box := createSandbox(name, version)
 
@@ -54,17 +56,25 @@ func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnsta
 	return box
 }
 
-func ensureUniqueNameArg(name, minDistroVersion string) string {
+func ensureUniqueNameArg(name, minDistroVersion string, force bool) string {
 	existingBoxes := listSandboxes(minDistroVersion)
 	defaultSandboxName := getFirstValidSandboxName(existingBoxes)
 
 	var sandboxValidator = func(val interface{}) error {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) < 3 {
-			return errors.New("Sandbox name must be at least 3 characters long")
+			if force {
+				// Assume defaultSandboxName in force mode
+				return nil
+			}
+			return errors.New("Sandbox name must be at least 3 characters long: ")
 		} else {
 			for _, existingBox := range existingBoxes {
 				if existingBox.Name == str {
+					if force {
+						fmt.Fprintf(os.Stderr, "Sandbox with name '%s' already exists\n", str)
+						os.Exit(1)
+					}
 					return errors.Errorf("Sandbox with name '%s' already exists: ", str)
 				}
 			}
@@ -72,7 +82,12 @@ func ensureUniqueNameArg(name, minDistroVersion string) string {
 		}
 	}
 
-	return util.PromptString("Sandbox name", name, defaultSandboxName, sandboxValidator)
+	userSandboxName := util.PromptString("Sandbox name", name, defaultSandboxName, sandboxValidator)
+	if !force || userSandboxName != "" {
+		return userSandboxName
+	} else {
+		return defaultSandboxName
+	}
 }
 
 func getFirstValidSandboxName(sandboxes []*Sandbox) string {

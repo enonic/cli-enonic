@@ -152,6 +152,9 @@ Options:
 |`--debug`
 |Run enonic XP server with debug enabled on port 5005
 
+|`-c, --continuous`
+|Watch changes and deploy project continuously
+
 |`name`
 |sandbox name to deploy to (overrides associated sandbox)
 |===
@@ -161,9 +164,9 @@ you'll have to make sure the sandbox is running in dev mode.
 
 NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
 
-.Example deploying current project to 'otherSandbox' sandbox:
+.Example deploying current project to 'otherSandbox' sandbox, starting XP in dev mode and continuously watching changes:
 ----
-$ enonic project deploy otherSandbox
+$ enonic project deploy otherSandbox --dev -c
 ----
 
 === Gradle

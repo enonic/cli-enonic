@@ -10,6 +10,7 @@ import (
 	"gopkg.in/AlecAivazis/survey.v1"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var Restore = cli.Command{
@@ -28,7 +29,7 @@ var Restore = cli.Command{
 			Name:  "latest",
 			Usage: "Flag to use latest snapshot, takes precedence over name flag",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		req := createRestoreRequest(c)
@@ -50,7 +51,11 @@ var Restore = cli.Command{
 
 func ensureSnapshotFlag(c *cli.Context) string {
 	snapName := c.String("snapshot")
-	if snapName == "" {
+	if len(strings.TrimSpace(snapName)) == 0 {
+		if common.IsForceMode(c) {
+			fmt.Fprintln(os.Stderr, "Snapshot name can not be empty in non-interactive mode.")
+			os.Exit(1)
+		}
 
 		snapshotList := listSnapshots(c)
 		if len(snapshotList.Results) == 0 {

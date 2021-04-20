@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
@@ -28,7 +29,7 @@ var Delete = cli.Command{
 			Name:  "snapshot, snap",
 			Usage: "The name of the snapshot to delete",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		ensureSnapshotOrBeforeFlag(c)
@@ -49,18 +50,22 @@ var Delete = cli.Command{
 func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 	snapshot := c.String("snapshot")
 	before := c.String("before")
+	force := common.IsForceMode(c)
 
 	if snapshot == "" && before == "" {
+		if force {
+			fmt.Fprintf(os.Stderr, "Either before or snapshot flag should not be empty in non-interactive mode.")
+			os.Exit(1)
+		}
 		var val string
-		val = util.PromptUntilTrue(val, func(val *string, ind byte) string {
-			if *val == "" && ind == 0 {
-				return "Select by [N]ame or by [D]ate? "
-			} else if upper := strings.ToUpper(*val); upper != "N" && upper != "D" {
-				return `Please type "N" for Name or "D" for Date: `
-			} else {
-				return ""
+		choiceValidator := func(val interface{}) error {
+			str := val.(string)
+			if upper := strings.ToUpper(str); upper != "N" && upper != "D" {
+				return errors.Errorf("'%s' is not a valid choice. Please use 'N' for Name or 'D' for Date: ", str)
 			}
-		})
+			return nil
+		}
+		util.PromptString("Select by [N]ame or by [D]ate:", val, "N", choiceValidator)
 		switch val {
 		case "N", "n":
 			ensureSnapshotFlag(c)
@@ -70,23 +75,29 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 	}
 }
 func ensureBeforeFlag(c *cli.Context) {
-
-	before := util.PromptUntilTrue(c.String("before"), func(val *string, ind byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			switch ind {
-			case 0:
-				return fmt.Sprintf("Enter date in the format %s: ", time.Now().Format(DATE_FORMAT))
-			default:
-				return fmt.Sprintf("Before date can not be empty. Format %s: ", time.Now().Format(DATE_FORMAT))
+	force := common.IsForceMode(c)
+	label := fmt.Sprintf("Enter date in the format %s: ", time.Now().Format(DATE_FORMAT))
+	dateValidator := func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			if force {
+				fmt.Fprintln(os.Stderr, "Before flag can not be empty in non-interactive mode.")
+				os.Exit(1)
 			}
+			return fmt.Errorf("Before date can not be empty. Format %s: ", time.Now().Format(DATE_FORMAT))
 		} else {
-			if _, err := time.Parse(DATE_FORMAT, *val); err != nil {
-				return "Not a valid date: "
+			if _, err := time.Parse(DATE_FORMAT, str); err != nil {
+				if force {
+					fmt.Fprintf(os.Stderr, "Not a valid date: %s", str)
+					os.Exit(1)
+				}
+				return errors.New("Not a valid date: ")
 			} else {
-				return ""
+				return nil
 			}
 		}
-	})
+	}
+	before := util.PromptString(label, c.String("before"), label, dateValidator)
 
 	c.Set("before", before)
 }

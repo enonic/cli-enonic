@@ -12,7 +12,7 @@ import (
 var Latest = cli.Command{
 	Name:  "latest",
 	Usage: "Check for latest version",
-	Flags: common.FLAGS,
+	Flags: []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "")
 		req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)

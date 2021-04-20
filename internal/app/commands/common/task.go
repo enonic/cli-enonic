@@ -93,7 +93,7 @@ func doDisplayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
 }
 
 func fetchTaskStatus(taskId string) (*TaskStatus, bool) {
-	req := doCreateRequest("GET", "/task/"+taskId, "", "", nil)
+	req := doCreateRequest("GET", "/task/"+taskId, "", "", nil, false)
 	resp := SendRequest(req, "")
 	var taskStatus TaskStatus
 	ParseResponse(resp, &taskStatus)

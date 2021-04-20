@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
@@ -24,7 +25,7 @@ var Reprocess = cli.Command{
 			Name:  "skip-children",
 			Usage: "Flag to skip processing of content children.",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		var result ReprocessResponse
@@ -95,25 +96,30 @@ func createReprocessRequest(c *cli.Context, url string) *http.Request {
 }
 
 func ensurePathFlag(c *cli.Context) {
-	var path = c.String("path")
-
-	path = util.PromptUntilTrue(path, func(val *string, ind byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			switch ind {
-			case 0:
-				return "Enter target content path (<branch-name>:<content-path>): "
-			default:
-				return "Target content path can not be empty. Format: <branch-name>:<content-path>. e.g 'draft:/': "
+	force := common.IsForceMode(c)
+	pathValidator := func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			if force {
+				fmt.Fprintln(os.Stderr, "Target content path can not be empty in non-interactive mode.")
+				os.Exit(1)
 			}
+			return errors.New("Target content path can not be empty. Format: <branch-name>:<content-path>. e.g 'draft:/': ")
 		} else {
-			splitPathLen := len(strings.Split(*val, ":"))
+			splitPathLen := len(strings.Split(str, ":"))
 			if splitPathLen != 2 {
-				return fmt.Sprintf("Target content path '%s' must have the following format <branch-name>:<content-path>. e.g 'draft:/': ", *val)
+				if force {
+					fmt.Fprintf(os.Stderr, "Target content path '%s' must have the following format <branch-name>:<content-path>. e.g 'draft:/'\n", str)
+					os.Exit(1)
+				}
+				return errors.Errorf("Target content path '%s' must have the following format <branch-name>:<content-path>. e.g 'draft:/': ", str)
 			} else {
-				return ""
+				return nil
 			}
 		}
-	})
+	}
+
+	path := util.PromptString("Enter target content path (<branch-name>:<content-path>)", c.String("path"), "", pathValidator)
 
 	c.Set("path", path)
 }

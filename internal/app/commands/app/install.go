@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"io"
 	"mime/multipart"
@@ -30,7 +31,7 @@ var Install = cli.Command{
 			Name:  "file, f",
 			Usage: "Application file",
 		},
-	}, common.FLAGS...),
+	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		file, url := ensureURLOrFileFlag(c)
@@ -78,25 +79,32 @@ func ensureURLOrFileFlag(c *cli.Context) (string, string) {
 }
 
 func ensureURLFlag(c *cli.Context) string {
-	return util.PromptUntilTrue(c.String("u"), func(val *string, ind byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			switch ind {
-			case 0:
-				return "Enter URL: "
-			default:
-				return "URL can not be empty: "
+	force := common.IsForceMode(c)
+	urlValidator := func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			if force {
+				fmt.Fprintln(os.Stderr, "URL can not be empty in non-interactive mode.")
+				os.Exit(1)
 			}
+			return errors.New("URL can not be empty")
 		} else {
-			if _, err := url.ParseRequestURI(*val); err != nil {
-				return fmt.Sprintf("URL '%s' is not valid: ", *val)
+			if _, err := url.ParseRequestURI(str); err != nil {
+				if force {
+					fmt.Fprintf(os.Stderr, "URL '%s' is not valid", str)
+					os.Exit(1)
+				}
+				return errors.Errorf("URL '%s' is not valid: ", str)
 			}
-			return ""
+			return nil
 		}
-	})
+	}
+
+	return util.PromptString("Enter URL", c.String("u"), "", urlValidator)
 }
 
 func ensureFileFlag(c *cli.Context) string {
-	return util.PromptProjectJar(c.String("f"))
+	return util.PromptProjectJar(c.String("f"), common.IsForceMode(c))
 }
 
 func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Request {

@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"cli-enonic/internal/app/commands/cloud/auth"
+	"cli-enonic/internal/app/commands/common"
 	multipart "cli-enonic/internal/app/commands/cloud/client"
 	mutations "cli-enonic/internal/app/commands/cloud/client/mutations"
 	queries "cli-enonic/internal/app/commands/cloud/client/queries"
@@ -81,7 +82,7 @@ var ProjectDeploy = cli.Command{
 		doDeploy := c.Bool("y")
 
 		// Create deploy context
-		deployCtx, err := createDeployContext(target, jarFile)
+		deployCtx, err := createDeployContext(target, jarFile, common.IsForceMode(c))
 		if err != nil {
 			return err
 		}
@@ -118,10 +119,10 @@ var ProjectDeploy = cli.Command{
 // Functions to setup deployment context
 
 // Create deployment context
-func createDeployContext(target string, deploymentJar string) (*deployContext, error) {
+func createDeployContext(target string, deploymentJar string, force bool) (*deployContext, error) {
 	var jar string
 	// Find jar to deploy
-	jar = commonUtil.PromptProjectJar(deploymentJar)
+	jar = commonUtil.PromptProjectJar(deploymentJar, force)
 
 	// Query api and create service map
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)

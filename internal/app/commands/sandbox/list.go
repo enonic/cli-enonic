@@ -11,6 +11,7 @@ import (
 var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
+	Flags:   []cli.Flag{common.FORCE_FLAG},
 	Usage:   "List all sandboxes",
 	Action: func(c *cli.Context) error {
 		rData := common.ReadRuntimeData()
