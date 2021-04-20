@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"os"
 
+	auth "cli-enonic/internal/app/commands/cloud/auth"
+	util "cli-enonic/internal/app/commands/cloud/util"
 	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
-	auth "github.com/enonic/cli-enonic/internal/app/commands/cloud/auth"
-	util "github.com/enonic/cli-enonic/internal/app/commands/cloud/util"
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
 )

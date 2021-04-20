@@ -1,10 +1,10 @@
 package sandbox
 
 import (
+	"cli-enonic/internal/app/util"
+	"cli-enonic/internal/app/commands/common"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"os"
 )

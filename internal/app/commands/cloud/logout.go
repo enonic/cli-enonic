@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	auth "github.com/enonic/cli-enonic/internal/app/commands/cloud/auth"
+	auth "cli-enonic/internal/app/commands/cloud/auth"
 	"github.com/urfave/cli"
 )
 

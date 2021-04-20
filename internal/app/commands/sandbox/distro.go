@@ -1,13 +1,13 @@
 package sandbox
 
 import (
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/commands/remote"
+	"cli-enonic/internal/app/util"
+	"cli-enonic/internal/app/util/system"
 	"fmt"
-	"github.com/AlecAivazis/survey"
 	"github.com/Masterminds/semver"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/commands/remote"
-	"github.com/enonic/cli-enonic/internal/app/util"
-	"github.com/enonic/cli-enonic/internal/app/util/system"
+	"gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/cheggaaa/pb.v1"
 	"io"
 	"io/ioutil"

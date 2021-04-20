@@ -1,8 +1,8 @@
 package remote
 
 import (
+	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 	"os"
 	"strings"

@@ -2,10 +2,10 @@ package export
 
 import (
 	"bytes"
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"

@@ -6,7 +6,7 @@ import (
 	"io"
 	"path/filepath"
 
-	util "github.com/enonic/cli-enonic/internal/app/commands/cloud/util"
+	util "cli-enonic/internal/app/commands/cloud/util"
 )
 
 // Logout user

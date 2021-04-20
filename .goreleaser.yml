@@ -27,7 +27,7 @@ builds:
     # Default is empty.
     env:
       - CGO_ENABLED=0
-      - GO111MODULE=off
+      - GO111MODULE=on
 
     # GOOS list to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment

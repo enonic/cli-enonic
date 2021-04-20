@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	cloudApi "github.com/enonic/cli-enonic/internal/app/commands/cloud/client"
+	cloudApi "cli-enonic/internal/app/commands/cloud/client"
 )
 
 // CreateXp7AppFromUpload deploys jar to a service

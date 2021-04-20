@@ -1,9 +1,9 @@
 package project
 
 import (
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/commands/sandbox"
 	"fmt"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/commands/sandbox"
 	"github.com/urfave/cli"
 	"os"
 )

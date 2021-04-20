@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/enonic/cli-enonic/internal/app/commands"
-	"github.com/enonic/cli-enonic/internal/app/commands/common"
-	"github.com/enonic/cli-enonic/internal/app/util"
+	"cli-enonic/internal/app/commands"
+	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/util"
 	"github.com/mgutz/ansi"
 	"github.com/urfave/cli"
 	"log"

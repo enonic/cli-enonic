@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/AlecAivazis/survey"
 	"github.com/BurntSushi/toml"
+	"gopkg.in/AlecAivazis/survey.v1"
 	"io"
 	"io/ioutil"
 	"net"
@@ -329,7 +329,7 @@ func IsPortAvailable(port uint16) bool {
 	return err == nil
 }
 
-func IndexOf(element string, data []string) (int) {
+func IndexOf(element string, data []string) int {
 	for k, v := range data {
 		if element == v {
 			return k

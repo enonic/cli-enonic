@@ -1,8 +1,8 @@
 package util
 
 import (
-	"github.com/AlecAivazis/survey"
 	"github.com/urfave/cli"
+	"gopkg.in/AlecAivazis/survey.v1"
 	surveyCore "gopkg.in/AlecAivazis/survey.v1/core"
 	"io"
 )

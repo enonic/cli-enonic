@@ -1,8 +1,8 @@
 package remote
 
 import (
+	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/bcrypt"

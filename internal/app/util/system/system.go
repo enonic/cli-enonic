@@ -1,8 +1,8 @@
 package system
 
 import (
+	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/enonic/cli-enonic/internal/app/util"
 	"os"
 	"os/exec"
 )
