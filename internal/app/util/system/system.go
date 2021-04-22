@@ -29,3 +29,7 @@ func Start(app string, args []string, detach bool) *exec.Cmd {
 func GetDetachedProcName() string {
 	return detachedProcName
 }
+
+func HasWriteAccess(path string) bool {
+	return checkWriteAccess(path)
+}

@@ -3,7 +3,10 @@
 package system
 
 import (
+	"os"
 	"os/exec"
+	"os/user"
+	"strconv"
 	"syscall"
 )
 
@@ -26,6 +29,42 @@ func setStartAttachedParams(cmd *exec.Cmd) {
 func setStartDetachedParams(cmd *exec.Cmd) {
 	cmd.SysProcAttr.Noctty = false
 	cmd.SysProcAttr.Setpgid = true
+}
+
+func checkWriteAccess(path string) bool {
+	if info, err := os.Stat(path); err == nil {
+		mode := info.Mode()
+		if mode&(1<<1) != 0 {
+			// anyone has write access
+			return true
+		} else {
+			stat := info.Sys().(*syscall.Stat_t)
+			me, meErr := user.Current()
+			if meErr != nil {
+				return false
+			}
+			if mode&(1<<7) != 0 {
+				// author has write access, check if current user is author
+				authorId := strconv.FormatUint(uint64(stat.Uid), 10)
+				if me.Uid == authorId {
+					return true
+				}
+			} else if mode&(1<<4) != 0 {
+				// members of file group has write access, check if current user belongs to it
+				fileGroupId := int(stat.Gid)
+				myGroupIds, groupsErr := me.GroupIds()
+				if groupsErr != nil {
+					return false
+				}
+				for myGroupId, _ := range myGroupIds {
+					if myGroupId == fileGroupId {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
 }
 
 /*
