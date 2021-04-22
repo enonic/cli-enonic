@@ -247,7 +247,7 @@ func filterDistros(vs []os.FileInfo, distrosDir string) []string {
 
 func isDistro(v os.FileInfo) bool {
 	distroRegexp := regexp.MustCompile(DISTRO_FOLDER_NAME_REGEXP)
-	return v.IsDir() && distroRegexp.MatchString(v.Name())
+	return (v.IsDir() || (v.Mode()&os.ModeSymlink == os.ModeSymlink)) && distroRegexp.MatchString(v.Name())
 }
 
 func parseDistroVersion(distro string, isDisplay bool) string {

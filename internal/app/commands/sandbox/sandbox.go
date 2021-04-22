@@ -224,10 +224,15 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 }
 
 func CopyHomeFolder(distroPath, sandboxName string) {
-	homePath := GetSandboxHomePath(sandboxName)
-	if _, err := os.Stat(homePath); os.IsNotExist(err) {
-		err := copy.Copy(filepath.Join(distroPath, "home"), homePath)
-		util.Fatal(err, "Could not copy home folder from distro: ")
+	targetHome := GetSandboxHomePath(sandboxName)
+	if _, err := os.Stat(targetHome); err == nil {
+		// it already exists
+		return
+	}
+	sourceHome := filepath.Join(distroPath, "home")
+	if _, err := os.Stat(sourceHome); err == nil {
+		copyErr := copy.Copy(sourceHome, targetHome, copy.Options{AddPermission: 0200})
+		util.Fatal(copyErr, "Could not copy home folder from distro to sandbox: ")
 	}
 }
 

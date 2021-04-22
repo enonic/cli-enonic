@@ -13,7 +13,7 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	//github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/go-ps v0.0.0-20170309133038-4fdf99ab2936
-	github.com/otiai10/copy v0.0.0-20180813032824-7e9a647135a1
+	github.com/otiai10/copy v1.5.1
 	github.com/otiai10/mint v1.3.2 // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/pkg/errors v0.8.1

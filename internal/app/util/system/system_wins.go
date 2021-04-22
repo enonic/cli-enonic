@@ -39,10 +39,14 @@ func setStartAttachedParams(cmd *exec.Cmd) {
 	https://docs.microsoft.com/en-us/windows/desktop/procthread/process-creation-flags
 	CREATE_NEW_PROCESS_GROUP = 0x00000200
 	CREATE_NO_WINDOW = 0x08000000
- */
+*/
 func setStartDetachedParams(cmd *exec.Cmd) {
 	cmd.SysProcAttr.CreationFlags = 0x08000200
 	cmd.SysProcAttr.HideWindow = true
+}
+
+func checkWriteAccess(path string) bool {
+	return true
 }
 
 /*
