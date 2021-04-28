@@ -266,7 +266,7 @@ snapcrafts:
 
     apps:
       enonic:
-        plugs: ["home", "network", "network-bind", "dot-enonic"]
+        plugs: [ "home", "network", "network-bind", "dot-enonic", "mount-observe" ]
 
     plugs:
       dot-enonic:
