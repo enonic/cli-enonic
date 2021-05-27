@@ -66,14 +66,14 @@ func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
 	if !processRunning {
 		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'?", projectData.Sandbox), true) {
 			// detach in continuous mode to release terminal window
-			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug)
+			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug, common.HTTP_PORT)
 		}
 	} else if rData.Running != projectData.Sandbox {
 		// Ask to stop running box if it differs from project selected only
 		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead ?", rData.Running, projectData.Sandbox), true) {
 			sandbox.StopSandbox(rData)
 			// detach in continuous mode to release terminal window
-			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug)
+			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug, common.HTTP_PORT)
 		}
 	} else {
 		// Desired sandbox is already running, just give a heads up about  --dev and --debug params

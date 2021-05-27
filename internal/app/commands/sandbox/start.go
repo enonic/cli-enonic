@@ -34,22 +34,6 @@ var Start = cli.Command{
 	Usage: "Start the sandbox.",
 	Action: func(c *cli.Context) error {
 
-		rData := common.ReadRuntimeData()
-		isSandboxRunning := common.VerifyRuntimeData(&rData)
-
-		port := uint16(c.Uint("http.port"))
-		if isSandboxRunning {
-			if rData.Running == c.Args().First() {
-				fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
-				os.Exit(1)
-			} else {
-				AskToStopSandbox(rData, common.IsForceMode(c))
-			}
-		} else if !util.IsPortAvailable(port) {
-			fmt.Fprintf(os.Stderr, "Port %d is not available, stop the app using it first!\n", port)
-			os.Exit(1)
-		}
-
 		var sandbox *Sandbox
 		var minDistroVersion string
 		// use configured sandbox if we're in a project folder
@@ -65,13 +49,13 @@ var Start = cli.Command{
 			}
 		}
 
-		StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"))
+		StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
 
 		return nil
 	},
 }
 
-func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool) {
+func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) {
 	force := common.IsForceMode(c)
 	rData := common.ReadRuntimeData()
 	isSandboxRunning := common.VerifyRuntimeData(&rData)
@@ -83,9 +67,14 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool)
 		} else {
 			AskToStopSandbox(rData, force)
 		}
-	} else if !util.IsPortAvailable(8080) {
-		fmt.Fprintln(os.Stderr, "Port 8080 is not available, stop the app using it first!")
-		os.Exit(1)
+	} else {
+		ports := []uint16{httpPort, common.MGMT_PORT, common.INFO_PORT}
+		for _, port := range ports {
+			if !util.IsPortAvailable(port) {
+				fmt.Fprintf(os.Stderr, "Port %d is not available, stop the app using it first!\n", port)
+				os.Exit(1)
+			}
+		}
 	}
 
 	EnsureDistroExists(sandbox.Distro)
