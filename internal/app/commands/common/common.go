@@ -38,6 +38,9 @@ const LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update C
 const CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
 const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 const FORCE_COOKIE = "forceFlag"
+const HTTP_PORT = 8080
+const INFO_PORT = 2609
+const MGMT_PORT = 4848
 
 var spin *spinner.Spinner
 
