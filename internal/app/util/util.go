@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/mitchellh/go-ps"
 	"gopkg.in/AlecAivazis/survey.v1"
 	"io"
 	"io/ioutil"
@@ -327,6 +328,24 @@ func IsPortAvailable(port uint16) bool {
 		defer ln.Close()
 	}
 	return err == nil
+}
+
+func WaitUntilProcessStopped(id int, timeoutSec float64) error {
+	var proc ps.Process
+	var err error
+	startTime := time.Now()
+	for ok := true; ok; ok = proc != nil {
+		diffSec := time.Now().Sub(startTime).Seconds()
+		if diffSec > timeoutSec {
+			return fmt.Errorf("timeout waiting for process %d to finish: %f seconds", id, diffSec)
+		}
+
+		if proc, err = ps.FindProcess(id); err != nil {
+			return err
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return nil
 }
 
 func IndexOf(element string, data []string) int {
