@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
@@ -25,8 +26,14 @@ var Stop = cli.Command{
 }
 
 func StopSandbox(rData common.RuntimeData) {
-	stopDistro(rData.PID)
+	pId := rData.PID
+	stopDistro(pId)
 	writeRunningSandbox("", 0)
 
-	fmt.Fprintf(os.Stdout, "Sandbox '%s' stopped\n", rData.Running)
+	common.StartSpinner(fmt.Sprintf("Stopping sandbox '%s'", rData.Running))
+	if err := util.WaitUntilProcessStopped(pId, 30); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+
+	fmt.Fprintln(os.Stderr, "Done")
 }
