@@ -36,6 +36,7 @@ const JSESSIONID = "JSESSIONID"
 const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
 const LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
 const CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
+const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 const FORCE_COOKIE = "forceFlag"
 
 var spin *spinner.Spinner
@@ -71,8 +72,20 @@ type RuntimeData struct {
 	LatestCheck   time.Time `toml:latestCheck`
 }
 
-func GetEnonicDir() string {
-	return filepath.Join(util.GetHomeDir(), ".enonic")
+func GetInEnonicDir(children ...string) string {
+	var joinArgs []string
+	if util.GetCurrentOs() == "linux" {
+		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
+			joinArgs = []string{snapCommon, "dot-enonic"}
+		}
+	}
+	if joinArgs == nil {
+		joinArgs = []string{util.GetHomeDir(), ".enonic"}
+	}
+	if len(children) > 0 {
+		joinArgs = append(joinArgs, children...)
+	}
+	return filepath.Join(joinArgs...)
 }
 
 func HasProjectData(prjPath string) bool {
@@ -107,8 +120,8 @@ func WriteProjectData(data *ProjectData, prjPath string) {
 }
 
 func ReadRuntimeData() RuntimeData {
-	path := filepath.Join(GetEnonicDir(), ".enonic")
-	file := util.OpenOrCreateDataFile(path, true)
+	enonicPath := GetInEnonicDir(".enonic")
+	file := util.OpenOrCreateDataFile(enonicPath, true)
 	defer file.Close()
 
 	var data RuntimeData
@@ -141,8 +154,8 @@ func VerifyRuntimeData(rData *RuntimeData) bool {
 }
 
 func WriteRuntimeData(data RuntimeData) {
-	path := filepath.Join(GetEnonicDir(), ".enonic")
-	file := util.OpenOrCreateDataFile(path, false)
+	enonicPath := GetInEnonicDir(".enonic")
+	file := util.OpenOrCreateDataFile(enonicPath, false)
 	defer file.Close()
 
 	util.EncodeTomlFile(file, data)

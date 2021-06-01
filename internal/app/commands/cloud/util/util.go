@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"time"
 
 	"cli-enonic/internal/app/commands/common"
@@ -16,7 +15,7 @@ import (
 
 // CloudConfigFolder returns the folder of cloud configuration
 func CloudConfigFolder() (string, error) {
-	folder := filepath.Join(common.GetEnonicDir(), "cloud")
+	folder := common.GetInEnonicDir("cloud")
 	return folder, os.MkdirAll(folder, os.ModeDir|os.ModePerm)
 }
 
