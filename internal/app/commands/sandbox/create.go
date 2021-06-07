@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -60,6 +61,7 @@ func ensureUniqueNameArg(name, minDistroVersion string, force bool) string {
 	existingBoxes := listSandboxes(minDistroVersion)
 	defaultSandboxName := getFirstValidSandboxName(existingBoxes)
 
+	nameRegex, _ := regexp.Compile("^[a-zA-Z0-9_]+$")
 	var sandboxValidator = func(val interface{}) error {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) < 3 {
@@ -69,13 +71,21 @@ func ensureUniqueNameArg(name, minDistroVersion string, force bool) string {
 			}
 			return errors.New("Sandbox name must be at least 3 characters long: ")
 		} else {
-			for _, existingBox := range existingBoxes {
-				if existingBox.Name == str {
-					if force {
-						fmt.Fprintf(os.Stderr, "Sandbox with name '%s' already exists\n", str)
-						os.Exit(1)
+			if !nameRegex.MatchString(str) {
+				if force {
+					fmt.Fprintf(os.Stderr, "Sandbox name '%s' is not valid. Use letters, digits or underscore (_) only\n", str)
+					os.Exit(1)
+				}
+				return errors.Errorf("Sandbox name '%s' is not valid. Use letters, digits or underscore (_) only: ", str)
+			} else {
+				for _, existingBox := range existingBoxes {
+					if existingBox.Name == str {
+						if force {
+							fmt.Fprintf(os.Stderr, "Sandbox with name '%s' already exists\n", str)
+							os.Exit(1)
+						}
+						return errors.Errorf("Sandbox with name '%s' already exists: ", str)
 					}
-					return errors.Errorf("Sandbox with name '%s' already exists: ", str)
 				}
 			}
 			return nil
