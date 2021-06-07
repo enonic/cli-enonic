@@ -10,6 +10,6 @@ Check out the following sections of the documentation to get started:
 
 * <<install#, Installing or upgrading Enonic CLI>>
 * <<usage#, Get familiar with the CLI basics>>
-* <<project#, Commands for software developers>>
+* <<dev#, Commands for software developers>>
 * <<xp#, Managing XP instances>>
 
