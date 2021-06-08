@@ -69,11 +69,15 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 		}
 	} else {
 		ports := []uint16{httpPort, common.MGMT_PORT, common.INFO_PORT}
+		var unavailablePorts []uint16
 		for _, port := range ports {
 			if !util.IsPortAvailable(port) {
-				fmt.Fprintf(os.Stderr, "Port %d is not available, stop the app using it first!\n", port)
-				os.Exit(1)
+				unavailablePorts = append(unavailablePorts, port)
 			}
+		}
+		if len(unavailablePorts) > 0 {
+			fmt.Fprintf(os.Stderr, "Port(s) %v are not available, stop the app(s) using them first!\n", unavailablePorts)
+			os.Exit(1)
 		}
 	}
 
