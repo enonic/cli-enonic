@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"cli-enonic/internal/app/commands/auditlog"
 	"cli-enonic/internal/app/commands/app"
 	"cli-enonic/internal/app/commands/cloud"
 	"cli-enonic/internal/app/commands/cms"
@@ -54,6 +55,12 @@ func All() []cli.Command {
 			Usage:       "System commands",
 			Subcommands: system.All(),
 			HelpName:    "System",
+		},
+		{
+			Name:        "auditlog",
+			Usage:       "Manage audit log repository",
+			Subcommands: auditlog.All(),
+			HelpName:    "Auditlog",
 		},
 		{
 			Name:        "sandbox",

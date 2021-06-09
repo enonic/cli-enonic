@@ -7,16 +7,16 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/Masterminds/semver v1.4.2
 	github.com/briandowns/spinner v0.0.0-20181018151057-dd69c579ff20
-	github.com/fatih/color v1.7.0 // indirect
+	github.com/fatih/color v1.7.0
 	github.com/magiconair/properties v1.8.3
 	github.com/mattn/go-runewidth v0.0.12 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	//github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/go-ps v0.0.0-20170309133038-4fdf99ab2936
 	github.com/otiai10/copy v1.5.1
-	github.com/otiai10/mint v1.3.2 // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/pkg/errors v0.8.1
+	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/urfave/cli v1.22.5
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
