@@ -46,7 +46,6 @@ type tokenRequest struct {
 // The final result after going through the Authorization flow
 type tokens struct {
 	AccessToken  string
-	RefreshToken string
 	ExpiresAt    int64
 }
 
@@ -126,33 +125,12 @@ func oAuthGetTokens(flow *Flow) (*tokens, error) {
 		} else {
 			return &tokens{
 				AccessToken:  res.IDToken,
-				RefreshToken: res.RefreshToken,
 				ExpiresAt:    addSecondsToNow(res.ExpiresIn).Unix(),
 			}, nil
 		}
 	}
 
 	return nil, fmt.Errorf("authentication flow expired")
-}
-
-func oAuthRefreshTokens(t *tokens) (*tokens, error) {
-	// Do request
-	var res tokenRequest
-	payload := strings.NewReader("grant_type=refresh_token&client_id=" + clientID + "&client_secret=" + clientSecret + "&refresh_token=" + t.RefreshToken)
-	if err := doRequest("/oauth/token", payload, &res); err != nil {
-		return nil, err
-	}
-
-	// Check for errors
-	if res.Error != "" {
-		return nil, fmt.Errorf("refresh token request returned error: %s", res.ErrorDescription)
-	}
-
-	return &tokens{
-		AccessToken:  res.IDToken,
-		RefreshToken: res.RefreshToken,
-		ExpiresAt:    addSecondsToNow(res.ExpiresIn).Unix(),
-	}, nil
 }
 
 // Util functions
