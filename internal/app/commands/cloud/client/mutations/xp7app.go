@@ -11,8 +11,10 @@ import (
 func CreateXp7AppFromUpload(ctx context.Context, serviceID string, jarID string) error {
 	req := cloudApi.NewGQLRequest(fmt.Sprintf(`
 	mutation {
-		createXp7AppFromUpload(serviceId: "%s", jarId: "%s") {
-			id
+		createXp7Application(params: {serviceId: "%s", imageId: "%s"}) {
+			application {
+				id
+			}
 		}
 	}
 	`, serviceID, jarID))
