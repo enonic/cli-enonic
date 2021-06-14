@@ -1,11 +1,8 @@
 package commands
 
 import (
-	"os"
-
 	"cli-enonic/internal/app/commands/app"
 	"cli-enonic/internal/app/commands/cloud"
-	cloudClient "cli-enonic/internal/app/commands/cloud/client"
 	"cli-enonic/internal/app/commands/cms"
 	"cli-enonic/internal/app/commands/dump"
 	"cli-enonic/internal/app/commands/export"
@@ -19,7 +16,7 @@ import (
 )
 
 func All() []cli.Command {
-	res := []cli.Command{
+	return []cli.Command{
 		{
 			Name:        "snapshot",
 			Usage:       "Create and restore snapshots",
@@ -72,6 +69,13 @@ func All() []cli.Command {
 			HelpName:    "Project",
 			Category:    "PROJECT COMMANDS",
 		},
+		{
+			Name:        "cloud",
+			Usage:       "Manage Enonic cloud",
+			Subcommands: cloud.All(),
+			HelpName:    "Cloud",
+			Category:    "CLOUD COMMANDS",
+		},
 		system.Latest,
 		vacuum.Vacuum,
 		/*{
@@ -80,16 +84,4 @@ func All() []cli.Command {
 			Subcommands: remote.All(),
 		},*/
 	}
-
-	if os.Getenv(cloudClient.CLI_CLOUD_API_URL) != "" {
-		res = append(res, cli.Command{
-			Name:        "cloud",
-			Usage:       "Manage Enonic cloud",
-			Subcommands: cloud.All(),
-			HelpName:    "Cloud",
-			Category:    "CLOUD COMMANDS",
-		})
-	}
-
-	return res
 }

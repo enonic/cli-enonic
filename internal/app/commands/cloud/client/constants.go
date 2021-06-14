@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-const CLI_CLOUD_API_URL = "ENONIC_CLI_CLOUD_API_URL"
+const CLI_CLOUD_API_URL_VAR = "ENONIC_CLI_CLOUD_API_URL"
+const CLI_CLOUD_API_URL_DEFAULT = "https://cloud.enonic.com/api"
 
 var (
 	graphQLURL   = apiURL("")
@@ -13,7 +14,11 @@ var (
 )
 
 func apiURL(path string) string {
-	url := os.Getenv(CLI_CLOUD_API_URL)
+	url := CLI_CLOUD_API_URL_DEFAULT
+	if userUrl := os.Getenv(CLI_CLOUD_API_URL_VAR); userUrl != "" {
+		url = userUrl
+	}
+
 	if strings.HasSuffix(url, "/") {
 		return url + path
 	}
