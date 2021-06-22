@@ -29,6 +29,7 @@ var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
 var STARTER_LIST_TPL = "%s (%s)"
 var DEFAULT_NAME = "com.example.myproject"
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
+var UPSTREAM_NAME = "origin"
 var MARKET_STARTERS_REQUEST = `{
   market {
     query(
@@ -110,7 +111,7 @@ var Create = cli.Command{
 
 		branch := c.String("branch")
 		hash := c.String("checkout")
-		gitUrl, starter := ensureGitRepositoryUri(c, &hash)
+		gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
 		name := ensureNameArg(c)
 		dest := ensureDestination(c, name)
 		version := ensureVersion(c)
@@ -298,7 +299,7 @@ func processGradleProperties(propsFile, name, version string) {
 	}
 }
 
-func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
+func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (string, *Starter) {
 	var (
 		customRepoOption = "Custom repo"
 		starterList      []string
@@ -340,7 +341,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string) (string, *Starter) {
 				if fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription) == selectedOption {
 					repo = st.Data.GitUrl
 					starter = &st
-					if *hash == "" {
+					if *hash == "" && *branch == "" {
 						*hash = findLatestHash(&st.Data.Version)
 					}
 					break
@@ -484,40 +485,75 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 	}
 
 	repo, err := git.PlainClone(dest, false, &git.CloneOptions{
-		Auth:     auth,
-		URL:      url,
-		Progress: os.Stderr,
+		Auth:       auth,
+		URL:        url,
+		Progress:   os.Stderr,
+		RemoteName: UPSTREAM_NAME,
 	})
 	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s':", url))
 
 	if branch != "" || hash != "" {
-		err2 := repo.Fetch(&git.FetchOptions{
-			RemoteName: "origin",
-			RefSpecs:   []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
-		})
-		util.Fatal(err2, "Could not fetch remote repo")
+
+		if err2 := repo.Fetch(&git.FetchOptions{
+			RemoteName: UPSTREAM_NAME,
+			RefSpecs:   []config.RefSpec{"+refs/*:refs/*"},
+		}); err2 != nil && err2.Error() != git.NoErrAlreadyUpToDate.Error() {
+			fmt.Fprintf(os.Stderr, "Could not fetch remote repo: %s", err2.Error())
+			os.Exit(1)
+		}
 
 		tree, err := repo.Worktree()
 		util.Fatal(err, "Could not get repo tree")
 
-		opts := &git.CheckoutOptions{}
-		if hash != "" {
-			// verify hash exists
-			if _, err := repo.CommitObject(plumbing.NewHash(hash)); err == nil {
-				opts.Hash = plumbing.NewHash(hash)
-			}
-		}
-		// use branch if hash is not set only
-		if opts.Hash.IsZero() && branch != "" {
-			// verify branch exists
-			if _, err := repo.Branch(hash); err == nil {
-				opts.Branch = plumbing.NewBranchReferenceName(branch)
-			}
+		err3 := tree.Checkout(getCheckoutOpts(repo, hash, branch))
+		util.Fatal(err3, fmt.Sprintf("Could not checkout hash [%s] and branch [%s]:", hash, branch))
+	}
+}
+
+func getCheckoutOpts(repo *git.Repository, hash, branch string) *git.CheckoutOptions {
+	if hash != "" {
+		// verify hash exists
+		if _, err := repo.CommitObject(plumbing.NewHash(hash)); err != nil {
+			fmt.Fprintf(os.Stderr, "Could not find commit with hash %s: %s\n", hash, err.Error())
+			os.Exit(1)
 		}
 
-		err3 := tree.Checkout(opts)
-		util.Fatal(err3, fmt.Sprintf("Could not checkout hash '%s' or branch '%s'", hash, branch))
+		return &git.CheckoutOptions{
+			Hash: plumbing.NewHash(hash),
+		}
 	}
+	if branch != "" {
+		// verify branch exists
+		if exist, err := isRemoteBranchExist(repo, branch); !exist {
+			fmt.Fprintf(os.Stderr, "Could not find branch %s: %v\n", branch, err)
+			os.Exit(1)
+		}
+
+		return &git.CheckoutOptions{
+			Branch: plumbing.NewBranchReferenceName(branch),
+		}
+	}
+	return &git.CheckoutOptions{}
+}
+
+func isRemoteBranchExist(repo *git.Repository, branch string) (bool, error) {
+	origin, err := repo.Remote(UPSTREAM_NAME)
+	if err != nil {
+		return false, err
+	}
+
+	refs, err := origin.List(&git.ListOptions{})
+	if err != nil {
+		return false, err
+	}
+
+	for _, ref := range refs {
+		if ref.Name().IsBranch() && ref.Name().Short() == branch {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func clearGitData(dest string) {
