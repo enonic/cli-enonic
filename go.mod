@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/briandowns/spinner v0.0.0-20181018151057-dd69c579ff20
 	github.com/fatih/color v1.12.0
-	github.com/magiconair/properties v1.8.3
+	github.com/magiconair/properties v1.8.5
 	github.com/mattn/go-runewidth v0.0.12 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	//github.com/mitchellh/go-homedir v1.0.0
