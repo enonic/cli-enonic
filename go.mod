@@ -7,7 +7,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/Masterminds/semver v1.4.2
 	github.com/briandowns/spinner v0.0.0-20181018151057-dd69c579ff20
-	github.com/fatih/color v1.7.0
+	github.com/fatih/color v1.12.0
 	github.com/magiconair/properties v1.8.3
 	github.com/mattn/go-runewidth v0.0.12 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
