@@ -1,5 +1,31 @@
 = Release notes
 
+== v2.0.0
+
+=== Features
+
+* Enable global no-prompts flag
+* Handle symlinked distributions
+* Enable cloud commands
+* Add auditlog/cleanup management endpoint
+
+=== Improvements
+
+* Add support for debug parameter when starting a sandbox
+* Support port other than 8080
+* Show entire list of sandboxes in sandbox start
+* Improve feedback when user provides an invalid project name
+* Give feedback when project deploy is executed with dev parameter
+* Alias for dev mode
+* Migrate to go modules
+* Handle all unavailable ports in the same manner
+
+=== Bugs
+
+* Snapcraft installation on Ubuntu not working
+* Sandbox not properly deleted if running
+* Check for illegal characters in sandbox names
+
 == v1.5.1
 
 === Bugs
