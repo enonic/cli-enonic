@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/Baozisoftware/qrcode-terminal-go v0.0.0-20170407111555-c0650d8dff0f
 	github.com/BurntSushi/toml v0.3.1
-	github.com/Masterminds/semver v1.4.2
+	github.com/Masterminds/semver v1.5.0
 	github.com/briandowns/spinner v0.0.0-20181018151057-dd69c579ff20
 	github.com/fatih/color v1.12.0
 	github.com/magiconair/properties v1.8.3
