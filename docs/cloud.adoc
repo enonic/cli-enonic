@@ -1,0 +1,90 @@
+= Cloud commands
+
+The following commands are used for managing Enonic Cloud.
+
+== Cloud
+
+List of commands for managing Enonic Cloud can be seen by typing:
+
+----
+$ enonic cloud
+
+Manage Enonic cloud
+
+USAGE:
+   Enonic CLI cloud command [command options] [arguments...]
+
+COMMANDS:
+     login   Login to Enonic Cloud
+     logout  Logout of Enonic Cloud
+     app     Manage apps in Enonic Cloud
+
+OPTIONS:
+   --help, -h  show help
+----
+
+=== Login
+
+Login to Enonic Cloud.
+
+ $ enonic cloud login [-qr]
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`--qr`
+|print out QR code instead of url to log in with a mobile device
+|===
+
+=== Logout
+
+Log out from Enonic Cloud
+
+ $ enonic cloud logout
+
+=== App
+
+Manage apps in Enonic Cloud.
+List of commands can be seen by typing:
+
+----
+$ enonic cloud app
+
+Manage apps in Enonic Cloud
+
+USAGE:
+   Enonic CLI cloud app command [command options] [arguments...]
+
+COMMANDS:
+     install  Install project jar to Enonic Cloud
+
+OPTIONS:
+   --help, -h  show help
+----
+
+==== Install
+
+Install project jar to Enonic Cloud.
+
+ $ enonic cloud app install [-j <value>] [-t <value>] [-y]
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`-j`
+|jar to deploy (default: "./build/libs/*.jar")
+
+|`-t`
+|upload timeout in seconds (default: 300)
+
+|`-y`
+|skip confirmation prompt
+|===

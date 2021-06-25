@@ -12,4 +12,5 @@ Check out the following sections of the documentation to get started:
 * <<usage#, Get familiar with the CLI basics>>
 * <<dev#, Commands for software developers>>
 * <<xp#, Managing XP instances>>
+* <<cloud#, Cloud management commands>>
 

@@ -70,6 +70,12 @@ Options:
 
 |`-v, --ver, --version`
 |version number to assign to new project. Default value `1.0.0-SNAPSHOT`
+
+|`-a, --auth`
+|Authentication token for basic authentication in the following format <user:password>
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 TIP: `name`, `repository`, `destination` and `version` params are sufficient to create a project without a wizard allowing it to be used in script files.
@@ -99,6 +105,9 @@ Options:
 
 |`name`
 |sandbox name
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 NOTE: If name is not provided or does not exist, you will be asked for it.
@@ -114,6 +123,17 @@ $ enonic project sandbox myOtherBox
 You can build your project by running following command inside the project folder:
 
  $ enonic project build
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
 
 The build command helps you with:
 
@@ -133,6 +153,17 @@ NOTE: You may also use the Gradle Wrapper directly by running `./gradlew build` 
 Alias for the `gradlew clean` command
 
  $ enonic project clean
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
 
 === Deploy
 
@@ -157,6 +188,9 @@ Options:
 
 |`name`
 |sandbox name to deploy to (overrides associated sandbox)
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 IMPORTANT: If the sandbox is already running, `--dev` parameter will be ignored. In this case
@@ -200,6 +234,20 @@ To install current project to running enonic instance
 
  $ enonic project install
 
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`-a, --auth`
+|Authentication token for basic authentication in the following format <user:password>
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
 NOTE: Enonic XP instance must be running when executing this command !
 
 Install command does 2 things:
@@ -215,6 +263,9 @@ Options:
 
 |`-a, --auth`
 |Authentication token for basic authentication in the following format <user:password>
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
@@ -285,6 +336,9 @@ Options:
 
 |`-a, --all`
 |List all distro versions
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 TIP: If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
@@ -337,6 +391,9 @@ Options:
 
 |`--http.port`
 |Set to the http port used by Enonic XP to check availability on startup (default: 8080)
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 .Example starting 'myBox' sandbox in a dev mode:
@@ -374,6 +431,12 @@ Options:
 
 |`-v, --version`
 |enonic distribution version
+
+|`-a, --all`
+|List all distro versions
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
 |===
 
 NOTE: Downgrades are not permitted.
@@ -399,7 +462,7 @@ Options:
 |sandbox name
 
 |`-f, --force`
-|assume “Yes” as answer to all prompts and run non-interactively
+|accept default answers to all prompts and run non-interactively
 |===
 WARNING: All data that may have been created in this sandbox will be deleted.
 
