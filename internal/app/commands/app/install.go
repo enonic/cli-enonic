@@ -24,11 +24,11 @@ var Install = cli.Command{
 	Usage:   "Install an application from URL or file",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "url, u",
+			Name:  "url",
 			Usage: "The URL of the application",
 		},
 		cli.StringFlag{
-			Name:  "file, f",
+			Name:  "file",
 			Usage: "Application file",
 		},
 	}, common.AUTH_FLAG, common.FORCE_FLAG),
