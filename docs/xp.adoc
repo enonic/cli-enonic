@@ -691,7 +691,7 @@ $ enonic system info
 
 == Auditlog
 
-List of command for managing audit log repositoriy can be seen by typing:
+List of commands for managing audit log repository can be seen by typing:
 
 ----
 $ enonic auditlog
@@ -732,7 +732,7 @@ _Format is based on the ISO-8601 duration format `PnDTnHnMn.nS` with days consid
 |accept default answers to all prompts and run non-interactively
 |===
 
-.Example cleaning up audit log repository for past 30 days:
+.Example cleaning up audit log repository for the past 30 days:
 ----
 $ enonic auditlog cleanup --age P30D
 ----
