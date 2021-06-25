@@ -50,7 +50,7 @@ builds:
       - -trimpath={{ .Env.PWD }}
 
     hooks:
-      post: find -wholename "./dist/*/enonic" -exec chmod 755 {} \;
+      post: chmod 755 ./dist/enonic_darwin_amd64/enonic ./dist/enonic_linux_amd64/enonic
 
 archives:
 
