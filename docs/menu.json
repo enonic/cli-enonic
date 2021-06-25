@@ -15,6 +15,9 @@
     {
       "title": "XP commands",
       "document": "xp"
+    },    {
+      "title": "Cloud commands",
+      "document": "cloud"
     },
     {
       "title": "Release notes",

@@ -23,9 +23,13 @@ COMMANDS:
      repo      Tune and manage repositories
      cms       CMS commands
      system    System commands
+     auditlog  Manage audit log repository
      latest    Check for latest version
      vacuum    Removes unused blobs and binaries from blobstore
      help, h   Shows a list of commands or help for one command
+
+CLOUD COMMANDS:
+     cloud  Manage Enonic cloud
 
 PROJECT COMMANDS:
      sandbox  Manage XP development instances
