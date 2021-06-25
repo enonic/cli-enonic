@@ -50,7 +50,7 @@ builds:
       - -trimpath={{ .Env.PWD }}
 
     hooks:
-      post: 'find dist/*/ -name enonic -exec chmod 755 {}\\;'
+      post: ./script.sh
 
 archives:
 
