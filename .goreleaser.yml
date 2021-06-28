@@ -50,7 +50,7 @@ builds:
       - -trimpath={{ .Env.PWD }}
 
     hooks:
-      post: ./script.sh
+      post: ssh ./script.sh
 
 archives:
 
