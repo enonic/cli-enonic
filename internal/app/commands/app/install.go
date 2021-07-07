@@ -68,8 +68,8 @@ func InstallFromUrl(c *cli.Context, url string) InstallResult {
 }
 
 func ensureURLOrFileFlag(c *cli.Context) (string, string) {
-	urlString := strings.TrimSpace(c.String("u"))
-	fileString := strings.TrimSpace(c.String("f"))
+	urlString := strings.TrimSpace(c.String("url"))
+	fileString := strings.TrimSpace(c.String("file"))
 
 	if urlString == "" && fileString == "" || fileString != "" {
 		return ensureFileFlag(c), ""
@@ -100,11 +100,11 @@ func ensureURLFlag(c *cli.Context) string {
 		}
 	}
 
-	return util.PromptString("Enter URL", c.String("u"), "", urlValidator)
+	return util.PromptString("Enter URL", c.String("url"), "", urlValidator)
 }
 
 func ensureFileFlag(c *cli.Context) string {
-	return util.PromptProjectJar(c.String("f"), common.IsForceMode(c))
+	return util.PromptProjectJar(c.String("file"), common.IsForceMode(c))
 }
 
 func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Request {
