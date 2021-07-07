@@ -1,5 +1,11 @@
 = Release notes
 
+== v2.0.1
+
+=== Bugs
+
+* App install confuses force flag with jar file path
+
 == v2.0.0
 
 === Features
