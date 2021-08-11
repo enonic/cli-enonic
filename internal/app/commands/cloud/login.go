@@ -1,15 +1,15 @@
 package cloud
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-
 	auth "cli-enonic/internal/app/commands/cloud/auth"
 	util "cli-enonic/internal/app/commands/cloud/util"
+	"fmt"
 	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
+	"io/ioutil"
+	"os"
+	"time"
 )
 
 var Login = cli.Command{
@@ -33,8 +33,6 @@ var Login = cli.Command{
 			return err
 		}
 
-		// Done!
-		fmt.Fprintf(os.Stdout, "success!\n")
 		return nil
 	},
 }
@@ -60,8 +58,10 @@ func login(printQrCode bool) error {
 		spin.Start()
 	}
 
-	afterTokenFetch := func() {
+	afterTokenFetch := func(expiresAt int64) {
 		spin.Stop()
+		fmt.Fprintf(os.Stdout, "success!\n\n")
+		fmt.Printf("Session expires at: %v\n", time.Unix(expiresAt, 0))
 	}
 
 	return auth.Login(instructions, afterTokenFetch)
