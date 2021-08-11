@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -43,10 +45,14 @@ type tokenRequest struct {
 	ExpiresIn        int    `json:"expires_in"`
 }
 
+type tokenPayload struct {
+	ExpiresAt int64 `json:"exp"`
+}
+
 // The final result after going through the Authorization flow
 type tokens struct {
-	AccessToken  string
-	ExpiresAt    int64
+	AccessToken string
+	ExpiresAt   int64
 }
 
 // Tells you if the access token is expired or not
@@ -55,7 +61,7 @@ func (t tokens) isExpired() bool {
 }
 
 // Login to Auth0 using the Device Authorization Flow
-func Login(instructions func(flow *Flow), afterTokenFetch func()) error {
+func Login(instructions func(flow *Flow), afterTokenFetch func(int64)) error {
 	flow, err := oAuthStartVerificationFlow()
 	if err != nil {
 		return err
@@ -63,7 +69,7 @@ func Login(instructions func(flow *Flow), afterTokenFetch func()) error {
 
 	instructions(flow)
 	tokens, err := oAuthGetTokens(flow)
-	afterTokenFetch()
+	afterTokenFetch(tokens.ExpiresAt)
 	if err != nil {
 		return err
 	}
@@ -123,9 +129,15 @@ func oAuthGetTokens(flow *Flow) (*tokens, error) {
 				return nil, fmt.Errorf("token request returned error: %s", res.ErrorDescription)
 			}
 		} else {
+			exp, err := parseExpiredTime(res.IDToken)
+
+			if err != nil {
+				return nil, err
+			}
+
 			return &tokens{
-				AccessToken:  res.IDToken,
-				ExpiresAt:    addSecondsToNow(res.ExpiresIn).Unix(),
+				AccessToken: res.IDToken,
+				ExpiresAt:   exp,
 			}, nil
 		}
 	}
@@ -164,4 +176,23 @@ func urlEncode(s string) string {
 
 func addSecondsToNow(seconds int) time.Time {
 	return time.Now().Add(time.Duration(seconds) * time.Second)
+}
+
+func parseExpiredTime(token string) (int64, error) {
+	split := strings.Split(token, ".")
+	if len(split) != 3 {
+		return 0, fmt.Errorf("recieved invalid token from identity provider")
+	}
+
+	decoded, err := base64.RawStdEncoding.DecodeString(split[1])
+	if err != nil {
+		return 0, fmt.Errorf("failed to decode jwt token: %v", err)
+	}
+
+	var payload tokenPayload
+	if err := json.NewDecoder(bytes.NewReader(decoded)).Decode(&payload); err != nil {
+		return 0, fmt.Errorf("failed to decode token payload: %v", err)
+	}
+
+	return payload.ExpiresAt, nil
 }
