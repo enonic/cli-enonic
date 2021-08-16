@@ -1,5 +1,11 @@
 = Release notes
 
+== v2.0.2
+
+=== Bugs
+
+* Fix JWT expiration handling
+
 == v2.0.1
 
 === Bugs
