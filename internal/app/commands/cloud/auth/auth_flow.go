@@ -184,7 +184,7 @@ func parseExpiredTime(token string) (int64, error) {
 		return 0, fmt.Errorf("recieved invalid token from identity provider")
 	}
 
-	decoded, err := base64.RawStdEncoding.DecodeString(split[1])
+	decoded, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(split[1])
 	if err != nil {
 		return 0, fmt.Errorf("failed to decode jwt token: %v", err)
 	}
