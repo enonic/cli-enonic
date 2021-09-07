@@ -42,6 +42,20 @@ builds:
     # Defaults are 386 and amd64.
     goarch:
       - amd64
+      - arm64
+      - arm
+
+    goarm:
+      - 6
+      - 7
+
+    # windows_arm64 builds fail: exit status 2: # golang.org/x/sys/windows
+    #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:2833:38: undefined: WSAData
+    #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:3106:51: undefined: Servent
+    #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:3120:50: undefined: Servent
+    ignore:
+      - goos: windows
+        goarch: arm64
 
     gcflags:
       - -trimpath={{ .Env.PWD }}
