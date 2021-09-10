@@ -74,6 +74,8 @@ archives:
       windows: Windows
       amd64: 64-bit
       386: 32-bit
+      arm: Arm
+      arm64: Arm64
 
     format: tar.gz  # set to binary to omit archiving
 
@@ -205,6 +207,8 @@ nfpms:
       windows: Windows
       amd64: 64-bit
       386: 32-bit
+      arm: Arm
+      arm64: Arm64
 
     # Your app's vendor.
     # Default is empty.
@@ -246,6 +250,8 @@ snapcrafts:
       windows: Windows
       amd64: 64-bit
       386: 32-bit
+      arm: Arm
+      arm64: Arm64
 
     # The name of the snap. This is optional.
     # Default is project name.
