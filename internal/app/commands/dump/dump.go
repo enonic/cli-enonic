@@ -26,7 +26,7 @@ func ensureNameFlag(name string, mustNotExist, force bool) string {
 		fmt.Fprintln(os.Stderr, "No existing dumps found")
 		os.Exit(1)
 	}
-
+	var selectedOption string
 	nameRegex, _ := regexp.Compile("^[a-zA-Z0-9_.]+$")
 	dumpValidator := func(val interface{}) error {
 		str := val.(string)
@@ -72,11 +72,18 @@ func ensureNameFlag(name string, mustNotExist, force bool) string {
 				Message: "Select dump",
 				Options: existingDumps,
 			}
-			survey.AskOne(prompt, val, nil)
+			err := survey.AskOne(prompt, &selectedOption, nil)
+			util.Fatal(err, "Exiting: ")
 			return nil
 		} else {
 			return nil
 		}
 	}
-	return util.PromptString("Dump name", name, "", dumpValidator)
+	validatedOption := util.PromptString("Dump name", name, "", dumpValidator)
+
+	if selectedOption != "" {
+		return selectedOption
+	} else {
+		return validatedOption
+	}
 }
