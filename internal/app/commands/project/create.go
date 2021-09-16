@@ -261,7 +261,7 @@ func ensureNameArg(c *cli.Context) string {
 		return nil
 	}
 
-	projectName := util.PromptString("Project name (min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.])", name, DEFAULT_NAME, nameValidator)
+	projectName := util.PromptString("Project name", name, DEFAULT_NAME, nameValidator)
 	if !force || projectName != "" {
 		return projectName
 	} else {
