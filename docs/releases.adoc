@@ -1,5 +1,12 @@
 = Release notes
 
+== v2.1.1
+
+=== Bugs
+
+* Fix "_empty dump name_" error when doing `dump upgrade`
+* Fix excessive help text when creating a new project
+
 == v2.1.0
 
 === Improvements
