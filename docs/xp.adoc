@@ -447,6 +447,63 @@ $ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic
 $ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
 ----
 
+=== Start
+
+Start application on all nodes.
+
+ $ enonic app start <app key> [-f <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`<app key>`
+|application key
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example starting `com.enonic.app.superhero` app:
+----
+$ enonic app start com.enonic.app.superhero -a su:password
+----
+
+=== Stop
+
+Stop application on all nodes.
+
+ $ enonic app stop <app key> [-f <value>] [-a <value>]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`<app key>`
+|application key
+
+|`--a, --auth`
+|authentication token for basic authentication (user:password)
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+
+.Example starting `com.enonic.app.superhero` app:
+----
+$ enonic app stop com.enonic.app.superhero -a su:password
+----
 
 == Repo
 
