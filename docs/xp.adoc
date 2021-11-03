@@ -500,7 +500,7 @@ Options:
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
-.Example starting `com.enonic.app.superhero` app:
+.Example stopping `com.enonic.app.superhero` app:
 ----
 $ enonic app stop com.enonic.app.superhero -a su:password
 ----
