@@ -301,15 +301,14 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 	}
 
 	rData := ReadRuntimeData()
-	switch res.StatusCode {
-	case http.StatusOK:
+	if res.StatusCode >= 200 && res.StatusCode < 300 {
 		for _, cookie := range res.Cookies() {
 			if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
 				rData.SessionID = cookie.Value
 				WriteRuntimeData(rData)
 			}
 		}
-	case http.StatusForbidden:
+	} else if res.StatusCode == http.StatusForbidden {
 		if rData.SessionID != "" {
 			fmt.Fprint(os.Stderr, "User session is not valid.")
 			rData.SessionID = ""
