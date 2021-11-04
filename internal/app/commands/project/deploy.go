@@ -32,22 +32,33 @@ var Deploy = cli.Command{
 		force := common.IsForceMode(c)
 		continuous := c.Bool("continuous")
 		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to deploy the project, do you want to create one?", true); projectData != nil {
+			sandboxExists := sandbox.Exists(projectData.Sandbox)
 			tasks := []string{"deploy"}
 			if continuous {
 				tasks = append(tasks, "--continuous")
 				// ask to run sandbox in detached mode before gradle deploy because it has continuous flag
-				askToRunSandbox(c, projectData)
-				fmt.Fprintln(os.Stderr, "")
+				if sandboxExists {
+					askToRunSandbox(c, projectData)
+					fmt.Fprintln(os.Stderr, "")
+				}
 			}
 
-			runGradleTask(projectData, fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox), tasks...)
+			var deployMessage string
+			if sandboxExists {
+				deployMessage = fmt.Sprintf("Deploying to sandbox '%s'...", projectData.Sandbox)
+			} else {
+				deployMessage = "No sandbox found, deploying without a sandbox..."
+			}
+			runGradleTask(projectData, deployMessage, tasks...)
 			fmt.Fprintln(os.Stderr, "")
 
-			if !continuous {
-				askToRunSandbox(c, projectData)
-			} else if rData := common.ReadRuntimeData(); rData.Running != "" {
-				// ask to stop sandbox running in detached mode
-				sandbox.AskToStopSandbox(rData, force)
+			if sandboxExists {
+				if !continuous {
+					askToRunSandbox(c, projectData)
+				} else if rData := common.ReadRuntimeData(); rData.Running != "" {
+					// ask to stop sandbox running in detached mode
+					sandbox.AskToStopSandbox(rData, force)
+				}
 			}
 		}
 

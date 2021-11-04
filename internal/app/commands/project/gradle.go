@@ -1,6 +1,7 @@
 package project
 
 import (
+	"cli-enonic/internal/app/commands/sandbox"
 	"fmt"
 	"github.com/urfave/cli"
 	"regexp"
@@ -28,8 +29,13 @@ var Gradle = cli.Command{
 		}
 
 		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to run gradle in the project, do you want to create one?", false); projectData != nil {
-			text := fmt.Sprintf("Running gradle %v in sandbox '%s'...", tasks, projectData.Sandbox)
-			runGradleTask(projectData, text, tasks...)
+			var gradleMessage string
+			if sandbox.Exists(projectData.Sandbox) {
+				gradleMessage = fmt.Sprintf("Running gradle %v in sandbox '%s'...", tasks, projectData.Sandbox)
+			} else {
+				gradleMessage = fmt.Sprintf("No sandbox found, running gradle %v without a sandbox...", tasks)
+			}
+			runGradleTask(projectData, gradleMessage, tasks...)
 		}
 
 		return nil

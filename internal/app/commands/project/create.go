@@ -133,7 +133,7 @@ var Create = cli.Command{
 
 		pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one?", false)
 
-		if pData == nil {
+		if pData == nil || pData.Sandbox == "" {
 			fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
 		} else {
 			fmt.Fprintf(os.Stdout, "Project created in '%s' and linked to '%s'\n", absDest, pData.Sandbox)
