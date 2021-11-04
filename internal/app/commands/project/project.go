@@ -69,17 +69,13 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string, parse
 		os.Exit(1)
 	}
 
-	badSandbox := projectData.Sandbox == "" || !sandbox.Exists(projectData.Sandbox)
+	badSandbox := !sandbox.Exists(projectData.Sandbox)
 	argExist := parseArgs && c != nil && c.NArg() > 0
 	force := common.IsForceMode(c)
 
 	if force && badSandbox {
-		if projectData.Sandbox == "" {
-			fmt.Fprintln(os.Stderr, "Project sandbox is not set. Set it using 'enonic project sandbox' command")
-		} else {
-			fmt.Fprintf(os.Stderr, "Project sandbox '%s' can not be found. Update it using 'enonic project sandbox' command\n", projectData.Sandbox)
-		}
-		os.Exit(1)
+		// allow project without a sandbox in force mode
+		return projectData
 	} else if badSandbox || argExist {
 		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one:", false, true, parseArgs)
 		if sBox == nil {
@@ -110,26 +106,27 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string, parse
 }
 
 func runGradleTask(projectData *common.ProjectData, message string, tasks ...string) {
-
-	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
-
-	javaHome := sandbox.GetDistroJdkPath(sandboxData.Distro)
-	xpHome := sandbox.GetSandboxHomePath(projectData.Sandbox)
-
-	javaHomeArg := fmt.Sprintf("-Dorg.gradle.java.home=%s", javaHome)
-	xpHomeArg := fmt.Sprintf("-Dxp.home=%s", xpHome)
-	args := append(tasks, javaHomeArg, xpHomeArg)
-
 	fmt.Fprintln(os.Stderr, message)
+	args := tasks
+	env := os.Environ()
+	if projectData.Sandbox != "" && sandbox.Exists(projectData.Sandbox) {
+		sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
+		javaHome := sandbox.GetDistroJdkPath(sandboxData.Distro)
+		xpHome := sandbox.GetSandboxHomePath(projectData.Sandbox)
+
+		args = append(args, fmt.Sprintf("-Dorg.gradle.java.home=%s", javaHome))
+		args = append(args, fmt.Sprintf("-Dxp.home=%s", xpHome))
+
+		env = append(env, fmt.Sprintf("JAVA_HOME=%s", javaHome))
+		env = append(env, fmt.Sprintf("XP_HOME=%s", xpHome))
+	}
 
 	command := getOsGradlewFile()
 	cmd := exec.Command(command, args...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, fmt.Sprintf("JAVA_HOME=%s", javaHome))
-	cmd.Env = append(cmd.Env, fmt.Sprintf("XP_HOME=%s", xpHome))
+	cmd.Env = env
 
 	if err := cmd.Run(); err != nil {
 		os.Stderr.WriteString(fmt.Sprintf("\n%s\n", err.Error()))

@@ -144,6 +144,9 @@ func isSandbox(v os.FileInfo, sandboxDir string) bool {
 }
 
 func Exists(name string) bool {
+	if name == "" {
+		return false
+	}
 	dir := getSandboxesDir()
 	if info, err := os.Stat(filepath.Join(dir, name)); os.IsNotExist(err) {
 		return false

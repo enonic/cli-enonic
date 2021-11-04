@@ -135,6 +135,8 @@ Options:
 |accept default answers to all prompts and run non-interactively
 |===
 
+NOTE: Sandbox is not required when running with `--force` flag. In that case system wide java version will be used.
+
 The build command helps you with:
 
 * Compiling code
@@ -164,6 +166,8 @@ Options:
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
+
+NOTE: Sandbox is not required when running with `--force` flag. In that case system wide java version will be used.
 
 === Deploy
 
@@ -198,6 +202,8 @@ you'll have to make sure the sandbox is running in dev mode.
 
 NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
 
+NOTE: Sandbox is not required when running with `--force` flag. In that case system wide java version will be used.
+
 .Example deploying current project to 'otherSandbox' sandbox, starting XP in dev mode and continuously watching changes:
 ----
 $ enonic project deploy otherSandbox --dev -c
@@ -220,6 +226,8 @@ Options:
 |`tasks`
 |a space delimited list of gradle tasks and flags to invoke
 |===
+
+IMPORTANT: Flags like `--force` or `--help` are not supported by this command because it forwards all flags directly to gradle!
 
 NOTE: The difference between `enonic project gradle clean build deploy` and `gradlew clean build deploy` is that the former uses sandbox and enonic XP distribution configured for the project, while latter uses system wide settings.
 
