@@ -1,5 +1,15 @@
 = Release notes
 
+== v2.2.0
+
+=== Features
+
+* Support start/stop of applications in a sandbox
+
+=== Improvements
+
+* Project can now be built without a sandbox (with `--force` flag)
+
 == v2.1.1
 
 === Bugs
