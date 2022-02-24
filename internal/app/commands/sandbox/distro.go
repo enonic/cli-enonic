@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
+	"encoding/xml"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -29,16 +30,23 @@ const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-
 const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
 const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
-const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
-const REMOTE_VERSION_URL = "https://repo.enonic.com/api/search/versions?g=com.enonic.xp&a=enonic-xp-%s-sdk"
 
-type VersionResult struct {
-	Version     string `json:version`
-	Integration bool   `json:integration`
+const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
+const REMOTE_VERSION_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/maven-metadata.xml"
+
+type Metadata struct {
+	XMLName    xml.Name   `xml:"metadata"`
+	GroupId    string     `xml:"groupId"`
+	ArtifactId string     `xml:"artifactId"`
+	Versioning Versioning `xml:"versioning"`
 }
 
-type VersionsResult struct {
-	Results []VersionResult `json:results`
+type Versioning struct {
+	XMLName     xml.Name `xml:"versioning"`
+	Latest      string   `xml:"latest"`
+	Release     string   `xml:"release"`
+	LastUpdated string   `xml:"lastUpdated"`
+	Versions    []string `xml:"versions>version"`
 }
 
 func EnsureDistroExists(distroName string) (string, bool) {
@@ -61,7 +69,7 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	return distroPath, true
 }
 
-func getAllVersions(osName, minDistro string, includeUnstable bool) ([]VersionResult, VersionResult) {
+func getAllVersions(osName, minDistro string, includeUnstable bool) ([]string, string) {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
 	resp := common.SendRequest(req, "Loading")
@@ -69,25 +77,25 @@ func getAllVersions(osName, minDistro string, includeUnstable bool) ([]VersionRe
 
 	minDistroVer, _ := semver.NewVersion(minDistro)
 
-	var versions VersionsResult
-	common.ParseResponse(resp, &versions)
+	var metadata Metadata
+	common.ParseResponseXml(resp, &metadata)
 
-	var filteredVersions []VersionResult
-	var latestVersionResult VersionResult
+	var filteredVersions []string
+	var latestVersionResult string
 	var latestVersion *semver.Version
-	for _, value := range versions.Results {
-		tempVersion, tempErr := semver.NewVersion(value.Version)
-		util.Warn(tempErr, "Could not parse distro version: "+value.Version)
+	for _, version := range metadata.Versioning.Versions {
+		tempVersion, tempErr := semver.NewVersion(version)
+		util.Warn(tempErr, "Could not parse distro version: "+version)
 
 		// excluding only SNAPSHOTS
 		if (minDistroVer == nil || !tempVersion.LessThan(minDistroVer)) &&
 			strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" &&
 			(includeUnstable || tempVersion.Prerelease() == "") {
 
-			filteredVersions = append(filteredVersions, value)
+			filteredVersions = append(filteredVersions, version)
 			if latestVersion == nil || latestVersion.LessThan(tempVersion) {
 				latestVersion = tempVersion
-				latestVersionResult = value
+				latestVersionResult = version
 			}
 		}
 	}
@@ -95,11 +103,11 @@ func getAllVersions(osName, minDistro string, includeUnstable bool) ([]VersionRe
 	return filteredVersions, latestVersionResult
 }
 
-func findLatestVersion(versions []VersionResult) string {
+func findLatestVersion(versions []string) string {
 
 	var latestVer *semver.Version
 	for _, version := range versions {
-		if tempVer, err := semver.NewVersion(version.Version); err == nil {
+		if tempVer, err := semver.NewVersion(version); err == nil {
 			if latestVer == nil || latestVer.LessThan(tempVer) {
 				latestVer = tempVer
 			}
@@ -335,11 +343,11 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 	}
 
 	myOs := util.GetCurrentOs()
-	versions, latest := getAllVersions(myOs, minDistroVer, includeUnstable || version != nil && version.Prerelease() != "")
+	versions, latestVersion := getAllVersions(myOs, minDistroVer, includeUnstable || version != nil && version.Prerelease() != "")
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
-		textVersions[key] = formatDistroVersionDisplay(value.Version, myOs, latest.Version)
-		if version != nil && version.String() == value.Version {
+		textVersions[key] = formatDistroVersionDisplay(value, myOs, latestVersion)
+		if version != nil && version.String() == value {
 			versionExists = true
 		}
 	}
@@ -361,7 +369,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 		err := survey.AskOne(&survey.Select{
 			Message:  "Enonic XP distribution:",
 			Options:  textVersions,
-			Default:  formatDistroVersionDisplay(defaultVersion, myOs, latest.Version),
+			Default:  formatDistroVersionDisplay(defaultVersion, myOs, latestVersion),
 			PageSize: 10,
 		}, &distro, nil)
 		util.Fatal(err, "Exiting: ")

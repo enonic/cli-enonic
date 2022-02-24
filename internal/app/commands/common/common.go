@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"github.com/Masterminds/semver"
@@ -388,6 +389,36 @@ func ParseResponse(resp *http.Response, target interface{}) {
 func ParseResponseCustom(resp *http.Response, target interface{}) (*EnonicError, error) {
 	defer resp.Body.Close()
 	decoder := json.NewDecoder(resp.Body)
+	if resp.StatusCode == http.StatusOK {
+		if err := decoder.Decode(target); err != nil {
+			return nil, err
+		}
+	} else {
+		var enonicError EnonicError
+		if err := decoder.Decode(&enonicError); err == nil && enonicError.Message != "" {
+			return &enonicError, nil
+		} else {
+			return nil, errors.New(resp.Status)
+		}
+	}
+	return nil, nil
+}
+
+func ParseResponseXml(resp *http.Response, target interface{}) {
+	enonicErr, err := ParseResponseXmlCustom(resp, target)
+	if enonicErr != nil {
+		fmt.Fprintf(os.Stderr, "%d %s\n", enonicErr.Status, enonicErr.Message)
+		os.Exit(1)
+	} else if err != nil {
+		fmt.Fprint(os.Stderr, "Error parsing response ", err)
+		os.Exit(1)
+	}
+}
+
+func ParseResponseXmlCustom(resp *http.Response, target interface{}) (*EnonicError, error) {
+	defer resp.Body.Close()
+
+	decoder := xml.NewDecoder(resp.Body)
 	if resp.StatusCode == http.StatusOK {
 		if err := decoder.Decode(target); err != nil {
 			return nil, err
