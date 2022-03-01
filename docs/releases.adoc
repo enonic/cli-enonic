@@ -1,5 +1,11 @@
 = Release notes
 
+== v2.3.0
+
+=== Features
+
+* Switched to Nexus Repository.
+
 == v2.2.0
 
 === Features
