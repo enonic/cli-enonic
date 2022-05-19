@@ -105,11 +105,11 @@ release:
 
   # If set to true, will not auto-publish the release.
   # Default is false.
-  draft: false
+  draft: true
 
   # If set to true, will mark the release as not ready for production.
   # Default is false.
-  prerelease: false
+  prerelease: true
 
   # You can change the name of the GitHub release.
   # Default is ``
@@ -123,7 +123,7 @@ release:
   disable: false
 
 scoop:
-  skip_upload: false
+  skip_upload: true
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
   url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
@@ -158,7 +158,7 @@ scoop:
 
 brews:
 
-  - skip_upload: false
+  - skip_upload: true
 
     # Repository to push the tap to.
     tap:
@@ -190,50 +190,50 @@ brews:
     # Your app's description.
     # Default is empty.
     description: Command-line interface for Enonic XP
-
-nfpms:
-
-  # You can change the name of the package.
-  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
-
-    # Replacements for GOOS and GOARCH in the package name.
-    # Keys should be valid GOOSs or GOARCHs.
-    # Values are the respective replacements.
-    # Default is empty.
-    replacements:
-      darwin: Mac
-      linux: Linux
-      windows: Windows
-      amd64: 64-bit
-      386: 32-bit
-      arm: Arm
-      arm64: Arm64
-
-    # Your app's vendor.
-    # Default is empty.
-    vendor: Enonic AS.
-    # Your app's homepage.
-    # Default is empty.
-    homepage: https://enonic.com/
-
-    # Your app's maintainer (probably you).
-    # Default is empty.
-    maintainer: Pavel Milkevich <pmi@enonic.com>
-
-    # Your app's description.
-    # Default is empty.
-    description: Command-line interface for Enonic XP
-
-    # Your app's license.
-    # Default is empty.
-    license: GPLv3
-
-    # Formats to be generated.
-    formats:
-      - deb
-#    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
-
+#
+#nfpms:
+#
+#  # You can change the name of the package.
+#  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
+#  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+#
+#    # Replacements for GOOS and GOARCH in the package name.
+#    # Keys should be valid GOOSs or GOARCHs.
+#    # Values are the respective replacements.
+#    # Default is empty.
+#    replacements:
+#      darwin: Mac
+#      linux: Linux
+#      windows: Windows
+#      amd64: 64-bit
+#      386: 32-bit
+#      arm: Arm
+#      arm64: Arm64
+#
+#    # Your app's vendor.
+#    # Default is empty.
+#    vendor: Enonic AS.
+#    # Your app's homepage.
+#    # Default is empty.
+#    homepage: https://enonic.com/
+#
+#    # Your app's maintainer (probably you).
+#    # Default is empty.
+#    maintainer: Pavel Milkevich <pmi@enonic.com>
+#
+#    # Your app's description.
+#    # Default is empty.
+#    description: Command-line interface for Enonic XP
+#
+#    # Your app's license.
+#    # Default is empty.
+#    license: GPLv3
+#
+#    # Formats to be generated.
+#    formats:
+#      - deb
+##    - rpm  // rpm-build not present on windows, uncomment if built on linux or osx (rpm-build should be installed)
+#
 snapcrafts:
 
   # You can change the name of the package.
@@ -274,7 +274,7 @@ snapcrafts:
     # store. `stable` will let you release also to the `candidate` and `stable`
     # channels. More info about channels here:
     # https://snapcraft.io/docs/reference/channels
-    grade: stable
+    grade: devel
 
     # Snaps can be setup to follow three different confinement policies:
     # `strict`, `devmode` and `classic`. A strict confinement where the snap
@@ -302,8 +302,8 @@ snapcrafts:
         read:
           - $HOME/.m2
 
-artifactories:
-
-  - name: repo
-    target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
-    username: ci
+#artifactories:
+#
+#  - name: repo
+#    target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
+#    username: ci
