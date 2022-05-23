@@ -244,14 +244,60 @@ func ensureDirStructure() {
 	// because of https://github.com/golang/go/issues/6376
 	home := util.GetHomeDir()
 
+	enonicPath := filepath.Join(home, ".enonic")
+	enonicPathInfo, _ := os.Lstat(enonicPath)
+	enonicPathExists := enonicPathInfo != nil
+	enonicPathIsSymlink := enonicPathExists && enonicPathInfo.Mode()&os.ModeSymlink == os.ModeSymlink
+
 	if util.GetCurrentOs() == "linux" {
 		if snapCommon, snapExists := os.LookupEnv(common.SNAP_ENV_VAR); snapExists {
-			snapPath := createFolderIfNotExist(snapCommon, "dot-enonic")
+			// snapcraft is present
 
-			enonicPath := filepath.Join(home, ".enonic")
-			if _, err := os.Stat(enonicPath); os.IsNotExist(err) {
-				err := os.Symlink(snapPath, enonicPath)
-				util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", enonicPath, snapPath))
+			snapPath := filepath.Join(snapCommon, "dot-enonic")
+			_, err := os.Lstat(snapPath)
+			snapPathExists := err == nil
+
+			// it may be a symlink (ok) or it may be a leftover from manual installation,
+			// in that case replace it with a symlink to a snap folder and move files there
+			if enonicPathExists {
+
+				if !snapPathExists {
+					// move contents of enonic folder if it is not a symlink
+					// symlink will be created later
+					if !enonicPathIsSymlink {
+						err := os.Rename(enonicPath, snapPath)
+						util.Warn(err, fmt.Sprintf("Error moving data from '%s' to '%s'", enonicPath, snapPath))
+					} else {
+						// create a snap folder if needed
+						// symlink will be created later
+						createFolderIfNotExist(snapPath)
+					}
+				}
+				// remove old enonic folder or a symlink
+				// symlink will be created later
+				err := os.RemoveAll(enonicPath)
+				util.Warn(err, fmt.Sprintf("Error deleting '%s'", enonicPath))
+
+			} else {
+				createFolderIfNotExist(snapPath)
+			}
+
+			err = os.Symlink(snapPath, enonicPath)
+			util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", enonicPath, snapPath))
+
+		} else {
+			// snapcraft is not present
+			// enonic path will be a symlink if snapcraft was previously installed
+			// follow it and move everything to enonic path
+			if enonicPathExists && enonicPathIsSymlink {
+				snapPath, err := os.Readlink(enonicPath)
+				util.Fatal(err, fmt.Sprintf("Could not resolve a symlink '%s'.", enonicPath))
+
+				err = os.Remove(enonicPath)
+				util.Fatal(err, fmt.Sprintf("Error deleting a symlink '%s'. Delete it manually and re-run.", enonicPath))
+
+				err = os.Rename(snapPath, enonicPath)
+				util.Warn(err, fmt.Sprintf("Error moving data from '%s' to '%s'", enonicPath, snapPath))
 			}
 		}
 	}
