@@ -1,16 +1,28 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
+plugins {
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'org.aim42.htmlSanityCheck' version '1.1.6'
+}
 
-    dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+repositories {
+    mavenCentral()
+}
+
+asciidoctor {
+    sourceDir = file('docs')
+    outputDir = file('build/docs')
+
+    attributes 'source-highlighter': 'coderay'
+
+    resources {
+        from(sourceDir) {
+            include '**/images/**'
+            include '**/media/**'
+        }
     }
 }
 
-apply plugin: 'org.asciidoctor.convert'
+htmlSanityCheck {
+    dependsOn asciidoctor
 
-asciidoctor {
-  sourceDir = file('docs')
-  outputDir = file('build/docs')
+    sourceDir = tasks.asciidoctor.outputDir
 }
