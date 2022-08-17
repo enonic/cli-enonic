@@ -134,12 +134,12 @@ func createDeployContext(target string, deploymentJar string, force bool) (*depl
 	}
 
 	xp7Services := make(map[string]deployContext)
-	for _, cloud := range res.Account.Clouds {
-		for _, solution := range cloud.Solutions {
+	for _, account := range res.Search.Accounts {
+		for _, solution := range account.Solutions {
 			for _, environment := range solution.Environments {
 				for _, service := range environment.Services {
 					if service.Kind == "xp7" {
-						key := fmt.Sprintf("%s/%s/%s/%s", cloud.Name, solution.Name, environment.Name, service.Name)
+						key := fmt.Sprintf("%s/%s/%s/%s", account.Name, solution.Name, environment.Name, service.Name)
 						if strings.HasPrefix(key, target) {
 							xp7Services[key] = deployContext{
 								serviceName: key,
