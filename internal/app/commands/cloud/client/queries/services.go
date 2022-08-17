@@ -10,8 +10,8 @@ import (
 func GetServices(ctx context.Context) (*GetServicesData, error) {
 	req := cloudApi.NewGQLRequest(`
 	{
-		account {
-			clouds {
+		search(params: {query: "type = 'account' AND plan = 'hobby'"}) {
+			accounts {
 				name
 				solutions {
 					id
@@ -35,14 +35,14 @@ func GetServices(ctx context.Context) (*GetServicesData, error) {
 }
 
 type GetServicesData struct {
-	Account Account `json:"account"`
+	Search Search `json:"search"`
+}
+
+type Search struct {
+	Accounts []Account `json:"accounts"`
 }
 
 type Account struct {
-	Clouds []Cloud `json:"clouds"`
-}
-
-type Cloud struct {
 	Name      string     `json:"name"`
 	Solutions []Solution `json:"solutions"`
 }
