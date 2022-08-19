@@ -63,3 +63,5 @@ node_modules/
 /gradle/wrapper/gradle-wrapper.properties
 /gradlew
 /gradlew.bat
+
+.DS_Store
