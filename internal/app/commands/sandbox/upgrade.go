@@ -1,8 +1,8 @@
 package sandbox
 
 import (
-	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/urfave/cli"
@@ -33,7 +33,7 @@ var Upgrade = cli.Command{
 		version := ensureVersionCorrect(c.String("version"), "", c.Bool("all"), common.IsForceMode(c))
 		preventVersionDowngrade(sandbox, version)
 
-		sandbox.Distro = formatDistroVersion(version, util.GetCurrentOs())
+		sandbox.Distro = formatDistroVersion(version)
 		writeSandboxData(sandbox)
 		fmt.Fprintf(os.Stdout, "Sandbox '%s' distro upgraded to '%s'.\n", sandbox.Name, sandbox.Distro)
 

@@ -43,7 +43,7 @@ func createSandbox(name string, version string) *Sandbox {
 	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
 
-	data := SandboxData{formatDistroVersion(version, util.GetCurrentOs())}
+	data := SandboxData{formatDistroVersion(version)}
 	util.EncodeTomlFile(file, data)
 
 	return &Sandbox{name, data.Distro}
@@ -192,11 +192,11 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 	if showCreateOption {
 		selectOptions = append(selectOptions, CREATE_NEW_BOX)
 	}
-	var myOs = util.GetCurrentOs()
 	var boxName, defaultBox string
+	osWithArch := util.GetCurrentOsWithArch()
 	for i, box := range existingBoxes {
 		version := parseDistroVersion(box.Distro, false)
-		boxName = formatSandboxListItemName(box.Name, version, myOs)
+		boxName = formatSandboxListItemName(box.Name, version, osWithArch)
 		if i == 0 {
 			defaultBox = boxName
 		}

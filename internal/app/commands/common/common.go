@@ -36,7 +36,6 @@ const SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/m
 const JSESSIONID = "JSESSIONID"
 const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
 const LATEST_VERSION_MSG = "Latest available version is %s. Run '%s' to update CLI"
-const CLI_DOWNLOAD_URL = "https://repo.enonic.com/public/com/enonic/cli/enonic/%[1]s/enonic_%[1]s_%[2]s_64-bit.%[3]s"
 const SNAP_ENV_VAR = "SNAP_USER_COMMON"
 const FORCE_COOKIE = "forceFlag"
 const HTTP_PORT = 8080
@@ -463,18 +462,6 @@ func ProduceCheckVersionFunction(appVersion string) func() string {
 
 func FormatLatestVersionMessage(latest string) string {
 	return fmt.Sprintf(LATEST_VERSION_MSG, latest, getOSUpdateCommand())
-}
-
-func getOSDownloadUrl(version string) string {
-	os := util.GetCurrentOs()
-	var ext string
-	switch os {
-	case "windows":
-		ext = "zip"
-	default:
-		ext = "tar.gz"
-	}
-	return fmt.Sprintf(CLI_DOWNLOAD_URL, version, strings.Title(os), ext)
 }
 
 func getOSUpdateCommand() string {

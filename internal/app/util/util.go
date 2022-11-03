@@ -1,9 +1,11 @@
 package util
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -187,9 +189,15 @@ func GetCurrentOs() string {
 	return strings.ToLower(osName)
 }
 
-//
+func GetCurrentOsWithArch() string {
+	currentOs := GetCurrentOs()
+	if "arm64" == strings.ToLower(runtime.GOARCH) {
+		return currentOs + "-arm64"
+	}
+	return currentOs
+}
+
 // Taken from go-homedir
-//
 func GetHomeDir() string {
 	var result string
 	var err error
@@ -313,13 +321,52 @@ func cloneZipItem(f *zip.File, destFolder string) {
 
 	if !f.FileInfo().IsDir() {
 		fileCopy, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.FileInfo().Mode())
-		Fatal(err, fmt.Sprintf("Could not create file '%s", f.Name))
+		Fatal(err, fmt.Sprintf("Could not create file '%s'", f.Name))
 
 		_, err = io.Copy(fileCopy, reader)
 		fileCopy.Close()
-		Fatal(err, fmt.Sprintf("Could not write file '%s", f.Name))
+		Fatal(err, fmt.Sprintf("Could not write file '%s'", f.Name))
 	}
 	reader.Close()
+}
+
+func Untar(tarFile, destFolder string) []string {
+	reader, err := os.Open(tarFile)
+	Fatal(err, "Could not open tar.gz or tgz file:")
+	gzr, err := gzip.NewReader(reader)
+	Fatal(err, "Could not read tar.gz or tgz file:")
+	defer gzr.Close()
+
+	extracted := make([]string, 0)
+	tarReader := tar.NewReader(gzr)
+
+	for {
+		header, err := tarReader.Next()
+		switch {
+		case err == io.EOF: // no more files
+			return extracted
+		case err != nil:
+			Fatal(err, "Extracting tar.gz or tgz file is failed")
+		}
+		cloneTarItem(header, tarReader, destFolder)
+		extracted = append(extracted, header.Name)
+	}
+}
+
+func cloneTarItem(header *tar.Header, tarReader *tar.Reader, destFolder string) {
+	destPath := filepath.Join(destFolder, header.Name)
+	switch header.Typeflag {
+	case tar.TypeDir:
+		err := os.MkdirAll(destPath, os.ModeDir|os.ModePerm)
+		Fatal(err, fmt.Sprintf("Could not create folder '%s': ", destPath))
+	case tar.TypeReg:
+		fileCopy, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, header.FileInfo().Mode())
+		Fatal(err, fmt.Sprintf("Could not create file '%s'", header.Name))
+
+		_, err = io.Copy(fileCopy, tarReader)
+		fileCopy.Close()
+		Fatal(err, fmt.Sprintf("Could not write file '%s'", header.Name))
+	}
 }
 
 func IsPortAvailable(port uint16) bool {
