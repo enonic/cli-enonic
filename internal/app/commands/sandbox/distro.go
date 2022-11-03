@@ -21,18 +21,20 @@ import (
 	"time"
 )
 
-const DISTRO_FOLDER_NAME_REGEXP = "^enonic-xp-(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
+const DISTRO_FOLDER_NAME_REGEXP = "^enonic-xp-(?:windows|mac|mac-arm64|linux|linux-arm64)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
 const DISTRO_FOLDER_NAME_TPL = "enonic-xp-%s-sdk-%s"
 
 // old CLI used this format to store distro name in sandbox, new format will apply after first sandbox distro change
 const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
 
-const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
+const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|mac-arm64|linux|linux-arm64)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
 const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
 
 const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/maven-metadata.xml"
+
+const TGZ_SUPPORTED_FROM_VERSION = "7.6.0"
 
 type Metadata struct {
 	XMLName    xml.Name   `xml:"metadata"`
@@ -50,16 +52,14 @@ type Versioning struct {
 }
 
 func EnsureDistroExists(distroName string) (string, bool) {
-	distroVersion := parseDistroVersion(distroName, false)
-
 	for _, distro := range listDistros() {
-		if distroVer := parseDistroVersion(distro, false); distroVer == distroVersion {
+		if distroName == distro {
 			return filepath.Join(getDistrosDir(), distro), false
 		}
 	}
 
-	osName := util.GetCurrentOs()
-	zipPath := downloadDistro(osName, distroVersion)
+	distroVersion := parseDistroVersion(distroName, false)
+	zipPath := downloadDistro(distroVersion)
 
 	distroPath := unzipDistro(zipPath)
 
@@ -131,8 +131,18 @@ func createProgressBar(total int64) *pb.ProgressBar {
 	return bar
 }
 
-func downloadDistro(osName, version string) string {
-	distroName := formatDistroVersion(version, osName) + ".zip"
+func resolveArchiveExtension(version string) string {
+	tgzVersion := semver.MustParse(TGZ_SUPPORTED_FROM_VERSION)
+	currentVersion := semver.MustParse(version)
+	if util.GetCurrentOs() == "windows" || currentVersion.LessThan(tgzVersion) {
+		return ".zip"
+	} else {
+		return ".tgz"
+	}
+}
+
+func downloadDistro(version string) string {
+	distroName := formatDistroVersion(version) + resolveArchiveExtension(version)
 
 	fullPath := filepath.Join(getDistrosDir(), distroName)
 
@@ -141,8 +151,7 @@ func downloadDistro(osName, version string) string {
 	defer zipFile.Close()
 
 	// Get the data
-
-	url := fmt.Sprintf(REMOTE_DISTRO_URL, osName, version, distroName)
+	url := fmt.Sprintf(REMOTE_DISTRO_URL, util.GetCurrentOsWithArch(), version, distroName)
 
 	req, err := http.NewRequest("GET", url, nil)
 	util.Fatal(err, "Could not create request to: "+url)
@@ -173,7 +182,13 @@ func unzipDistro(zipFile string) string {
 	fmt.Fprint(os.Stderr, "Unzipping distro...")
 
 	zipDir := filepath.Dir(zipFile)
-	unzippedFiles := util.Unzip(zipFile, zipDir)
+
+	var unzippedFiles []string
+	if strings.HasSuffix(zipFile, ".zip") {
+		unzippedFiles = util.Unzip(zipFile, zipDir)
+	} else {
+		unzippedFiles = util.Untar(zipFile, zipDir)
+	}
 
 	sourceName := unzippedFiles[0] // distro zip contains only 1 root dir which is the first unzipped file
 	targetPath := filepath.Join(zipDir, sourceName)
@@ -184,9 +199,8 @@ func unzipDistro(zipFile string) string {
 }
 
 func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.Cmd {
-	myOs := util.GetCurrentOs()
 	var executable, homeTemplate string
-	if myOs == "windows" {
+	if util.GetCurrentOs() == "windows" {
 		executable = "server.bat"
 		homeTemplate = `-Dxp.home="%s"` // quotes are needed for windows to understand spaces in path
 	} else {
@@ -194,7 +208,7 @@ func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.
 		homeTemplate = `-Dxp.home=%s` // other OSes work ok without em
 	}
 	version := parseDistroVersion(distroName, false)
-	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version, myOs), "bin", executable)
+	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
 	var args []string
 	if debug {
@@ -224,9 +238,8 @@ func stopDistro(pid int) {
 }
 
 func deleteDistro(distroName string) {
-	myOs := util.GetCurrentOs()
 	distroVersion := parseDistroVersion(distroName, false)
-	err := os.RemoveAll(filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs)))
+	err := os.RemoveAll(filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion)))
 	util.Warn(err, fmt.Sprintf("Could not delete distro '%s' folder: ", distroName))
 }
 
@@ -277,8 +290,8 @@ func parseDistroVersion(distro string, isDisplay bool) string {
 	}
 }
 
-func formatDistroVersion(version, myOs string) string {
-	return fmt.Sprintf(DISTRO_FOLDER_NAME_TPL, myOs, version)
+func formatDistroVersion(version string) string {
+	return fmt.Sprintf(DISTRO_FOLDER_NAME_TPL, util.GetCurrentOsWithArch(), version)
 }
 
 func formatSandboxListItemName(boxName, version, myOs string) string {
@@ -313,9 +326,8 @@ func assessStability(versionStr, latestVersion string) string {
 }
 
 func GetDistroJdkPath(distroName string) string {
-	myOs := util.GetCurrentOs()
 	distroVersion := parseDistroVersion(distroName, false)
-	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion, myOs), "jdk")
+	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion), "jdk")
 }
 
 func EnsureSanboxSupportsProjectVersion(sBox *Sandbox, minDistroVersion *semver.Version) {
@@ -342,11 +354,11 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 		}
 	}
 
-	myOs := util.GetCurrentOs()
-	versions, latestVersion := getAllVersions(myOs, minDistroVer, includeUnstable || version != nil && version.Prerelease() != "")
+	currentOsWithArch := util.GetCurrentOsWithArch()
+	versions, latestVersion := getAllVersions(currentOsWithArch, minDistroVer, includeUnstable || version != nil && version.Prerelease() != "")
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
-		textVersions[key] = formatDistroVersionDisplay(value, myOs, latestVersion)
+		textVersions[key] = formatDistroVersionDisplay(value, currentOsWithArch, latestVersion)
 		if version != nil && version.String() == value {
 			versionExists = true
 		}
@@ -369,7 +381,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 		err := survey.AskOne(&survey.Select{
 			Message:  "Enonic XP distribution:",
 			Options:  textVersions,
-			Default:  formatDistroVersionDisplay(defaultVersion, myOs, latestVersion),
+			Default:  formatDistroVersionDisplay(defaultVersion, currentOsWithArch, latestVersion),
 			PageSize: 10,
 		}, &distro, nil)
 		util.Fatal(err, "Exiting: ")

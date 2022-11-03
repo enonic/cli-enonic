@@ -15,11 +15,10 @@ var List = cli.Command{
 	Usage:   "List all sandboxes",
 	Action: func(c *cli.Context) error {
 		rData := common.ReadRuntimeData()
-		myOs := util.GetCurrentOs()
-
+		osWithArch := util.GetCurrentOsWithArch()
 		for _, box := range listSandboxes("") {
 			version := parseDistroVersion(box.Distro, false)
-			boxVersion := formatSandboxListItemName(box.Name, version, myOs)
+			boxVersion := formatSandboxListItemName(box.Name, version, osWithArch)
 			if rData.Running == box.Name {
 				fmt.Fprintf(os.Stdout, "* %s\n", boxVersion)
 			} else {
