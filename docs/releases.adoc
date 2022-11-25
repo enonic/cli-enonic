@@ -1,5 +1,24 @@
 = Release notes
 
+== v2.3.3
+
+=== Bugs
+
+* CLI fails to download distro for XP versions below 7.10.0
+
+== v2.3.2
+
+=== Bugs
+
+* Detect when CLI is running on Mac arm64 and pick the right XP sdk
+
+== v2.3.1
+
+=== Bugs
+
+* Reinstalling cli through snapcraft after it was manually installed fails
+* Account query is no longer available
+
 == v2.3.0
 
 === Features
