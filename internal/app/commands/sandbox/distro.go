@@ -35,6 +35,7 @@ const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-x
 const REMOTE_VERSION_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/maven-metadata.xml"
 
 const TGZ_SUPPORTED_FROM_VERSION = "7.6.0"
+const TGZ_MAC_SUPPORTED_FROM_VERSION = "7.10.0"
 
 type Metadata struct {
 	XMLName    xml.Name   `xml:"metadata"`
@@ -132,9 +133,16 @@ func createProgressBar(total int64) *pb.ProgressBar {
 }
 
 func resolveArchiveExtension(version string) string {
+	currentOS := util.GetCurrentOs()
+	if currentOS == "windows" {
+		return ".zip"
+	}
+
 	tgzVersion := semver.MustParse(TGZ_SUPPORTED_FROM_VERSION)
+	macTgzVersion := semver.MustParse(TGZ_MAC_SUPPORTED_FROM_VERSION)
 	currentVersion := semver.MustParse(version)
-	if util.GetCurrentOs() == "windows" || currentVersion.LessThan(tgzVersion) {
+
+	if (currentOS == "mac" && currentVersion.LessThan(macTgzVersion)) || currentVersion.LessThan(tgzVersion) {
 		return ".zip"
 	} else {
 		return ".tgz"
