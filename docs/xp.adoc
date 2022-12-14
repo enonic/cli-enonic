@@ -595,7 +595,7 @@ $ enonic repo readonly true -a su:password -r cms-repo
 
 === Replicas
 
-Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: https://xp.readthedocs.io/en/stable/operations/clustering.html#replica-setup[Replica setup].
+Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: https://developer.enonic.com/docs/xp/stable/deployment/clustering#shard_replication[Replica setup].
 
  $ enonic repo replicas [replicasNum] [-a <value>]
 
