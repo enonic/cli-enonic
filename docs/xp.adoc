@@ -1,6 +1,6 @@
 = XP commands
 
-The following commands are used when communicating directly with an Enonic XP instance. 
+The following commands are used when communicating directly with an Enonic XP instance.
 For these commands to work, the CLI must have access to the https://developer.enonic.com/docs/xp/stable/runtime/management[management API] of your XP instance.
 
 
@@ -110,7 +110,7 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
 
- $ enonic snapshot restore [--snap <value>] [--repo <value>] [--a <value>]
+ $ enonic snapshot restore [--snap <value>] [--repo <value>] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -137,7 +137,7 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 Deletes a snapshot by name or date:
 
- $ enonic snapshot delete [-before <value>] [--snap <value>] [-a <value>]
+ $ enonic snapshot delete [-before <value>] [--snap <value>] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -187,7 +187,7 @@ OPTIONS:
 
 Export data from every repository. The result will be stored in the `$XP_HOME/data/dump` directory.
 
- $ enonic dump create [-d <value>] [--skip-versions <value>] [--max-version-age <value>] [--max-versions <value>] [-a <value>]
+ $ enonic dump create [-d <value>] [--skip-versions <value>] [--max-version-age <value>] [--max-versions <value>] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -230,7 +230,7 @@ Upgrade a data dump from a previous version to the current version. The output o
 
 NOTE: The current version XP installation must be running with the upgraded app deployed.
 
- $ enonic dump upgrade [-d <value>] [-a <value>]
+ $ enonic dump upgrade [-d <value>] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -259,7 +259,7 @@ $ enonic dump upgrade -a su:password -d myDump
 
 Lists all the dumps
 
- $ enonic dump ls
+ $ enonic dump ls [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -282,7 +282,7 @@ Load data from a named system dump into Enonic XP. The dump read has to be store
 
 WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
 
- $ enonic dump load [--d <value>] [-f] [--upgrade] [--a <value>]
+ $ enonic dump load [-d <value>] [--upgrade] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -292,9 +292,6 @@ Options:
 
 |`-d`
 |dump name to load
-
-|`-f, --force`
-|assume “Yes” as answer to all prompts and run non-interactively
 
 |`--upgrade`
 |upgrade the dump if necessary (default is false)
@@ -313,7 +310,7 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 .Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:
 ----
-$ enonic dump load -a su:password --na newSu:newPassword -d newDump -f --upgrade
+$ enonic dump load -a su:password -d newDump -f --upgrade
 ----
 
 
@@ -340,7 +337,7 @@ OPTIONS:
    --skip-versions         Flag to skip versions in data when exporting.
    --dry                   Show the result without making actual changes.
    --auth value, -a value  Authentication token for basic authentication (user:password)
-   --force, -a f           Accept default answers to all prompts and run non-interactively
+   -f, --force             Accept default answers to all prompts and run non-interactively
 ----
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
@@ -373,8 +370,8 @@ $ enonic import -h
      --skip-ids              Flag to skips ids when importing
      --skip-permissions      Flag to skips permissions when importing
      --dry                   Show the result without making actual changes.
-     --auth value, -a value  Authentication token for basic authentication (user:password)
-     --force, -a f           Accept default answers to all prompts and run non-interactively
+     -a value, --auth value  Authentication token for basic authentication (user:password)
+     -f, --force             Accept default answers to all prompts and run non-interactively
 ----
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
@@ -415,7 +412,7 @@ OPTIONS:
 
 Installs an application on all nodes.
 
- $ enonic app install [-u <value>] [-f <value>] [-a <value>]
+ $ enonic app install [--url <value>] [--file <value>] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -429,7 +426,7 @@ Options:
 |`--file`
 |path to an application file (mutually exclusive with url, used if both are present)
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -438,20 +435,20 @@ Options:
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
-.Example installing app from URL:
+.Example installing app from a URL:
 ----
-$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
+$ enonic app install -a su:password --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
 ----
-.Example installing app from file:
+.Example installing app from a file:
 ----
-$ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
+$ enonic app install -a su:password --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
 ----
 
 === Start
 
 Start application on all nodes.
 
- $ enonic app start <app key> [-f <value>] [-a <value>]
+ $ enonic app start <app key> [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -462,7 +459,7 @@ Options:
 |`<app key>`
 |application key
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -480,7 +477,7 @@ $ enonic app start com.enonic.app.superhero -a su:password
 
 Stop application on all nodes.
 
- $ enonic app stop <app key> [-f <value>] [-a <value>]
+ $ enonic app stop <app key> [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -491,7 +488,7 @@ Options:
 |`<app key>`
 |application key
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -530,7 +527,7 @@ OPTIONS:
 
 Reindex the content in the search indices for the given repository and branches. This is usually required after upgrades, and may be useful in many other situation.
 
- $ enonic repo reindex [--b <value, value...>] [-r <value>] [-i] [-a <value>]
+ $ enonic repo reindex [--b <value, value...>] [-r <value>] [-i] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -547,7 +544,7 @@ Options:
 |`-i`
 |if true, the indices will be deleted before recreated
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -565,7 +562,7 @@ $ enonic repo reindex -a su:password -b draft,master -i -r cms-repo
 
 Toggle read-only mode. In read-only mode, no changes can be made on the server, or a single repo if specified
 
- $ enonic repo readonly [readOnly] [-r <value>] [-a <value>]
+ $ enonic repo readonly [readOnly] [-r <value>] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -597,7 +594,7 @@ $ enonic repo readonly true -a su:password -r cms-repo
 
 Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: https://developer.enonic.com/docs/xp/stable/deployment/clustering#shard_replication[Replica setup].
 
- $ enonic repo replicas [replicasNum] [-a <value>]
+ $ enonic repo replicas [replicasNum] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -608,7 +605,7 @@ Options:
 |`replicasNum`
 |whole number between 1 and 99 to set
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -626,7 +623,7 @@ $ enonic repo replicas 3 -a su:password
 
 List available repositories.
 
- $ enonic repo list [-a <value>]
+ $ enonic repo list [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -634,7 +631,7 @@ Options:
 |Option
 |Description
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -677,7 +674,7 @@ Unless the `–skip-children` flag is specified, it processes all descendants of
 
 NOTE: This command should be used after migrating content from Enonic CMS using the cms2xp tool.
 
- $ enonic cms reprocess [--path <value>] [--skip-children] [-a <value>]
+ $ enonic cms reprocess [--path <value>] [--skip-children] [-a <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -691,7 +688,7 @@ Options:
 |`--skip-children`
 |flag to skip processing of content children
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -782,7 +779,7 @@ Options:
 |age of records to be removed. +
 _Format is based on the ISO-8601 duration format `PnDTnHnMn.nS` with days considered to be exactly 24 hours_.
 
-|`--a, --auth`
+|`-a, --auth`
 |authentication token for basic authentication (user:password)
 
 |`-f, --force`
@@ -814,7 +811,7 @@ $ enonic vacuum -h
   OPTIONS:
      --blob, -b              Also removes unused blobs
      --auth value, -a value  Authentication token for basic authentication (user:password)
-     --force, -a f           Accept default answers to all prompts and run non-interactively
+     --force, -f             Accept default answers to all prompts and run non-interactively
 ----
 
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
