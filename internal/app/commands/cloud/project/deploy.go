@@ -134,7 +134,13 @@ func createDeployContext(target string, deploymentJar string, force bool) (*depl
 	}
 
 	xp7Services := make(map[string]deployContext)
-	for _, account := range res.Search.Accounts {
+	accounts := res.Search.Accounts
+
+	sort.Slice(accounts[:], func(i, j int) bool {
+		return accounts[i].Name == "Hobby"
+	})
+
+	for _, account := range accounts {
 		for _, solution := range account.Solutions {
 			for _, environment := range solution.Environments {
 				for _, service := range environment.Services {
