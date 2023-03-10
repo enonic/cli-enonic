@@ -10,7 +10,7 @@ import (
 func GetServices(ctx context.Context) (*GetServicesData, error) {
 	req := cloudApi.NewGQLRequest(`
 	{
-		search(params: {query: "type = 'account' AND plan = 'hobby'"}) {
+		search(params: {query: "type = 'account'"}) {
 			accounts {
 				name
 				solutions {
