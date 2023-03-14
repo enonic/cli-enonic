@@ -1,0 +1,32 @@
+{
+  "name": "@enonic/cli",
+  "description": "Command-line interface for Enonic XP",
+  "version": "0.0.0",
+  "scripts": {
+    "preinstall": "node script.js preinstall",
+    "postinstall": "node script.js install",
+    "prepublishOnly": "node script.js prepublish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enonic/cli-enonic.git"
+  },
+  "author": "Enonic <info@enonic.com>",
+  "license": "GPL-3.0+",
+  "bugs": {
+    "url": "https://github.com/enonic/cli-enonic/issues"
+  },
+  "directories": {
+    "bin": "dist/bin"
+  },
+  "goBinary": "enonic",
+  "homepage": "https://developer.enonic.com/docs/enonic-cli/",
+  "files": [
+    "dist/bin",
+    "dist/enonic*/enonic*",
+    "script.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

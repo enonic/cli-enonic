@@ -79,7 +79,7 @@ OPTIONS:
 `
 
 var appHelp = `
-{{.Name}} v.{{.Version}}
+{{.Name}} v{{.Version}}
 {{.Usage}}
 {{with $msg := versionMessage}}{{if ne $msg ""}}
 {{color "cyan+b"}}{{$msg}}{{color "default"}}
