@@ -1,50 +1,39 @@
-# Enonic XP CLI
+<p align="center">
+  <a href="https://enonic.com">
+    <img src="https://enonic.com/_/asset/com.enonic.web.enonic.com/img/enonic-logo.svg" width="290px" style="margin-top: 10px;" />
+  </a>
+</p>
 
-Enonic XP CLI is a command-line tool built for management of installations and projects of [Enonic XP](https://github.com/enonic/xp).
+<p align="center">
+  <img alt="" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
+  <a aria-label="Join the Enonic community on Slack" href="https://slack.enonic.com/">
+    <img alt="Join the Enonic community on Slack" src="https://img.shields.io/badge/Join%20Slack-f03e2f?logo=Slack&style=flat&color=blue">
+  </a>
+  <a aria-label="Follow Enonic on Twitter" href="https://twitter.com/enonichq">
+    <img alt="Follow Enonic on Twitter" src="https://img.shields.io/twitter/follow/enonic?style=flat&color=blue">
+  </a>
+</p>
 
-In order to build and develop the CLI, you need to have the Go environment available.
+## Enonic - Powerful Headless CMS
 
-## Installing Go build and release environment:
+> Enonic offers a powerful headless CMS with added capabilities—like powerful search, tree structure, and visual page composing for editors. The platform offers a flexible schema system to support any content type and a powerful API to enable developers to build solutions using any front-end framework.
 
-##### Mac OS
+## Quickstart
 
-1. `brew install goreleaser`
-1. `brew install dep` - This is the Go dependency management tool.
+Install **Enonic CLI** by running the following command:
 
-##### Windows
+```bash
+npm install enonic
+```
 
-Recommended way is to use [scoop](https://scoop.sh/) command line installer 
+Go to your project folder and create a new project by running the following command, then follow instructions:
 
-1. Install scoop if needed
+```bash
+enonic project create
+```
 
-    *Make sure Powershell 3 (or later) and .NET Framework 4.5 (or later) are installed. Then run:*
+For other ways to install Enonic CLI please check out [this page](https://developer.enonic.com/docs/enonic-cli/master/install).
 
-    `iex (new-object net.webclient).downloadstring('https://get.scoop.sh')`
-1. Install go
+Go [here](https://developer.enonic.com/start) for hands-on introduction to Enonic.
 
-    `scoop install go`
-1. Install goreleaser
-    
-    `scoop bucket add goreleaser https://github.com/goreleaser/scoop-bucket.git`
-    
-    `scoop install goreleaser`
-1.  Install Go dependency management tool
-
-    `scoop install dep`
-
-For other OSes, please see [Goreleaser](https://goreleaser.com).
-
-## Building project
-
-1. Check out [XP CLI](https://github.com/enonic/cli-enonic) from GitHub
-1. Run `dep ensure` in the project folder.  -  This will download all dependencies for the project.
-1. Run `goreleaser --rm-dist --snapshot` in the project folder to build a snapshot of latest code.  A binary installation, ready for use will be put in the dist folder.
-
-## Publishing
-
-`goreleaser` requires the current commit to be tagged in GitHub in order to be published, so if you want to publish the latest code, commit it and tag the commit.  If you want to publish an earlier version, check out the version.  Then a build (`goreleaser --rm-dist`) will publish `xp-cli` to GitHub and our own Artifactory repo, as long as it is set up correctly:
-1. GitHub - To publish to GitHub, you must have publishing rights on the xp-cli project, and a personal Access Code to identify yourself.  This can be set up on GitHub by going to your personal _Settings / Developer Settings / Personal Access tokens_.  Create a token with all rights to repo and put it in `~/.config/goreleaser/github_token`
-1. repo.enonic.com - This repo use the Artifactory general `ci` user.  The API key for the `ci` user must be put in a local environment variable called `ARTIFACTORY_REPO_SECRET`.
-
-If you build a snapshot with `goreleaser --rm-dist --snapshot`, it may be uploaded to our repo by executing this command for each created distro:
-* `curl -u ci:$ARTIFACTORY_REPO_SECRET -X PUT "http://repo.enonic.com/public/com/enonic/cli/enonic/next/enonic_1.0.0-next_Windows_64-bit.zip" -T enonic_1.0.0-next_Windows_64-bit.zip`
+Check out [the docs](https://developer.enonic.com/docs/xp/stable) for Enonic Platform and start building.

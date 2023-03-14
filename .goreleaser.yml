@@ -109,7 +109,7 @@ release:
 
   # You can change the name of the GitHub release.
   # Default is ``
-  name_template: "Enonic CLI {{.Version}}"
+  name_template: 'Enonic CLI {{ trimprefix .Version "v" }}'
 
   # You can disable this pipe in order to not upload any artifacts to
   # GitHub.
