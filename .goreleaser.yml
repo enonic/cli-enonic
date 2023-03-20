@@ -57,25 +57,21 @@ builds:
       - goos: windows
         goarch: arm64
 
-    gcflags:
-      - -trimpath={{ .Env.PWD }}
-
-    asmflags:
-      - -trimpath={{ .Env.PWD }}
-
     hooks:
       post: ./script.sh
 
 archives:
 
-  - replacements:
-      darwin: Mac
-      linux: Linux
-      windows: Windows
-      amd64: 64-bit
-      386: 32-bit
-      arm: Arm
-      arm64: Arm64
+  - id: enonic
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}64-bit
+      {{- else if eq .Arch "386" }}32-bit
+      {{- else if eq .Arch "darwin" }}Mac
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- with .Arm }}_v{{ . }}{{ end }}
+      {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
     format: tar.gz  # set to binary to omit archiving
 
@@ -113,7 +109,7 @@ release:
 
   # You can change the name of the GitHub release.
   # Default is ``
-  name_template: "{{.ProjectName}}-v{{.Version}}"
+  name_template: "Enonic CLI {{.Version}}"
 
   # You can disable this pipe in order to not upload any artifacts to
   # GitHub.
@@ -195,20 +191,19 @@ nfpms:
 
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 
-    # Replacements for GOOS and GOARCH in the package name.
-    # Keys should be valid GOOSs or GOARCHs.
-    # Values are the respective replacements.
-    # Default is empty.
-    replacements:
-      darwin: Mac
-      linux: Linux
-      windows: Windows
-      amd64: 64-bit
-      386: 32-bit
-      arm: Arm
-      arm64: Arm64
+  #  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+
+  - id: enonic
+    file_name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}64-bit
+      {{- else if eq .Arch "386" }}32-bit
+      {{- else if eq .Arch "darwin" }}Mac
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- with .Arm }}_v{{ . }}{{ end }}
+      {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
     # Your app's vendor.
     # Default is empty.
@@ -238,20 +233,18 @@ snapcrafts:
 
   # You can change the name of the package.
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+  # - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 
-    # Replacements for GOOS and GOARCH in the package name.
-    # Keys should be valid GOOSs or GOARCHs.
-    # Values are the respective replacements.
-    # Default is empty.
-    replacements:
-      darwin: Mac
-      linux: Linux
-      windows: Windows
-      amd64: 64-bit
-      386: 32-bit
-      arm: Arm
-      arm64: Arm64
+  - id: enonic
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}64-bit
+      {{- else if eq .Arch "386" }}32-bit
+      {{- else if eq .Arch "darwin" }}Mac
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- with .Arm }}_v{{ . }}{{ end }}
+      {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
     # The name of the snap. This is optional.
     # Default is project name.
