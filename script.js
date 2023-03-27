@@ -95,14 +95,14 @@ function install(callback) {
     const source = path.join(__dirname, 'dist', `enonic_${PLATFORM_MAPPING[process.platform]}_${ARCH_MAPPING[process.arch]}`, opts.binName);
 
     if (!fs.existsSync(source)) {
-        console.error('Downloaded binary does not contain the binary specified in configuration - ' + opts.binName);
+        console.error(`Looking for ${opts.binName} at "${source}": Not found.`);
         return;
     }
 
     const targetPath = path.join(__dirname, opts.binPath);
     const target = path.join(targetPath, opts.binName);
 
-    console.log(`Copying the relevant binary for your platform ${process.platform}`);
+    console.log(`Copying the relevant binary for platform "${process.platform}"`);
     fs.copyFileSync(source, target, fs.constants.COPYFILE_FICLONE);
 }
 
@@ -137,9 +137,12 @@ function prepublish(callback) {
         return callback("Invalid inputs");
     }
 
-    console.info('Executing prepublish script...');
+    console.log('Executing prepublish script...');
     const targetPath = path.join(__dirname, opts.binPath);
-    fs.mkdirSync(targetPath);
+
+    if (!fs.existsSync(targetPath)) {
+        fs.mkdirSync(targetPath);
+    }
 
     const file1 = path.join(targetPath, opts.binName);
     const file2 = path.join(targetPath, opts.binNameUnused);
