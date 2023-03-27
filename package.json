@@ -1,5 +1,5 @@
 {
-  "name": "@enonic/cli",
+  "name": "@enonic/cli-test",
   "description": "Command-line interface for Enonic XP",
   "version": "0.0.0",
   "scripts": {

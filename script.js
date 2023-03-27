@@ -92,7 +92,7 @@ function install(callback) {
         return callback("Invalid inputs");
     }
 
-    const source = path.join('dist', `enonic_${PLATFORM_MAPPING[process.platform]}_${ARCH_MAPPING[process.arch]}`, opts.binName);
+    const source = path.join(__dirname, 'dist', `enonic_${PLATFORM_MAPPING[process.platform]}_${ARCH_MAPPING[process.arch]}`, opts.binName);
 
     if (!fs.existsSync(source)) {
         console.error('Downloaded binary does not contain the binary specified in configuration - ' + opts.binName);
@@ -102,7 +102,7 @@ function install(callback) {
     const targetPath = path.join(__dirname, opts.binPath);
     const target = path.join(targetPath, opts.binName);
 
-    console.info(`Copying the relevant binary for your platform ${process.platform}`);
+    console.log(`Copying the relevant binary for your platform ${process.platform}`);
     fs.copyFileSync(source, target, fs.constants.COPYFILE_FICLONE);
 }
 
@@ -115,7 +115,7 @@ function preinstall(callback) {
     const targetPath = path.join(__dirname, opts.binPath);
     const unusedBinary = path.join(targetPath, opts.binNameUnused);
 
-    console.info(`Deleting unused binary: ${unusedBinary}`);
+    console.log(`Deleting unused binary: ${unusedBinary}`);
 
     try {
         fs.unlinkSync(unusedBinary);

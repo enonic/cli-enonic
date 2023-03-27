@@ -29,7 +29,7 @@ jobs:
       - name: GoReleaser Action
         uses: goreleaser/goreleaser-action@v4
         with:
-            args: release --clean --parallelism=1
+            args: release --clean --skip-publish --parallelism=1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
