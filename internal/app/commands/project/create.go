@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Masterminds/semver"
+	"github.com/fatih/color"
 	"github.com/otiai10/copy"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
@@ -154,7 +155,10 @@ var Create = cli.Command{
 			}
 		}
 
-		fmt.Printf("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\ncd %s\nenonic project deploy\n\n", dest)
+		fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
+
+		boldCyan := color.New(color.FgCyan, color.Bold)
+		boldCyan.Printf("cd %s\nenonic project deploy\n\n", dest)
 
 		return nil
 	},
