@@ -17,7 +17,7 @@ $ enonic project
 Manage XP development projects
 
 USAGE:
-   Enonic CLI project command [command options] [arguments...]
+   enonic [command] [options] [arguments...]
 
 COMMANDS:
      create             Create new project
@@ -310,7 +310,7 @@ $ enonic sandbox
 Manage XP development instances
 
 USAGE:
-   Enonic CLI sandbox command [command options] [arguments...]
+   enonic sandbox [command] [command options] [arguments...]
 
 COMMANDS:
      list, ls         List all sandboxes

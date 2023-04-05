@@ -48,7 +48,7 @@ $ enonic snapshot
 Create and restore snapshots
 
 USAGE:
-   Enonic CLI snapshot command [command options] [arguments...]
+   enonic snapshot [command] [command options] [arguments...]
 
 COMMANDS:
      list, ls     Returns a list of existing snapshots with name and status.
@@ -91,7 +91,7 @@ $ enonic snapshot list -h
 Returns a list of existing snapshots with name and status.
 
 USAGE:
-   Enonic CLI snapshot list [command options] [arguments...]
+   enonic snapshot list [command options] [arguments...]
 
 OPTIONS:
    --auth value, -a value  Authentication token for basic authentication (user:password)
