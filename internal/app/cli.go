@@ -21,7 +21,6 @@ var (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Enonic CLI"
 	app.Version = version
 	app.Usage = "Manage XP instances, home folders and projects"
 	app.Commands = commands.All()

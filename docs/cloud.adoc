@@ -12,7 +12,7 @@ $ enonic cloud
 Manage Enonic cloud
 
 USAGE:
-   Enonic CLI cloud command [command options] [arguments...]
+   enonic cloud [command] [command options] [arguments...]
 
 COMMANDS:
      login   Login to Enonic Cloud
@@ -57,7 +57,7 @@ $ enonic cloud app
 Manage apps in Enonic Cloud
 
 USAGE:
-   Enonic CLI cloud app command [command options] [arguments...]
+   enonic cloud app [command] [command options] [arguments...]
 
 COMMANDS:
      install  Install project jar to Enonic Cloud

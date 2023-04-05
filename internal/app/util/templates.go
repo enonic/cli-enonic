@@ -51,7 +51,7 @@ var subCommandHelp = `
 {{color "cyan+b"}}{{$msg}}{{color "default"}}
 {{end}}{{end}}
 USAGE:
-   {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} command{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}
+   {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} [command]{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}
 
 COMMANDS:{{range .VisibleCategories}}{{if .Name}}
    {{.Name}}:{{end}}{{range .VisibleCommands}}
@@ -79,13 +79,13 @@ OPTIONS:
 `
 
 var appHelp = `
-{{.Name}} v{{.Version}}
+Enonic CLI {{.Version}}
 {{.Usage}}
 {{with $msg := versionMessage}}{{if ne $msg ""}}
 {{color "cyan+b"}}{{$msg}}{{color "default"}}
 {{end}}{{end}}
 USAGE:
-   {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{if .VisibleCommands}}
+   {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} [command] [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{if .VisibleCommands}}
 
 COMMANDS:{{range .VisibleCategories}}{{if .Name}}
    {{ "\n" }}{{.Name}}:{{end}}{{range .VisibleCommands}}
