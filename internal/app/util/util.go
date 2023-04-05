@@ -101,7 +101,7 @@ func PromptProjectJar(inputJar string, force bool) string {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) == 0 {
 			if force {
-				fmt.Fprintf(os.Stderr, "Snapshot name can not be empty in non-interactive mode.")
+				fmt.Fprintf(os.Stderr, "File path can not be empty in non-interactive mode.")
 				os.Exit(1)
 			}
 
