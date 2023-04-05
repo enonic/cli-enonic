@@ -1,10 +1,12 @@
 package sandbox
 
 import (
+	"bufio"
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/Masterminds/semver"
+	"github.com/magiconair/properties"
 	"github.com/otiai10/copy"
 	"github.com/urfave/cli"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -236,6 +238,30 @@ func CopyHomeFolder(distroPath, sandboxName string) {
 	if _, err := os.Stat(sourceHome); err == nil {
 		copyErr := copy.Copy(sourceHome, targetHome, copy.Options{AddPermission: 0200})
 		util.Fatal(copyErr, "Could not copy home folder from distro to sandbox: ")
+		updateXPConfig(sandboxName)
+	}
+}
+
+func updateXPConfig(sandboxName string) {
+	configFolder := createFolderIfNotExist(GetSandboxHomePath(sandboxName), "config")
+	configPath := filepath.Join(configFolder, "system.properties")
+	configFile := util.OpenOrCreateDataFile(configPath, false)
+	defer configFile.Close()
+	props, readErr := properties.LoadFile(configPath, properties.UTF8)
+	if readErr != nil {
+		fmt.Fprintln(os.Stderr, "Error reading system.properties file", readErr.Error())
+		return
+	}
+	if prev, _, _ := props.Set("xp.name", sandboxName); prev != sandboxName {
+		configWriter := bufio.NewWriter(configFile)
+		if _, writerErr := props.Write(configWriter, properties.UTF8); writerErr != nil {
+			fmt.Fprintln(os.Stderr, "Error writing system.properties file", readErr.Error())
+			return
+		}
+		if flushErr := configWriter.Flush(); flushErr != nil {
+			fmt.Fprintln(os.Stderr, "Error writing system.properties file", readErr.Error())
+			return
+		}
 	}
 }
 
