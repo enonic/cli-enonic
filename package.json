@@ -2,11 +2,6 @@
   "name": "@enonic/cli",
   "description": "Command-line interface for Enonic XP",
   "version": "0.0.0",
-  "scripts": {
-    "preinstall": "node scripts/install.js preinstall",
-    "postinstall": "node scripts/install.js postinstall",
-    "prepublishOnly": "node scripts/publish.js prepublish"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/enonic/cli-enonic.git"
@@ -16,18 +11,25 @@
   "bugs": {
     "url": "https://github.com/enonic/cli-enonic/issues"
   },
-  "directories": {
-    "bin": "dist/bin"
+  "bin": {
+    "enonic": "index.js"
   },
   "goBinary": "enonic",
-  "homepage": "https://developer.enonic.com/docs/enonic-cli/",
+  "homepage": "https://enonic.com/",
   "files": [
-    "dist/bin",
-    "dist/enonic*/enonic*",
-    "scripts/install.js",
-    "scripts/helper.js"
+    "dist",
+    "index.js"
   ],
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "keywords": [
+    "enonic",
+    "cms",
+    "enonic xp",
+    "headless",
+    "content",
+    "cloud",
+    "api"
+  ]
 }
