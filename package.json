@@ -2,6 +2,9 @@
   "name": "@enonic/cli",
   "description": "Command-line interface for Enonic XP",
   "version": "0.0.0",
+  "scripts": {
+    "prepublishOnly": "node setversion.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/enonic/cli-enonic.git"
