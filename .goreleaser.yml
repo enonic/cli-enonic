@@ -299,4 +299,3 @@ artifactories:
 
   - name: repo
     target: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/
-    username: ci
