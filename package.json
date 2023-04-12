@@ -20,7 +20,9 @@
   "goBinary": "enonic",
   "homepage": "https://enonic.com/",
   "files": [
-    "dist",
+    "dist/enonic_darwin_*/**",
+    "dist/enonic_linux_*/**",
+    "dist/enonic_windows_*/**",
     "index.js"
   ],
   "publishConfig": {
