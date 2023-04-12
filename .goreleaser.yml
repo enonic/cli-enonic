@@ -128,12 +128,13 @@ scoop:
   bucket:
     owner: enonic
     name: cli-scoop
+    token: "{{ .Env.TAP_GITHUB_TOKEN }}"
 
   # Git author used to commit to the repository.
   # Defaults are shown.
   commit_author:
     name: goreleaserbot
-    email: goreleaser@carlosbecker.com
+    email: bot@goreleaser.com
 
   # Your app's homepage.
   # Default is empty.
@@ -174,7 +175,7 @@ brews:
     # Defaults are shown.
     commit_author:
       name: goreleaserbot
-      email: goreleaser@carlosbecker.com
+      email: bot@goreleaser.com
 
     # Folder inside the repository to put the formula.
     # Default is the root folder.
