@@ -160,6 +160,7 @@ brews:
     tap:
       owner: enonic
       name: homebrew-cli
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
 
     # Template for the url.
     # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
