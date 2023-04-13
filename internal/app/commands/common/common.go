@@ -20,11 +20,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -452,7 +454,7 @@ func ProduceCheckVersionFunction(appVersion string) func() string {
 			latestVer := semver.MustParse(rData.LatestVersion)
 			currentVer := semver.MustParse(appVersion)
 			if latestVer.GreaterThan(currentVer) {
-				message = FormatLatestVersionMessage(rData.LatestVersion)
+				message = FormatLatestVersionMessage(rData.LatestVersion, IsInstalledViaNPM())
 			}
 		}
 
@@ -460,11 +462,48 @@ func ProduceCheckVersionFunction(appVersion string) func() string {
 	}
 }
 
-func FormatLatestVersionMessage(latest string) string {
-	return fmt.Sprintf(LATEST_VERSION_MSG, latest, getOSUpdateCommand())
+func IsInstalledViaNPM() bool {
+	_, _, code := getCommandResult("npm", "list", "-g", "@enonic/cli")
+	// npm list return exit code 1 if package is not installed and 0 if it is
+	return code == 0
 }
 
-func getOSUpdateCommand() string {
+func GetLatestNPMVersion() string {
+	version, _, _ := getCommandResult("npm", "view", "@enonic/cli", "version")
+	// the output is version followed by a newline: 2.4.0-RC2\n
+	return strings.Trim(version, "\r\n")
+}
+
+func getCommandResult(command string, args ...string) (string, string, int) {
+	var stdout, stderr bytes.Buffer
+	var exitCode int
+
+	cmd := exec.Command(command, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus := exitError.Sys().(syscall.WaitStatus)
+			exitCode = waitStatus.ExitStatus()
+		} else {
+			exitCode = 1
+		}
+	}
+	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+
+	return outStr, errStr, exitCode
+}
+
+func FormatLatestVersionMessage(latest string, isNPM bool) string {
+	return fmt.Sprintf(LATEST_VERSION_MSG, latest, getOSUpdateCommand(isNPM))
+}
+
+func getOSUpdateCommand(isNPM bool) string {
+	if isNPM {
+		return "npm upgrade @enonic/cli"
+	}
+
 	switch util.GetCurrentOs() {
 	case "windows":
 		return "scoop update enonic"

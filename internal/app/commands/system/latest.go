@@ -14,26 +14,37 @@ var Latest = cli.Command{
 	Usage: "Check for latest version",
 	Flags: []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
-		fmt.Fprintln(os.Stderr, "")
-		req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
-		res := common.SendRequest(req, "Loading")
 
-		var result ScoopManifest
-		common.ParseResponse(res, &result)
-
+		var latestVer *semver.Version
+		currentVer := semver.MustParse(c.App.Version)
 		rData := common.ReadRuntimeData()
 		rData.LatestCheck = time.Now()
+		fmt.Fprintln(os.Stderr, "")
 
-		currentVer := semver.MustParse(c.App.Version)
-		latestVer := semver.MustParse(result.Version)
-		rData.LatestVersion = result.Version
+		common.StartSpinner("Loading")
+		isNPM := common.IsInstalledViaNPM()
+		if isNPM {
+			latestVer = semver.MustParse(common.GetLatestNPMVersion())
+			common.StopSpinner()
+
+		} else {
+			req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
+			res := common.SendRequest(req, "Loading")
+
+			var result ScoopManifest
+			common.ParseResponse(res, &result)
+
+			latestVer = semver.MustParse(result.Version)
+		}
 
 		if latestVer.Equal(currentVer) || latestVer.LessThan(currentVer) {
 			fmt.Fprintf(os.Stdout, "\nYou are using the latest version of Enonic CLI: %s.\n", c.App.Version)
 		} else if latestVer.GreaterThan(currentVer) {
 			fmt.Fprintf(os.Stdout, "\nLocal version: %s.\n", c.App.Version)
-			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(result.Version))
+			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(latestVer.String(), isNPM))
 		}
+
+		rData.LatestVersion = latestVer.String()
 		common.WriteRuntimeData(rData)
 
 		return nil
