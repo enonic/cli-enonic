@@ -47,7 +47,7 @@ builds:
 
     goarm:
       - 6
-      - 7
+    # - 7
 
     # windows_arm64 builds fail: exit status 2: # golang.org/x/sys/windows
     #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:2833:38: undefined: WSAData

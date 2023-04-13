@@ -9,7 +9,8 @@ const fs = require('fs');
 const ARCH_MAPPING = {
     'ia32': '386',
     'x64': 'amd64_v1',
-    'arm': 'arm'
+    'arm': 'arm_6',
+    'arm64': 'arm64'
 };
 
 // Mapping between Node's `process.platform` to Golang's
