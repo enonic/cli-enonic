@@ -34,6 +34,6 @@ func StopSandbox(rData common.RuntimeData) {
 	if err := util.WaitUntilProcessStopped(pId, 30); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
-
+	common.StopSpinner()
 	fmt.Fprintln(os.Stderr, "Done")
 }
