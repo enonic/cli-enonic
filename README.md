@@ -1,5 +1,5 @@
 
-## Enonic CLI - Build, deploy and manage using the Enonic Platform
+## Enonic CLI - Development and management tool for Enonic XP
 
 <p align="left">
   <img alt="" src="https://img.shields.io/npm/v/@enonic/cli?style=flat">
@@ -12,7 +12,7 @@
   </a>
 </p>
 
-Enonic offers an API-first content platform featuring structured content, powerful search, tree structures, preview and visual page composing. The platform uses a flexible schema system to support content type and components, combined with a rich JS and GraphQL API. Use your favorite front-end framework or build directly on the platform using the Enonic JS framework.
+Enonic offers an API-first content platform featuring structured content, powerful search, tree structures, preview and visual page composing. The platform uses a flexible schema system to support content type and components, combined with rich JavaScript and GraphQL APIs. Use your favorite front-end framework or build directly on the platform using the Enonic JS framework.
 
 ## Installation
 
