@@ -1,10 +1,7 @@
-<p align="center">
-  <a href="https://enonic.com">
-    <img src="https://enonic.com/_/asset/com.enonic.web.enonic.com/img/enonic-logo.svg" width="290px" style="margin-top: 10px;" />
-  </a>
-</p>
 
-<p align="center">
+## Enonic CLI - Build, deploy and manage using the Enonic Platform
+
+<p align="left">
   <img alt="" src="https://img.shields.io/npm/v/@enonic/cli?style=flat">
   <img alt="" src="https://img.shields.io/npm/l/@enonic/cli.svg?style=flat">
   <a aria-label="Join the Enonic community on Slack" href="https://slack.enonic.com/">
@@ -15,21 +12,25 @@
   </a>
 </p>
 
-## Enonic - Powerful Headless CMS
+Enonic offers an API-first content platform featuring structured content, powerful search, tree structures, preview and visual page composing. The platform uses a flexible schema system to support content type and components, combined with a rich JS and GraphQL API. Use your favorite front-end framework or build directly on the platform using the Enonic JS framework.
 
-> Enonic offers a powerful headless CMS with added capabilities—like powerful search, tree structure, and visual page composing for editors. The platform offers a flexible schema system to support any content type and a powerful API to enable developers to build solutions using any front-end framework.
+## Installation
 
-## Quickstart
-
-* Install **Enonic CLI** by running the following command:
+Install **Enonic CLI** with the following command:
 
 ```bash
 npm install @enonic/cli -g
 ```
 
-* Run `enonic` without any arguments to verify that installation was successful and see the complete list of supported commands.
+## Usage
 
-* Go to your project folder and create a new project by running the following command, then follow instructions:
+* To get a list of available commands
+
+```bash
+enonic
+```
+
+* Create a new project with the following command, then follow instructions:
 
 ```bash
 enonic project create
