@@ -39,10 +39,9 @@ func getOsGradlewFile() string {
 	gradlewFile := "gradlew"
 	switch util.GetCurrentOs() {
 	case "windows":
-		gradlewFile += ".bat"
+		gradlewFile = fmt.Sprintf(".%c%s.bat", os.PathSeparator, gradlewFile)
 	case "mac", "linux":
-		gradlewFile = "./" + gradlewFile
-
+		gradlewFile = fmt.Sprintf(".%c%s", os.PathSeparator, gradlewFile)
 	}
 	return gradlewFile
 }
