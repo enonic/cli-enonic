@@ -78,8 +78,9 @@ func ensureUniqueNameArg(name, minDistroVersion string, force bool) string {
 				}
 				return errors.Errorf("Sandbox name '%s' is not valid. Use letters, digits or underscore (_) only: ", str)
 			} else {
+				lowerStr := strings.ToLower(str)
 				for _, existingBox := range existingBoxes {
-					if existingBox.Name == str {
+					if strings.ToLower(existingBox.Name) == lowerStr {
 						if force {
 							fmt.Fprintf(os.Stderr, "Sandbox with name '%s' already exists\n", str)
 							os.Exit(1)
@@ -109,7 +110,7 @@ func getFirstValidSandboxName(sandboxes []*Sandbox) string {
 		name = fmt.Sprintf(SANDBOX_NAME_TPL, num)
 		nameInvalid = false
 		for _, box := range sandboxes {
-			if box.Name == name {
+			if strings.ToLower(box.Name) == strings.ToLower(name) {
 				num++
 				nameInvalid = true
 				break

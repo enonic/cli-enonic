@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func All() []cli.Command {
@@ -175,8 +176,9 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 
 	if parseArgs && c != nil && c.NArg() > 0 {
 		name := c.Args().First()
+		lowerName := strings.ToLower(name)
 		for _, existingBox := range existingBoxes {
-			if existingBox.Name == name {
+			if strings.ToLower(existingBox.Name) == lowerName {
 				return existingBox, false
 			}
 		}
