@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
@@ -307,7 +306,6 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 	var (
 		customRepoOption = "Custom repo"
 		starterList      []string
-		selectedOption   string
 		starter          *Starter
 	)
 	repo := c.String("repository")
@@ -333,12 +331,12 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 			starterList = append(starterList, fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription))
 		}
 
-		err := survey.AskOne(&survey.Select{
+		selectedOption, err := util.PromptSelect(&util.SelectOptions{
 			Message:  "Starter",
 			Options:  append(starterList, customRepoOption),
 			PageSize: 10,
-		}, &selectedOption, nil)
-		util.Fatal(err, "Exiting: ")
+		})
+		util.Fatal(err, "Could not select starter: ")
 
 		if selectedOption != customRepoOption {
 			for _, st := range starters {

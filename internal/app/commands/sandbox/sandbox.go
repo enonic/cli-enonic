@@ -9,7 +9,6 @@ import (
 	"github.com/magiconair/properties"
 	"github.com/otiai10/copy"
 	"github.com/urfave/cli"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -207,16 +206,13 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 		selectOptions = append(selectOptions, boxName)
 	}
 
-	var name string
-	prompt := &survey.Select{
+	name, err := util.PromptSelect(&util.SelectOptions{
 		Message:  selectBoxMessage,
 		Options:  selectOptions,
 		Default:  defaultBox,
 		PageSize: len(selectOptions),
-	}
-
-	err := survey.AskOne(prompt, &name, nil)
-	util.Fatal(err, "Select failed: ")
+	})
+	util.Fatal(err, "Could not select sandbox: ")
 
 	if name == CREATE_NEW_BOX {
 		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage, force)
