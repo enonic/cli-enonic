@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"os"
 	"regexp"
 	"strings"
@@ -68,12 +67,13 @@ func ensureNameFlag(name string, mustNotExist, force bool) string {
 				fmt.Fprintf(os.Stderr, "Dump with name '%s' can not be found.\n", str)
 				os.Exit(1)
 			}
-			prompt := &survey.Select{
+			var err error
+			selectedOption, err = util.PromptSelect(&util.SelectOptions{
 				Message: "Select dump",
 				Options: existingDumps,
-			}
-			err := survey.AskOne(prompt, &selectedOption, nil)
-			util.Fatal(err, "Exiting: ")
+			})
+			util.Fatal(err, "Could not select dump: ")
+
 			return nil
 		} else {
 			return nil

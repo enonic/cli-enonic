@@ -2,16 +2,15 @@ package cloud
 
 import (
 	"cli-enonic/internal/app/commands/cloud/auth"
-	"cli-enonic/internal/app/commands/common"
 	multipart "cli-enonic/internal/app/commands/cloud/client"
 	mutations "cli-enonic/internal/app/commands/cloud/client/mutations"
 	queries "cli-enonic/internal/app/commands/cloud/client/queries"
+	"cli-enonic/internal/app/commands/common"
 	commonUtil "cli-enonic/internal/app/util"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/urfave/cli"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"os"
 	"path/filepath"
 	"sort"
@@ -223,16 +222,10 @@ func promptForService(xp7Services map[string]deployContext) (string, error) {
 		return "", fmt.Errorf("You do not have any services to deploy to")
 	}
 
-	var key string
-	prompt := &survey.Select{
+	return commonUtil.PromptSelect(&commonUtil.SelectOptions{
 		Message: "What service do you want do deploy to?",
 		Options: keys,
-	}
-	err := survey.AskOne(prompt, &key, nil)
-	if err != nil {
-		return "", err
-	}
-	return key, nil
+	})
 }
 
 // Upload app given a valid deploy context

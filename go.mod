@@ -9,7 +9,8 @@ require (
 	github.com/briandowns/spinner v0.0.0-20181018151057-dd69c579ff20
 	github.com/fatih/color v1.13.0
 	github.com/magiconair/properties v1.8.7
-	github.com/mattn/go-runewidth v0.0.12 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	//github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/go-ps v1.0.0
@@ -20,6 +21,7 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/urfave/cli v1.22.12
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/AlecAivazis/survey.v1 v1.8.8
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/src-d/go-git.v4 v4.13.1

@@ -8,7 +8,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/cheggaaa/pb.v1"
 	"io"
 	"io/ioutil"
@@ -385,14 +384,14 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 		}
 
 		defaultVersion := findLatestVersion(versions)
-		var distro string
-		err := survey.AskOne(&survey.Select{
+
+		distro, err := util.PromptSelect(&util.SelectOptions{
 			Message:  "Enonic XP distribution:",
-			Options:  textVersions,
 			Default:  formatDistroVersionDisplay(defaultVersion, currentOsWithArch, latestVersion),
+			Options:  textVersions,
 			PageSize: 10,
-		}, &distro, nil)
-		util.Fatal(err, "Exiting: ")
+		})
+		util.Fatal(err, "Could not select distro: ")
 
 		return parseDistroVersion(distro, true)
 	}

@@ -40,9 +40,34 @@ func PrettyPrintJSON(data interface{}) string {
 	return out.String()
 }
 
+type SelectOptions struct {
+	Message   string
+	Options   []string
+	Default   string
+	Help      string
+	PageSize  int
+	Validator survey.Validator
+}
+
+func PromptSelect(options *SelectOptions) (string, error) {
+	var name string
+
+	err := survey.AskOne(&survey.Select{
+		Message:  options.Message,
+		Options:  options.Options,
+		Default:  options.Default,
+		Help:     options.Help,
+		PageSize: options.PageSize,
+	}, &name, options.Validator)
+
+	return name, err
+}
+
 func PromptString(text, val, defaultVal string, validator func(val interface{}) error) string {
-	if err := validator(val); err == nil {
-		return val
+	if validator != nil {
+		if err := validator(val); err == nil {
+			return val
+		}
 	}
 
 	prompt := &survey.Input{
@@ -57,8 +82,10 @@ func PromptString(text, val, defaultVal string, validator func(val interface{}) 
 }
 
 func PromptPassword(text, val string, validator func(val interface{}) error) string {
-	if err := validator(val); err == nil {
-		return val
+	if validator != nil {
+		if err := validator(val); err == nil {
+			return val
+		}
 	}
 
 	prompt := &survey.Password{

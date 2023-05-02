@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/urfave/cli"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"net/http"
 	"os"
 	"strings"
@@ -63,12 +62,11 @@ func ensureSnapshotFlag(c *cli.Context) string {
 			os.Exit(1)
 		}
 
-		var name string
-		prompt := &survey.Select{
+		name, err := util.PromptSelect(&util.SelectOptions{
 			Message: "Select snapshot to restore",
 			Options: getSnapshotNames(snapshotList),
-		}
-		survey.AskOne(prompt, &name, nil)
+		})
+		util.Fatal(err, "Could not select snapshot: ")
 
 		return name
 	}
