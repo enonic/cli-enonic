@@ -46,7 +46,7 @@ var Cleanup = cli.Command{
 
 func ensureAgeParam(c *cli.Context) string {
 	force := common.IsForceMode(c)
-	return util.PromptString("Enter age threshold in ISO-8601 based duration format (PnDTnHnMn.nS):", c.String("age"), "", func(val interface{}) error {
+	return util.PromptString("Enter age threshold in ISO-8601 based duration format (PnDTnHnMn.nS)", c.String("age"), "", func(val interface{}) error {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) == 0 {
 			if force {

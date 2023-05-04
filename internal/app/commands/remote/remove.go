@@ -3,6 +3,7 @@ package remote
 import (
 	"cli-enonic/internal/app/util"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"os"
 	"strings"
@@ -38,21 +39,20 @@ func ensureExistingNameArg(c *cli.Context, allowActive bool) string {
 		name = c.Args().First()
 	}
 	remotes := readRemotesData()
-	return util.PromptUntilTrue(name, func(val *string, i byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			if i == 0 {
-				return "Enter the name of the remote: "
-			} else {
-				return "Remote name can not be empty: "
-			}
+	validator := func(val interface{}) error {
+		str := val.(string)
+		if strings.TrimSpace(str) == "" {
+			return errors.New("Remote name can not be empty: ")
 		} else {
-			if !allowActive && remotes.Active == *val {
-				return fmt.Sprintf("Remote '%s' is already set active: ", *val)
+			if !allowActive && remotes.Active == str {
+				return errors.Errorf("Remote '%s' is already set active: ", str)
 			}
-			if _, exists := getRemoteByName(*val, remotes.Remotes); !exists {
-				return fmt.Sprintf("Remote '%s' does not exist: ", *val)
+			if _, exists := getRemoteByName(str, remotes.Remotes); !exists {
+				return errors.Errorf("Remote '%s' does not exist: ", str)
 			}
-			return ""
 		}
-	})
+		return nil
+	}
+
+	return util.PromptString("Enter the name of the remote", name, "", validator)
 }

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"github.com/fatih/color"
 	"github.com/otiai10/copy"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
@@ -131,7 +130,7 @@ var Create = cli.Command{
 		absDest, err := filepath.Abs(dest)
 		util.Fatal(err, "Error creating project")
 
-		pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one?", false)
+		pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one", false)
 
 		if pData == nil || pData.Sandbox == "" {
 			fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
@@ -146,7 +145,7 @@ var Create = cli.Command{
 		}
 
 		if starter != nil {
-			if !common.IsForceMode(c) && util.PromptBool(fmt.Sprintf("Open %s docs in the browser ?", starter.DisplayName), false) {
+			if !common.IsForceMode(c) && util.PromptBool(fmt.Sprintf("Open %s docs in the browser", starter.DisplayName), false) {
 				err := browser.OpenURL(starter.Data.DocumentationUrl)
 				util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
 			} else {
@@ -154,10 +153,9 @@ var Create = cli.Command{
 			}
 		}
 
-		fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
+		fmt.Println("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n")
 
-		boldCyan := color.New(color.FgCyan, color.Bold)
-		boldCyan.Printf("cd %s\nenonic project deploy\n\n", dest)
+		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project deploy\n\n"), dest)
 
 		return nil
 	},
@@ -332,9 +330,10 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 		}
 
 		selectedOption, err := util.PromptSelect(&util.SelectOptions{
-			Message:  "Starter",
-			Options:  append(starterList, customRepoOption),
-			PageSize: 10,
+			Message:           "Starter",
+			Options:           append(starterList, customRepoOption),
+			PageSize:          10,
+			StartInSearchMode: true,
 		})
 		util.Fatal(err, "Could not select starter: ")
 

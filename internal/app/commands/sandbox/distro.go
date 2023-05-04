@@ -74,6 +74,7 @@ func getAllVersions(osName, minDistro string, includeUnstable bool) ([]string, s
 	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
 	resp := common.SendRequest(req, "Loading")
 	util.Fatal(err, "Could not load latest version for os: "+osName)
+	fmt.Fprintln(os.Stderr, "Done")
 
 	minDistroVer, _ := semver.NewVersion(minDistro)
 
@@ -386,7 +387,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 		defaultVersion := findLatestVersion(versions)
 
 		distro, err := util.PromptSelect(&util.SelectOptions{
-			Message:  "Enonic XP distribution:",
+			Message:  "Enonic XP distribution",
 			Default:  formatDistroVersionDisplay(defaultVersion, currentOsWithArch, latestVersion),
 			Options:  textVersions,
 			PageSize: 10,

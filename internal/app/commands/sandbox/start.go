@@ -43,7 +43,7 @@ var Start = cli.Command{
 			sandbox = ReadSandboxData(pData.Sandbox)
 		}
 		if sandbox == nil {
-			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, create one?", "Select sandbox to start:", true, true, true)
+			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, create one", "Select sandbox to start", true, true, true)
 			if sandbox == nil {
 				os.Exit(1)
 			}
@@ -104,7 +104,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 }
 
 func AskToStopSandbox(rData common.RuntimeData, force bool) {
-	if force || util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it?", rData.Running), true) {
+	if force || util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it", rData.Running), true) {
 		StopSandbox(rData)
 	} else {
 		os.Exit(1)

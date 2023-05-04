@@ -86,18 +86,18 @@ func ensureUniqueNameArg(c *cli.Context) string {
 		name = c.Args().First()
 	}
 	remotes := readRemotesData()
-	return util.PromptUntilTrue(name, func(val *string, i byte) string {
-		if len(strings.TrimSpace(*val)) == 0 {
-			if i == 0 {
-				return "Enter the name of the remote: "
-			} else {
-				return "Remote name can not be empty: "
-			}
+
+	validator := func(val interface{}) error {
+		str := val.(string)
+		if len(strings.TrimSpace(str)) == 0 {
+			return errors.New("Remote name can not be empty: ")
 		} else {
-			if _, exists := getRemoteByName(*val, remotes.Remotes); exists {
-				return fmt.Sprintf("Remote '%s' already exists: ", *val)
+			if _, exists := getRemoteByName(str, remotes.Remotes); exists {
+				return errors.Errorf("Remote '%s' already exists: ", str)
 			}
-			return ""
 		}
-	})
+		return nil
+	}
+
+	return util.PromptString("Enter the name of the remote", name, "", validator)
 }

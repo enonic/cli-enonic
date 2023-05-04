@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/util"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/urfave/cli"
 	"net/http"
@@ -87,49 +88,44 @@ var Reindex = cli.Command{
 }
 
 func ensureRepoFlag(c *cli.Context) {
-	if c.String("r") == "" {
+	repo := c.String("r")
 
-		var name string
-		name = util.PromptUntilTrue(name, func(val *string, ind byte) string {
-			if len(strings.TrimSpace(*val)) == 0 {
-				switch ind {
-				case 0:
-					return "Enter repository name: "
-				default:
-					return "Repository name can not be empty: "
-				}
-			} else {
-				return ""
-			}
-		})
-
-		c.Set("r", name)
+	validator := func(val interface{}) error {
+		str := val.(string)
+		if strings.TrimSpace(str) == "" {
+			return errors.New("Repository name can not be empty: ")
+		}
+		return nil
 	}
+
+	name := util.PromptString("Enter repository name", repo, "", validator)
+
+	c.Set("r", name)
 }
 
 func ensureBranchesFlag(c *cli.Context) {
-	if c.String("b") == "" {
-		var param string
-		param = util.PromptUntilTrue(param, func(val *string, ind byte) string {
-			if len(strings.TrimSpace(*val)) == 0 {
-				switch ind {
-				case 0:
-					return "Enter comma separated list of branches: "
-				default:
-					return "List branches must contain at least one branch: "
-				}
-			} else {
-				return ""
-			}
-		})
+	flag := c.String("b")
+	var branches []string
 
-		branches := strings.Split(param, ",")
-		for i, b := range branches {
-			branches[i] = strings.TrimSpace(b)
+	validator := func(val interface{}) error {
+		branches = nil
+		str := val.(string)
+		if strings.TrimSpace(str) != "" {
+			branches = strings.Split(str, ",")
 		}
-
-		c.Set("b", strings.Join(branches, ","))
+		if len(branches) == 0 {
+			return errors.New("Branches list must contain at least one branch: ")
+		}
+		return nil
 	}
+
+	util.PromptString("Comma separated list of branches", flag, "", validator)
+
+	for i, b := range branches {
+		branches[i] = strings.TrimSpace(b)
+	}
+
+	c.Set("b", strings.Join(branches, ","))
 }
 
 func createReindexRequest(c *cli.Context, url string) *http.Request {

@@ -33,7 +33,7 @@ var Load = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		force := common.IsForceMode(c)
-		if force || util.PromptBool("WARNING: This will delete all existing repositories that also present in the system-dump. Continue ?", false) {
+		if force || util.PromptBool("WARNING: This will delete all existing repositories that also present in the system-dump. Continue", false) {
 
 			name := ensureNameFlag(c.String("d"), false, force)
 
