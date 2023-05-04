@@ -14,7 +14,7 @@ var Delete = cli.Command{
 	Aliases: []string{"del", "rm"},
 	Flags:   []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
-		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one?", "Select sandbox to delete:", true, false, true)
+		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one", "Select sandbox to delete", true, false, true)
 		force := common.IsForceMode(c)
 		if sandbox == nil || !acceptToDeleteSandbox(sandbox.Name, force) {
 			os.Exit(1)
@@ -37,9 +37,9 @@ var Delete = cli.Command{
 }
 
 func acceptToDeleteSandbox(name string, force bool) bool {
-	return force || util.PromptBool(fmt.Sprintf("WARNING: This can not be undone ! Do you still want to delete sandbox '%s' ?", name), false)
+	return force || util.PromptBool(fmt.Sprintf("WARNING: This can not be undone ! Do you still want to delete sandbox '%s'", name), false)
 }
 
 func acceptToDeleteDistro(name string, force bool) bool {
-	return force || util.PromptBool(fmt.Sprintf("Distro '%s' is not used any more. Do you want to delete it ?", name), true)
+	return force || util.PromptBool(fmt.Sprintf("Distro '%s' is not used any more. Do you want to delete it", name), true)
 }

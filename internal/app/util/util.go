@@ -10,6 +10,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/fatih/color"
+	"github.com/manifoldco/promptui"
+	"github.com/manifoldco/promptui/list"
 	"github.com/mitchellh/go-ps"
 	"gopkg.in/AlecAivazis/survey.v1"
 	"io"
@@ -24,12 +27,6 @@ import (
 	"time"
 )
 
-func PrettyPrintJSONBytes(b []byte) ([]byte, error) {
-	var out bytes.Buffer
-	err := json.Indent(&out, b, "", "    ")
-	return out.Bytes(), err
-}
-
 func PrettyPrintJSON(data interface{}) string {
 	var out = new(bytes.Buffer)
 	enc := json.NewEncoder(out)
@@ -40,27 +37,72 @@ func PrettyPrintJSON(data interface{}) string {
 	return out.String()
 }
 
+var boldMagenta = color.New(color.FgMagenta, color.Bold)
+var selectHelpWasShown bool
+
+var selectTemplates = &promptui.SelectTemplates{
+	Label:  `{{ "?" | green }} {{ . | white }}:`,
+	Active: fmt.Sprintf(`%s {{ . | cyan }}`, promptui.IconSelect),
+}
+
 type SelectOptions struct {
-	Message   string
-	Options   []string
-	Default   string
-	Help      string
-	PageSize  int
-	Validator survey.Validator
+	Message           string
+	Options           []string
+	Default           string
+	PageSize          int
+	StartInSearchMode bool
 }
 
 func PromptSelect(options *SelectOptions) (string, error) {
-	var name string
 
-	err := survey.AskOne(&survey.Select{
-		Message:  options.Message,
-		Options:  options.Options,
-		Default:  options.Default,
-		Help:     options.Help,
-		PageSize: options.PageSize,
-	}, &name, options.Validator)
+	if !selectHelpWasShown {
+		fmt.Fprintln(os.Stderr, FormatImportant("\nUse arrow keys to navigate, Enter to confirm\n"))
+		selectHelpWasShown = true
+	}
+
+	selectTemplates.Selected = fmt.Sprintf(`{{ "?" | green }} {{ "%s" | white }}: {{ . | cyan }}`, options.Message)
+
+	prompt := promptui.Select{
+		Label:             options.Message,
+		Items:             options.Options,
+		Size:              options.PageSize,
+		Templates:         selectTemplates,
+		Searcher:          createSearcher(options.Options),
+		StartInSearchMode: options.StartInSearchMode,
+		HideHelp:          true,
+	}
+
+	cursorPos, scrollPos := calcCursorAndScroll(options)
+	_, name, err := prompt.RunCursorAt(cursorPos, scrollPos)
 
 	return name, err
+}
+
+func createSearcher(items []string) list.Searcher {
+	return func(input string, index int) bool {
+		return strings.Contains(strings.ToLower(items[index]), strings.ToLower(input))
+	}
+}
+
+func calcCursorAndScroll(options *SelectOptions) (int, int) {
+	var cursorPos, scrollPos int
+	length := len(options.Options)
+	if options.Default != "" {
+		cursorPos = IndexOf(options.Default, options.Options)
+		pageSize := options.PageSize
+		if pageSize == 0 {
+			// Default lib value
+			pageSize = 5
+		}
+		if length > pageSize {
+			scrollPos = (cursorPos / pageSize) * pageSize
+			if length-scrollPos < pageSize {
+				// Show full last page
+				scrollPos = length - pageSize
+			}
+		}
+	}
+	return cursorPos, scrollPos
 }
 
 func PromptString(text, val, defaultVal string, validator func(val interface{}) error) string {
@@ -143,13 +185,12 @@ func PromptProjectJar(inputJar string, force bool) string {
 				projectJar = jars[0]
 			} else {
 				jars = append(jars, "Custom")
-				prompt := &survey.Select{
+
+				projectJar, err = PromptSelect(&SelectOptions{
 					Message: "Select app to deploy",
 					Options: jars,
-				}
-				if err = survey.AskOne(prompt, &projectJar, nil); err != nil {
-					return err
-				}
+				})
+
 				if projectJar == "Custom" {
 					return errors.New("Custom option")
 				}
@@ -176,19 +217,8 @@ func PromptProjectJar(inputJar string, force bool) string {
 	return projectJar
 }
 
-// Deprecated: use PropmtString, PromptPassword, PromptBool instead
-func PromptUntilTrue(val string, assessFunc func(val *string, i byte) string) string {
-	index := byte(0)
-	text := assessFunc(&val, index)
-	for text != "" {
-		reader := bufio.NewScanner(os.Stdin)
-		fmt.Fprint(os.Stderr, text)
-		reader.Scan()
-		val = reader.Text()
-		index += 1
-		text = assessFunc(&val, index)
-	}
-	return val
+func FormatImportant(text string) string {
+	return boldMagenta.Sprint(text)
 }
 
 func checkError(err error, msg string, fatal bool) {

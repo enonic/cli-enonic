@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
@@ -75,20 +76,22 @@ func ensureXSLParamsFlagFormat(c *cli.Context) {
 	force := common.IsForceMode(c)
 	xslParams = make(map[string]string)
 
-	for _, param := range params {
-		var splitParam []string
-		param = util.PromptUntilTrue(param, func(val *string, ind byte) string {
-			splitParam = strings.Split(*val, "=")
-			if len(strings.TrimSpace(*val)) == 0 || len(splitParam) == 2 {
-				return ""
-			} else {
-				if force {
-					fmt.Fprintf(os.Stderr, "Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>\n", param)
-					os.Exit(1)
-				}
-				return fmt.Sprintf("Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>: ", param)
+	var splitParam []string
+	validator := func(val interface{}) error {
+		str := val.(string)
+		splitParam = strings.Split(str, "=")
+		if len(strings.TrimSpace(str)) != 0 && len(splitParam) != 2 {
+			if force {
+				fmt.Fprintf(os.Stderr, "Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>\n", str)
+				os.Exit(1)
 			}
-		})
+			return errors.Errorf("Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>: ", str)
+		}
+		return nil
+	}
+
+	for _, param := range params {
+		param = util.PromptString(fmt.Sprintf("Xsl parameter '%s'", param), param, "", validator)
 		xslParams[splitParam[0]] = splitParam[1]
 	}
 }

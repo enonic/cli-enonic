@@ -6,10 +6,12 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 var ReadOnly = cli.Command{
@@ -65,33 +67,32 @@ func ensureReadOnlyArg(c *cli.Context) bool {
 	argValue := c.Args().First()
 	var readOnly bool
 
-	util.PromptUntilTrue(argValue, func(val *string, ind byte) string {
-		if *val == "" {
-			switch ind {
-			case 0:
-				return "Set read only [T]rue or [F]alse: "
-			default:
-				return "Enter 'T' for true or 'F' for false: "
-			}
+	validator := func(val interface{}) error {
+		str := val.(string)
+		if strings.TrimSpace(str) == "" {
+			return errors.New("Enter 'T' for true or 'F' for false: ")
 		} else {
-			switch *val {
-			case "T", "t":
+			switch strings.ToLower(str) {
+			case "t":
 				readOnly = true
-			case "F", "f":
+			case "f":
 				readOnly = false
 			default:
 				var err error
-				readOnly, err = strconv.ParseBool(*val)
+				readOnly, err = strconv.ParseBool(str)
 				if err != nil {
-					return "Not a valid read only value. Enter 'T' for true or 'F' for false: "
+					return errors.New("Not a valid read only value. Enter 'T' for true or 'F' for false: ")
 				}
 			}
-			return ""
+			return nil
 		}
-	})
+	}
+
+	util.PromptString("Set read only [T]rue or [F]alse:", argValue, "", validator)
+
 	return readOnly
 }
 
 type ReadOnlyResponse struct {
-	UpdatedIndexes [] string `json:updatedIndexes`
+	UpdatedIndexes []string `json:updatedIndexes`
 }

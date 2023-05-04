@@ -28,7 +28,7 @@ var Gradle = cli.Command{
 			tasks = append(tasks, arg)
 		}
 
-		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to run gradle in the project, do you want to create one?", false); projectData != nil {
+		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to run gradle in the project, do you want to create one", false); projectData != nil {
 			var gradleMessage string
 			if sandbox.Exists(projectData.Sandbox) {
 				gradleMessage = fmt.Sprintf("Running gradle %v in sandbox '%s'...", tasks, projectData.Sandbox)

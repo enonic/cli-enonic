@@ -31,7 +31,7 @@ var Deploy = cli.Command{
 	Action: func(c *cli.Context) error {
 		force := common.IsForceMode(c)
 		continuous := c.Bool("continuous")
-		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to deploy the project, do you want to create one?", true); projectData != nil {
+		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to deploy the project, do you want to create one", true); projectData != nil {
 			sandboxExists := sandbox.Exists(projectData.Sandbox)
 			tasks := []string{"deploy"}
 			if continuous {
@@ -75,17 +75,19 @@ func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
 	continuous := c.Bool("continuous")
 
 	if !processRunning {
-		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'?", projectData.Sandbox), true) {
+		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", projectData.Sandbox), true) {
 			// detach in continuous mode to release terminal window
 			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug, common.HTTP_PORT)
 		}
+
 	} else if rData.Running != projectData.Sandbox {
 		// Ask to stop running box if it differs from project selected only
-		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead ?", rData.Running, projectData.Sandbox), true) {
+		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, projectData.Sandbox), true) {
 			sandbox.StopSandbox(rData)
 			// detach in continuous mode to release terminal window
 			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug, common.HTTP_PORT)
 		}
+
 	} else {
 		// Desired sandbox is already running, just give a heads up about  --dev and --debug params
 		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --dev and --debug parameters ignored\n\n", projectData.Sandbox)

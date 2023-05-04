@@ -88,7 +88,7 @@ var ProjectDeploy = cli.Command{
 
 		// Confirm deploy context
 		if !doDeploy {
-			doDeploy = commonUtil.PromptBool(fmt.Sprintf("Deploy '%s' to '%s'. Is this correct?", deployCtx.jarFile, deployCtx.serviceName), true)
+			doDeploy = commonUtil.PromptBool(fmt.Sprintf("Deploy '%s' to '%s'. Is this correct", deployCtx.jarFile, deployCtx.serviceName), true)
 		}
 		if !doDeploy {
 			return fmt.Errorf("deployment not confirmed by user")
@@ -223,7 +223,7 @@ func promptForService(xp7Services map[string]deployContext) (string, error) {
 	}
 
 	return commonUtil.PromptSelect(&commonUtil.SelectOptions{
-		Message: "What service do you want do deploy to?",
+		Message: "Select service you want to deploy to",
 		Options: keys,
 	})
 }
