@@ -153,7 +153,7 @@ var Create = cli.Command{
 			}
 		}
 
-		fmt.Println("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n")
+		fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
 
 		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project deploy\n\n"), dest)
 
