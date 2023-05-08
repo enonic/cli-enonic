@@ -31,6 +31,10 @@ func SetupTemplates(app *cli.App, funcMap map[string]interface{}) {
 	}
 }
 
+var versionMessage = `{{with $msg := versionMessage}}{{if ne $msg ""}}
+{{color "magenta+b"}}{{$msg}}{{color "default"}}
+{{end}}{{end}}`
+
 var confirmQuestionTemplate = `
 {{- if .ShowHelp }}{{- color "cyan"}}{{ HelpIcon }} {{ .Help }}{{color "reset"}}{{"\n"}}{{end}}
 {{- color "green+hb"}}{{ QuestionIcon }} {{color "reset"}}
@@ -55,9 +59,6 @@ var inputQuestionTemplate = `
 
 var subCommandHelp = `
 {{if .Description}}{{.Description}}{{else}}{{.Usage}}{{end}}
-{{with $msg := versionMessage}}{{if ne $msg ""}}
-{{color "magenta+b"}}{{$msg}}{{color "default"}}
-{{end}}{{end}}
 USAGE:
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} [command]{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}
 
@@ -67,14 +68,11 @@ COMMANDS:{{range .VisibleCategories}}{{if .Name}}
 {{end}}{{if .VisibleFlags}}
 OPTIONS:
    {{range .VisibleFlags}}{{.}}
-   {{end}}{{end}}
+   {{end}}{{end}}` + versionMessage + `
 `
 
 var commandHelp = `
 {{if .Description}}{{.Description}}{{else}}{{.Usage}}{{end}}
-{{with $msg := versionMessage}}{{if ne $msg ""}}
-{{color "magenta+b"}}{{$msg}}{{color "default"}}
-{{end}}{{end}}
 USAGE:
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Category}}
 
@@ -83,15 +81,12 @@ CATEGORY:
 
 OPTIONS:
    {{range .VisibleFlags}}{{.}}
-   {{end}}{{end}}
+   {{end}}{{end}}` + versionMessage + `
 `
 
 var appHelp = `
 Enonic CLI {{.Version}}
 {{.Usage}}
-{{with $msg := versionMessage}}{{if ne $msg ""}}
-{{color "magenta+b"}}{{$msg}}{{color "default"}}
-{{end}}{{end}}
 USAGE:
    {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} [command] [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{if .VisibleCommands}}
 
@@ -100,7 +95,5 @@ COMMANDS:{{range .VisibleCategories}}{{if .Name}}
      {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
 
 GLOBAL OPTIONS:
-{{range .VisibleFlags}}   {{.}}{{ "\n" }}{{end}}{{end}}
-
-{{if .Copyright }}{{.Copyright}}{{end}}
-`
+{{range .VisibleFlags}}   {{.}}{{ "\n" }}{{end}}{{end}}` + versionMessage + `
+{{if .Copyright }}{{.Copyright}}{{end}}`
