@@ -32,13 +32,13 @@ func SetupTemplates(app *cli.App, funcMap map[string]interface{}) {
 }
 
 var versionMessage = `{{with $msg := versionMessage}}{{if ne $msg ""}}
-{{color "magenta+b"}}{{$msg}}{{color "default"}}
+{{color "magenta+b"}}{{$msg}}{{color "reset"}}
 {{end}}{{end}}`
 
 var confirmQuestionTemplate = `
 {{- if .ShowHelp }}{{- color "cyan"}}{{ HelpIcon }} {{ .Help }}{{color "reset"}}{{"\n"}}{{end}}
-{{- color "green+hb"}}{{ QuestionIcon }} {{color "reset"}}
-{{- color "default+hb"}}{{ .Message }}? {{color "reset"}}
+{{- color "green+h"}}{{ QuestionIcon }} {{color "reset"}}
+{{- color "white+h"}}{{ .Message }}? {{color "reset"}}
 {{- if .Answer}}
   {{- color "cyan"}}{{.Answer}}{{color "reset"}}{{"\n"}}
 {{- else }}
@@ -48,8 +48,8 @@ var confirmQuestionTemplate = `
 
 var inputQuestionTemplate = `
 {{- if .ShowHelp }}{{- color "cyan"}}{{ HelpIcon }} {{ .Help }}{{color "reset"}}{{"\n"}}{{end}}
-{{- color "green+hb"}}{{ QuestionIcon }} {{color "reset"}}
-{{- color "default+hb"}}{{ .Message }}: {{color "reset"}}
+{{- color "green+h"}}{{ QuestionIcon }} {{color "reset"}}
+{{- color "white+h"}}{{ .Message }}: {{color "reset"}}
 {{- if .ShowAnswer}}
   {{- color "cyan"}}{{.Answer}}{{color "reset"}}{{"\n"}}
 {{- else }}
