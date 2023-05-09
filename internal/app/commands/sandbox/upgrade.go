@@ -2,9 +2,7 @@ package sandbox
 
 import (
 	"cli-enonic/internal/app/commands/common"
-	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/Masterminds/semver"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -30,8 +28,12 @@ var Upgrade = cli.Command{
 		if sandbox == nil {
 			os.Exit(1)
 		}
-		version := ensureVersionCorrect(c.String("version"), "", c.Bool("all"), common.IsForceMode(c))
-		preventVersionDowngrade(sandbox, version)
+		minDistroVer := parseDistroVersion(sandbox.Distro, false)
+		version, total := ensureVersionCorrect(c.String("version"), minDistroVer, false, c.Bool("all"), common.IsForceMode(c))
+		if total == 0 {
+			fmt.Fprintf(os.Stdout, "Sandbox '%s' is using the latest release of Enonic XP\n", sandbox.Name)
+			os.Exit(0)
+		}
 
 		sandbox.Distro = formatDistroVersion(version)
 		writeSandboxData(sandbox)
@@ -39,17 +41,4 @@ var Upgrade = cli.Command{
 
 		return nil
 	},
-}
-
-func preventVersionDowngrade(sandbox *Sandbox, newString string) {
-	distroVer := parseDistroVersion(sandbox.Distro, false)
-	oldVer, err := semver.NewVersion(distroVer)
-	util.Fatal(err, fmt.Sprintf("Could not parse sandbox distro version from: %s", sandbox.Distro))
-	newVer, err2 := semver.NewVersion(newString)
-	util.Fatal(err2, fmt.Sprintf("Could not parse new distro version from: %s", newString))
-
-	if oldVer.Compare(newVer) > 0 {
-		fmt.Fprintf(os.Stdout, "Sandbox '%s' already has newer distro version: %s\n", sandbox.Name, sandbox.Distro)
-		os.Exit(0)
-	}
 }
