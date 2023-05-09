@@ -76,7 +76,10 @@ func getAllVersions(osName, minDistro string, includeMinVer, includeUnstable boo
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 	fmt.Fprintln(os.Stderr, "Done")
 
-	minDistroVer, _ := semver.NewVersion(minDistro)
+	var minDistroVer *semver.Version
+	if minDistro != "" {
+		minDistroVer, err = semver.NewVersion(minDistro)
+	}
 
 	var metadata Metadata
 	common.ParseResponseXml(resp, &metadata)
@@ -396,11 +399,14 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includ
 			os.Exit(1)
 		}
 
-		defaultVersion := findLatestVersion(versions)
+		useLatest := util.PromptBool(fmt.Sprintf("Do you want to use Enonic XP %s (latest, stable)", latestVersion), true)
+		if useLatest {
+			return latestVersion, totalVersions
+		}
 
 		distro, err := util.PromptSelect(&util.SelectOptions{
 			Message:  "Enonic XP distribution",
-			Default:  formatDistroVersionDisplay(defaultVersion, currentOsWithArch, latestVersion),
+			Default:  formatDistroVersionDisplay(latestVersion, currentOsWithArch, latestVersion),
 			Options:  textVersions,
 			PageSize: 10,
 		})
