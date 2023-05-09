@@ -69,7 +69,7 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	return distroPath, true
 }
 
-func getAllVersions(osName, minDistro string, includeUnstable bool) ([]string, string) {
+func getAllVersions(osName, minDistro string, includeMinVer, includeUnstable bool) ([]string, string) {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
 	resp := common.SendRequest(req, "Loading")
@@ -88,8 +88,11 @@ func getAllVersions(osName, minDistro string, includeUnstable bool) ([]string, s
 		tempVersion, tempErr := semver.NewVersion(version)
 		util.Warn(tempErr, "Could not parse distro version: "+version)
 
+		minVersionPasses := minDistroVer == nil ||
+			tempVersion.GreaterThan(minDistroVer) ||
+			includeMinVer && tempVersion.Equal(minDistroVer)
 		// excluding only SNAPSHOTS
-		if (minDistroVer == nil || !tempVersion.LessThan(minDistroVer)) &&
+		if minVersionPasses &&
 			strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" &&
 			(includeUnstable || tempVersion.Prerelease() == "") {
 
@@ -346,7 +349,7 @@ func EnsureSanboxSupportsProjectVersion(sBox *Sandbox, minDistroVersion *semver.
 	}
 }
 
-func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, force bool) string {
+func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includeUnstable, force bool) (string, int) {
 	var (
 		version       *semver.Version
 		versionErr    error
@@ -363,7 +366,16 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 	}
 
 	currentOsWithArch := util.GetCurrentOsWithArch()
-	versions, latestVersion := getAllVersions(currentOsWithArch, minDistroVer, includeUnstable || version != nil && version.Prerelease() != "")
+	shouldIncludeUnstable := includeUnstable || version != nil && version.Prerelease() != ""
+	versions, latestVersion := getAllVersions(currentOsWithArch, minDistroVer, includeMinVer, shouldIncludeUnstable)
+	totalVersions := len(versions)
+
+	if totalVersions == 0 {
+		return "", 0
+	} else if totalVersions == 1 {
+		return versions[0], totalVersions
+	}
+
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
 		textVersions[key] = formatDistroVersionDisplay(value, currentOsWithArch, latestVersion)
@@ -373,7 +385,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 	}
 
 	if version != nil && versionExists {
-		return version.String()
+		return version.String(), totalVersions
 	} else {
 		if force {
 			if version == nil {
@@ -394,7 +406,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeUnstable, forc
 		})
 		util.Fatal(err, "Could not select distro: ")
 
-		return parseDistroVersion(distro, true)
+		return parseDistroVersion(distro, true), totalVersions
 	}
 
 }

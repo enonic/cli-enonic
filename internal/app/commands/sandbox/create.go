@@ -43,7 +43,7 @@ var Create = cli.Command{
 func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage, force bool) *Sandbox {
 
 	name = ensureUniqueNameArg(name, minDistroVersion, force)
-	version := ensureVersionCorrect(versionStr, minDistroVersion, includeUnstable, force)
+	version, _ := ensureVersionCorrect(versionStr, minDistroVersion, true, includeUnstable, force)
 
 	box := createSandbox(name, version)
 
