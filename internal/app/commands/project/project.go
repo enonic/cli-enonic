@@ -76,7 +76,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string, parse
 		// allow project without a sandbox in force mode
 		return projectData
 	} else if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one", false, true, parseArgs)
+		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one or create new", false, true, parseArgs)
 		if sBox == nil {
 			return nil
 		}
