@@ -75,8 +75,9 @@ var MARKET_DOCS_REQUEST = `query($query: String!){
 }`
 
 var Create = cli.Command{
-	Name:  "create",
-	Usage: "Create new project",
+	Name:      "create",
+	Usage:     "Create a new Enonic project",
+	ArgsUsage: "<project name>",
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "branch, b",
@@ -100,69 +101,89 @@ var Create = cli.Command{
 		},
 		cli.StringFlag{
 			Name:  "name, n",
-			Usage: "Project name.",
+			Usage: "Application name.",
 		},
 		common.AUTH_FLAG,
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
-		fmt.Fprint(os.Stderr, "\n")
 
-		branch := c.String("branch")
-		hash := c.String("checkout")
-		gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
-		name := ensureNameArg(c)
-		dest := ensureDestination(c, name)
-		version := ensureVersion(c)
-
-		var user, pass string
-		if authString := c.String("auth"); authString != "" {
-			user, pass = common.EnsureAuth(authString, common.IsForceMode(c))
-		}
-
-		fmt.Fprintln(os.Stderr, "\nInitializing project...")
-		cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
-		fmt.Fprint(os.Stderr, "\n")
-
-		propsFile := filepath.Join(dest, "gradle.properties")
-		processGradleProperties(propsFile, name, version)
-
-		absDest, err := filepath.Abs(dest)
-		util.Fatal(err, "Error creating project")
-
-		pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one", false)
-
-		if pData == nil || pData.Sandbox == "" {
-			fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
-		} else {
-			fmt.Fprintf(os.Stdout, "Project created in '%s' and linked to '%s'\n", absDest, pData.Sandbox)
-		}
-		fmt.Fprint(os.Stderr, "\n")
-
-		if starter == nil {
-			// see if we have docs for that url
-			starter = lookupStarterDocs(c, gitUrl)
-		}
-
-		if starter != nil {
-			if !common.IsForceMode(c) && util.PromptBool(fmt.Sprintf("Open %s docs in the browser", starter.DisplayName), false) {
-				err := browser.OpenURL(starter.Data.DocumentationUrl)
-				util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
-			} else {
-				fmt.Fprintf(os.Stderr, "%s docs: %s\n", starter.DisplayName, starter.Data.DocumentationUrl)
-			}
-		}
-
-		fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
-
-		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project deploy\n\n"), dest)
+		ProjectCreateWizard(c)
 
 		return nil
 	},
 }
 
-func ensureVersion(c *cli.Context) string {
+func ProjectCreateWizard(c *cli.Context) {
+	fmt.Fprint(os.Stderr, "\n")
+
+	branch := c.String("branch")
+	hash := c.String("checkout")
+
+	var (
+		name    string
+		dest    string
+		version string
+	)
+	if c.NArg() > 0 {
+		name = c.Args().First()
+		version = DEFAULT_VERSION
+		dest = name
+	}
+	gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
+	name = ensureNameArg(c, name)
+	dest = ensureDestination(c, dest, name)
+	version = ensureVersion(c, version)
+
+	var user, pass string
+	if authString := c.String("auth"); authString != "" {
+		user, pass = common.EnsureAuth(authString, common.IsForceMode(c))
+	}
+
+	fmt.Fprintln(os.Stderr, "\nInitializing project...")
+	cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
+	fmt.Fprint(os.Stderr, "\n")
+
+	propsFile := filepath.Join(dest, "gradle.properties")
+	processGradleProperties(propsFile, name, version)
+
+	absDest, err := filepath.Abs(dest)
+	util.Fatal(err, "Error creating project")
+
+	pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one", false)
+
+	if pData == nil || pData.Sandbox == "" {
+		fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
+	} else {
+		fmt.Fprintf(os.Stdout, "Project created in '%s' and linked to '%s'\n", absDest, pData.Sandbox)
+	}
+	fmt.Fprint(os.Stderr, "\n")
+
+	if starter == nil {
+		// see if we have docs for that url
+		starter = lookupStarterDocs(c, gitUrl)
+	}
+
+	if starter != nil {
+		if !common.IsForceMode(c) && util.PromptBool(fmt.Sprintf("Open %s docs in the browser", starter.DisplayName), false) {
+			err := browser.OpenURL(starter.Data.DocumentationUrl)
+			util.Warn(err, "Could not open documentation at: "+starter.Data.DocumentationUrl)
+		} else {
+			fmt.Fprintf(os.Stderr, "%s docs: %s\n", starter.DisplayName, starter.Data.DocumentationUrl)
+		}
+	}
+
+	fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
+
+	fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project deploy\n\n"), dest)
+}
+
+func ensureVersion(c *cli.Context, version string) string {
 	force := common.IsForceMode(c)
+	if flagVersion := c.String("version"); flagVersion != "" {
+		// flag overrides the argument
+		version = flagVersion
+	}
 	var versionValidator = func(val interface{}) error {
 		str := val.(string)
 		if _, err := semver.NewVersion(str); err != nil {
@@ -180,7 +201,7 @@ func ensureVersion(c *cli.Context) string {
 		return nil
 	}
 
-	version := util.PromptString("Project version", c.String("version"), DEFAULT_VERSION, versionValidator)
+	version = util.PromptString("Project version", version, DEFAULT_VERSION, versionValidator)
 	if !force || version != "" {
 		return version
 	} else {
@@ -188,13 +209,21 @@ func ensureVersion(c *cli.Context) string {
 	}
 }
 
-func ensureDestination(c *cli.Context, name string) string {
-	dest := c.String("destination")
+func ensureDestination(c *cli.Context, dest string, name string) string {
 	force := common.IsForceMode(c)
+	if flagDest := c.String("destination"); flagDest != "" {
+		// flag overrides the argument
+		dest = flagDest
+	}
+
 	var defaultDest string
-	if dest == "" && name != "" {
-		lastDot := strings.LastIndex(name, ".")
-		defaultDest = name[lastDot+1:]
+	if name != "" {
+		lastDotIndex := strings.LastIndex(name, ".")
+		if lastDotIndex >= 0 {
+			defaultDest = name[lastDotIndex+1:]
+		} else {
+			defaultDest = name
+		}
 	}
 
 	var destValidator func(val interface{}) error
@@ -202,14 +231,8 @@ func ensureDestination(c *cli.Context, name string) string {
 		str := val.(string)
 		if val == "" || len(strings.TrimSpace(str)) < 2 {
 			if force {
-				// Assume defaultDest in non-interactive mode
-				if val == "" {
-					fmt.Fprintf(os.Stderr, "Destination folder was not supplied. Using default: %s\n", defaultDest)
-				} else {
-					fmt.Fprintf(os.Stderr, "Destination folder '%s' must be at least 2 characters long. Using default: %s\n", str, defaultDest)
-				}
-				// validate defaultDest as well in case it already exists
-				return destValidator(defaultDest)
+				fmt.Fprintln(os.Stderr, "Destination folder flag can not have empty value in non-interactive mode")
+				os.Exit(1)
 			}
 			return errors.New("Destination folder must be at least 2 characters long: ")
 		} else if stat, err := os.Stat(str); stat != nil {
@@ -238,11 +261,11 @@ func ensureDestination(c *cli.Context, name string) string {
 	}
 }
 
-func ensureNameArg(c *cli.Context) string {
-	name := c.String("name")
+func ensureNameArg(c *cli.Context, name string) string {
 	force := common.IsForceMode(c)
-	if name == "" && c.NArg() > 0 {
-		name = c.Args().First()
+	if flagName := c.String("name"); flagName != "" {
+		// flag overrides the argument
+		name = flagName
 	}
 	appNameRegex, _ := regexp.Compile("^[a-z0-9.]{3,}$")
 
@@ -455,7 +478,7 @@ func fetchStarters(c *cli.Context) []Starter {
 	json.NewEncoder(body).Encode(params)
 
 	req := common.CreateRequest(c, "POST", common.MARKET_URL, body)
-	res, err := common.SendRequestCustom(req, "Loading starters from enonic market", 1)
+	res, err := common.SendRequestCustom(req, "Loading starters from Enonic Market", 1)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error, check your internet connection.")
 		return []Starter{}
