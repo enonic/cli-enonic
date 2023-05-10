@@ -61,8 +61,9 @@ builds:
       post: ./script.sh
 
 archives:
+  -
+    id: enonic
 
-  - id: enonic
     name_template: >-
       {{ .ProjectName }}_{{ .Version }}_
       {{- title .Os }}_
@@ -73,11 +74,17 @@ archives:
       {{- with .Arm }}_v{{ . }}{{ end }}
       {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
+    rlcp: true
+
     format: tar.gz  # set to binary to omit archiving
 
     format_overrides:
       - goos: windows
         format: zip
+
+    files:
+      - LICENSE.txt
+      - README.md
 
 checksum:
   name_template: 'checksums.txt'
@@ -118,7 +125,8 @@ release:
   # https://github.com/goreleaser/goreleaser/issues/1119
   disable: false
 
-scoop:
+scoops:
+-
   skip_upload: false
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
