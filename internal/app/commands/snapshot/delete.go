@@ -32,9 +32,9 @@ var Delete = cli.Command{
 	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
-		ensureSnapshotOrBeforeFlag(c)
+		snapshot, before := ensureSnapshotOrBeforeFlag(c)
 
-		req := createDeleteRequest(c)
+		req := createDeleteRequest(c, snapshot, before)
 
 		resp := common.SendRequest(req, "Deleting snapshot(s)")
 
@@ -47,7 +47,7 @@ var Delete = cli.Command{
 	},
 }
 
-func ensureSnapshotOrBeforeFlag(c *cli.Context) {
+func ensureSnapshotOrBeforeFlag(c *cli.Context) (string, string) {
 	snapshot := c.String("snapshot")
 	before := c.String("before")
 	force := common.IsForceMode(c)
@@ -57,7 +57,6 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 			fmt.Fprintf(os.Stderr, "Either before or snapshot flag should not be empty in non-interactive mode.")
 			os.Exit(1)
 		}
-		var val string
 		choiceValidator := func(val interface{}) error {
 			str := val.(string)
 			if upper := strings.ToUpper(str); upper != "N" && upper != "D" {
@@ -65,18 +64,20 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) {
 			}
 			return nil
 		}
-		util.PromptString("Select by [N]ame or by [D]ate:", val, "N", choiceValidator)
+		val := util.PromptString("Select by [N]ame or by [D]ate", "", "N", choiceValidator)
 		switch val {
 		case "N", "n":
-			ensureSnapshotFlag(c)
+			snapshot = ensureSnapshotFlag(c)
 		case "D", "d":
-			ensureBeforeFlag(c)
+			before = ensureBeforeFlag(c)
 		}
 	}
+
+	return snapshot, before
 }
-func ensureBeforeFlag(c *cli.Context) {
+func ensureBeforeFlag(c *cli.Context) string {
 	force := common.IsForceMode(c)
-	label := fmt.Sprintf("Enter date in the format %s: ", time.Now().Format(DATE_FORMAT))
+	timeFormat := time.Now().Format(DATE_FORMAT)
 	dateValidator := func(val interface{}) error {
 		str := val.(string)
 		if len(strings.TrimSpace(str)) == 0 {
@@ -84,31 +85,32 @@ func ensureBeforeFlag(c *cli.Context) {
 				fmt.Fprintln(os.Stderr, "Before flag can not be empty in non-interactive mode.")
 				os.Exit(1)
 			}
-			return fmt.Errorf("Before date can not be empty. Format %s: ", time.Now().Format(DATE_FORMAT))
+			return fmt.Errorf("Before date can not be empty. Format %s: ", timeFormat)
 		} else {
 			if _, err := time.Parse(DATE_FORMAT, str); err != nil {
 				if force {
 					fmt.Fprintf(os.Stderr, "Not a valid date: %s", str)
 					os.Exit(1)
 				}
-				return errors.New("Not a valid date: ")
+				return errors.New("Not a valid date.")
 			} else {
 				return nil
 			}
 		}
 	}
-	before := util.PromptString(label, c.String("before"), label, dateValidator)
+	label := fmt.Sprintf("Delete snapshots before the date (format: %s)", timeFormat)
+	before := util.PromptString(label, c.String("before"), time.Now().AddDate(0, 0, -7).Format(DATE_FORMAT), dateValidator)
 
-	c.Set("before", before)
+	return before
 }
 
-func createDeleteRequest(c *cli.Context) *http.Request {
+func createDeleteRequest(c *cli.Context, snapshot, before string) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{}
-	if name := c.String("snapshot"); name != "" {
-		params["snapshotNames"] = []string{name}
+	if snapshot != "" {
+		params["snapshotNames"] = []string{snapshot}
 	}
-	if before := c.String("before"); before != "" {
+	if before != "" {
 		parsedTime, err := time.Parse(DATE_FORMAT, before)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Parsing failed %v\n", before)

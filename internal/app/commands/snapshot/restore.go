@@ -50,27 +50,28 @@ var Restore = cli.Command{
 
 func ensureSnapshotFlag(c *cli.Context) string {
 	snapName := c.String("snapshot")
-	if len(strings.TrimSpace(snapName)) == 0 {
-		if common.IsForceMode(c) {
-			fmt.Fprintln(os.Stderr, "Snapshot name can not be empty in non-interactive mode.")
-			os.Exit(1)
-		}
-
-		snapshotList := listSnapshots(c)
-		if len(snapshotList.Results) == 0 {
-			fmt.Fprintln(os.Stderr, "No existing snapshots found")
-			os.Exit(1)
-		}
-
-		name, err := util.PromptSelect(&util.SelectOptions{
-			Message: "Select snapshot to restore",
-			Options: getSnapshotNames(snapshotList),
-		})
-		util.Fatal(err, "Could not select snapshot: ")
-
-		return name
+	if strings.TrimSpace(snapName) != "" {
+		return snapName
 	}
-	return snapName
+
+	if common.IsForceMode(c) {
+		fmt.Fprintln(os.Stderr, "Snapshot name can not be empty in non-interactive mode.")
+		os.Exit(1)
+	}
+
+	snapshotList := listSnapshots(c)
+	if len(snapshotList.Results) == 0 {
+		fmt.Fprintln(os.Stderr, "No existing snapshots found")
+		os.Exit(1)
+	}
+
+	name, err := util.PromptSelect(&util.SelectOptions{
+		Message: "Select snapshot to restore",
+		Options: getSnapshotNames(snapshotList),
+	})
+	util.Fatal(err, "Could not select snapshot: ")
+
+	return name
 }
 
 func createRestoreRequest(c *cli.Context) *http.Request {
