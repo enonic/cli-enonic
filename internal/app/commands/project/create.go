@@ -103,6 +103,10 @@ var Create = cli.Command{
 			Name:  "name, n",
 			Usage: "Application name.",
 		},
+		cli.StringFlag{
+			Name:  "sandbox, sb",
+			Usage: "Sandbox name",
+		},
 		common.AUTH_FLAG,
 		common.FORCE_FLAG,
 	},
@@ -150,7 +154,8 @@ func ProjectCreateWizard(c *cli.Context) {
 	absDest, err := filepath.Abs(dest)
 	util.Fatal(err, "Error creating project")
 
-	pData := ensureProjectDataExists(c, dest, "A sandbox is required for your project, create one", false)
+		sandboxName := c.String("sandbox")
+		pData := ensureProjectDataExists(c, dest, sandboxName, "A sandbox is required for your project, create one")
 
 	if pData == nil || pData.Sandbox == "" {
 		fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)

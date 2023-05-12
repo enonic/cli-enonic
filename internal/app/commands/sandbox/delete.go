@@ -9,12 +9,18 @@ import (
 )
 
 var Delete = cli.Command{
-	Name:    "delete",
-	Usage:   "Delete a sandbox",
-	Aliases: []string{"del", "rm"},
-	Flags:   []cli.Flag{common.FORCE_FLAG},
+	Name:      "delete",
+	Usage:     "Delete a sandbox",
+	ArgsUsage: "<name>",
+	Aliases:   []string{"del", "rm"},
+	Flags:     []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
-		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one", "Select sandbox to delete", true, false, true)
+
+		var sandboxName string
+		if c.NArg() > 0 {
+			sandboxName = c.Args().First()
+		}
+		sandbox, _ := EnsureSandboxExists(c, "", sandboxName, "No sandboxes found, do you want to create one", "Select sandbox to delete", true, false)
 		force := common.IsForceMode(c)
 		if sandbox == nil || !acceptToDeleteSandbox(sandbox.Name, force) {
 			os.Exit(1)

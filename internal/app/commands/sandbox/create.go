@@ -14,8 +14,9 @@ import (
 var SANDBOX_NAME_TPL = "Sandbox%d"
 
 var Create = cli.Command{
-	Name:  "create",
-	Usage: "Create a new sandbox.",
+	Name:      "create",
+	Usage:     "Create a new sandbox.",
+	ArgsUsage: "<name>",
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "version, v",

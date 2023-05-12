@@ -11,8 +11,9 @@ import (
 )
 
 var Deploy = cli.Command{
-	Name:  "deploy",
-	Usage: "Deploy current project to a sandbox",
+	Name:      "deploy",
+	Usage:     "Deploy current project to a sandbox",
+	ArgsUsage: "<sandbox name>",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:  "dev",
@@ -31,7 +32,11 @@ var Deploy = cli.Command{
 	Action: func(c *cli.Context) error {
 		force := common.IsForceMode(c)
 		continuous := c.Bool("continuous")
-		if projectData := ensureProjectDataExists(c, ".", "A sandbox is required to deploy the project, do you want to create one", true); projectData != nil {
+		var sandboxName string
+		if c.NArg() > 0 {
+			sandboxName = c.Args().First()
+		}
+		if projectData := ensureProjectDataExists(c, ".", sandboxName, "A sandbox is required to deploy the project, do you want to create one"); projectData != nil {
 			sandboxExists := sandbox.Exists(projectData.Sandbox)
 			tasks := []string{"deploy"}
 			if continuous {
