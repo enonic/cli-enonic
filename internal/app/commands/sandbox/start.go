@@ -31,7 +31,8 @@ var Start = cli.Command{
 		},
 		common.FORCE_FLAG,
 	},
-	Usage: "Start the sandbox.",
+	Usage:     "Start the sandbox.",
+	ArgsUsage: "<name>",
 	Action: func(c *cli.Context) error {
 
 		var sandbox *Sandbox
@@ -43,7 +44,11 @@ var Start = cli.Command{
 			sandbox = ReadSandboxData(pData.Sandbox)
 		}
 		if sandbox == nil {
-			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, "No sandboxes found, create one", "Select sandbox to start", true, true, true)
+			var sandboxName string
+			if c.NArg() > 0 {
+				sandboxName = c.Args().First()
+			}
+			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, sandboxName, "No sandboxes found, create one", "Select sandbox to start", true, true)
 			if sandbox == nil {
 				os.Exit(1)
 			}

@@ -157,7 +157,7 @@ func Exists(name string) bool {
 	}
 }
 
-func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption, parseArgs bool) (*Sandbox, bool) {
+func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption bool) (*Sandbox, bool) {
 	existingBoxes := listSandboxes(minDistroVersion)
 	force := common.IsForceMode(c)
 
@@ -173,8 +173,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, noBoxMessage, selectB
 		return newBox, true
 	}
 
-	if parseArgs && c != nil && c.NArg() > 0 {
-		name := c.Args().First()
+	if name != "" {
 		lowerName := strings.ToLower(name)
 		for _, existingBox := range existingBoxes {
 			if strings.ToLower(existingBox.Name) == lowerName {

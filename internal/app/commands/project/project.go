@@ -53,7 +53,7 @@ func ensureValidProjectFolder(prjPath string) {
 	}
 }
 
-func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string, parseArgs bool) *common.ProjectData {
+func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage string) *common.ProjectData {
 	var newBox bool
 	var sBox *sandbox.Sandbox
 
@@ -69,14 +69,13 @@ func ensureProjectDataExists(c *cli.Context, prjPath, noBoxMessage string, parse
 	}
 
 	badSandbox := !sandbox.Exists(projectData.Sandbox)
-	argExist := parseArgs && c != nil && c.NArg() > 0
 	force := common.IsForceMode(c)
 
-	if force && badSandbox {
+	if force && badSandbox && sandboxName == "" {
 		// allow project without a sandbox in force mode
 		return projectData
-	} else if badSandbox || argExist {
-		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, noBoxMessage, "A sandbox is required for your project, select one or create new", false, true, parseArgs)
+	} else if badSandbox || sandboxName != "" {
+		sBox, newBox = sandbox.EnsureSandboxExists(c, minDistroVersion, sandboxName, noBoxMessage, "A sandbox is required for your project, select one or create new", false, true)
 		if sBox == nil {
 			return nil
 		}

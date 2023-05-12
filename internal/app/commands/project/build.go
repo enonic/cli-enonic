@@ -20,7 +20,7 @@ var Build = cli.Command{
 }
 
 func buildProject(c *cli.Context) {
-	if projectData := ensureProjectDataExists(c, ".", "A sandbox is required for your project, create one", true); projectData != nil {
+	if projectData := ensureProjectDataExists(c, ".", "", "A sandbox is required for your project, create one"); projectData != nil {
 		var buildMessage string
 		if sandbox.Exists(projectData.Sandbox) {
 			buildMessage = fmt.Sprintf("Building in sandbox '%s'...", projectData.Sandbox)

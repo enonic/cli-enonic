@@ -8,9 +8,10 @@ import (
 )
 
 var Upgrade = cli.Command{
-	Name:    "upgrade",
-	Aliases: []string{"up"},
-	Usage:   "Upgrades the distribution version.",
+	Name:      "upgrade",
+	Aliases:   []string{"up"},
+	Usage:     "Upgrades the distribution version.",
+	ArgsUsage: "<name>",
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "version, v",
@@ -24,7 +25,11 @@ var Upgrade = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		sandbox, _ := EnsureSandboxExists(c, "", "No sandboxes found, do you want to create one", "Select sandbox", true, false, true)
+		var sandboxName string
+		if c.NArg() > 0 {
+			sandboxName = c.Args().First()
+		}
+		sandbox, _ := EnsureSandboxExists(c, "", sandboxName, "No sandboxes found, do you want to create one", "Select sandbox", true, false)
 		if sandbox == nil {
 			os.Exit(1)
 		}
