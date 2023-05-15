@@ -1,5 +1,26 @@
 = Release notes
 
+== v2.5.0
+
+=== Features
+
+* Implement shortcut command for project create
+
+=== Improvements
+
+* Add sandbox flag to `enonic project create`
+* Simplify selection of XP distro version
+* Move version upgrade reminder to the bottom
+* Improve error message given when trying to create a snapshot with incorrect repository name
+* Filter the list of distros in sandbox upgrade command
+
+=== Bugs
+
+* Select and prompt input answers have different colors on mac
+* Select by name does not work in deleting snapshot by name
+* Comparison of user input with a sandbox name should be case-insensitive
+* Github bash cant select from lists
+
 == v2.4.0
 
 === Features

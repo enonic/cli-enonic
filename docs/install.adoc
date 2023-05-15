@@ -1,10 +1,18 @@
 = Installing Enonic CLI
 
-The CLI is available for Mac, Linux and Windows. To install the CLI on your local device, visit our https://enonic.com/downloads[downloads page] or follow the instructions below
+The CLI is available for Mac, Linux and Windows.
+To install the CLI on your local device, visit our https://enonic.com/downloads[downloads page] or follow the instructions below
+
+== NPM
+
+If you have npm installed on any operating system:
+
+ npm install -g @enonic/cli
 
 == MacOS installation
 
-. Enonic CLI is available from the https://brew.sh/[Homebrew package service]. With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:
+. Enonic CLI is available from the https://brew.sh/[Homebrew package service].
+With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:
 
  brew tap enonic/cli
 

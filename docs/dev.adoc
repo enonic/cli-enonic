@@ -3,14 +3,52 @@
 By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
 There are two main commands available to assist developers with setting up and managing projects:
 
+== Create
+
+Simplified Enonic project creation with most values having reasonable defaults.
+
+ $ enonic create [project name]
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`project name`
+|project name. E.g. `myproject`
+|===
+
+NOTE: `destination` and `version` params for the new project will have default values equal to `project name` and `1.0.0-SNAPSHOT` respectively
+
+.Example creating 'myProject' project in 'myProject' folder and setting version to '1.0.0-SNAPSHOT':
+----
+$ enonic create myProject
+----
+
+.Equivalent `enonic project create` command will be:
+----
+$ enonic project create myProject -d myProject -v 1.0.0-SHAPSHOT
+----
+
+The only values you will need to choose in the above examples are the starter repo and the sandbox name to link to.
+If you need to automate this command completely for pipeline integration, you can use `enonic project create`:
+
+.Example creating 'myProject' project non-interactively in 'myFolder' folder using the 'starter-vanilla' starter and 'Sandbox1' sandbox and setting version to '1.0.0-SNAPSHOT':
+----
+$ enonic project create -f -n myProject -d myFolder -r starter-vanilla --sb Sandbox1 -v 1.0.0-SHAPSHOT
+----
 
 == Project
+
 Projects are commonly hosted in a Git repo and need to follow a set of principles to work with Enonic XP.
 Each project is associated with a <<sandbox-command, sandbox>> to which it will be deployed.
 
 NOTE: All project commands should be run from the project root folder.
 
 Command list is available by running following command:
+
 ----
 $ enonic project
 
@@ -38,7 +76,7 @@ OPTIONS:
 
 Navigate to the folder you wish to place your project in and run the following command:
 
- $ enonic project create [name] [-n <value>] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>]
+ $ enonic project create [name] [-n <value>] [-b <value>] [-c <value>] [-d <value>] [-r <value>] [-v <value>] [--sb <value>]
 
 Follow wizard instructions that will set everything up for you.
 
@@ -70,6 +108,9 @@ Options:
 
 |`-v, --ver, --version`
 |version number to assign to new project. Default value `1.0.0-SNAPSHOT`
+
+|`--sb, --sandbox`
+| Sandbox name to link project to
 
 |`-a, --auth`
 |Authentication token for basic authentication in the following format <user:password>
