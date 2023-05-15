@@ -1,7 +1,7 @@
 = Installing Enonic CLI
 
 The CLI is available for Mac, Linux and Windows.
-To install the CLI on your local device, visit our https://enonic.com/downloads[downloads page] or follow the instructions below
+To install the CLI on your local device, visit our https://developer.enonic.com/start[Quickstart page] or follow the instructions below
 
 == NPM
 
