@@ -1,5 +1,21 @@
 = Release notes
 
+== v2.4.0
+
+=== Features
+
+* Set up publishing to NPM
+* Better message after project creation
+* Show sandbox name in XP menu
+
+=== Bugs
+
+* `--url` parameter is incorrectly documented
+* Incorrect error message for `app install` command
+* The template adds "Enonic CLI" to the usage
+* 'Stopping sandbox' message shown after the sandbox is stopped
+
+
 == v2.3.3
 
 === Bugs
