@@ -5,7 +5,7 @@ To install the CLI on your local device, visit our https://developer.enonic.com/
 
 == NPM
 
-If you have npm installed on any operating system:
+If you have npm installed (on any OS), run the following command in your terminal:
 
  npm install -g @enonic/cli
 
