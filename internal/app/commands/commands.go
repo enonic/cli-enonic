@@ -66,14 +66,14 @@ func All() []cli.Command {
 		},
 		{
 			Name:        "sandbox",
-			Usage:       "Manage XP development instances",
+			Usage:       "Manage Enonic instances",
 			Subcommands: sandbox.All(),
 			HelpName:    "Sandbox",
 			Category:    "PROJECT COMMANDS",
 		},
 		{
 			Name:        "project",
-			Usage:       "Manage XP development projects",
+			Usage:       "Manage Enonic projects",
 			Subcommands: project.All(),
 			HelpName:    "Project",
 			Category:    "PROJECT COMMANDS",

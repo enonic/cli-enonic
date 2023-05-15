@@ -32,8 +32,8 @@ CLOUD COMMANDS:
      cloud  Manage Enonic cloud
 
 PROJECT COMMANDS:
-     sandbox  Manage XP development instances
-     project  Manage XP development projects
+     sandbox  Manage Enonic instances
+     project  Manage Enonic projects
 
 GLOBAL OPTIONS:
    --help, -h     show help
