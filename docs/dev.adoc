@@ -14,7 +14,7 @@ Command list is available by running following command:
 ----
 $ enonic project
 
-Manage XP development projects
+Manage Enonic projects
 
 USAGE:
    enonic [command] [options] [arguments...]
@@ -307,7 +307,7 @@ Sandbox commands list is available by running following command:
 ----
 $ enonic sandbox
 
-Manage XP development instances
+Manage Enonic instances
 
 USAGE:
    enonic sandbox [command] [command options] [arguments...]
