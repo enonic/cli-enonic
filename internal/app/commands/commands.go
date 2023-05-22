@@ -87,6 +87,7 @@ func All() []cli.Command {
 		},
 		system.Latest,
 		system.Upgrade,
+		system.Uninstall,
 		vacuum.Vacuum,
 		/*{
 			Name:        "remote",

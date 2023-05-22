@@ -521,6 +521,23 @@ func GetOSUpdateCommand(isNPM bool) string {
 	}
 }
 
+func GetOSUninstallCommand(isNPM bool) string {
+	if isNPM {
+		return "npm uninstall -g @enonic/cli"
+	}
+
+	switch util.GetCurrentOs() {
+	case "windows":
+		return "scoop uninstall enonic"
+	case "mac":
+		return "brew uninstall enonic"
+	case "linux":
+		return "snap remove enonic"
+	default:
+		return ""
+	}
+}
+
 type EnonicError struct {
 	Status  uint16 `json:status`
 	Message string `json:message`
