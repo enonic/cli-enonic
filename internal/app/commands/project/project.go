@@ -4,13 +4,12 @@ import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/commands/sandbox"
 	"cli-enonic/internal/app/util"
+	"cli-enonic/internal/app/util/system"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/urfave/cli"
 	"os"
-	"os/exec"
 	"path"
-	"syscall"
 )
 
 func All() []cli.Command {
@@ -120,19 +119,6 @@ func runGradleTask(projectData *common.ProjectData, message string, tasks ...str
 	}
 
 	command := getOsGradlewFile()
-	cmd := exec.Command(command, args...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	cmd.Env = env
 
-	if err := cmd.Run(); err != nil {
-		os.Stderr.WriteString(fmt.Sprintf("\n%s\n", err.Error()))
-		if exitError, ok := err.(*exec.ExitError); ok {
-			waitStatus := exitError.Sys().(syscall.WaitStatus)
-			os.Exit(waitStatus.ExitStatus())
-		} else {
-			os.Exit(1)
-		}
-	}
+	system.Run(command, args)
 }

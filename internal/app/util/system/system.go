@@ -5,7 +5,25 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"syscall"
 )
+
+func Run(command string, args []string) {
+	cmd := exec.Command(command, args...)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+
+	if err := cmd.Run(); err != nil {
+		os.Stderr.WriteString(fmt.Sprintf("\n%s\n", err.Error()))
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus := exitError.Sys().(syscall.WaitStatus)
+			os.Exit(waitStatus.ExitStatus())
+		} else {
+			os.Exit(1)
+		}
+	}
+}
 
 func Start(app string, args []string, detach bool) *exec.Cmd {
 
