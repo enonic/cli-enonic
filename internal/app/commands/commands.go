@@ -86,6 +86,7 @@ func All() []cli.Command {
 			Category:    "CLOUD COMMANDS",
 		},
 		system.Latest,
+		system.Upgrade,
 		vacuum.Vacuum,
 		/*{
 			Name:        "remote",

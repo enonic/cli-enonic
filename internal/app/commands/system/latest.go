@@ -14,41 +14,47 @@ var Latest = cli.Command{
 	Usage: "Check for latest version",
 	Flags: []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
-
-		var latestVer *semver.Version
-		currentVer := semver.MustParse(c.App.Version)
-		rData := common.ReadRuntimeData()
-		rData.LatestCheck = time.Now()
 		fmt.Fprintln(os.Stderr, "")
 
-		common.StartSpinner("Loading")
-		isNPM := common.IsInstalledViaNPM()
-		if isNPM {
-			latestVer = semver.MustParse(common.GetLatestNPMVersion())
-			common.StopSpinner()
+		latestVer := FetchLatestVersion(c)
+		currentVer := semver.MustParse(c.App.Version)
 
-		} else {
-			req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
-			res := common.SendRequest(req, "Loading")
-
-			var result ScoopManifest
-			common.ParseResponse(res, &result)
-
-			latestVer = semver.MustParse(result.Version)
-		}
-
-		if latestVer.Equal(currentVer) || latestVer.LessThan(currentVer) {
+		if !latestVer.GreaterThan(currentVer) {
 			fmt.Fprintf(os.Stdout, "\nYou are using the latest version of Enonic CLI: %s.\n", c.App.Version)
-		} else if latestVer.GreaterThan(currentVer) {
+		} else {
 			fmt.Fprintf(os.Stdout, "\nLocal version: %s.\n", c.App.Version)
-			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(latestVer.String(), isNPM))
+			fmt.Fprintln(os.Stdout, common.FormatLatestVersionMessage(latestVer.String()))
 		}
-
-		rData.LatestVersion = latestVer.String()
-		common.WriteRuntimeData(rData)
 
 		return nil
 	},
+}
+
+func FetchLatestVersion(c *cli.Context) *semver.Version {
+	rData := common.ReadRuntimeData()
+	rData.LatestCheck = time.Now()
+
+	var latestVer *semver.Version
+	common.StartSpinner("Loading")
+	isNPM := common.IsInstalledViaNPM()
+	if isNPM {
+		latestVer = semver.MustParse(common.GetLatestNPMVersion())
+		common.StopSpinner()
+
+	} else {
+		req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
+		res := common.SendRequest(req, "Loading")
+
+		var result ScoopManifest
+		common.ParseResponse(res, &result)
+
+		latestVer = semver.MustParse(result.Version)
+	}
+
+	rData.LatestVersion = latestVer.String()
+	common.WriteRuntimeData(rData)
+
+	return latestVer
 }
 
 type ScoopManifest struct {

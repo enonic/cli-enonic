@@ -454,7 +454,7 @@ func ProduceCheckVersionFunction(appVersion string) func() string {
 			latestVer := semver.MustParse(rData.LatestVersion)
 			currentVer := semver.MustParse(appVersion)
 			if latestVer.GreaterThan(currentVer) {
-				message = FormatLatestVersionMessage(rData.LatestVersion, IsInstalledViaNPM())
+				message = FormatLatestVersionMessage(rData.LatestVersion)
 			}
 		}
 
@@ -495,13 +495,18 @@ func getCommandResult(command string, args ...string) (string, string, int) {
 	return outStr, errStr, exitCode
 }
 
-func FormatLatestVersionMessage(latest string, isNPM bool) string {
-	return fmt.Sprintf(LATEST_VERSION_MSG, latest, getOSUpdateCommand(isNPM))
+func FormatLatestVersionMessage(latest string) string {
+	upgradeCmd := "enonic"
+	if util.GetCurrentOs() == "windows" {
+		upgradeCmd += ".exe"
+	}
+	upgradeCmd += " upgrade"
+	return fmt.Sprintf(LATEST_VERSION_MSG, latest, upgradeCmd)
 }
 
-func getOSUpdateCommand(isNPM bool) string {
+func GetOSUpdateCommand(isNPM bool) string {
 	if isNPM {
-		return "npm upgrade @enonic/cli"
+		return "npm upgrade -g @enonic/cli"
 	}
 
 	switch util.GetCurrentOs() {
