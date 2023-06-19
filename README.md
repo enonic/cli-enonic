@@ -24,7 +24,7 @@ npm install @enonic/cli -g
 
 ## Usage
 
-* To get a list of available commands
+* To get the list of available commands:
 
 ```bash
 enonic
@@ -33,7 +33,13 @@ enonic
 * Create a new project with the following command, then follow instructions:
 
 ```bash
-enonic project create
+enonic create myproject
+```
+
+## Upgrade
+
+```bash
+npm upgrade
 ```
 
 ## Docs & Guides

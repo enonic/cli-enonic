@@ -50,3 +50,11 @@ For other OSes, please see [Goreleaser](https://goreleaser.com).
 1. Check out [XP CLI](https://github.com/enonic/cli-enonic) from GitHub
 1. Run `dep ensure` in the project folder.  -  This will download all dependencies for the project.
 1. Run `goreleaser --clean --snapshot` in the project folder to build a snapshot of latest code. Binaries for all supported platforms will be built in corresponding folders of the `dist` folder.
+
+## Releasing a new version
+
+1. Ensure [release notes](docs%2Freleases.adoc) are updated (for a feature release)
+1. Change value of `:xp_version:` variable in the [installation guide](docs%2Finstall.adoc) to `X.Y.Z` (version of the upcoming release)
+1. Commit all the uncommitted changes. Make sure HEAD is not in dirty state (no uncommitted changes).
+1. Run `git tag vX.Y.Z`
+1. Run `git push origin vX.Y.Z` to trigger the release via Github actions.

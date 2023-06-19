@@ -1,5 +1,12 @@
 = Release notes
 
+== v2.6.0
+
+=== Features
+
+* `upgrade` command
+* `uninstall` command
+
 == v2.5.0
 
 === Features
