@@ -1,15 +1,21 @@
-= Installing Enonic CLI
+:xp_version: 2.5.0
+
+= Install, upgrade or uninstall Enonic CLI
 
 The CLI is available for Mac, Linux and Windows.
 To install the CLI on your local device, visit our https://developer.enonic.com/start[Quickstart page] or follow the instructions below
 
-== NPM
+== Install Enonic CLI
+
+=== NPM
 
 If you have npm installed (on any OS), run the following command in your terminal:
 
  npm install -g @enonic/cli
 
-== MacOS installation
+=== MacOS
+
+==== Brew
 
 . Enonic CLI is available from the https://brew.sh/[Homebrew package service].
 With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:
@@ -20,37 +26,34 @@ With Homebrew installed, run the following command in your terminal app to add e
 
  brew install enonic
 
-. If you later want to update the CLI, simply run:
+==== Direct download
 
- brew upgrade enonic
+You can download CLI directly from our repository: https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Darwin_64-bit.tar.gz[x64] | https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Darwin_arm64.tar.gz[ARM]
 
-== Linux installation
+=== Linux
 
-=== Install with script
+==== wget
 
 Open the Shell and run the following:
 
  wget -qO- https://repo.enonic.com/public/com/enonic/cli/installer/cli-linux/1.0.0/cli-linux-1.0.0.sh | sh
 
 
-=== Install from Snapcraft
+==== Snapcraft
 
 Open the Shell and run the following:
 
  $ sudo snap install enonic
 
-=== Install via direct download
 
-If you know exact version you need, you can download CLI binary directly from our repository:
+==== Direct download
 
- curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.1/enonic_1.1.1_Linux_64-bit.tar.gz
+You can download CLI directly from our repository: https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Linux_64-bit.tar.gz[x64] | https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Linux_arm64.tar.gz[ARM] | https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Linux_arm_v6.tar.gz[ARMv6]
 
 
-== Windows installation
+=== Windows
 
-There are two ways to install CLI on windows
-
-=== Install using Scoop
+==== Scoop
 
 . After having https://scoop.sh/[Scoop command-line installer] installed, open command prompt and add CLI github repo to scoop known repositories with the following command:
 
@@ -60,23 +63,33 @@ There are two ways to install CLI on windows
 
  scoop install enonic
 
-. Updating CLI is done with the following comand:
 
- scoop update enonic
+==== Native installer
 
-
-=== Windows native installer
-To download the latest available CLI and install it on your PC with native installer:
+To install the latest available version on your PC with native installer:
 
 . Download https://repo.enonic.com/public/com/enonic/cli/installer/cli-windows/1.0.0/cli-windows-1.0.0.exe[windows installer].
 . Run it and follow the wizard instructions.
 . If you need to update the CLI later, just run the installer once again to fetch the latest version.
 
 
-== Upgrading Enonic CLI
+==== Direct download
 
-To update, start by running the `enonic latest` command.
-This will report if there are upgrades available, and also how to update for your specific OS.
+You can download CLI directly from our repository: https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Windows_64-bit.zip[x64] | https://repo.enonic.com/public/com/enonic/cli/enonic/{xp_version}/enonic_{xp_version}_Windows_arm_v6.zip[ARMv6]
+
+== Upgrade Enonic CLI
+
+To upgrade to the latest version, run the following command:
+
+ enonic upgrade
+
+IMPORTANT: This command will not work if you installed CLI via direct download (Linux) or native installer (Windows).
+
+You can check if there's a newer version of Enonic CLI by running the following command:
+
+ enonic latest
+
+This will report if there's an upgrade available and what command to run to update CLI.
 
 ----
 $ enonic latest
@@ -84,3 +97,14 @@ $ enonic latest
 Loading...
 You are using the latest version of Enonic CLI: 1.3.0
 ----
+
+
+== Uninstall Enonic CLI
+
+Run
+
+ enonic uninstall
+
+to remove Enonic CLI from your system.
+
+IMPORTANT: This command will not work if you installed CLI via direct download (Linux) or native installer (Windows).
