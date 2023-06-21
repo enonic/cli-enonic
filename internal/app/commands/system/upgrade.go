@@ -30,7 +30,7 @@ var Upgrade = cli.Command{
 		if upgradeCommand != "" {
 			upgradeArgs := strings.Split(upgradeCommand, " ")
 
-			system.Run(upgradeArgs[0], upgradeArgs[1:])
+			system.Run(upgradeArgs[0], upgradeArgs[1:], os.Environ())
 		} else {
 			// not installed with package manager
 			fmt.Fprintln(os.Stderr, "Could not upgrade. If you installed enonic CLI manually, you need to upgrade manually too.")

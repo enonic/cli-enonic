@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
 	"github.com/urfave/cli"
+	"os"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ var Uninstall = cli.Command{
 			uninstallCommand := common.GetOSUninstallCommand(isNPM)
 			uninstallArgs := strings.Split(uninstallCommand, " ")
 
-			system.Run(uninstallArgs[0], uninstallArgs[1:])
+			system.Run(uninstallArgs[0], uninstallArgs[1:], os.Environ())
 		}
 
 		return nil

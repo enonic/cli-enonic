@@ -120,5 +120,5 @@ func runGradleTask(projectData *common.ProjectData, message string, tasks ...str
 
 	command := getOsGradlewFile()
 
-	system.Run(command, args)
+	system.Run(command, args, env)
 }

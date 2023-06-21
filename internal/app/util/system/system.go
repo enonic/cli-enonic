@@ -8,11 +8,12 @@ import (
 	"syscall"
 )
 
-func Run(command string, args []string) {
+func Run(command string, args, env []string) {
 	cmd := exec.Command(command, args...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
+	cmd.Env = env
 
 	if err := cmd.Run(); err != nil {
 		os.Stderr.WriteString(fmt.Sprintf("\n%s\n", err.Error()))
