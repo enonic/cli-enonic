@@ -36,12 +36,6 @@ enonic
 enonic create myproject
 ```
 
-## Upgrade
-
-```bash
-npm upgrade
-```
-
 ## Docs & Guides
 
 For complete guide to Enonic CLI please check out [this page](https://developer.enonic.com/docs/enonic-cli/).
@@ -49,6 +43,12 @@ For complete guide to Enonic CLI please check out [this page](https://developer.
 Build your first Enonic project by following this hands-on [introduction](https://developer.enonic.com/start).
 
 Need a quick advice? Ask us on [Slack](https://slack.enonic.com/).
+
+## Upgrade
+
+```bash
+enonic upgrade
+```
 
 ## Uninstall
 
