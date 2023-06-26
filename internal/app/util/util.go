@@ -476,6 +476,17 @@ func OpenOrCreateDataFile(path string, readOnly bool) *os.File {
 	return file
 }
 
+func ReadOrCreateDir(path string) ([]os.DirEntry, error) {
+	_, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		err = os.MkdirAll(path, os.ModePerm)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadDir(path)
+}
+
 func DecodeTomlFile(file *os.File, data interface{}) {
 	if _, err := toml.DecodeReader(bufio.NewReader(file), data); err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse toml file: ", err)

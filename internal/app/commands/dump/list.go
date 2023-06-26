@@ -6,7 +6,6 @@ import (
 	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/urfave/cli"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -30,7 +29,7 @@ var List = cli.Command{
 func listExistingDumpNames() []string {
 	homePath := sandbox.GetActiveHomePath()
 	dumpsDir := filepath.Join(homePath, "data", "dump")
-	dumps, err := ioutil.ReadDir(dumpsDir)
+	dumps, err := util.ReadOrCreateDir(dumpsDir)
 	if err != nil {
 		util.Warn(err, "Error reading dumps folder:")
 		return []string{}
