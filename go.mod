@@ -14,7 +14,7 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	//github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/go-ps v1.0.0
-	github.com/otiai10/copy v1.11.0
+	github.com/otiai10/copy v1.12.0
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/pkg/errors v0.9.1
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
