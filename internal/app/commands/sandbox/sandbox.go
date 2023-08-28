@@ -285,48 +285,52 @@ func ensureDirStructure() {
 			if enonicPathExists {
 
 				if !snapPathExists {
-					// move contents of enonic folder if it is not a symlink
-					// symlink will be created later
+
 					if !enonicPathIsSymlink {
-						err := os.Rename(enonicPath, snapPath)
-						util.Warn(err, fmt.Sprintf("Error moving data from '%s' to '%s'", enonicPath, snapPath))
+						// move contents of .enonic folder to snap and create a symlink
+						mustMove(enonicPath, snapPath)
+						mustSymlink(enonicPath, snapPath)
+
 					} else {
-						// create a snap folder if needed
-						// symlink will be created later
+						// just create a snap folder if needed
 						createFolderIfNotExist(snapPath)
 					}
 				}
-				// remove old enonic folder or a symlink
-				// symlink will be created later
-				err := os.RemoveAll(enonicPath)
-				util.Warn(err, fmt.Sprintf("Error deleting '%s'", enonicPath))
 
 			} else {
 				createFolderIfNotExist(snapPath)
+				mustSymlink(enonicPath, snapPath)
 			}
-
-			err = os.Symlink(snapPath, enonicPath)
-			util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", enonicPath, snapPath))
 
 		} else {
 			// snapcraft is not present
 			// enonic path will be a symlink if snapcraft was previously installed
 			// follow it and move everything to enonic path
 			if enonicPathExists && enonicPathIsSymlink {
+
 				snapPath, err := os.Readlink(enonicPath)
 				util.Fatal(err, fmt.Sprintf("Could not resolve a symlink '%s'.", enonicPath))
 
 				err = os.Remove(enonicPath)
 				util.Fatal(err, fmt.Sprintf("Error deleting a symlink '%s'. Delete it manually and re-run.", enonicPath))
 
-				err = os.Rename(snapPath, enonicPath)
-				util.Warn(err, fmt.Sprintf("Error moving data from '%s' to '%s'", enonicPath, snapPath))
+				mustMove(snapPath, enonicPath)
 			}
 		}
 	}
 
 	createFolderIfNotExist(home, ".enonic", "distributions")
 	createFolderIfNotExist(home, ".enonic", "sandboxes")
+}
+
+func mustMove(from, to string) {
+	err := os.Rename(from, to)
+	util.Fatal(err, fmt.Sprintf("Error moving data from '%s' to '%s'", from, to))
+}
+
+func mustSymlink(from, to string) {
+	var err = os.Symlink(to, from)
+	util.Fatal(err, fmt.Sprintf("Error creating a symlink '%s' to '%s' folder", from, to))
 }
 
 func createFolderIfNotExist(paths ...string) string {
