@@ -404,7 +404,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includ
 			return latestVersion, totalVersions
 		}
 
-		distro, err := util.PromptSelect(&util.SelectOptions{
+		distro, _, err := util.PromptSelect(&util.SelectOptions{
 			Message:  "Enonic XP distribution",
 			Default:  formatDistroVersionDisplay(latestVersion, currentOsWithArch, latestVersion),
 			Options:  textVersions,

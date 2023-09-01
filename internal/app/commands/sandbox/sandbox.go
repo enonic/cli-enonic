@@ -205,7 +205,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 		selectOptions = append(selectOptions, boxName)
 	}
 
-	name, err := util.PromptSelect(&util.SelectOptions{
+	name, optionIndex, err := util.PromptSelect(&util.SelectOptions{
 		Message:  selectBoxMessage,
 		Options:  selectOptions,
 		Default:  defaultBox,
@@ -218,7 +218,6 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 		return newBox, true
 	}
 
-	optionIndex := util.IndexOf(name, selectOptions)
 	if showCreateOption {
 		optionIndex -= 1 // subtract 1 because of 'new sandbox' option
 	}

@@ -169,7 +169,7 @@ func createDeployContext(target string, deploymentJar string, force bool) (*depl
 			targetContext = xp7Services[k]
 		}
 	} else {
-		key, err := promptForService(xp7Services)
+		key, _, err := promptForService(xp7Services)
 		if err != nil {
 			return nil, err
 		}
@@ -211,7 +211,7 @@ func findProjectJar() (string, error) {
 }
 
 // Ask what service the user wants to deploy to
-func promptForService(xp7Services map[string]deployContext) (string, error) {
+func promptForService(xp7Services map[string]deployContext) (string, int, error) {
 	var keys []string
 	for k := range xp7Services {
 		keys = append(keys, k)
@@ -219,7 +219,7 @@ func promptForService(xp7Services map[string]deployContext) (string, error) {
 	sort.Strings(keys)
 
 	if len(keys) == 0 {
-		return "", fmt.Errorf("You do not have any services to deploy to")
+		return "", -1, fmt.Errorf("You do not have any services to deploy to")
 	}
 
 	return commonUtil.PromptSelect(&commonUtil.SelectOptions{

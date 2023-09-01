@@ -80,6 +80,14 @@ type RuntimeData struct {
 	LatestCheck   time.Time `toml:latestCheck`
 }
 
+type MarketResponse[K any] struct {
+	Data struct {
+		Market struct {
+			Query []K
+		}
+	}
+}
+
 func GetInEnonicDir(children ...string) string {
 	var joinArgs []string
 	if util.GetCurrentOs() == "linux" {
