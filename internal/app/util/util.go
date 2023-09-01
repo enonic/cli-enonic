@@ -54,7 +54,7 @@ type SelectOptions struct {
 	StartInSearchMode bool
 }
 
-func PromptSelect(options *SelectOptions) (string, error) {
+func PromptSelect(options *SelectOptions) (string, int, error) {
 
 	if !selectHelpWasShown {
 		fmt.Fprintln(os.Stderr, FormatImportant("\nUse arrow keys to navigate, Enter to confirm\n"))
@@ -74,9 +74,9 @@ func PromptSelect(options *SelectOptions) (string, error) {
 	}
 
 	cursorPos, scrollPos := calcCursorAndScroll(options)
-	_, name, err := prompt.RunCursorAt(cursorPos, scrollPos)
+	pos, name, err := prompt.RunCursorAt(cursorPos, scrollPos)
 
-	return name, err
+	return name, pos, err
 }
 
 func createSearcher(items []string) list.Searcher {
@@ -187,7 +187,7 @@ func PromptProjectJar(inputJar string, force bool) string {
 			} else {
 				jars = append(jars, "Custom")
 
-				projectJar, err = PromptSelect(&SelectOptions{
+				projectJar, _, err = PromptSelect(&SelectOptions{
 					Message: "Select app to deploy",
 					Options: jars,
 				})

@@ -68,7 +68,7 @@ func ensureNameFlag(name string, mustNotExist, force bool) string {
 				os.Exit(1)
 			}
 			var err error
-			selectedOption, err = util.PromptSelect(&util.SelectOptions{
+			selectedOption, _, err = util.PromptSelect(&util.SelectOptions{
 				Message: "Select dump",
 				Options: existingDumps,
 			})

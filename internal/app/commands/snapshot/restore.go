@@ -65,7 +65,7 @@ func ensureSnapshotFlag(c *cli.Context) string {
 		os.Exit(1)
 	}
 
-	name, err := util.PromptSelect(&util.SelectOptions{
+	name, _, err := util.PromptSelect(&util.SelectOptions{
 		Message: "Select snapshot to restore",
 		Options: getSnapshotNames(snapshotList),
 	})

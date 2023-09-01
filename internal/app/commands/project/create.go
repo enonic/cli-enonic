@@ -359,7 +359,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 			starterList = append(starterList, fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription))
 		}
 
-		selectedOption, err := util.PromptSelect(&util.SelectOptions{
+		selectedOption, selectedIdx, err := util.PromptSelect(&util.SelectOptions{
 			Message:           "Starter",
 			Options:           append(starterList, customRepoOption),
 			PageSize:          10,
@@ -368,15 +368,11 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 		util.Fatal(err, "Could not select starter: ")
 
 		if selectedOption != customRepoOption {
-			for _, st := range starters {
-				if fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription) == selectedOption {
-					repo = st.Data.GitUrl
-					starter = &st
-					if *hash == "" && *branch == "" {
-						*hash = findLatestHash(&st.Data.Version)
-					}
-					break
-				}
+			st := starters[selectedIdx]
+			repo = st.Data.GitUrl
+			starter = &st
+			if *hash == "" && *branch == "" {
+				*hash = findLatestHash(&st.Data.Version)
 			}
 		} else {
 			var repoValidator = func(val interface{}) error {
@@ -466,7 +462,7 @@ func lookupStarterDocs(c *cli.Context, repo string) *Starter {
 		return nil
 	}
 
-	var result StartersResponse
+	var result common.MarketResponse[Starter]
 	common.ParseResponse(res, &result)
 
 	starters := result.Data.Market.Query
@@ -491,7 +487,7 @@ func fetchStarters(c *cli.Context) []Starter {
 		return []Starter{}
 	}
 
-	var result StartersResponse
+	var result common.MarketResponse[Starter]
 	common.ParseResponse(res, &result)
 
 	fmt.Fprintln(os.Stderr, "Done.")
@@ -604,13 +600,5 @@ type Starter struct {
 		ShortDescription string
 		DocumentationUrl string
 		Version          []StarterVersion
-	}
-}
-
-type StartersResponse struct {
-	Data struct {
-		Market struct {
-			Query []Starter
-		}
 	}
 }
