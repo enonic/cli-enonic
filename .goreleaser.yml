@@ -287,6 +287,8 @@ snapcrafts:
     # https://snapcraft.io/docs/reference/confinement
     confinement: strict
 
+    base: core22
+
     apps:
       enonic:
         plugs: [ "home", "network", "network-bind", "dot-enonic", "mount-observe" ]
