@@ -74,8 +74,6 @@ archives:
       {{- with .Arm }}_v{{ . }}{{ end }}
       {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
-    rlcp: true
-
     format: tar.gz  # set to binary to omit archiving
 
     format_overrides:
@@ -133,7 +131,7 @@ scoops:
   url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
 
   # Repository to push the app manifest to.
-  bucket:
+  repository:
     owner: enonic
     name: cli-scoop
     token: "{{ .Env.TAP_GITHUB_TOKEN }}"
@@ -166,7 +164,7 @@ brews:
   - skip_upload: false
 
     # Repository to push the tap to.
-    tap:
+    repository:
       owner: enonic
       name: homebrew-cli
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
