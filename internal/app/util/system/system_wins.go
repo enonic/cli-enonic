@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package system
@@ -20,25 +21,25 @@ func prepareCmd(app string, args []string) *exec.Cmd {
 }
 
 /*
-	Description of the '@' trick to prevent quote stripping by cmd.exe
-	https://github.com/Microsoft/WSL/issues/2835#issuecomment-364475668
- */
+Description of the '@' trick to prevent quote stripping by cmd.exe
+https://github.com/Microsoft/WSL/issues/2835#issuecomment-364475668
+*/
 func setCommandLineParams(cmd *exec.Cmd, app string, args []string) {
 	cmd.SysProcAttr.CmdLine = fmt.Sprintf(` /c @ "%v" %v`, app, strings.Join(args, " "))
 }
 
 /*
-	https://docs.microsoft.com/en-us/windows/desktop/procthread/process-creation-flags
-	CREATE_NEW_PROCESS_GROUP = 0x00000200
- */
+https://docs.microsoft.com/en-us/windows/desktop/procthread/process-creation-flags
+CREATE_NEW_PROCESS_GROUP = 0x00000200
+*/
 func setStartAttachedParams(cmd *exec.Cmd) {
 	//cmd.SysProcAttr.CreationFlags = 0x00000200
 }
 
 /*
-	https://docs.microsoft.com/en-us/windows/desktop/procthread/process-creation-flags
-	CREATE_NEW_PROCESS_GROUP = 0x00000200
-	CREATE_NO_WINDOW = 0x08000000
+https://docs.microsoft.com/en-us/windows/desktop/procthread/process-creation-flags
+CREATE_NEW_PROCESS_GROUP = 0x00000200
+CREATE_NO_WINDOW = 0x08000000
 */
 func setStartDetachedParams(cmd *exec.Cmd) {
 	cmd.SysProcAttr.CreationFlags = 0x08000200

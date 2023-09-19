@@ -1,4 +1,5 @@
-//+build !windows
+//go:build !windows
+// +build !windows
 
 package system
 
@@ -10,7 +11,7 @@ import (
 	"syscall"
 )
 
-const detachedProcName = ""
+const detachedProcName = "java"
 
 func prepareCmd(app string, args []string) *exec.Cmd {
 	cmd := exec.Command(app, args...)
