@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
-	"os/signal"
 )
 
 var Start = cli.Command{
@@ -27,7 +26,7 @@ var Start = cli.Command{
 		cli.UintFlag{
 			Name:  "http.port",
 			Usage: "Set to the http port used by Enonic XP to check availability on startup",
-			Value: 8080,
+			Value: common.HTTP_PORT,
 		},
 		common.FORCE_FLAG,
 	},
@@ -35,29 +34,34 @@ var Start = cli.Command{
 	ArgsUsage: "<name>",
 	Action: func(c *cli.Context) error {
 
-		var sandbox *Sandbox
-		var minDistroVersion string
-		// use configured sandbox if we're in a project folder
-		if c.NArg() == 0 && common.HasProjectData(".") {
-			pData := common.ReadProjectData(".")
-			minDistroVersion = common.ReadProjectDistroVersion(".")
-			sandbox = ReadSandboxData(pData.Sandbox)
-		}
-		if sandbox == nil {
-			var sandboxName string
-			if c.NArg() > 0 {
-				sandboxName = c.Args().First()
-			}
-			sandbox, _ = EnsureSandboxExists(c, minDistroVersion, sandboxName, "No sandboxes found, create one", "Select sandbox to start", true, true)
-			if sandbox == nil {
-				os.Exit(1)
-			}
-		}
+		sandbox := ReadSandboxFromProjectOrAsk(c, true)
 
 		StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
 
 		return nil
 	},
+}
+
+func ReadSandboxFromProjectOrAsk(c *cli.Context, useArguments bool) *Sandbox {
+	var sandbox *Sandbox
+	var minDistroVersion string
+	// use configured sandbox if we're in a project folder
+	if c.NArg() == 0 && common.HasProjectData(".") {
+		pData := common.ReadProjectData(".")
+		minDistroVersion = common.ReadProjectDistroVersion(".")
+		sandbox = ReadSandboxData(pData.Sandbox)
+	}
+	if sandbox == nil {
+		var sandboxName string
+		if useArguments && c.NArg() > 0 {
+			sandboxName = c.Args().First()
+		}
+		sandbox, _ = EnsureSandboxExists(c, minDistroVersion, sandboxName, "No sandboxes found, create one", "Select sandbox to start", true, true)
+		if sandbox == nil {
+			os.Exit(1)
+		}
+	}
+	return sandbox
 }
 
 func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) {
@@ -66,7 +70,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 	isSandboxRunning := common.VerifyRuntimeData(&rData)
 
 	if isSandboxRunning {
-		if rData.Running == c.Args().First() {
+		if rData.Running == sandbox.Name {
 			fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
 			os.Exit(1)
 		} else {
@@ -101,7 +105,12 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 	writeRunningSandbox(sandbox.Name, pid)
 
 	if !detach {
-		listenForInterrupt(sandbox.Name)
+		util.ListenForInterrupt(func() {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", sandbox.Name)
+			fmt.Fprintln(os.Stderr)
+			writeRunningSandbox("", 0)
+		})
 		cmd.Wait()
 	} else {
 		fmt.Fprintf(os.Stdout, "Started sandbox '%s' in detached mode.\n", sandbox.Name)
@@ -114,20 +123,6 @@ func AskToStopSandbox(rData common.RuntimeData, force bool) {
 	} else {
 		os.Exit(1)
 	}
-}
-
-func listenForInterrupt(name string) {
-	interruptChan := make(chan os.Signal, 1)
-	signal.Notify(interruptChan, os.Interrupt)
-
-	go func() {
-		<-interruptChan
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", name)
-		fmt.Fprintln(os.Stderr)
-		writeRunningSandbox("", 0)
-		signal.Stop(interruptChan)
-	}()
 }
 
 func writeRunningSandbox(name string, pid int) {

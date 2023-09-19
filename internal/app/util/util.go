@@ -20,6 +20,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -450,6 +451,19 @@ func WaitUntilProcessStopped(id int, timeoutSec float64) error {
 		time.Sleep(1 * time.Second)
 	}
 	return nil
+}
+
+func ListenForInterrupt(callback func()) {
+	interruptChan := make(chan os.Signal, 1)
+	signal.Notify(interruptChan, os.Interrupt)
+
+	go func() {
+		<-interruptChan
+		if callback != nil {
+			callback()
+		}
+		signal.Stop(interruptChan)
+	}()
 }
 
 func IndexOf(element string, data []string) int {
