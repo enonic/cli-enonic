@@ -19,7 +19,11 @@ var Dev = cli.Command{
 
 			sbox := sandbox.ReadSandboxFromProjectOrAsk(c, false)
 
-			sandbox.StartSandbox(c, sbox, true, true, true, common.HTTP_PORT)
+			err := sandbox.StartSandbox(c, sbox, true, true, true, common.HTTP_PORT)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Restart sandbox '%s' in dev mode or stop it before running dev command\n", sbox.Name)
+				os.Exit(1)
+			}
 
 			devMessage := fmt.Sprintln("\nRunning project in dev mode...")
 			util.ListenForInterrupt(func() {
