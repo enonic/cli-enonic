@@ -5,7 +5,6 @@ import (
 	"cli-enonic/internal/app/commands/auditlog"
 	"cli-enonic/internal/app/commands/cloud"
 	"cli-enonic/internal/app/commands/cms"
-	"cli-enonic/internal/app/commands/create"
 	"cli-enonic/internal/app/commands/dump"
 	"cli-enonic/internal/app/commands/export"
 	"cli-enonic/internal/app/commands/project"
@@ -19,7 +18,8 @@ import (
 
 func All() []cli.Command {
 	return []cli.Command{
-		create.Create,
+		Create,
+		Dev,
 		{
 			Name:        "snapshot",
 			Usage:       "Create and restore snapshots",
