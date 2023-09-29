@@ -27,7 +27,9 @@ var Delete = cli.Command{
 		}
 
 		if rData := common.ReadRuntimeData(); rData.Running == sandbox.Name {
-			AskToStopSandbox(rData, force)
+			if !AskToStopSandbox(rData, force) {
+				os.Exit(1)
+			}
 		}
 
 		boxes := getSandboxesUsingDistro(sandbox.Distro)

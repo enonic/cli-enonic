@@ -3,6 +3,7 @@ package sandbox
 import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/util"
+	"errors"
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
@@ -36,7 +37,8 @@ var Start = cli.Command{
 
 		sandbox := ReadSandboxFromProjectOrAsk(c, true)
 
-		StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
+		err := StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
+		util.Fatal(err, "")
 
 		return nil
 	},
@@ -46,7 +48,7 @@ func ReadSandboxFromProjectOrAsk(c *cli.Context, useArguments bool) *Sandbox {
 	var sandbox *Sandbox
 	var minDistroVersion string
 	// use configured sandbox if we're in a project folder
-	if c.NArg() == 0 && common.HasProjectData(".") {
+	if !useArguments || (c.NArg() == 0 && common.HasProjectData(".")) {
 		pData := common.ReadProjectData(".")
 		minDistroVersion = common.ReadProjectDistroVersion(".")
 		sandbox = ReadSandboxData(pData.Sandbox)
@@ -64,17 +66,16 @@ func ReadSandboxFromProjectOrAsk(c *cli.Context, useArguments bool) *Sandbox {
 	return sandbox
 }
 
-func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) {
+func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) error {
 	force := common.IsForceMode(c)
 	rData := common.ReadRuntimeData()
 	isSandboxRunning := common.VerifyRuntimeData(&rData)
 
 	if isSandboxRunning {
-		if rData.Running == sandbox.Name {
-			fmt.Fprintf(os.Stderr, "Sandbox '%s' is already running", rData.Running)
-			os.Exit(1)
-		} else {
-			AskToStopSandbox(rData, force)
+		if rData.Running == sandbox.Name && ((rData.Mode == common.MODE_DEV) == devMode) {
+			return nil
+		} else if !AskToStopSandbox(rData, force) {
+			return errors.New(fmt.Sprintf("Sandbox '%s' is already running in %s mode", rData.Running, rData.Mode))
 		}
 	} else {
 		ports := []uint16{httpPort, common.MGMT_PORT, common.INFO_PORT}
@@ -85,8 +86,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 			}
 		}
 		if len(unavailablePorts) > 0 {
-			fmt.Fprintf(os.Stderr, "Port(s) %v are not available, stop the app(s) using them first!\n", unavailablePorts)
-			os.Exit(1)
+			return errors.New(fmt.Sprintf("Port(s) %v are not available, stop the app(s) using them first!\n", unavailablePorts))
 		}
 	}
 
@@ -102,32 +102,39 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 		// current process will finish so use detached process' PID
 		pid = cmd.Process.Pid
 	}
-	writeRunningSandbox(sandbox.Name, pid)
+	writeRunningSandbox(sandbox.Name, pid, devMode)
 
 	if !detach {
 		util.ListenForInterrupt(func() {
 			fmt.Fprintln(os.Stderr)
 			fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", sandbox.Name)
 			fmt.Fprintln(os.Stderr)
-			writeRunningSandbox("", 0)
+			writeRunningSandbox("", 0, false)
 		})
 		cmd.Wait()
 	} else {
 		fmt.Fprintf(os.Stdout, "Started sandbox '%s' in detached mode.\n", sandbox.Name)
 	}
+	return nil
 }
 
-func AskToStopSandbox(rData common.RuntimeData, force bool) {
+func AskToStopSandbox(rData common.RuntimeData, force bool) bool {
 	if force || util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it", rData.Running), true) {
 		StopSandbox(rData)
+		return true
 	} else {
-		os.Exit(1)
+		return false
 	}
 }
 
-func writeRunningSandbox(name string, pid int) {
+func writeRunningSandbox(name string, pid int, dev bool) {
 	data := common.ReadRuntimeData()
 	data.Running = name
 	data.PID = pid
+	if dev {
+		data.Mode = common.MODE_DEV
+	} else {
+		data.Mode = common.MODE_DEFAULT
+	}
 	common.WriteRuntimeData(data)
 }

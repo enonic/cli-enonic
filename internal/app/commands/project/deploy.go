@@ -62,7 +62,9 @@ var Deploy = cli.Command{
 					askToRunSandbox(c, projectData)
 				} else if rData := common.ReadRuntimeData(); rData.Running != "" {
 					// ask to stop sandbox running in detached mode
-					sandbox.AskToStopSandbox(rData, force)
+					if !sandbox.AskToStopSandbox(rData, force) {
+						os.Exit(1)
+					}
 				}
 			}
 		}
@@ -79,10 +81,12 @@ func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
 	debug := c.Bool("debug")
 	continuous := c.Bool("continuous")
 
+	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
 	if !processRunning {
 		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", projectData.Sandbox), true) {
 			// detach in continuous mode to release terminal window
-			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug, common.HTTP_PORT)
+			err := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			util.Fatal(err, "")
 		}
 
 	} else if rData.Running != projectData.Sandbox {
@@ -90,7 +94,8 @@ func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
 		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, projectData.Sandbox), true) {
 			sandbox.StopSandbox(rData)
 			// detach in continuous mode to release terminal window
-			sandbox.StartSandbox(c, sandbox.ReadSandboxData(projectData.Sandbox), continuous, devMode, debug, common.HTTP_PORT)
+			err := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			util.Fatal(err, "")
 		}
 
 	} else {

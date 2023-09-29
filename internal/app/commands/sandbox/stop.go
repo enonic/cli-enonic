@@ -28,7 +28,7 @@ var Stop = cli.Command{
 func StopSandbox(rData common.RuntimeData) {
 	pId := rData.PID
 	stopDistro(pId)
-	writeRunningSandbox("", 0)
+	writeRunningSandbox("", 0, false)
 
 	common.StartSpinner(fmt.Sprintf("Stopping sandbox '%s'", rData.Running))
 	if err := util.WaitUntilProcessStopped(pId, 30); err != nil {

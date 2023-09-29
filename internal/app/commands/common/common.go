@@ -43,6 +43,8 @@ const FORCE_COOKIE = "forceFlag"
 const HTTP_PORT = 8080
 const INFO_PORT = 2609
 const MGMT_PORT = 4848
+const MODE_DEV = "dev"
+const MODE_DEFAULT = "default"
 
 var spin *spinner.Spinner
 
@@ -71,6 +73,7 @@ type ProjectData struct {
 
 type RuntimeData struct {
 	Running       string    `toml:"running"`
+	Mode          string    `toml:"mode"`
 	PID           int       `toml:"PID"`
 	SessionID     string    `toml:sessionID`
 	LatestVersion string    `toml:latestVersion`
