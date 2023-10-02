@@ -149,13 +149,13 @@ func ProjectCreateWizard(c *cli.Context) {
 	fmt.Fprint(os.Stderr, "\n")
 
 	propsFile := filepath.Join(dest, "gradle.properties")
-	processGradleProperties(propsFile, name, version)
+	processGradleProperties(propsFile, strings.ToLower(name), version)
 
 	absDest, err := filepath.Abs(dest)
 	util.Fatal(err, "Error creating project")
 
-		sandboxName := c.String("sandbox")
-		pData := ensureProjectDataExists(c, dest, sandboxName, "A sandbox is required for your project, create one")
+	sandboxName := c.String("sandbox")
+	pData := ensureProjectDataExists(c, dest, sandboxName, "A sandbox is required for your project, create one")
 
 	if pData == nil || pData.Sandbox == "" {
 		fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
@@ -272,7 +272,8 @@ func ensureNameArg(c *cli.Context, name string) string {
 		// flag overrides the argument
 		name = flagName
 	}
-	appNameRegex, _ := regexp.Compile("^[a-z0-9.]{3,}$")
+	appNameRegex, _ := regexp.Compile("^[a-zA-Z0-9.]{3,}$")
+	var useDefault bool
 
 	var nameValidator = func(val interface{}) error {
 		str := val.(string)
@@ -283,6 +284,7 @@ func ensureNameArg(c *cli.Context, name string) string {
 				} else {
 					fmt.Fprintf(os.Stderr, "Name '%s' is not valid. Using default: %s\n", val, DEFAULT_NAME)
 				}
+				useDefault = true
 				return nil
 			}
 			return errors.Errorf("Name '%s' is not valid. It must be min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.]", val)
@@ -291,7 +293,7 @@ func ensureNameArg(c *cli.Context, name string) string {
 	}
 
 	projectName := util.PromptString("Project name", name, DEFAULT_NAME, nameValidator)
-	if !force || projectName != "" {
+	if !useDefault && projectName != "" {
 		return projectName
 	} else {
 		return DEFAULT_NAME
