@@ -37,7 +37,7 @@ var Start = cli.Command{
 
 		sandbox := ReadSandboxFromProjectOrAsk(c, true)
 
-		err := StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
+		err, _ := StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
 		util.Fatal(err, "")
 
 		return nil
@@ -66,16 +66,16 @@ func ReadSandboxFromProjectOrAsk(c *cli.Context, useArguments bool) *Sandbox {
 	return sandbox
 }
 
-func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) error {
+func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) (error, bool) {
 	force := common.IsForceMode(c)
 	rData := common.ReadRuntimeData()
 	isSandboxRunning := common.VerifyRuntimeData(&rData)
 
 	if isSandboxRunning {
 		if rData.Running == sandbox.Name && ((rData.Mode == common.MODE_DEV) == devMode) {
-			return nil
+			return nil, true
 		} else if !AskToStopSandbox(rData, force) {
-			return errors.New(fmt.Sprintf("Sandbox '%s' is already running in %s mode", rData.Running, rData.Mode))
+			return errors.New(fmt.Sprintf("Sandbox '%s' is already running in %s mode", rData.Running, rData.Mode)), true
 		}
 	} else {
 		ports := []uint16{httpPort, common.MGMT_PORT, common.INFO_PORT}
@@ -86,7 +86,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 			}
 		}
 		if len(unavailablePorts) > 0 {
-			return errors.New(fmt.Sprintf("Port(s) %v are not available, stop the app(s) using them first!\n", unavailablePorts))
+			return errors.New(fmt.Sprintf("Port(s) %v are not available, stop the app(s) using them first!\n", unavailablePorts)), false
 		}
 	}
 
@@ -115,7 +115,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 	} else {
 		fmt.Fprintf(os.Stdout, "Started sandbox '%s' in detached mode.\n", sandbox.Name)
 	}
-	return nil
+	return nil, false
 }
 
 func AskToStopSandbox(rData common.RuntimeData, force bool) bool {

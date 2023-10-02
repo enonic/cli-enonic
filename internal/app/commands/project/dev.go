@@ -26,7 +26,7 @@ func StartDevMode(c *cli.Context) {
 
 		sbox := sandbox.ReadSandboxFromProjectOrAsk(c, false)
 
-		err := sandbox.StartSandbox(c, sbox, true, true, true, common.HTTP_PORT)
+		err, usedExistingSandbox := sandbox.StartSandbox(c, sbox, true, true, true, common.HTTP_PORT)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Restart sandbox '%s' in dev mode or stop it before running dev command\n", sbox.Name)
 			os.Exit(1)
@@ -37,7 +37,10 @@ func StartDevMode(c *cli.Context) {
 			fmt.Fprintln(os.Stderr)
 			fmt.Fprintln(os.Stderr, "Stopping project dev mode...")
 			fmt.Fprintln(os.Stderr)
-			sandbox.StopSandbox(common.ReadRuntimeData())
+			if !usedExistingSandbox {
+				// we started the sandbox, so we need to stop it too
+				sandbox.StopSandbox(common.ReadRuntimeData())
+			}
 		})
 
 		runGradleTask(projectData, devMessage, "dev")
