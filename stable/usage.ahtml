@@ -453,13 +453,15 @@ To get a list of commands, simply type the following in your terminal:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>Enonic CLI v.1.5.0
+<pre>Enonic CLI v.2.7.0
 Manage XP instances, home folders and projects
 
 USAGE:
    enonic [global options] command [command options] [arguments...]
 
 COMMANDS:
+     create    Create a new Enonic project
+     dev       Start current project in dev mode
      snapshot  Create and restore snapshots
      dump      Dump and load complete repositories
      export    Export data from a given repository, branch and content path.
@@ -470,6 +472,8 @@ COMMANDS:
      system    System commands
      auditlog  Manage audit log repository
      latest    Check for latest version
+     upgrade   Upgrade to the latest version
+     uninstall Uninstall Enonic CLI
      vacuum    Removes unused blobs and binaries from blobstore
      help, h   Shows a list of commands or help for one command
 
@@ -564,7 +568,7 @@ OPTIONS:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-04 12:50:41 UTC
+Last updated 2023-10-02 16:10:51 UTC
 </div>
 </div>
 </body>
