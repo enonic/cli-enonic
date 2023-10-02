@@ -18,27 +18,57 @@ Options:
 
 |`project name`
 |project name. E.g. `myproject`
+
+|`-r, --repo, +
+--repository`
+|repository path of the starter to base the project on. Format: <enonic repo> or <organisation>/<repo> on github or <full repo url>
+
+|`--sb, --sandbox`
+| Sandbox name to link project to
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+
 |===
 
 NOTE: `destination` and `version` params for the new project will have default values equal to `project name` and `1.0.0-SNAPSHOT` respectively
 
-.Example creating 'myProject' project in 'myProject' folder and setting version to '1.0.0-SNAPSHOT':
+.Example creating a project called 'foo' in a new folder with the same name ('foo'), with default version number ('1.0.0-SNAPSHOT'):
 ----
-$ enonic create myProject
+$ enonic create foo
 ----
 
 .Equivalent `enonic project create` command will be:
 ----
-$ enonic project create myProject -d myProject -v 1.0.0-SHAPSHOT
+$ enonic project create foo -d foo -v 1.0.0-SHAPSHOT
 ----
 
-The only values you will need to choose in the above examples are the starter repo and the sandbox name to link to.
-If you need to automate this command completely for pipeline integration, you can use `enonic project create`:
+The only values you will need to choose in the above example are a starter and a sandbox to link the new project to.
+If you need to automate this command completely for pipeline integration, you can use `-f` flag and specify a starter repo and an existing sandbox:
 
-.Example creating 'myProject' project non-interactively in 'myFolder' folder using the 'starter-vanilla' starter and 'Sandbox1' sandbox and setting version to '1.0.0-SNAPSHOT':
+.Example creating a project called 'foo' non-interactively in a new folder with the same name ('foo') using the Vanilla starter and existing sandbox called 'Sandbox1', with default version number ('1.0.0-SNAPSHOT'):
 ----
-$ enonic project create -f -n myProject -d myFolder -r starter-vanilla --sb Sandbox1 -v 1.0.0-SHAPSHOT
+$ enonic create foo -f -r starter-vanilla --sb Sandbox1
 ----
+
+== Dev
+
+This command is essential for developers who want to work on their app in "hot reload" mode, which will "pick up" changes (both server- and client-side) made to the app's source code without developer having to rebuild and redeploy the app. Make sure you execute this command from the project's folder.
+
+IMPORTANT: All the Enonic starters are coming with built-in command compatible with CLI's `dev` command. This means that a project based on any of Enonic starters will run smoothly in the dev mode. It will not work in your custom repository unless you implement the Gradle task called "dev" which runs your app in watch mode.
+
+This command does two things:
+1. Starts the project's sandbox in *detached* dev mode. *Detached* means that logs from the XP instance running in the sandbox will *not* be output in the terminal window. Read the tip below if you need to combine the `dev` command with being able to see the XP logs.
+2. Executes `dev` command for the app itself. This will deploy the app once (for XP to pick it up) and then read server-side source files directly from the app's folder, also build client-side code if needed. In the Terminal window you'll only see the output from this command.
+
+TIP: If you need to see XP logs while working on the app, you will need to start the sandbox in a *separate* Terminal window/tab: `enonic sandbox start --dev`, then run `enonic dev` in the first window/tab to start the project in dev mode. `--dev` parameter is essential - you won't be able to run dev mode for a project unless its sandbox is running in dev mode as well.
+
+.Example starting a project in development mode from the project's folder:
+----
+$ enonic dev
+----
+
+To terminate the dev mode, use Ctrl-C combination. If the sandbox was started in the detached mode in the same Terminal window/tab, CLI will attempt to stop the sandbox as well.
 
 == Project
 
@@ -58,15 +88,16 @@ USAGE:
    enonic [command] [options] [arguments...]
 
 COMMANDS:
-     create             Create new project
+     create             Create a new Enonic project
      sandbox, sbox, sb  Set the default sandbox associated with the current project
      clean              Clean current project
      build              Build current project
-     deploy             Deploy current project to a sandbox
+     deploy             Deploy current project to its sandbox
      install, i         Build current project and install it to Enonic XP
-     shell              Creates a new shell with project environment variables
-     env                Exports project environment variables as string to be used in any third-party shell
+     shell              Create a new shell with project environment variables
      gradle             Run arbitrary gradle task in current project
+     dev                Start current project in dev mode
+     env                Export project environment variables as string to be used in any third-party shell
 
 OPTIONS:
    --help, -h  show help
@@ -250,33 +281,6 @@ NOTE: Sandbox is not required when running with `--force` flag. In that case sys
 $ enonic project deploy otherSandbox --dev -c
 ----
 
-=== Gradle
-
-In case you want to run arbitrary gradle task or group multiple ones in one command you can use following command:
-
- $ enonic project gradle [tasks / flags ...]
-
-The text after `gradle` is sent directly to `gradlew`, without modifications.
-
-Options:
-[cols="1,3", options="header"]
-|===
-|Option
-|Description
-
-|`tasks`
-|a space delimited list of gradle tasks and flags to invoke
-|===
-
-IMPORTANT: Flags like `--force` or `--help` are not supported by this command because it forwards all flags directly to gradle!
-
-NOTE: The difference between `enonic project gradle clean build deploy` and `gradlew clean build deploy` is that the former uses sandbox and enonic XP distribution configured for the project, while latter uses system wide settings.
-
-.Example running gradle clean build deploy:
-----
-$ enonic project gradle clean build deploy
-----
-
 === Install
 
 To install current project to running enonic instance
@@ -326,6 +330,37 @@ This is an advanced command to export project `JAVA_HOME` and `XP_HOME` variable
  $ enonic project shell
 
 NOTE: Run `quit` command to exit enonic shell. Parent shell environment is not modified.
+
+=== Gradle
+
+In case you want to run arbitrary gradle task or group multiple ones in one command you can use following command:
+
+ $ enonic project gradle [tasks / flags ...]
+
+The text after `gradle` is sent directly to `gradlew`, without modifications.
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`tasks`
+|a space delimited list of gradle tasks and flags to invoke
+|===
+
+IMPORTANT: Flags like `--force` or `--help` are not supported by this command because it forwards all flags directly to gradle!
+
+NOTE: The difference between `enonic project gradle clean build deploy` and `gradlew clean build deploy` is that the former uses sandbox and Enonic XP distribution configured for the project, while the latter uses system-wide settings.
+
+.Example running gradle clean build deploy:
+----
+$ enonic project gradle clean build deploy
+----
+
+=== Dev
+
+Same as the global `dev` command (<<#dev,see above>>)
 
 === Env
 
