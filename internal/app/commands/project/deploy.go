@@ -85,7 +85,7 @@ func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
 	if !processRunning {
 		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", projectData.Sandbox), true) {
 			// detach in continuous mode to release terminal window
-			err := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			err, _ := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
 			util.Fatal(err, "")
 		}
 
@@ -94,7 +94,7 @@ func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
 		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, projectData.Sandbox), true) {
 			sandbox.StopSandbox(rData)
 			// detach in continuous mode to release terminal window
-			err := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			err, _ := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
 			util.Fatal(err, "")
 		}
 
