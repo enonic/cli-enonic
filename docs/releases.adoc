@@ -1,5 +1,20 @@
 = Release notes
 
+== v2.7.0
+
+=== Features
+
+* Development mode: `dev` and `project dev` commands
+
+=== Improvements
+
+* Repository and sandbox arguments for the global `create` command
+
+=== Bug fixes
+
+* Problem stopping a sandbox on Mac/Linux
+* Can't use camelCase in project name in the global `create` command
+
 == v2.6.0
 
 === Features
@@ -21,7 +36,7 @@
 * Improve error message given when trying to create a snapshot with incorrect repository name
 * Filter the list of distros in sandbox upgrade command
 
-=== Bugs
+=== Bug fixes
 
 * Select and prompt input answers have different colors on mac
 * Select by name does not work in deleting snapshot by name
@@ -36,7 +51,7 @@
 * Better message after project creation
 * Show sandbox name in XP menu
 
-=== Bugs
+=== Bug fixes
 
 * `--url` parameter is incorrectly documented
 * Incorrect error message for `app install` command
@@ -46,19 +61,19 @@
 
 == v2.3.3
 
-=== Bugs
+=== Bug fixes
 
 * CLI fails to download distro for XP versions below 7.10.0
 
 == v2.3.2
 
-=== Bugs
+=== Bug fixes
 
 * Detect when CLI is running on Mac arm64 and pick the right XP sdk
 
 == v2.3.1
 
-=== Bugs
+=== Bug fixes
 
 * Reinstalling cli through snapcraft after it was manually installed fails
 * Account query is no longer available
@@ -81,7 +96,7 @@
 
 == v2.1.1
 
-=== Bugs
+=== Bug fixes
 
 * Fix "_empty dump name_" error when doing `dump upgrade`
 * Fix excessive help text when creating a new project
@@ -92,19 +107,19 @@
 
 * Compile for Apple M1 chips and other architectures
 
-=== Bugs
+=== Bug fixes
 
 * Fix access token parsing
 
 == v2.0.2
 
-=== Bugs
+=== Bug fixes
 
 * Fix JWT expiration handling
 
 == v2.0.1
 
-=== Bugs
+=== Bug fixes
 
 * App install confuses force flag with jar file path
 
@@ -128,7 +143,7 @@
 * Migrate to go modules
 * Handle all unavailable ports in the same manner
 
-=== Bugs
+=== Bug fixes
 
 * Snapcraft installation on Ubuntu not working
 * Sandbox not properly deleted if running
@@ -136,7 +151,7 @@
 
 == v1.5.1
 
-=== Bugs
+=== Bug fixes
 
 * Allow setting number of replicas to 0
 
@@ -151,7 +166,7 @@
 * Install apps from the project directory by default
 * Show progress of `sandbox delete` command
 
-=== Bugs
+=== Bug fixes
 
 * Fixed permissions on `cloud` folder
 * Command `enonic project ?` always returns exit code 0
@@ -163,7 +178,7 @@
 * Filter the list of distributions based on XP version of the project
 * Check compatibility with sandbox' XP version before deploying an app
 
-=== Bugs
+=== Bug fixes
 
 * `latest` returns incorrect result when called the first time
 * Command `enonic project ?` always returns exit code 0
@@ -176,13 +191,13 @@
 * Add `--archive` parameter to `dump load` command
 * Show instructions on project deployment upon completing new project wizard
 
-=== Bugs
+=== Bug fixes
 
 * `enonic repo readonly` command unnecessarily closes indices
 
 == v1.2.1
 
-=== Bugs
+=== Bug fixes
 
 * Enonic sandbox does not start in detached mode on CentOS7/macOS
 * `deploy` command erases runtime PID info when sandbox was started in detached mode
@@ -200,7 +215,7 @@
 
 * Change update message when local version of CLI is the latest
 
-=== Bugs
+=== Bug fixes
 
 * CLI asks to start the sandbox that is already running
 * Remove _enonic-xp-_ from distro name in the sandbox list
@@ -226,7 +241,7 @@
 * `enonic app install --file` panics when file is not found
 * `enonic project create` project name cmdline parameter
 
-=== Bugs
+=== Bug fixes
 
 * After restart of server - token is invalid but no revalidation is attempted
 * CLI does not exit on SIGINT (Crtl + C) when creating new projects
