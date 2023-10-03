@@ -572,15 +572,23 @@ If you need to automate this command completely for pipeline integration, you ca
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-All the Enonic starters are coming with built-in command compatible with CLI&#8217;s <code>dev</code> command. This means that a project based on any of Enonic starters will run smoothly in the dev mode. It will not work in your custom repository unless you implement the Gradle task called "dev" which runs your app in watch mode.
+All the Enonic starters are coming with built-in support of the CLI&#8217;s <code>dev</code> command. This means that a project based on any of the Enonic starters will run smoothly in the dev mode. It will not work in your custom repository unless you implement the Gradle task called "dev" which runs your app in watch mode.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>This command does two things:
-1. Starts the project&#8217;s sandbox in <strong>detached</strong> dev mode. <strong>Detached</strong> means that logs from the XP instance running in the sandbox will <strong>not</strong> be output in the terminal window. Read the tip below if you need to combine the <code>dev</code> command with being able to see the XP logs.
-2. Executes <code>dev</code> command for the app itself. This will deploy the app once (for XP to pick it up) and then read server-side source files directly from the app&#8217;s folder, also build client-side code if needed. In the Terminal window you&#8217;ll only see the output from this command.</p>
+<p>This command does two things:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Starts the project&#8217;s sandbox in <strong>detached</strong> dev mode. <strong>Detached</strong> means that logs from the XP instance running in the sandbox will <strong>not</strong> be output in the terminal window. Read the tip below if you need to combine the <code>dev</code> command with being able to see the XP logs.</p>
+</li>
+<li>
+<p>Executes <code>dev</code> command for the app itself. This will deploy the app once (for XP to pick it up) and then read server-side source files directly from the app&#8217;s folder, also build client-side code if needed. In the Terminal window you&#8217;ll only see the output from this command.</p>
+</li>
+</ol>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1582,7 +1590,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-02 16:10:51 UTC
+Last updated 2023-10-03 05:38:54 UTC
 </div>
 </div>
 </body>
