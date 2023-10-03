@@ -55,9 +55,10 @@ $ enonic create foo -f -r starter-vanilla --sb Sandbox1
 
 This command is essential for developers who want to work on their app in "hot reload" mode, which will "pick up" changes (both server- and client-side) made to the app's source code without developer having to rebuild and redeploy the app. Make sure you execute this command from the project's folder.
 
-IMPORTANT: All the Enonic starters are coming with built-in command compatible with CLI's `dev` command. This means that a project based on any of Enonic starters will run smoothly in the dev mode. It will not work in your custom repository unless you implement the Gradle task called "dev" which runs your app in watch mode.
+IMPORTANT: All the Enonic starters are coming with built-in support of the CLI's `dev` command. This means that a project based on any of the Enonic starters will run smoothly in the dev mode. It will not work in your custom repository unless you implement the Gradle task called "dev" which runs your app in watch mode.
 
 This command does two things:
+
 1. Starts the project's sandbox in *detached* dev mode. *Detached* means that logs from the XP instance running in the sandbox will *not* be output in the terminal window. Read the tip below if you need to combine the `dev` command with being able to see the XP logs.
 2. Executes `dev` command for the app itself. This will deploy the app once (for XP to pick it up) and then read server-side source files directly from the app's folder, also build client-side code if needed. In the Terminal window you'll only see the output from this command.
 
