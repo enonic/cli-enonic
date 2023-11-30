@@ -18,6 +18,9 @@ func apiURL(path string) string {
 	if userUrl := os.Getenv(CLI_CLOUD_API_URL_VAR); userUrl != "" {
 		url = userUrl
 	}
+	if path == "" {
+		return url
+	}
 
 	if strings.HasSuffix(url, "/") {
 		return url + path
