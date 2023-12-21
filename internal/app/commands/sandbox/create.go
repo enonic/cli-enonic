@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 )
 
@@ -105,10 +104,6 @@ func promptTemplate(c *cli.Context) *Template {
 		}
 	}
 
-	sort.SliceStable(templates, func(i, j int) bool {
-		return templates[i].DisplayName < templates[j].DisplayName
-	})
-
 	var selectOptions []string
 	for _, temp := range templates {
 		selectOptions = append(selectOptions, temp.DisplayName)
@@ -133,8 +128,8 @@ func addTemplateToSandbox(box *Sandbox, template *Template) {
 	var appsJson []interface{}
 	for _, app := range template.Data.Applications {
 		appsJson = append(appsJson, map[string]interface{}{
-			"key":         app.Application.Data.GroupId + "." + app.Application.Data.ArifactId,
-			"config":      app.AppConfig.Config,
+			"key":    app.Application.Data.GroupId + "." + app.Application.Data.ArifactId,
+			"config": app.AppConfig.Config,
 		})
 	}
 	err := json.NewEncoder(templateFile).Encode(appsJson)
