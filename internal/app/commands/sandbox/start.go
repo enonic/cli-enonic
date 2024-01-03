@@ -71,6 +71,10 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 	rData := common.ReadRuntimeData()
 	isSandboxRunning := common.VerifyRuntimeData(&rData)
 
+	if sandbox.Distro == "" || sandbox.Name == "" {
+		return errors.New("Sandbox distro and name must be set!"), false
+	}
+
 	if isSandboxRunning {
 		if rData.Running == sandbox.Name && ((rData.Mode == common.MODE_DEV) == devMode) {
 			return nil, true
