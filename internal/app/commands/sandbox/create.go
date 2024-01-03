@@ -97,11 +97,12 @@ func promptTemplate(c *cli.Context) *Template {
 
 	if tplFlag := c.String("template"); tplFlag != "" {
 		for i, template := range templates {
-			fmt.Fprintf(os.Stderr, "Using template '%s'\n", template.Name)
-			if template.Name == tplFlag {
+			if template.Name == tplFlag || template.DisplayName == tplFlag {
+				fmt.Fprintf(os.Stderr, "Using template '%s'\n", template.DisplayName)
 				return &templates[i]
 			}
 		}
+		fmt.Fprintf(os.Stderr, "Could not find template '%s'\n", tplFlag)
 	}
 
 	var selectOptions []string
