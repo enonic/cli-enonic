@@ -68,6 +68,7 @@ var Create = cli.Command{
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
+		fmt.Fprint(os.Stderr, "\n")
 
 		template := promptTemplate(c)
 
