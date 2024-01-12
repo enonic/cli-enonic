@@ -28,7 +28,7 @@ const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-
 
 const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|mac-arm64|linux|linux-arm64)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
 const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
-const DISTRO_LIST_NAME_TPL = "%s-sdk-%s (%s)"
+const DISTRO_LIST_NAME_TPL = "%s-sdk-%s %s"
 
 const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
 const REMOTE_VERSION_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/maven-metadata.xml"
@@ -314,14 +314,14 @@ func formatSandboxListItemName(boxName, version, myOs string) string {
 	return fmt.Sprintf(tpl, boxName, myOs, version)
 }
 
-func formatDistroVersionDisplay(version, myOs, latestVersion string) string {
+func formatDistroVersionDisplay(version, myOs, latestVersion string, markStability bool) string {
 	var tpl = DISTRO_LIST_NAME_TPL
 
-	stability := assessStability(version, latestVersion)
+	stability := assessVersionStability(version, latestVersion, markStability)
 	return fmt.Sprintf(tpl, myOs, version, stability)
 }
 
-func assessStability(versionStr, latestVersion string) string {
+func assessVersionStability(versionStr, latestVersion string, markStability bool) string {
 	version, err := semver.NewVersion(versionStr)
 	if err != nil {
 		return "unknown"
@@ -331,12 +331,18 @@ func assessStability(versionStr, latestVersion string) string {
 	if versionStr == latestVersion {
 		stability = append(stability, "latest")
 	}
-	if version.Prerelease() != "" {
-		stability = append(stability, "unstable")
-	} else {
-		stability = append(stability, "stable")
+	if markStability {
+		if version.Prerelease() != "" {
+			stability = append(stability, "unstable")
+		} else {
+			stability = append(stability, "stable")
+		}
 	}
-	return strings.Join(stability[:], ",")
+	if len(stability) > 0 {
+		return fmt.Sprintf("(%s)", strings.Join(stability, ", "))
+	} else {
+		return ""
+	}
 }
 
 func GetDistroJdkPath(distroName string) string {
@@ -381,7 +387,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includ
 
 	textVersions := make([]string, len(versions))
 	for key, value := range versions {
-		textVersions[key] = formatDistroVersionDisplay(value, currentOsWithArch, latestVersion)
+		textVersions[key] = formatDistroVersionDisplay(value, currentOsWithArch, latestVersion, shouldIncludeUnstable)
 		if version != nil && version.String() == value {
 			versionExists = true
 		}
@@ -399,14 +405,16 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includ
 			os.Exit(1)
 		}
 
-		useLatest := util.PromptBool(fmt.Sprintf("Do you want to use Enonic XP %s (latest, stable)", latestVersion), true)
+		useLatest := util.PromptBool(fmt.Sprintf("Do you want to use Enonic XP %s %s",
+			latestVersion, assessVersionStability(latestVersion, latestVersion, shouldIncludeUnstable)),
+			true)
 		if useLatest {
 			return latestVersion, totalVersions
 		}
 
 		distro, _, err := util.PromptSelect(&util.SelectOptions{
 			Message:  "Enonic XP distribution",
-			Default:  formatDistroVersionDisplay(latestVersion, currentOsWithArch, latestVersion),
+			Default:  formatDistroVersionDisplay(latestVersion, currentOsWithArch, latestVersion, shouldIncludeUnstable),
 			Options:  textVersions,
 			PageSize: 10,
 		})
