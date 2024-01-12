@@ -169,7 +169,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 		if !util.PromptBool(noBoxMessage, true) {
 			return nil, false
 		}
-		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage, force)
+		newBox := SandboxCreateWizard(c, "", "", minDistroVersion, false, showSuccessMessage, force)
 		return newBox, true
 	}
 
@@ -214,7 +214,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 	util.Fatal(err, "Could not select sandbox: ")
 
 	if name == CREATE_NEW_BOX {
-		newBox := SandboxCreateWizard("", "", minDistroVersion, false, showSuccessMessage, force)
+		newBox := SandboxCreateWizard(c, "", "", minDistroVersion, false, showSuccessMessage, force)
 		return newBox, true
 	}
 

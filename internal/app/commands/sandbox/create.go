@@ -69,17 +69,11 @@ var Create = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		template := promptTemplate(c)
-
 		var name string
 		if c.NArg() > 0 {
 			name = c.Args().First()
 		}
-		box := SandboxCreateWizard(name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
-
-		if template != nil {
-			addTemplateToSandbox(box, template)
-		}
+		SandboxCreateWizard(c, name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
 
 		return nil
 	},
@@ -136,7 +130,11 @@ func addTemplateToSandbox(box *Sandbox, template *Template) {
 	util.Warn(err, "Could not write template to sandbox: ")
 }
 
-func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage, force bool) *Sandbox {
+func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage,
+	force bool) *Sandbox {
+	fmt.Fprint(os.Stderr, "\n")
+
+	template := promptTemplate(c)
 
 	name = ensureUniqueNameArg(name, minDistroVersion, force)
 	version, _ := ensureVersionCorrect(versionStr, minDistroVersion, true, includeUnstable, force)
@@ -148,6 +146,10 @@ func SandboxCreateWizard(name, versionStr, minDistroVersion string, includeUnsta
 
 	if showSuccessMessage {
 		fmt.Fprintf(os.Stdout, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
+	}
+
+	if template != nil {
+		addTemplateToSandbox(box, template)
 	}
 
 	return box

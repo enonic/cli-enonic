@@ -59,6 +59,8 @@ func PromptSelect(options *SelectOptions) (string, int, error) {
 	if !selectHelpWasShown {
 		fmt.Fprintln(os.Stderr, FormatImportant("\nUse arrow keys to navigate, Enter to confirm\n"))
 		selectHelpWasShown = true
+	} else {
+		fmt.Fprint(os.Stderr, "\n")
 	}
 
 	selectTemplates.Selected = fmt.Sprintf(`{{ "?" | green }} {{ "%s" | white }}: {{ . | cyan }}`, options.Message)
