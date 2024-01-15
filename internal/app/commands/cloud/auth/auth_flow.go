@@ -51,8 +51,10 @@ type tokenPayload struct {
 
 // The final result after going through the Authorization flow
 type tokens struct {
-	AccessToken string
-	ExpiresAt   int64
+	AccessToken  string
+	IDToken      string
+	RefreshToken string
+	ExpiresAt    int64
 }
 
 // Tells you if the access token is expired or not
@@ -86,7 +88,7 @@ func Login(instructions func(flow *Flow), afterTokenFetch func(int64)) error {
 func oAuthStartVerificationFlow() (*Flow, error) {
 	// Do the request
 	var res deviceCodeRequest
-	payload := strings.NewReader("client_id=" + clientID + "&scope=" + urlEncode(scope))
+	payload := strings.NewReader("client_id=" + clientID + "&scope=" + urlEncode(scope) + "&audience=" + urlEncode(audience))
 	if err := doRequest("/oauth/device/code", payload, &res); err != nil {
 		return nil, err
 	}
@@ -129,15 +131,17 @@ func oAuthGetTokens(flow *Flow) (*tokens, error) {
 				return nil, fmt.Errorf("token request returned error: %s", res.ErrorDescription)
 			}
 		} else {
-			exp, err := parseExpiredTime(res.IDToken)
+			exp, err := parseExpiredTime(res.AccessToken)
 
 			if err != nil {
 				return nil, err
 			}
 
 			return &tokens{
-				AccessToken: res.IDToken,
-				ExpiresAt:   exp,
+				AccessToken:  res.AccessToken,
+				IDToken:      res.IDToken,
+				RefreshToken: res.RefreshToken,
+				ExpiresAt:    exp,
 			}, nil
 		}
 	}
