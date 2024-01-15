@@ -58,3 +58,9 @@ For other OSes, please see [Goreleaser](https://goreleaser.com).
 1. Commit all the uncommitted changes. Make sure HEAD is not in dirty state (no uncommitted changes).
 1. Run `git tag vX.Y.Z`
 1. Run `git push origin vX.Y.Z` to trigger the release via Github actions.
+
+## Overriding Cloud credentials
+
+export ENONIC_CLI_CLOUD_API_URL=https://cloud.enonic.com/api
+export ENONIC_CLI_CLOUD_AUTH_URL=https://auth.enonic.com
+export ENONIC_CLI_CLOUD_AUTH_CLIENT=WMq5N474JWbzIHY5RanLa5z4mConLz6C

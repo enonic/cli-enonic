@@ -55,7 +55,7 @@ var Create = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "skip-template",
-			Usage: "Use specific template name.",
+			Usage: "Don't use a template.",
 		},
 		cli.StringFlag{
 			Name:  "version, v",
