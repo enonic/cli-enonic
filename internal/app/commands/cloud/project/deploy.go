@@ -136,7 +136,7 @@ func createDeployContext(target string, deploymentJar string, force bool) (*depl
 	accounts := res.Search.Accounts
 
 	sort.Slice(accounts[:], func(i, j int) bool {
-		return accounts[i].Name == "Hobby"
+		return accounts[i].Name == "free"
 	})
 
 	for _, account := range accounts {
