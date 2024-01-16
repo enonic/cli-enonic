@@ -398,7 +398,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includ
 	} else {
 		if force {
 			if version == nil {
-				fmt.Fprintln(os.Stderr, "Version flag can not be empty in non-interactive mode.")
+				return latestVersion, totalVersions
 			} else {
 				fmt.Fprintf(os.Stderr, "Version '%s' can not be found.\n", versionStr)
 			}
