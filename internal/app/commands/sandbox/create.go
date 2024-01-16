@@ -68,7 +68,6 @@ var Create = cli.Command{
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
-		fmt.Fprint(os.Stderr, "\n")
 
 		var name string
 		if c.NArg() > 0 {
@@ -80,9 +79,15 @@ var Create = cli.Command{
 	},
 }
 
-func promptTemplate(c *cli.Context) *Template {
+func promptTemplate(c *cli.Context, force bool) *Template {
 	if c.Bool("skip-template") {
 		return nil
+	}
+
+	tplFlag := c.String("template")
+	if force && tplFlag == "" {
+		fmt.Fprint(os.Stderr, "Parameter 'template' can not be empty in non-interactive mode\n\n")
+		os.Exit(1)
 	}
 
 	templates := fetchTemplates(c)
@@ -90,14 +95,17 @@ func promptTemplate(c *cli.Context) *Template {
 		return nil
 	}
 
-	if tplFlag := c.String("template"); tplFlag != "" {
+	if tplFlag != "" {
 		for i, template := range templates {
 			if template.Name == tplFlag || template.DisplayName == tplFlag {
 				fmt.Fprintf(os.Stderr, "Using template '%s'\n", template.DisplayName)
 				return &templates[i]
 			}
 		}
-		fmt.Fprintf(os.Stderr, "Could not find template '%s'\n", tplFlag)
+		if force {
+			fmt.Fprintf(os.Stderr, "Could not find template '%s'\n\n", tplFlag)
+			os.Exit(1)
+		}
 	}
 
 	var selectOptions []string
@@ -136,7 +144,7 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion stri
 	force bool) *Sandbox {
 	fmt.Fprint(os.Stderr, "\n")
 
-	template := promptTemplate(c)
+	template := promptTemplate(c, force)
 
 	name = ensureUniqueNameArg(name, minDistroVersion, force)
 	version, _ := ensureVersionCorrect(versionStr, minDistroVersion, true, includeUnstable, force)
