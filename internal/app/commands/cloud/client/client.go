@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	auth "cli-enonic/internal/app/commands/cloud/auth"
+	"cli-enonic/internal/app/commands/cloud/auth"
 )
 
 // DoGraphQLRequest execute a GraphQL request

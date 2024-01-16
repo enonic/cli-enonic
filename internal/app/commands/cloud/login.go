@@ -1,15 +1,16 @@
 package cloud
 
 import (
-	auth "cli-enonic/internal/app/commands/cloud/auth"
-	util "cli-enonic/internal/app/commands/cloud/util"
+	"cli-enonic/internal/app/commands/cloud/auth"
+	"cli-enonic/internal/app/commands/cloud/util"
 	"fmt"
+	"io"
+	"os"
+	"time"
+
 	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
-	"io/ioutil"
-	"os"
-	"time"
 )
 
 var Login = cli.Command{
@@ -23,7 +24,7 @@ var Login = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		// Check if logged in
-		if _, err := auth.GetAccessToken(); err == nil {
+		if auth.IsLoggedIn() {
 			fmt.Fprintf(os.Stdout, "You are already logged in!\n")
 			return nil
 		}
@@ -47,8 +48,8 @@ func login(printQrCode bool) error {
 			obj.Get(flow.URI).Print()
 			fmt.Fprintf(os.Stdout, "\n")
 		} else {
-			browser.Stdout = ioutil.Discard
-			browser.Stderr = ioutil.Discard
+			browser.Stdout = io.Discard
+			browser.Stderr = io.Discard
 			go func() {
 				if err := browser.OpenURL(flow.URI); err != nil {
 					fmt.Fprintf(os.Stdout, "Go to this url to login: %s\n\n", flow.URI)

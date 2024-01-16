@@ -15,7 +15,6 @@ import (
 	"github.com/mitchellh/go-ps"
 	"github.com/urfave/cli"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"net/url"
@@ -382,9 +381,9 @@ func copyBody(req *http.Request) io.ReadCloser {
 	if req.Body == nil {
 		return nil
 	}
-	buf, _ := ioutil.ReadAll(req.Body)
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
-	return ioutil.NopCloser(bytes.NewBuffer(buf))
+	buf, _ := io.ReadAll(req.Body)
+	req.Body = io.NopCloser(bytes.NewBuffer(buf))
+	return io.NopCloser(bytes.NewBuffer(buf))
 }
 
 func ParseResponse(resp *http.Response, target interface{}) {
@@ -550,10 +549,10 @@ func GetOSUninstallCommand(isNPM bool) string {
 }
 
 type EnonicError struct {
-	Status  uint16 `json:status`
-	Message string `json:message`
+	Status  uint16 `json:"status"`
+	Message string `json:"message"`
 	Context struct {
-		Authenticated bool     `json:authenticated`
-		Principals    []string `json:principals`
-	} `json:context`
+		Authenticated bool     `json:"authenticated"`
+		Principals    []string `json:"principals"`
+	} `json:"context"`
 }

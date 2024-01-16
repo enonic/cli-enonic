@@ -34,12 +34,23 @@ type deviceCodeRequest struct {
 	Interval                int    `json:"interval"`
 }
 
-// The reponse from Auth0 when requesting tokens
+// The response from Auth0 when requesting tokens
 type tokenRequest struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
 	AccessToken      string `json:"access_token"`
 	RefreshToken     string `json:"refresh_token"`
+	IDToken          string `json:"id_token"`
+	TokenType        string `json:"token_type"`
+	ExpiresIn        int    `json:"expires_in"`
+}
+
+// The response from Auth0 when refreshing tokens
+type refreshTokenRequest struct {
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+	AccessToken      string `json:"access_token"`
+	Scope            string `json:"scope"`
 	IDToken          string `json:"id_token"`
 	TokenType        string `json:"token_type"`
 	ExpiresIn        int    `json:"expires_in"`
@@ -58,8 +69,41 @@ type tokens struct {
 }
 
 // Tells you if the access token is expired or not
-func (t tokens) isExpired() bool {
+func (t *tokens) isExpired() bool {
 	return time.Now().Add(time.Minute*5).Unix() > t.ExpiresAt
+}
+
+func GetAccessToken() (string, error) {
+	tokens, err := loadTokens()
+	if err != nil {
+		return "", err
+	}
+
+	if tokens.isExpired() {
+		return refreshAccessToken(tokens.RefreshToken)
+	}
+
+	return tokens.AccessToken, nil
+}
+
+func refreshAccessToken(refreshToken string) (string, error) {
+	tokens, err := oAuthRefreshTokens(refreshToken)
+	if err != nil {
+		Logout()
+		return "", err
+	}
+
+	err = saveTokens(tokens)
+	if err != nil {
+		return "", err
+	}
+
+	return tokens.AccessToken, nil
+}
+
+func IsLoggedIn() bool {
+	_, err := GetAccessToken()
+	return err == nil
 }
 
 // Login to Auth0 using the Device Authorization Flow
@@ -147,6 +191,30 @@ func oAuthGetTokens(flow *Flow) (*tokens, error) {
 	}
 
 	return nil, fmt.Errorf("authentication flow expired")
+}
+
+func oAuthRefreshTokens(refreshToken string) (*tokens, error) {
+	var res refreshTokenRequest
+	payload := strings.NewReader("grant_type=refresh_token" + "&client_id=" + clientID + "&client_secret=" + clientSecret + "&refresh_token=" + refreshToken)
+	if err := doRequest("/oauth/token", payload, &res); err != nil {
+		return nil, err
+	}
+	if res.Error != "" {
+		return nil, fmt.Errorf("token refresh request returned error: %s", res.ErrorDescription)
+	} else {
+		exp, err := parseExpiredTime(res.AccessToken)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &tokens{
+			AccessToken:  res.AccessToken,
+			IDToken:      res.IDToken,
+			RefreshToken: refreshToken,
+			ExpiresAt:    exp,
+		}, nil
+	}
 }
 
 // Util functions

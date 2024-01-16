@@ -6,9 +6,10 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 var Vacuum = cli.Command{
@@ -53,10 +54,10 @@ func createVacuumRequest(c *cli.Context) *http.Request {
 
 type VacuumResponse struct {
 	TaskResults []struct {
-		Deleted   int32  `json:deleted`
-		Failed    int32  `json:failed`
-		InUse     int32  `json:inUse`
-		Processed int32  `json:processed`
-		TaskName  string `json:taskName`
-	} `json:taskResults`
+		Deleted   int32  `json:"deleted"`
+		Failed    int32  `json:"failed"`
+		InUse     int32  `json:"inUse"`
+		Processed int32  `json:"processed"`
+		TaskName  string `json:"taskName"`
+	} `json:"taskResults"`
 }

@@ -124,5 +124,5 @@ func createDeleteRequest(c *cli.Context, snapshot, before string) *http.Request 
 }
 
 type DeleteResult struct {
-	DeletedSnapshots []string `json:deletedSnapshots`
+	DeletedSnapshots []string `json:"deletedSnapshots"`
 }

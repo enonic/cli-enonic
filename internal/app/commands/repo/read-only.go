@@ -94,5 +94,5 @@ func ensureReadOnlyArg(c *cli.Context) bool {
 }
 
 type ReadOnlyResponse struct {
-	UpdatedIndexes []string `json:updatedIndexes`
+	UpdatedIndexes []string `json:"updatedIndexes"`
 }

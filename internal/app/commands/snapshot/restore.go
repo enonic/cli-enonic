@@ -101,8 +101,8 @@ func getSnapshotNames(list *SnapshotList) []string {
 }
 
 type RestoreResult struct {
-	Message string   `json:message`
-	Name    string   `json:name`
-	Failed  bool     `json:failed`
-	Indices []string `json:indices`
+	Message string   `json:"message"`
+	Name    string   `json:"name"`
+	Failed  bool     `json:"failed"`
+	Indices []string `json:"indices"`
 }
