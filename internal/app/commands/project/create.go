@@ -132,11 +132,10 @@ func ProjectCreateWizard(c *cli.Context) {
 	if c.NArg() > 0 {
 		name = c.Args().First()
 		version = DEFAULT_VERSION
-		dest = name
 	}
 	gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
 	name = ensureNameArg(c, name)
-	dest = ensureDestination(c, dest, name)
+	dest = ensureDestination(c, name)
 	version = ensureVersion(c, version)
 
 	var user, pass string
@@ -214,21 +213,13 @@ func ensureVersion(c *cli.Context, version string) string {
 	}
 }
 
-func ensureDestination(c *cli.Context, dest string, name string) string {
+func ensureDestination(c *cli.Context, name string) string {
 	force := common.IsForceMode(c)
+	defaultDest := destFromName(name)
+	var dest string
 	if flagDest := c.String("destination"); flagDest != "" {
 		// flag overrides the argument
 		dest = flagDest
-	}
-
-	var defaultDest string
-	if name != "" {
-		lastDotIndex := strings.LastIndex(name, ".")
-		if lastDotIndex >= 0 {
-			defaultDest = name[lastDotIndex+1:]
-		} else {
-			defaultDest = name
-		}
 	}
 
 	var destValidator func(val interface{}) error
@@ -236,8 +227,8 @@ func ensureDestination(c *cli.Context, dest string, name string) string {
 		str := val.(string)
 		if val == "" || len(strings.TrimSpace(str)) < 2 {
 			if force {
-				fmt.Fprintln(os.Stderr, "Destination folder flag can not have empty value in non-interactive mode")
-				os.Exit(1)
+				fmt.Fprintf(os.Stderr, "Destination was not supplied. Using default: %s\n", defaultDest)
+				return destValidator(defaultDest)
 			}
 			return errors.New("Destination folder must be at least 2 characters long: ")
 		} else if stat, err := os.Stat(str); stat != nil {
@@ -264,6 +255,20 @@ func ensureDestination(c *cli.Context, dest string, name string) string {
 	} else {
 		return defaultDest
 	}
+}
+
+func destFromName(name string) string {
+	if len(strings.TrimSpace(name)) == 0 {
+		return ""
+	}
+	var dest string
+	lastDotIndex := strings.LastIndex(name, ".")
+	if lastDotIndex >= 0 {
+		dest = name[lastDotIndex+1:]
+	} else {
+		dest = name
+	}
+	return dest
 }
 
 func ensureNameArg(c *cli.Context, name string) string {
@@ -427,6 +432,7 @@ func findLatestHash(versions *[]StarterVersion) string {
 	}
 	return maxHash
 }
+
 func isSupports7(versions []string) bool {
 	var (
 		latestSemver, semver7 *semver.Version
