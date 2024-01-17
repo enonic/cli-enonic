@@ -23,7 +23,7 @@ type Flow struct {
 }
 
 // The response from Auth0 when starting a Device Authorization Flow
-type deviceCodeRequest struct {
+type deviceCodeResponse struct {
 	Error                   string `json:"error"`
 	ErrorDescription        string `json:"error_description"`
 	DeviceCode              string `json:"device_code"`
@@ -35,7 +35,7 @@ type deviceCodeRequest struct {
 }
 
 // The response from Auth0 when requesting tokens
-type tokenRequest struct {
+type tokenResponse struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
 	AccessToken      string `json:"access_token"`
@@ -46,7 +46,7 @@ type tokenRequest struct {
 }
 
 // The response from Auth0 when refreshing tokens
-type refreshTokenRequest struct {
+type refreshTokenResponse struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
 	AccessToken      string `json:"access_token"`
@@ -131,7 +131,7 @@ func Login(instructions func(flow *Flow), afterTokenFetch func(int64)) error {
 
 func oAuthStartVerificationFlow() (*Flow, error) {
 	// Do the request
-	var res deviceCodeRequest
+	var res deviceCodeResponse
 	payload := strings.NewReader("client_id=" + clientID + "&scope=" + urlEncode(scope) + "&audience=" + urlEncode(audience))
 	if err := doRequest("/oauth/device/code", payload, &res); err != nil {
 		return nil, err
@@ -159,7 +159,7 @@ func oAuthGetTokens(flow *Flow) (*tokens, error) {
 		time.Sleep(time.Duration(flow.pollInterval))
 
 		// Do request
-		var res tokenRequest
+		var res tokenResponse
 		payload := strings.NewReader("grant_type=" + urlEncode("urn:ietf:params:oauth:grant-type:device_code") + "&device_code=" + flow.deviceCode + "&client_id=" + clientID)
 		if err := doRequest("/oauth/token", payload, &res); err != nil {
 			return nil, err
@@ -194,7 +194,7 @@ func oAuthGetTokens(flow *Flow) (*tokens, error) {
 }
 
 func oAuthRefreshTokens(refreshToken string) (*tokens, error) {
-	var res refreshTokenRequest
+	var res refreshTokenResponse
 	payload := strings.NewReader("grant_type=refresh_token" + "&client_id=" + clientID + "&client_secret=" + clientSecret + "&refresh_token=" + refreshToken)
 	if err := doRequest("/oauth/token", payload, &res); err != nil {
 		return nil, err
@@ -253,7 +253,7 @@ func addSecondsToNow(seconds int) time.Time {
 func parseExpiredTime(token string) (int64, error) {
 	split := strings.Split(token, ".")
 	if len(split) != 3 {
-		return 0, fmt.Errorf("recieved invalid token from identity provider")
+		return 0, fmt.Errorf("received invalid token from identity provider")
 	}
 
 	decoded, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(split[1])
