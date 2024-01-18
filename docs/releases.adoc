@@ -1,5 +1,18 @@
 = Release notes
 
+== v2.8.0
+
+=== Features
+
+* Enable selection of a template when creating a new sandbox
+* Automatic renewal of token for Enonic Cloud login
+
+=== Bug fixes
+
+* `--force` flag should use default distro selection for a new sandbox
+* `--force` flag should use default destination folder for a new project
+* _(latest, stable)_ should not be displayed for Beta/RC versions
+
 == v2.7.0
 
 === Features

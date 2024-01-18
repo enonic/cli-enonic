@@ -40,7 +40,7 @@ $ enonic create foo
 
 .Equivalent `enonic project create` command will be:
 ----
-$ enonic project create foo -d foo -v 1.0.0-SHAPSHOT
+$ enonic project create foo -d foo -n foo -v 1.0.0-SHAPSHOT
 ----
 
 The only values you will need to choose in the above example are a starter and a sandbox to link the new project to.
@@ -119,7 +119,7 @@ Options:
 |Description
 
 |`name`
-|project name. E.g. `com.example.myapp`. Can also be specified using `--name` flag
+|project name (e.g. `com.example.myapp`). Can also be specified using `--name` flag
 
 |`-n, --name`
 |project name. Overrides [name] argument if specified
@@ -376,10 +376,10 @@ WARNING: Unlike `enonic project shell` command, this one will modify your _curre
 [[sandbox-command]]
 == Sandbox
 
-Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
+Developers can use the CLI to work with one or several instances of XP locally. These instances are called sandboxes.
 Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.
 
-The CLI automates setting up, starting, stopping and upgrading sandboxes.
+The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.
 Sandbox commands list is available by running following command:
 ----
 $ enonic sandbox
@@ -403,7 +403,7 @@ OPTIONS:
 
 === Create
 
-Starts a new sandbox wizard asking for a name and an enonic distribution version:
+Starts a new sandbox wizard:
 
  $ enonic sandbox create [name] [-v <value>] [-a]
 
@@ -416,11 +416,17 @@ Options:
 |`name`
 |sandbox name
 
+|`-t, --template`
+|Use specific template
+
+|`--skip-template`
+|Skip template selection step
+
 |`-v, --version`
 |Use specific distro version
 
 |`-a, --all`
-|List all distro versions
+|List all distro versions (including Betas and Release Candidates)
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -428,7 +434,19 @@ Options:
 
 TIP: If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
 
-.Example creating a 'myBox' sandbox using Enonic XP version 7.2.1
+.Example creating a sandbox called 'myBox' using the latest version of Enonic XP
+----
+$ enonic sandbox create myBox -f
+
+.Example creating a sandbox called 'myBox' using the latest version of Enonic XP and "Headless Demo" template
+----
+$ enonic sandbox create myBox -t "Headless Demo" -f
+
+.Example creating a sandbox called 'myBox' using the latest version of Enonic XP and without a template (no apps will be preinstalled)
+----
+$ enonic sandbox create myBox --skip-template -f
+
+.Example creating sandbox called 'myBox' using Enonic XP version 7.2.1
 ----
 $ enonic sandbox create myBox -v 7.2.1
 ----
