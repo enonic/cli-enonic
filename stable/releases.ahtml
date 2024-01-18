@@ -440,112 +440,118 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#v2_7_0">v2.7.0</a>
+<li><a href="#v2_8_0">v2.8.0</a>
 <ul class="sectlevel2">
 <li><a href="#features">Features</a></li>
-<li><a href="#improvements">Improvements</a></li>
 <li><a href="#bug_fixes">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_7_0">v2.7.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_2">Features</a></li>
+<li><a href="#improvements">Improvements</a></li>
+<li><a href="#bug_fixes_2">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_6_0">v2.6.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_2">Features</a></li>
+<li><a href="#features_3">Features</a></li>
 </ul>
 </li>
 <li><a href="#v2_5_0">v2.5.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_3">Features</a></li>
+<li><a href="#features_4">Features</a></li>
 <li><a href="#improvements_2">Improvements</a></li>
-<li><a href="#bug_fixes_2">Bug fixes</a></li>
+<li><a href="#bug_fixes_3">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_4_0">v2.4.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_4">Features</a></li>
-<li><a href="#bug_fixes_3">Bug fixes</a></li>
+<li><a href="#features_5">Features</a></li>
+<li><a href="#bug_fixes_4">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_3_3">v2.3.3</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_4">Bug fixes</a></li>
+<li><a href="#bug_fixes_5">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_3_2">v2.3.2</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_5">Bug fixes</a></li>
+<li><a href="#bug_fixes_6">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_3_1">v2.3.1</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_6">Bug fixes</a></li>
+<li><a href="#bug_fixes_7">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_3_0">v2.3.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_5">Features</a></li>
+<li><a href="#features_6">Features</a></li>
 </ul>
 </li>
 <li><a href="#v2_2_0">v2.2.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_6">Features</a></li>
+<li><a href="#features_7">Features</a></li>
 <li><a href="#improvements_3">Improvements</a></li>
 </ul>
 </li>
 <li><a href="#v2_1_1">v2.1.1</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_7">Bug fixes</a></li>
+<li><a href="#bug_fixes_8">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_1_0">v2.1.0</a>
 <ul class="sectlevel2">
 <li><a href="#improvements_4">Improvements</a></li>
-<li><a href="#bug_fixes_8">Bug fixes</a></li>
+<li><a href="#bug_fixes_9">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_0_2">v2.0.2</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_9">Bug fixes</a></li>
+<li><a href="#bug_fixes_10">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_0_1">v2.0.1</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_10">Bug fixes</a></li>
+<li><a href="#bug_fixes_11">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v2_0_0">v2.0.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_7">Features</a></li>
+<li><a href="#features_8">Features</a></li>
 <li><a href="#improvements_5">Improvements</a></li>
-<li><a href="#bug_fixes_11">Bug fixes</a></li>
+<li><a href="#bug_fixes_12">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v1_5_1">v1.5.1</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_12">Bug fixes</a></li>
+<li><a href="#bug_fixes_13">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v1_5_0">v1.5.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_8">Features</a></li>
+<li><a href="#features_9">Features</a></li>
 <li><a href="#improvements_6">Improvements</a></li>
-<li><a href="#bug_fixes_13">Bug fixes</a></li>
+<li><a href="#bug_fixes_14">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v1_4_0">v1.4.0</a>
 <ul class="sectlevel2">
 <li><a href="#improvements_7">Improvements</a></li>
-<li><a href="#bug_fixes_14">Bug fixes</a></li>
+<li><a href="#bug_fixes_15">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v1_3_0">v1.3.0</a>
 <ul class="sectlevel2">
 <li><a href="#improvements_8">Improvements</a></li>
-<li><a href="#bug_fixes_15">Bug fixes</a></li>
+<li><a href="#bug_fixes_16">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v1_2_1">v1.2.1</a>
 <ul class="sectlevel2">
-<li><a href="#bug_fixes_16">Bug fixes</a></li>
+<li><a href="#bug_fixes_17">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v1_2_0">v1.2.0</a>
@@ -556,14 +562,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#v1_1_1">v1.1.1</a>
 <ul class="sectlevel2">
 <li><a href="#improvements_10">Improvements</a></li>
-<li><a href="#bug_fixes_17">Bug fixes</a></li>
+<li><a href="#bug_fixes_18">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#v_1_1_0">v.1.1.0</a>
 <ul class="sectlevel2">
-<li><a href="#features_9">Features</a></li>
+<li><a href="#features_10">Features</a></li>
 <li><a href="#improvements_11">Improvements</a></li>
-<li><a href="#bug_fixes_18">Bug fixes</a></li>
+<li><a href="#bug_fixes_19">Bug fixes</a></li>
 </ul>
 </li>
 </ul>
@@ -571,10 +577,44 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="v2_7_0"><a class="link" href="#v2_7_0">v2.7.0</a></h2>
+<h2 id="v2_8_0"><a class="link" href="#v2_8_0">v2.8.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="features"><a class="link" href="#features">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Enable selection of a template when creating a new sandbox</p>
+</li>
+<li>
+<p>Automatic renewal of token for Enonic Cloud login</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--force</code> flag should use default distro selection for a new sandbox</p>
+</li>
+<li>
+<p><code>--force</code> flag should use default destination folder for a new project</p>
+</li>
+<li>
+<p><em>(latest, stable)</em> should not be displayed for Beta/RC versions</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_7_0"><a class="link" href="#v2_7_0">v2.7.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -594,7 +634,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -612,7 +652,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_6_0"><a class="link" href="#v2_6_0">v2.6.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
+<h3 id="features_3"><a class="link" href="#features_3">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -630,7 +670,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_5_0"><a class="link" href="#v2_5_0">v2.5.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_3"><a class="link" href="#features_3">Features</a></h3>
+<h3 id="features_4"><a class="link" href="#features_4">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -662,7 +702,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
+<h3 id="bug_fixes_3"><a class="link" href="#bug_fixes_3">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -686,7 +726,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_4_0"><a class="link" href="#v2_4_0">v2.4.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_4"><a class="link" href="#features_4">Features</a></h3>
+<h3 id="features_5"><a class="link" href="#features_5">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -702,7 +742,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_3"><a class="link" href="#bug_fixes_3">Bug fixes</a></h3>
+<h3 id="bug_fixes_4"><a class="link" href="#bug_fixes_4">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -726,7 +766,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_3_3"><a class="link" href="#v2_3_3">v2.3.3</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_4"><a class="link" href="#bug_fixes_4">Bug fixes</a></h3>
+<h3 id="bug_fixes_5"><a class="link" href="#bug_fixes_5">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -741,7 +781,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_3_2"><a class="link" href="#v2_3_2">v2.3.2</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_5"><a class="link" href="#bug_fixes_5">Bug fixes</a></h3>
+<h3 id="bug_fixes_6"><a class="link" href="#bug_fixes_6">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -756,7 +796,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_3_1"><a class="link" href="#v2_3_1">v2.3.1</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_6"><a class="link" href="#bug_fixes_6">Bug fixes</a></h3>
+<h3 id="bug_fixes_7"><a class="link" href="#bug_fixes_7">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -774,7 +814,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_3_0"><a class="link" href="#v2_3_0">v2.3.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_5"><a class="link" href="#features_5">Features</a></h3>
+<h3 id="features_6"><a class="link" href="#features_6">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -789,7 +829,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_2_0"><a class="link" href="#v2_2_0">v2.2.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_6"><a class="link" href="#features_6">Features</a></h3>
+<h3 id="features_7"><a class="link" href="#features_7">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -814,7 +854,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_1_1"><a class="link" href="#v2_1_1">v2.1.1</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_7"><a class="link" href="#bug_fixes_7">Bug fixes</a></h3>
+<h3 id="bug_fixes_8"><a class="link" href="#bug_fixes_8">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -842,7 +882,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_8"><a class="link" href="#bug_fixes_8">Bug fixes</a></h3>
+<h3 id="bug_fixes_9"><a class="link" href="#bug_fixes_9">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -857,7 +897,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_0_2"><a class="link" href="#v2_0_2">v2.0.2</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_9"><a class="link" href="#bug_fixes_9">Bug fixes</a></h3>
+<h3 id="bug_fixes_10"><a class="link" href="#bug_fixes_10">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -872,7 +912,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_0_1"><a class="link" href="#v2_0_1">v2.0.1</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_10"><a class="link" href="#bug_fixes_10">Bug fixes</a></h3>
+<h3 id="bug_fixes_11"><a class="link" href="#bug_fixes_11">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -887,7 +927,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v2_0_0"><a class="link" href="#v2_0_0">v2.0.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_7"><a class="link" href="#features_7">Features</a></h3>
+<h3 id="features_8"><a class="link" href="#features_8">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -937,7 +977,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_11"><a class="link" href="#bug_fixes_11">Bug fixes</a></h3>
+<h3 id="bug_fixes_12"><a class="link" href="#bug_fixes_12">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -958,7 +998,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v1_5_1"><a class="link" href="#v1_5_1">v1.5.1</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_12"><a class="link" href="#bug_fixes_12">Bug fixes</a></h3>
+<h3 id="bug_fixes_13"><a class="link" href="#bug_fixes_13">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -973,7 +1013,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v1_5_0"><a class="link" href="#v1_5_0">v1.5.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_8"><a class="link" href="#features_8">Features</a></h3>
+<h3 id="features_9"><a class="link" href="#features_9">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -996,7 +1036,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_13"><a class="link" href="#bug_fixes_13">Bug fixes</a></h3>
+<h3 id="bug_fixes_14"><a class="link" href="#bug_fixes_14">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1027,7 +1067,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_14"><a class="link" href="#bug_fixes_14">Bug fixes</a></h3>
+<h3 id="bug_fixes_15"><a class="link" href="#bug_fixes_15">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1061,7 +1101,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_15"><a class="link" href="#bug_fixes_15">Bug fixes</a></h3>
+<h3 id="bug_fixes_16"><a class="link" href="#bug_fixes_16">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1076,7 +1116,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v1_2_1"><a class="link" href="#v1_2_1">v1.2.1</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="bug_fixes_16"><a class="link" href="#bug_fixes_16">Bug fixes</a></h3>
+<h3 id="bug_fixes_17"><a class="link" href="#bug_fixes_17">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1122,7 +1162,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_17"><a class="link" href="#bug_fixes_17">Bug fixes</a></h3>
+<h3 id="bug_fixes_18"><a class="link" href="#bug_fixes_18">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1140,7 +1180,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="v_1_1_0"><a class="link" href="#v_1_1_0">v.1.1.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="features_9"><a class="link" href="#features_9">Features</a></h3>
+<h3 id="features_10"><a class="link" href="#features_10">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1193,7 +1233,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_18"><a class="link" href="#bug_fixes_18">Bug fixes</a></h3>
+<h3 id="bug_fixes_19"><a class="link" href="#bug_fixes_19">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1222,7 +1262,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-03 05:38:54 UTC
+Last updated 2024-01-18 11:17:57 UTC
 </div>
 </div>
 </body>

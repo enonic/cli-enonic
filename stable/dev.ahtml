@@ -459,11 +459,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#sandbox-command">Sandbox</a>
 <ul class="sectlevel2">
 <li><a href="#create_3">Create</a></li>
-<li><a href="#list">List</a></li>
-<li><a href="#start">Start</a></li>
-<li><a href="#stop">Stop</a></li>
-<li><a href="#upgrade">Upgrade</a></li>
-<li><a href="#delete">Delete</a></li>
 </ul>
 </li>
 </ul>
@@ -544,7 +539,7 @@ There are two main commands available to assist developers with setting up and m
 <div class="listingblock">
 <div class="title">Equivalent <code>enonic project create</code> command will be:</div>
 <div class="content">
-<pre>$ enonic project create foo -d foo -v 1.0.0-SHAPSHOT</pre>
+<pre>$ enonic project create foo -d foo -n foo -v 1.0.0-SHAPSHOT</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -690,7 +685,7 @@ OPTIONS:
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">project name. E.g. <code>com.example.myapp</code>. Can also be specified using <code>--name</code> flag</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">project name (e.g. <code>com.example.myapp</code>). Can also be specified using <code>--name</code> flag</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-n, --name</code></p></td>
@@ -1258,11 +1253,11 @@ Unlike <code>enonic project shell</code> command, this one will modify your <em>
 <h2 id="sandbox-command"><a class="link" href="#sandbox-command">Sandbox</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Developers may use the CLI to run different instances of XP locally. These instances are called sandboxes.
+<p>Developers can use the CLI to work with one or several instances of XP locally. These instances are called sandboxes.
 Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.</p>
 </div>
 <div class="paragraph">
-<p>The CLI automates setting up, starting, stopping and upgrading sandboxes.
+<p>The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.
 Sandbox commands list is available by running following command:</p>
 </div>
 <div class="listingblock">
@@ -1289,7 +1284,7 @@ OPTIONS:
 <div class="sect2">
 <h3 id="create_3"><a class="link" href="#create_3">Create</a></h3>
 <div class="paragraph">
-<p>Starts a new sandbox wizard asking for a name and an enonic distribution version:</p>
+<p>Starts a new sandbox wizard:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -1316,12 +1311,20 @@ OPTIONS:
 <td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --template</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific template</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-template</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Skip template selection step</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Use specific distro version</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions (including Betas and Release Candidates)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1342,246 +1345,178 @@ If all params are present and correct, sandbox is created immediately without wi
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example creating a 'myBox' sandbox using Enonic XP version 7.2.1</div>
+<div class="title">Example creating a sandbox called 'myBox' using the latest version of Enonic XP</div>
 <div class="content">
-<pre>$ enonic sandbox create myBox -v 7.2.1</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="list"><a class="link" href="#list">List</a></h3>
-<div class="paragraph">
-<p>Lists all sandboxes previously created by user:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic sandbox list</pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Example output:</div>
-<div class="content">
-<pre>$ enonic sandbox ls
+<pre>$ enonic sandbox create myBox -f
 
-* Sandbox1 ( windows-sdk-7.2.1 )
-  Sandbox2 ( windows-sdk-7.2.0 )
-  Sandbox3 ( windows-sdk-7.0.3 )
-  Sandbox4 ( windows-sdk-7.2.1 )</pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Asterisk marks currently running sandbox
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="start"><a class="link" href="#start">Start</a></h3>
-<div class="paragraph">
-<p>Starts a sandbox and ensures that only one is started at a time:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic sandbox start [name] [-d]</pre>
+.Example creating a sandbox called 'myBox' using the latest version of Enonic XP and "Headless Demo" template</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP distribution in development mode</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d, --detach</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">flag to start sandbox in detached mode (background process)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--http.port</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set to the http port used by Enonic XP to check availability on startup (default: 8080)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="listingblock">
-<div class="title">Example starting 'myBox' sandbox in a dev mode:</div>
-<div class="content">
-<pre>$ enonic sandbox start myBox --dev</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="stop"><a class="link" href="#stop">Stop</a></h3>
-<div class="paragraph">
-<p>Stops a running sandbox:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic sandbox stop</pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-only sandboxes started with CLI can be stopped using this command.
-</td>
-</tr>
-</table>
+<p>$ enonic sandbox create myBox -t "Headless Demo" -f</p>
 </div>
 <div class="listingblock">
-<div class="title">Example stopping sandbox:</div>
+<div class="title">Example creating a sandbox called 'myBox' using the latest version of Enonic XP and without a template (no apps will be preinstalled)</div>
 <div class="content">
-<pre>$ enonic sandbox stop</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="upgrade"><a class="link" href="#upgrade">Upgrade</a></h3>
-<div class="paragraph">
-<p>Upgrades enonic distribution used for a sandbox:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic sandbox upgrade [name] [-v &lt;value&gt;]</pre>
+<pre>$ enonic sandbox create myBox --skip-template -f
+
+.Example creating sandbox called 'myBox' using Enonic XP version 7.2.1</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">enonic distribution version</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Downgrades are not permitted.
-</td>
-</tr>
-</table>
+<p>$ enonic sandbox create myBox -v 7.2.1</p>
 </div>
 <div class="listingblock">
-<div class="title">Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':</div>
 <div class="content">
-<pre>$ enonic sandbox upgrade myBox -v 7.2.1</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="delete"><a class="link" href="#delete">Delete</a></h3>
-<div class="paragraph">
-<p>Deletes a sandbox:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic sandbox delete [name] [-f]</pre>
+<pre>=== List
+
+Lists all sandboxes previously created by user:</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-All data that may have been created in this sandbox will be deleted.
-</td>
-</tr>
-</table>
+<p>$ enonic sandbox list</p>
 </div>
 <div class="listingblock">
-<div class="title">Example deleting 'myBox' sandbox:</div>
 <div class="content">
-<pre>$ enonic sandbox delete myBox -f</pre>
+<pre>.Example output:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>$ enonic sandbox ls</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Sandbox1 ( windows-sdk-7.2.1 )
+Sandbox2 ( windows-sdk-7.2.0 )
+Sandbox3 ( windows-sdk-7.0.3 )
+Sandbox4 ( windows-sdk-7.2.1 )</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>NOTE: Asterisk marks currently running sandbox
+
+=== Start
+
+Starts a sandbox and ensures that only one is started at a time:
+
+ $ enonic sandbox start [name] [-d]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`--dev`
+|Run enonic XP distribution in development mode
+
+|`--debug`
+|Run enonic XP server with debug enabled on port 5005
+
+|`-d, --detach`
+|flag to start sandbox in detached mode (background process)
+
+|`--http.port`
+|Set to the http port used by Enonic XP to check availability on startup (default: 8080)
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+.Example starting 'myBox' sandbox in a dev mode:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>$ enonic sandbox start myBox --dev</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>=== Stop
+
+Stops a running sandbox:
+
+ $ enonic sandbox stop
+
+NOTE: only sandboxes started with CLI can be stopped using this command.
+
+.Example stopping sandbox:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>$ enonic sandbox stop</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>=== Upgrade
+
+Upgrades enonic distribution used for a sandbox:
+
+ $ enonic sandbox upgrade [name] [-v &lt;value&gt;]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-v, --version`
+|enonic distribution version
+
+|`-a, --all`
+|List all distro versions
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+NOTE: Downgrades are not permitted.
+
+.Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>$ enonic sandbox upgrade myBox -v 7.2.1</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>=== Delete
+
+Deletes a sandbox:
+
+ $ enonic sandbox delete [name] [-f]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`name`
+|sandbox name
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+WARNING: All data that may have been created in this sandbox will be deleted.
+
+.Example deleting 'myBox' sandbox:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>$ enonic sandbox delete myBox -f</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre></pre>
 </div>
 </div>
 </div>
@@ -1590,7 +1525,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-03 05:38:54 UTC
+Last updated 2024-01-18 11:17:57 UTC
 </div>
 </div>
 </body>
