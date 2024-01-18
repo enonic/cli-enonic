@@ -54,7 +54,7 @@ For other OSes, please see [Goreleaser](https://goreleaser.com).
 ## Releasing a new version
 
 1. Ensure [release notes](docs%2Freleases.adoc) are updated (for a feature release)
-1. Change value of `:xp_version:` variable in the [installation guide](docs%2Finstall.adoc) to `X.Y.Z` (version of the upcoming release)
+1. Change value of `:xp_version:` variable in the [variables file](docs%2variables.adoc) to `X.Y.Z` (version of the upcoming release)
 1. Commit all the uncommitted changes. Make sure HEAD is not in dirty state (no uncommitted changes).
 1. Run `git tag vX.Y.Z`
 1. Run `git push origin vX.Y.Z` to trigger the release via Github actions.

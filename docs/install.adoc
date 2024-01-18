@@ -1,4 +1,4 @@
-:xp_version: 2.6.0
+include::variables.adoc[]
 
 = Install, upgrade or uninstall Enonic CLI
 

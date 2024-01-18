@@ -1,3 +1,4 @@
+include::variables.adoc[]
 = Getting started with Enonic CLI
 
 Once installed, the CLI includes standard CLI help functions for listing available commands and options.
@@ -8,7 +9,7 @@ To get a list of commands, simply type the following in your terminal:
 The feedback will contain available commands and options:
 
 ----
-Enonic CLI v.2.7.0
+Enonic CLI v{xp_version}
 Manage XP instances, home folders and projects
 
 USAGE:
