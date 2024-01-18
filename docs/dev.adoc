@@ -376,7 +376,7 @@ WARNING: Unlike `enonic project shell` command, this one will modify your _curre
 [[sandbox-command]]
 == Sandbox
 
-Developers can use the CLI to run one or several instances of XP locally. These instances are called sandboxes.
+Developers can use the CLI to work with one or several instances of XP locally. These instances are called sandboxes.
 Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.
 
 The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.
