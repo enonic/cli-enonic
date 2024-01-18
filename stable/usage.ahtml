@@ -453,7 +453,7 @@ To get a list of commands, simply type the following in your terminal:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>Enonic CLI v.2.7.0
+<pre>Enonic CLI v{xp_version}
 Manage XP instances, home folders and projects
 
 USAGE:
@@ -568,7 +568,7 @@ OPTIONS:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-18 11:17:57 UTC
+Last updated 2024-01-18 12:26:32 UTC
 </div>
 </div>
 </body>
