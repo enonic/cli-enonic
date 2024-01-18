@@ -166,7 +166,7 @@ $ enonic project create -n myProject -d myFolder -r starter-vanilla -v 1.0.0-SHA
 [#project-sandbox]
 === Sandbox
 
-Project create will configure the default sandbox for your project. To change it later run this command inside the project folder:
+`create` command will link the project to a sandbox. To change it later, run this command inside the project folder:
 
  $ enonic project sandbox [name]
 
@@ -437,14 +437,17 @@ TIP: If all params are present and correct, sandbox is created immediately witho
 .Example creating a sandbox called 'myBox' using the latest version of Enonic XP
 ----
 $ enonic sandbox create myBox -f
+----
 
 .Example creating a sandbox called 'myBox' using the latest version of Enonic XP and "Headless Demo" template
 ----
 $ enonic sandbox create myBox -t "Headless Demo" -f
+----
 
 .Example creating a sandbox called 'myBox' using the latest version of Enonic XP and without a template (no apps will be preinstalled)
 ----
 $ enonic sandbox create myBox --skip-template -f
+----
 
 .Example creating sandbox called 'myBox' using Enonic XP version 7.2.1
 ----
