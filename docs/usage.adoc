@@ -8,6 +8,7 @@ To get a list of commands, simply type the following in your terminal:
 
 The feedback will contain available commands and options:
 
+[subs="attributes"]
 ----
 Enonic CLI v{xp_version}
 Manage XP instances, home folders and projects
