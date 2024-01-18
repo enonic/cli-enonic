@@ -61,6 +61,7 @@ For other OSes, please see [Goreleaser](https://goreleaser.com).
 
 ## Overriding Cloud credentials
 
-export ENONIC_CLI_CLOUD_API_URL=https://cloud.enonic.com/api
-export ENONIC_CLI_CLOUD_AUTH_URL=https://auth.enonic.com
-export ENONIC_CLI_CLOUD_AUTH_CLIENT=WMq5N474JWbzIHY5RanLa5z4mConLz6C
+export ENONIC_CLI_CLOUD_API_URL=https://cloud.enonic-dev.com/api
+export ENONIC_CLI_CLOUD_AUTH_AUD=https://cloud.enonic-dev.com/api
+export ENONIC_CLI_CLOUD_AUTH_URL=https://auth.enonic-dev.com
+export ENONIC_CLI_CLOUD_AUTH_CLIENT=<ClientID>
