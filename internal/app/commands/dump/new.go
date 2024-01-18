@@ -81,14 +81,14 @@ func createNewRequest(c *cli.Context, name string) *http.Request {
 
 type NewDumpResponse struct {
 	Repositories []struct {
-		RepositoryId string `json:repositoryId`
-		Versions     int64  `json:versions`
-		Branches []struct {
-			Branch     string `json:branch`
-			Successful int64  `json:successful`
-			Errors []struct {
-				message string `json:message`
-			} `json:errors`
-		} `json:branches`
-	} `json:repositories`
+		RepositoryId string `json:"repositoryId"`
+		Versions     int64  `json:"versions"`
+		Branches     []struct {
+			Branch     string `json:"branch"`
+			Successful int64  `json:"successful"`
+			Errors     []struct {
+				Message string `json:"message"`
+			} `json:"errors"`
+		} `json:"branches"`
+	} `json:"repositories"`
 }

@@ -6,11 +6,12 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
 )
 
 var Reprocess = cli.Command{
@@ -125,6 +126,6 @@ func ensurePathFlag(c *cli.Context) {
 }
 
 type ReprocessResponse struct {
-	Errors         []string `json:errors`
-	UpdatedContent []string `json:updatedContent`
+	Errors         []string `json:"errors"`
+	UpdatedContent []string `json:"updatedContent"`
 }

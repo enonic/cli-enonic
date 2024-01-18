@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -36,7 +35,7 @@ func ReadFile(file string, handler func(io.Reader) error) error {
 func ReadFileToString(file string) (string, error) {
 	var res string
 	err := ReadFile(file, func(r io.Reader) error {
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		if err != nil {
 			return err
 		}

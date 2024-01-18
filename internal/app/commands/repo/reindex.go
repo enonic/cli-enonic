@@ -7,11 +7,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/urfave/cli"
 )
 
 var Reindex = cli.Command{
@@ -143,10 +144,10 @@ func createReindexRequest(c *cli.Context, url string) *http.Request {
 }
 
 type ReindexResponse struct {
-	RepositoryId    string    `json:repositoryId`
-	Branches        []string  `json:branches`
-	NumberReindexed uint32    `json:numberReindexed`
-	StartTime       time.Time `json:startTime`
-	EndTime         time.Time `json:endTime`
-	Duration        string    `json:duration`
+	RepositoryId    string    `json:"repositoryId"`
+	Branches        []string  `json:"branches"`
+	NumberReindexed uint32    `json:"numberReindexed"`
+	StartTime       time.Time `json:"startTime"`
+	EndTime         time.Time `json:"endTime"`
+	Duration        string    `json:"duration"`
 }

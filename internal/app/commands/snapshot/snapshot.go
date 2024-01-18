@@ -15,9 +15,9 @@ func All() []cli.Command {
 }
 
 type Snapshot struct {
-	Name      string    `json:name`
-	Reason    string    `json:reason`
-	State     string    `json:state`
-	Timestamp time.Time `json:timestamp`
-	Indices   []string  `json:indices`
+	Name      string    `json:"name"`
+	Reason    string    `json:"reason"`
+	State     string    `json:"state"`
+	Timestamp time.Time `json:"timestamp"`
+	Indices   []string  `json:"indices"`
 }

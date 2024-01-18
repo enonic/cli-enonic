@@ -89,19 +89,19 @@ func normalizeName(name string) (string, bool) {
 
 type LoadDumpResponse struct {
 	Repositories []struct {
-		Repository string `json:repository`
+		Repository string `json:"repository"`
 		Versions   struct {
 			Errors []struct {
-				message string `json:message`
-			} `json:errors`
-			Successful int64 `json:successful`
-		} `json:versions`
+				Message string `json:"message"`
+			} `json:"errors"`
+			Successful int64 `json:"successful"`
+		} `json:"versions"`
 		Branches []struct {
-			Branch     string `json:branch`
-			Successful int64  `json:successful`
+			Branch     string `json:"branch"`
+			Successful int64  `json:"successful"`
 			Errors     []struct {
-				message string `json:message`
-			} `json:errors`
-		} `json:branches`
-	} `json:repositories`
+				Message string `json:"message"`
+			} `json:"errors"`
+		} `json:"branches"`
+	} `json:"repositories"`
 }

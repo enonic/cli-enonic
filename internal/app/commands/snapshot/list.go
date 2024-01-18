@@ -36,5 +36,5 @@ func listSnapshots(c *cli.Context) *SnapshotList {
 }
 
 type SnapshotList struct {
-	Results []Snapshot `json:results`
+	Results []Snapshot `json:"results"`
 }

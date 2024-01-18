@@ -6,11 +6,12 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
 )
 
 var xslParams map[string]string
@@ -121,9 +122,9 @@ func createLoadRequest(c *cli.Context) *http.Request {
 }
 
 type LoadDumpResponse struct {
-	AddedNodes       []string `json:addedNodes`
-	UpdateNodes      []string `json:updateNodes`
-	ImportedBinaries []string `json:importedBinaries`
-	ImportErrors     []string `json:importErrors`
-	DryRun           bool     `dryRun`
+	AddedNodes       []string `json:"addedNodes"`
+	UpdateNodes      []string `json:"updateNodes"`
+	ImportedBinaries []string `json:"importedBinaries"`
+	ImportErrors     []string `json:"importErrors"`
+	DryRun           bool     `json:"dryRun"`
 }

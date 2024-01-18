@@ -3,8 +3,8 @@ package cloud
 import (
 	"cli-enonic/internal/app/commands/cloud/auth"
 	multipart "cli-enonic/internal/app/commands/cloud/client"
-	mutations "cli-enonic/internal/app/commands/cloud/client/mutations"
-	queries "cli-enonic/internal/app/commands/cloud/client/queries"
+	"cli-enonic/internal/app/commands/cloud/client/mutations"
+	"cli-enonic/internal/app/commands/cloud/client/queries"
 	"cli-enonic/internal/app/commands/common"
 	commonUtil "cli-enonic/internal/app/util"
 	"context"

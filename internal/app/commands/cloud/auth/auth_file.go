@@ -1,12 +1,11 @@
 package auth
 
 import (
+	"cli-enonic/internal/app/commands/cloud/util"
 	"encoding/gob"
 	"fmt"
 	"io"
 	"path/filepath"
-
-	util "cli-enonic/internal/app/commands/cloud/util"
 )
 
 // Logout user
@@ -17,27 +16,6 @@ func Logout() error {
 		return util.RemoveFile(f)
 	}
 }
-
-// IsLoggedIn check if user is logged in
-func IsLoggedIn() bool {
-	_, err := GetAccessToken()
-	return err == nil
-}
-
-// GetAccessToken retrieves tokens and refreshes them if needed
-func GetAccessToken() (string, error) {
-	t, err := loadTokens()
-	if err != nil {
-		return "", err
-	}
-	if t.isExpired() {
-		Logout()
-		return "", fmt.Errorf("session expired, login again")
-	}
-	return t.AccessToken, nil
-}
-
-// Util functions
 
 // Save token to authfile
 func saveTokens(t *tokens) error {

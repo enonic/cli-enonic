@@ -6,9 +6,10 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 var Upgrade = cli.Command{
@@ -56,6 +57,6 @@ func createUpgradeRequest(c *cli.Context, name string) *http.Request {
 }
 
 type UpgradeResult struct {
-	InitialVersion  string `json:initialVersion`
-	UpgradedVersion string `json:upgradedVersion`
+	InitialVersion  string `json:"initialVersion"`
+	UpgradedVersion string `json:"upgradedVersion"`
 }

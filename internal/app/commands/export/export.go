@@ -6,11 +6,12 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
 )
 
 var Export = cli.Command{
@@ -78,12 +79,12 @@ func createNewRequest(c *cli.Context) *http.Request {
 }
 
 type NewExportResponse struct {
-	DryRun           bool     `json:dryRun`
-	ExportedBinaries []string `json:exportedBinaries`
-	ExportedNodes    []string `json:exportedNodes`
+	DryRun           bool     `json:"dryRun"`
+	ExportedBinaries []string `json:"exportedBinaries"`
+	ExportedNodes    []string `json:"exportedNodes"`
 	Errors           []struct {
-		message string `json:message`
-	} `json:exportErrors`
+		Message string `json:"message"`
+	} `json:"exportErrors"`
 }
 
 func ensureNameFlag(c *cli.Context) {

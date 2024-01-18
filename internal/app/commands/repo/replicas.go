@@ -66,5 +66,5 @@ func ensureReplicasNumberArg(c *cli.Context) int {
 }
 
 type ReplicasResponse struct {
-	UpdatedIndexes []string `json:updatedIndexes`
+	UpdatedIndexes []string `json:"updatedIndexes"`
 }
