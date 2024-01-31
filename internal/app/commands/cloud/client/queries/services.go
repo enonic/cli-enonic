@@ -13,6 +13,7 @@ func GetServices(ctx context.Context) (*GetServicesData, error) {
 		search(params: {query: "type = 'account'"}) {
 			accounts {
 				name
+				plan
 				solutions {
 					id
 					name
@@ -35,15 +36,16 @@ func GetServices(ctx context.Context) (*GetServicesData, error) {
 }
 
 type GetServicesData struct {
-	Search Search `json:"search"`
+	AccountsSearch AccountsSearch `json:"search"`
 }
 
-type Search struct {
+type AccountsSearch struct {
 	Accounts []Account `json:"accounts"`
 }
 
 type Account struct {
 	Name      string     `json:"name"`
+	Plan      string     `json:"plan"`
 	Solutions []Solution `json:"solutions"`
 }
 
