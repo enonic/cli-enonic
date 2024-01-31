@@ -6,44 +6,46 @@ import (
 	cloudApi "cli-enonic/internal/app/commands/cloud/client"
 )
 
-// GetServices gets all services for the logged in user
-func GetServices(ctx context.Context) (*GetServicesData, error) {
-	req := cloudApi.NewGQLRequest(`
-	{
-		search(params: {query: "type = 'account'"}) {
-			accounts {
+const SEARCH_SERVICES_QUERY = `{
+	search(params: {query: "type = 'account'"}) {
+		accounts {
+			name
+			plan
+			solutions {
+				id
 				name
-				solutions {
-					id
+				environments {
 					name
-					environments {
+					services {
+						id
 						name
-						services {
-							id
-							name
-							kind
-						}
+						kind
 					}
 				}
 			}
 		}
 	}
-	`)
+}`
+
+// GetServices gets all services for the logged in user
+func GetServices(ctx context.Context) (*GetServicesData, error) {
+	req := cloudApi.NewGQLRequest(SEARCH_SERVICES_QUERY)
 
 	var res GetServicesData
 	return &res, cloudApi.DoGraphQLRequest(ctx, req, &res)
 }
 
 type GetServicesData struct {
-	Search Search `json:"search"`
+	AccountsSearch AccountsSearch `json:"search"`
 }
 
-type Search struct {
+type AccountsSearch struct {
 	Accounts []Account `json:"accounts"`
 }
 
 type Account struct {
 	Name      string     `json:"name"`
+	Plan      string     `json:"plan"`
 	Solutions []Solution `json:"solutions"`
 }
 

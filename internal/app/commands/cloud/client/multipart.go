@@ -23,21 +23,22 @@ type JarInfo struct {
 	Version  string `json:"version"`
 	Icon     string `json:"icon"`
 	IconType string `json:"iconType"`
+	AppName  string `json:"appName"`
 }
 
 // UploadApp uses deploy key to upload an app to the Cloud API
-func UploadApp(ctx context.Context, solutionID string, jar string, pbMessage string) (string, error) {
+func UploadApp(ctx context.Context, solutionID string, jar string, pbMessage string) (JarInfo, error) {
 	// Open jar
 	jarR, err := os.Open(jar)
 	if err != nil {
-		return "", fmt.Errorf("could not open file '%s': %v", jar, err)
+		return JarInfo{}, fmt.Errorf("could not open file '%s': %v", jar, err)
 	}
 	defer jarR.Close()
 
 	// Get Jar info
 	fi, err := jarR.Stat()
 	if err != nil {
-		return "", err
+		return JarInfo{}, err
 	}
 
 	// Create multipart body
@@ -57,10 +58,10 @@ func UploadApp(ctx context.Context, solutionID string, jar string, pbMessage str
 	res := new(UploadAppResponse)
 	err = postMultiPart(ctx, appUploadURL, contentType, pb.NewProxyReader(reader), processFunc, &res)
 	if err != nil {
-		return "", err
+		return JarInfo{}, err
 	}
 
-	return res.Data.ID, nil
+	return res.Data, nil
 }
 
 // Create a multipart body for http request. This function returns the content type header, byte reader and a function to

@@ -10,17 +10,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/urfave/cli"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
-)
 
-const (
-	defaultDeployConfigFile = ".enonic-cloud"
-	defaultDeployContext    = "default"
+	"github.com/urfave/cli"
 )
 
 // DeployConfig is the schema for the deploy configuration file
@@ -38,10 +34,11 @@ type Context struct {
 // Internal struct passed around when actually deploying a jar
 type deployContext struct {
 	solutionID  string
-	jarID       string
+	imageID     string
 	jarFile     string
 	serviceID   string
 	serviceName string
+	appName     string
 }
 
 // Cli command
@@ -68,7 +65,7 @@ var ProjectDeploy = cli.Command{
 	Action: func(c *cli.Context) error {
 		// Check if logged in
 		if !auth.IsLoggedIn() {
-			return errors.New("Login with 'enonic cloud login'")
+			return errors.New("login with 'enonic cloud login'")
 		}
 
 		// Load parameters
@@ -104,8 +101,19 @@ var ProjectDeploy = cli.Command{
 			return err
 		}
 
-		fmt.Fprintf(os.Stdout, "Deploying jar to service '%s'\n", deployCtx.serviceName)
-		err = mutations.CreateXp7AppFromUpload(ctx, deployCtx.serviceID, deployCtx.jarID)
+		// Check if app exists
+		appID, err := findAppIDByName(ctx, deployCtx.serviceID, deployCtx.appName)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(os.Stdout, "Installing jar to service '%s'\n", deployCtx.serviceName)
+		if appID == "" {
+			err = mutations.CreateXp7App(ctx, deployCtx.serviceID, deployCtx.imageID)
+		} else {
+			err = mutations.UpdateXp7App(ctx, appID, deployCtx.imageID)
+		}
+
 		if err != nil {
 			return err
 		}
@@ -119,9 +127,7 @@ var ProjectDeploy = cli.Command{
 
 // Create deployment context
 func createDeployContext(target string, deploymentJar string, force bool) (*deployContext, error) {
-	var jar string
-	// Find jar to deploy
-	jar = commonUtil.PromptProjectJar(deploymentJar, force)
+	jar := commonUtil.PromptProjectJar(deploymentJar, force)
 
 	// Query api and create service map
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
@@ -133,10 +139,10 @@ func createDeployContext(target string, deploymentJar string, force bool) (*depl
 	}
 
 	xp7Services := make(map[string]deployContext)
-	accounts := res.Search.Accounts
+	accounts := res.AccountsSearch.Accounts
 
 	sort.Slice(accounts[:], func(i, j int) bool {
-		return accounts[i].Name == "free"
+		return accounts[i].Plan == "free"
 	})
 
 	for _, account := range accounts {
@@ -160,7 +166,7 @@ func createDeployContext(target string, deploymentJar string, force bool) (*depl
 	}
 
 	if len(xp7Services) == 0 {
-		return nil, fmt.Errorf("No eligible service found")
+		return nil, fmt.Errorf("no eligible service found")
 	}
 
 	var targetContext deployContext
@@ -219,7 +225,7 @@ func promptForService(xp7Services map[string]deployContext) (string, int, error)
 	sort.Strings(keys)
 
 	if len(keys) == 0 {
-		return "", -1, fmt.Errorf("You do not have any services to deploy to")
+		return "", -1, fmt.Errorf("you do not have any services to deploy to")
 	}
 
 	return commonUtil.PromptSelect(&commonUtil.SelectOptions{
@@ -231,12 +237,28 @@ func promptForService(xp7Services map[string]deployContext) (string, int, error)
 // Upload app given a valid deploy context
 func uploadApp(ctx context.Context, deployCtx *deployContext) error {
 	// Upload app
-	jarID, err := multipart.UploadApp(ctx, deployCtx.solutionID, deployCtx.jarFile, "Uploading jar ")
+	info, err := multipart.UploadApp(ctx, deployCtx.solutionID, deployCtx.jarFile, "Uploading jar ")
 	if err != nil {
 		return fmt.Errorf("unable to upload app: %v", err)
 	}
 
-	deployCtx.jarID = jarID
+	deployCtx.imageID = info.ID
+	deployCtx.appName = info.AppName
 
 	return nil
+}
+
+func findAppIDByName(ctx context.Context, serviceID string, appName string) (string, error) {
+	res, err := queries.GetApplications(ctx, serviceID)
+	if err != nil {
+		return "", fmt.Errorf("could not retrieve applications for service: %v", err)
+	}
+
+	for _, app := range res.AppsSearch.Applications {
+		if app.Image.AppName == appName {
+			return app.ID, nil
+		}
+	}
+
+	return "", nil
 }
