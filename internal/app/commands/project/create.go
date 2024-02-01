@@ -112,13 +112,13 @@ var Create = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		ProjectCreateWizard(c)
+		ProjectCreateWizard(c, false)
 
 		return nil
 	},
 }
 
-func ProjectCreateWizard(c *cli.Context) {
+func ProjectCreateWizard(c *cli.Context, simplified bool) {
 	fmt.Fprint(os.Stderr, "\n")
 
 	branch := c.String("branch")
@@ -131,11 +131,13 @@ func ProjectCreateWizard(c *cli.Context) {
 	)
 	if c.NArg() > 0 {
 		name = c.Args().First()
+	}
+	if simplified {
 		version = DEFAULT_VERSION
 	}
 	gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
 	name = ensureNameArg(c, name)
-	dest = ensureDestination(c, name)
+	dest = ensureDestination(c, name, simplified)
 	version = ensureVersion(c, version)
 
 	var user, pass string
@@ -213,13 +215,15 @@ func ensureVersion(c *cli.Context, version string) string {
 	}
 }
 
-func ensureDestination(c *cli.Context, name string) string {
+func ensureDestination(c *cli.Context, name string, simplified bool) string {
 	force := common.IsForceMode(c)
 	defaultDest := destFromName(name)
 	var dest string
 	if flagDest := c.String("destination"); flagDest != "" {
 		// flag overrides the argument
 		dest = flagDest
+	} else if simplified {
+		dest = defaultDest
 	}
 
 	var destValidator func(val interface{}) error

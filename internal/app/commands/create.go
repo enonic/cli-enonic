@@ -23,7 +23,7 @@ var Create = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		project.ProjectCreateWizard(c)
+		project.ProjectCreateWizard(c, true)
 
 		return nil
 	},
