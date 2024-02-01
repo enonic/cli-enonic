@@ -7,6 +7,24 @@ import (
 	cloudApi "cli-enonic/internal/app/commands/cloud/client"
 )
 
+const CREATE_APP_MUTATION_TPL = `mutation {
+	createXp7Application(params: {serviceId: "%s", imageId: "%s"}) {
+		application {
+			id
+		}
+		errors
+	}
+}`
+
+const UPDATE_APP_MUTATION_TPL = `mutation {
+	updateXp7Application(params: {id: "%s", imageId: "%s"}) {
+		application {
+			id
+		}
+		errors
+	}
+}`
+
 type ErrorData struct {
 	Errors []string `json:"errors"`
 }
@@ -20,17 +38,8 @@ type UpdateAppData struct {
 }
 
 // CreateXp7App creates new application on service that uses the uploaded jar
-func CreateXp7App(ctx context.Context, serviceID string, jarID string) error {
-	req := cloudApi.NewGQLRequest(fmt.Sprintf(`
-	mutation {
-		createXp7Application(params: {serviceId: "%s", imageId: "%s"}) {
-			application {
-				id
-			}
-			errors
-		}
-	}
-	`, serviceID, jarID))
+func CreateXp7App(ctx context.Context, serviceID string, imageID string) error {
+	req := cloudApi.NewGQLRequest(fmt.Sprintf(CREATE_APP_MUTATION_TPL, serviceID, imageID))
 
 	var res CreateAppData
 	err := cloudApi.DoGraphQLRequest(ctx, req, &res)
@@ -47,16 +56,7 @@ func CreateXp7App(ctx context.Context, serviceID string, jarID string) error {
 
 // UpdateXp7App updates existing application on service that uses the uploaded jar
 func UpdateXp7App(ctx context.Context, appID string, imageID string) error {
-	req := cloudApi.NewGQLRequest(fmt.Sprintf(`
-	mutation {
-		updateXp7Application(params: {id: "%s", imageId: "%s"}) {
-			application {
-				id
-			}
-			errors
-		}
-	}
-	`, appID, imageID))
+	req := cloudApi.NewGQLRequest(fmt.Sprintf(UPDATE_APP_MUTATION_TPL, appID, imageID))
 
 	var res UpdateAppData
 	err := cloudApi.DoGraphQLRequest(ctx, req, &res)

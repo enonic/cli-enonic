@@ -7,20 +7,20 @@ import (
 	cloudApi "cli-enonic/internal/app/commands/cloud/client"
 )
 
-// GetApplications gets all xp7Apps in service by ID for the logged in user
-func GetApplications(ctx context.Context, serviceId string) (*GetAppsData, error) {
-	req := cloudApi.NewGQLRequest(fmt.Sprintf(`
-	{
-		search(params: {query: "type = 'CRD' AND kind = 'Xp7App' AND serviceId = '%v'"}) {
-			xp7Applications {
-				id
-				image {
-					appName
-				}
+const SEARCH_APPS_QUERY_TPL = `{
+	search(params: {query: "type = 'CRD' AND kind = 'Xp7App' AND serviceId = '%v'"}) {
+		xp7Applications {
+			id
+			image {
+				appName
 			}
 		}
 	}
-	`, serviceId))
+}`
+
+// GetApplications gets all xp7Apps in service by ID for the logged in user
+func GetApplications(ctx context.Context, serviceId string) (*GetAppsData, error) {
+	req := cloudApi.NewGQLRequest(fmt.Sprintf(SEARCH_APPS_QUERY_TPL, serviceId))
 
 	var res GetAppsData
 	return &res, cloudApi.DoGraphQLRequest(ctx, req, &res)
