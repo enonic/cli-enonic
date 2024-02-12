@@ -26,7 +26,7 @@ const DISTRO_FOLDER_NAME_TPL = "enonic-xp-%s-sdk-%s"
 // old CLI used this format to store distro name in sandbox, new format will apply after first sandbox distro change
 const OLD_DISTRO_FOLDER_NAME_REGEXP = "^(?:windows|mac|linux)-(?:sdk|server)-([-_.a-zA-Z0-9]+)$"
 
-const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|mac-arm64|linux|linux-arm64)-(?:sdk|server)-([-_.a-zA-Z0-9]+) \\([ ,a-zA-Z]+\\)$"
+const DISTRO_LIST_NAME_REGEXP = "^(?:windows|mac|mac-arm64|linux|linux-arm64)-(?:sdk|server)-([-_.a-zA-Z0-9]+)(?: (?:\\([ ,a-zA-Z]+\\))?)?$"
 const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s %s"
 
