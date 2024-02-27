@@ -12,7 +12,6 @@ import (
 var Uninstall = cli.Command{
 	Name:  "uninstall",
 	Usage: "Uninstall Enonic CLI",
-	Flags: []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 
 		if answer := common.IsForceMode(c) ||

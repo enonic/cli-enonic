@@ -13,7 +13,6 @@ import (
 var Upgrade = cli.Command{
 	Name:  "upgrade",
 	Usage: "Upgrade to the latest version",
-	Flags: []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "")
 
