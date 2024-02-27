@@ -16,7 +16,7 @@ var Create = cli.Command{
 			Usage: "Repository path. Format: <enonic repo> or <organisation>/<repo> or <full repo url>",
 		},
 		cli.StringFlag{
-			Name:  "sandbox, sb",
+			Name:  "sandbox, sb, s",
 			Usage: "Sandbox name",
 		},
 		common.FORCE_FLAG,
