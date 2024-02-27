@@ -104,10 +104,9 @@ var Create = cli.Command{
 			Usage: "Application name.",
 		},
 		cli.StringFlag{
-			Name:  "sandbox, sb",
+			Name: "sandbox, sb, s",
 			Usage: "Sandbox name",
 		},
-		common.AUTH_FLAG,
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
