@@ -20,6 +20,11 @@ var Vacuum = cli.Command{
 			Name:  "blob, b",
 			Usage: "Also removes unused blobs from the blobstore",
 		},
+		cli.StringFlag{
+			Name: "threshold, t",
+			Usage: "Age of data to be removed. ISO-8601 duration format " +
+				"PnDTnHnMn.nS with days considered to be exactly 24 hours",
+		},
 	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 		req := createVacuumRequest(c)
@@ -46,6 +51,9 @@ func createVacuumRequest(c *cli.Context) *http.Request {
 		params["tasks"] = []string{
 			"NodeBlobVacuumTask", "BinaryBlobVacuumTask", "SegmentVacuumTask", "VersionTableVacuumTask",
 		}
+	}
+	if c.IsSet("threshold") {
+		params["ageThreshold"] = c.String("threshold")
 	}
 	json.NewEncoder(body).Encode(params)
 
