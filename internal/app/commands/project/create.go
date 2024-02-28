@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/commands/sandbox"
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
@@ -107,17 +108,23 @@ var Create = cli.Command{
 			Name: "sandbox, sb, s",
 			Usage: "Sandbox name",
 		},
+		cli.BoolFlag{
+			Name:  "dev",
+			Usage: "Run enonic XP distribution in development mode",
+		},
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 
-		ProjectCreateWizard(c, false)
+		project := ProjectCreateWizard(c, false)
+
+		sandbox.AskToStartSandbox(c, project)
 
 		return nil
 	},
 }
 
-func ProjectCreateWizard(c *cli.Context, simplified bool) {
+func ProjectCreateWizard(c *cli.Context, simplified bool) *common.ProjectData {
 	fmt.Fprint(os.Stderr, "\n")
 
 	branch := c.String("branch")
@@ -181,6 +188,8 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) {
 	fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
 
 	fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic dev\n\n"), dest)
+
+	return pData
 }
 
 func ensureVersion(c *cli.Context, version string) string {

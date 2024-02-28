@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/Masterminds/semver"
+	"github.com/fatih/color"
 	"github.com/magiconair/properties"
 	"github.com/otiai10/copy"
 	"github.com/urfave/cli"
@@ -154,6 +155,46 @@ func Exists(name string) bool {
 		return false
 	} else {
 		return isSandbox(info, dir)
+	}
+}
+
+func AskToStartSandbox(c *cli.Context, projectData *common.ProjectData) {
+	rData := common.ReadRuntimeData()
+	processRunning := common.VerifyRuntimeData(&rData)
+	force := common.IsForceMode(c)
+	devMode := c.Bool("dev")
+	debug := c.Bool("debug")
+	continuous := c.Bool("continuous")
+
+	sandboxData := ReadSandboxData(projectData.Sandbox)
+	if !processRunning {
+		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", projectData.Sandbox), true) {
+			// detach in continuous mode to release terminal window
+			err, _ := StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			util.Fatal(err, "")
+		}
+
+	} else if rData.Running != projectData.Sandbox {
+		// Ask to stop running box if it differs from project selected only
+		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, projectData.Sandbox), true) {
+			StopSandbox(rData)
+			// detach in continuous mode to release terminal window
+			err, _ := StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			util.Fatal(err, "")
+		}
+
+	} else {
+		// Desired sandbox is already running, just give a heads up about  --dev and --debug params
+		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --dev and --debug parameters ignored\n\n", projectData.Sandbox)
+	}
+}
+
+func AskToStopSandbox(rData common.RuntimeData, force bool) bool {
+	if force || util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it", rData.Running), true) {
+		StopSandbox(rData)
+		return true
+	} else {
+		return false
 	}
 }
 

@@ -3,6 +3,7 @@ package commands
 import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/commands/project"
+	"cli-enonic/internal/app/commands/sandbox"
 	"github.com/urfave/cli"
 )
 
@@ -19,11 +20,17 @@ var Create = cli.Command{
 			Name:  "sandbox, sb, s",
 			Usage: "Sandbox name",
 		},
+		cli.BoolFlag{
+			Name:  "dev",
+			Usage: "Run enonic XP distribution in development mode",
+		},
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 
-		project.ProjectCreateWizard(c, true)
+		project := project.ProjectCreateWizard(c, true)
+
+		sandbox.AskToStartSandbox(c, project)
 
 		return nil
 	},
