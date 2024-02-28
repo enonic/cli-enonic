@@ -122,15 +122,6 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 	return nil, false
 }
 
-func AskToStopSandbox(rData common.RuntimeData, force bool) bool {
-	if force || util.PromptBool(fmt.Sprintf("Sandbox '%s' is running, do you want to stop it", rData.Running), true) {
-		StopSandbox(rData)
-		return true
-	} else {
-		return false
-	}
-}
-
 func writeRunningSandbox(name string, pid int, dev bool) {
 	data := common.ReadRuntimeData()
 	data.Running = name

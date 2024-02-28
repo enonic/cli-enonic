@@ -73,7 +73,9 @@ var Create = cli.Command{
 		if c.NArg() > 0 {
 			name = c.Args().First()
 		}
-		SandboxCreateWizard(c, name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
+		sbox := SandboxCreateWizard(c, name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
+
+		AskToStartSandbox(c, &common.ProjectData{Sandbox: sbox.Name})
 
 		return nil
 	},
@@ -155,7 +157,7 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion stri
 	CopyHomeFolder(distroPath, box.Name)
 
 	if showSuccessMessage {
-		fmt.Fprintf(os.Stdout, "\nSandbox '%s' created with distro '%s'.\n", box.Name, box.Distro)
+		fmt.Fprintf(os.Stdout, "\nSandbox '%s' created with distro '%s'.\n\n", box.Name, box.Distro)
 	}
 
 	if template != nil {

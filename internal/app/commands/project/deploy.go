@@ -3,9 +3,7 @@ package project
 import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/commands/sandbox"
-	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -43,7 +41,7 @@ var Deploy = cli.Command{
 				tasks = append(tasks, "--continuous")
 				// ask to run sandbox in detached mode before gradle deploy because it has continuous flag
 				if sandboxExists {
-					askToRunSandbox(c, projectData)
+					sandbox.AskToStartSandbox(c, projectData)
 					fmt.Fprintln(os.Stderr, "")
 				}
 			}
@@ -59,7 +57,7 @@ var Deploy = cli.Command{
 
 			if sandboxExists {
 				if !continuous {
-					askToRunSandbox(c, projectData)
+					sandbox.AskToStartSandbox(c, projectData)
 				} else if rData := common.ReadRuntimeData(); rData.Running != "" {
 					// ask to stop sandbox running in detached mode
 					if !sandbox.AskToStopSandbox(rData, force) {
@@ -71,35 +69,4 @@ var Deploy = cli.Command{
 
 		return nil
 	},
-}
-
-func askToRunSandbox(c *cli.Context, projectData *common.ProjectData) {
-	rData := common.ReadRuntimeData()
-	processRunning := common.VerifyRuntimeData(&rData)
-	force := common.IsForceMode(c)
-	devMode := c.Bool("dev")
-	debug := c.Bool("debug")
-	continuous := c.Bool("continuous")
-
-	sandboxData := sandbox.ReadSandboxData(projectData.Sandbox)
-	if !processRunning {
-		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", projectData.Sandbox), true) {
-			// detach in continuous mode to release terminal window
-			err, _ := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
-			util.Fatal(err, "")
-		}
-
-	} else if rData.Running != projectData.Sandbox {
-		// Ask to stop running box if it differs from project selected only
-		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, projectData.Sandbox), true) {
-			sandbox.StopSandbox(rData)
-			// detach in continuous mode to release terminal window
-			err, _ := sandbox.StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
-			util.Fatal(err, "")
-		}
-
-	} else {
-		// Desired sandbox is already running, just give a heads up about  --dev and --debug params
-		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --dev and --debug parameters ignored\n\n", projectData.Sandbox)
-	}
 }
