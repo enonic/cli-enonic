@@ -23,8 +23,11 @@ Options:
 --repository`
 |repository path of the starter to base the project on. Format: <enonic repo> or <organisation>/<repo> on github or <full repo url>
 
-|`--sb, --sandbox`
+|`-s, --sb, --sandbox`
 | Sandbox name to link project to
+
+|`--dev`
+| Use development mode when starting sandbox
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -141,8 +144,11 @@ Options:
 |`-v, --ver, --version`
 |version number to assign to new project. Default value `1.0.0-SNAPSHOT`
 
-|`--sb, --sandbox`
+|`-s, --sb, --sandbox`
 | Sandbox name to link project to
+
+|`--dev`
+| Use development mode when starting sandbox
 
 |`-a, --auth`
 |Authentication token for basic authentication in the following format <user:password>
@@ -427,6 +433,9 @@ Options:
 
 |`-a, --all`
 |List all distro versions (including Betas and Release Candidates)
+
+|`--dev`
+| Use development mode when starting sandbox
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively

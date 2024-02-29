@@ -65,6 +65,10 @@ var Create = cli.Command{
 			Name:  "all",
 			Usage: "List all distro versions.",
 		},
+		cli.BoolFlag{
+			Name:  "dev",
+			Usage: "Use development mode when starting sandbox",
+		},
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
@@ -75,7 +79,7 @@ var Create = cli.Command{
 		}
 		sbox := SandboxCreateWizard(c, name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
 
-		AskToStartSandbox(c, &common.ProjectData{Sandbox: sbox.Name})
+		AskToStartSandbox(c, sbox.Name)
 
 		return nil
 	},

@@ -158,7 +158,7 @@ func Exists(name string) bool {
 	}
 }
 
-func AskToStartSandbox(c *cli.Context, projectData *common.ProjectData) {
+func AskToStartSandbox(c *cli.Context, sandbox string) {
 	rData := common.ReadRuntimeData()
 	processRunning := common.VerifyRuntimeData(&rData)
 	force := common.IsForceMode(c)
@@ -166,17 +166,18 @@ func AskToStartSandbox(c *cli.Context, projectData *common.ProjectData) {
 	debug := c.Bool("debug")
 	continuous := c.Bool("continuous")
 
-	sandboxData := ReadSandboxData(projectData.Sandbox)
+	sandboxData := ReadSandboxData(sandbox)
 	if !processRunning {
-		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", projectData.Sandbox), true) {
+		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", sandbox), true) {
 			// detach in continuous mode to release terminal window
 			err, _ := StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
 			util.Fatal(err, "")
 		}
 
-	} else if rData.Running != projectData.Sandbox {
+	} else if rData.Running != sandbox {
 		// Ask to stop running box if it differs from project selected only
-		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, projectData.Sandbox), true) {
+		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, sandbox),
+			true) {
 			StopSandbox(rData)
 			// detach in continuous mode to release terminal window
 			err, _ := StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
@@ -185,7 +186,7 @@ func AskToStartSandbox(c *cli.Context, projectData *common.ProjectData) {
 
 	} else {
 		// Desired sandbox is already running, just give a heads up about  --dev and --debug params
-		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --dev and --debug parameters ignored\n\n", projectData.Sandbox)
+		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --dev and --debug parameters ignored\n\n", sandbox)
 	}
 }
 
