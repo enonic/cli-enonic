@@ -41,7 +41,7 @@ var Deploy = cli.Command{
 				tasks = append(tasks, "--continuous")
 				// ask to run sandbox in detached mode before gradle deploy because it has continuous flag
 				if sandboxExists {
-					sandbox.AskToStartSandbox(c, projectData)
+					sandbox.AskToStartSandbox(c, projectData.Sandbox)
 					fmt.Fprintln(os.Stderr, "")
 				}
 			}
@@ -57,7 +57,7 @@ var Deploy = cli.Command{
 
 			if sandboxExists {
 				if !continuous {
-					sandbox.AskToStartSandbox(c, projectData)
+					sandbox.AskToStartSandbox(c, projectData.Sandbox)
 				} else if rData := common.ReadRuntimeData(); rData.Running != "" {
 					// ask to stop sandbox running in detached mode
 					if !sandbox.AskToStopSandbox(rData, force) {

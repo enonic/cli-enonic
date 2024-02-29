@@ -110,7 +110,7 @@ var Create = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "dev",
-			Usage: "Run enonic XP distribution in development mode",
+			Usage: "Use development mode when starting sandbox",
 		},
 		common.FORCE_FLAG,
 	},
@@ -118,7 +118,7 @@ var Create = cli.Command{
 
 		project := ProjectCreateWizard(c, false)
 
-		sandbox.AskToStartSandbox(c, project)
+		sandbox.AskToStartSandbox(c, project.Sandbox)
 
 		return nil
 	},
