@@ -815,6 +815,26 @@ $ enonic vacuum -h
      --force, -f             Accept default answers to all prompts and run non-interactively
 ----
 
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`--blob, -b`
+|Triggers `BinaryBlobVacuumTask` and `NodeBlobVacuumTask` in addition to `SegmentVacuumTask` and `VersionTableVacuumTask`
+
+|`-t, --threshold`
+|Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
+
+|`-a, --auth`
+|authentication token for basic authentication (user:password)
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
 NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 .Example

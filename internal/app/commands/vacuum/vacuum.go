@@ -22,7 +22,7 @@ var Vacuum = cli.Command{
 		},
 		cli.StringFlag{
 			Name: "threshold, t",
-			Usage: "Age of data to be removed. ISO-8601 duration format " +
+			Usage: "Age of data to be removed in ISO-8601 duration format " +
 				"PnDTnHnMn.nS with days considered to be exactly 24 hours",
 		},
 	}, common.AUTH_FLAG, common.FORCE_FLAG),
