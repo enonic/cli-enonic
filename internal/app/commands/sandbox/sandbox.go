@@ -25,6 +25,7 @@ func All() []cli.Command {
 		Create,
 		Delete,
 		Upgrade,
+		Copy,
 	}
 }
 
@@ -166,7 +167,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 			fmt.Fprintln(os.Stderr, "No sandboxes found. Create one using 'enonic sandbox create' first.")
 			os.Exit(1)
 		}
-		if !util.PromptBool(noBoxMessage, true) {
+		if showCreateOption == false || !util.PromptBool(noBoxMessage, true) {
 			return nil, false
 		}
 		newBox := SandboxCreateWizard(c, "", "", minDistroVersion, false, showSuccessMessage, force)
