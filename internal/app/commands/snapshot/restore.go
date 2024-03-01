@@ -28,6 +28,10 @@ var Restore = cli.Command{
 			Name:  "latest",
 			Usage: "Flag to use latest snapshot, takes precedence over name flag",
 		},
+		cli.BoolFlag{
+			Name:  "clean",
+			Usage: "Delete indices before restore",
+		},
 	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
@@ -82,6 +86,10 @@ func createRestoreRequest(c *cli.Context) *http.Request {
 		params["latest"] = true
 	} else {
 		params["snapshotName"] = ensureSnapshotFlag(c)
+	}
+
+	if c.Bool("clean") {
+		params["force"] = true
 	}
 
 	if repo := c.String("repo"); repo != "" {
