@@ -402,6 +402,7 @@ COMMANDS:
      create           Create a new sandbox.
      delete, del, rm  Delete a sandbox
      upgrade, up      Upgrades the distribution version.
+     copy, cp         Create a copy of a sandbox with all content.
 
 OPTIONS:
    --help, -h  show help
@@ -584,4 +585,32 @@ WARNING: All data that may have been created in this sandbox will be deleted.
 .Example deleting 'myBox' sandbox:
 ----
 $ enonic sandbox delete myBox -f
+----
+
+=== Copy
+
+Copies a sandbox with all content to a new sandbox:
+
+ $ enonic sandbox copy [source] [target] [-f]
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`source`
+|existing sandbox name
+
+|`target`
+|new sandbox name
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+.Example copying 'oldBox' sandbox to 'newBox' sandbox:
+----
+$ enonic sandbox copy oldBox newBox
 ----
