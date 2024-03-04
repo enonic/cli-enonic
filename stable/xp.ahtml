@@ -733,6 +733,10 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to restore</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--clean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">delete indices before restoring</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
 </tr>
@@ -2026,7 +2030,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-04 09:07:16 UTC
+Last updated 2024-03-04 13:59:42 UTC
 </div>
 </div>
 </body>
