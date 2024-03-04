@@ -124,6 +124,9 @@ Options:
 |`-r, --repo`
 |the name of the repository to restore
 
+|`--clean`
+|delete indices before restoring
+
 |`-a, --auth`
 |authentication token for basic authentication (user:password).
 

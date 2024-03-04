@@ -30,7 +30,7 @@ var Restore = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "clean",
-			Usage: "Delete indices before restore",
+			Usage: "Delete indices before restoring",
 		},
 	}, common.AUTH_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
