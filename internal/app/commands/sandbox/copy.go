@@ -15,7 +15,7 @@ import (
 var Copy = cli.Command{
 	Name:      "copy",
 	Aliases:   []string{"cp"},
-	Usage:     "Creates a copy of a sandbox.",
+	Usage:     "Create a copy of a sandbox with all content.",
 	ArgsUsage: "<source> <target>",
 	Flags: []cli.Flag{
 		common.FORCE_FLAG,
