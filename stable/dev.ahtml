@@ -465,6 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#stop">Stop</a></li>
 <li><a href="#upgrade">Upgrade</a></li>
 <li><a href="#delete">Delete</a></li>
+<li><a href="#copy">Copy</a></li>
 </ul>
 </li>
 </ul>
@@ -1290,6 +1291,7 @@ COMMANDS:
      create           Create a new sandbox.
      delete, del, rm  Delete a sandbox
      upgrade, up      Upgrades the distribution version.
+     copy, cp         Create a copy of a sandbox with all content.
 
 OPTIONS:
    --help, -h  show help</pre>
@@ -1624,12 +1626,58 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="copy"><a class="link" href="#copy">Copy</a></h3>
+<div class="paragraph">
+<p>Copies a sandbox with all content to a new sandbox:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic sandbox copy [source] [target] [-f]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">existing sandbox name</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>target</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">new sandbox name</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">Example copying 'oldBox' sandbox to 'newBox' sandbox:</div>
+<div class="content">
+<pre>$ enonic sandbox copy oldBox newBox</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-04 13:59:42 UTC
+Last updated 2024-03-04 19:49:55 UTC
 </div>
 </div>
 </body>
