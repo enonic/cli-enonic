@@ -163,7 +163,7 @@ func AskToStartSandbox(c *cli.Context, sandbox string) {
 	rData := common.ReadRuntimeData()
 	processRunning := common.VerifyRuntimeData(&rData)
 	force := common.IsForceMode(c)
-	devMode := c.Bool("dev")
+	devMode := !c.Bool("prod")
 	debug := c.Bool("debug")
 	continuous := c.Bool("continuous")
 
@@ -186,8 +186,8 @@ func AskToStartSandbox(c *cli.Context, sandbox string) {
 		}
 
 	} else {
-		// Desired sandbox is already running, just give a heads up about  --dev and --debug params
-		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --dev and --debug parameters ignored\n\n", sandbox)
+		// Desired sandbox is already running, just give a heads up about  --prod and --debug params
+		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --prod and --debug parameters ignored\n\n", sandbox)
 	}
 }
 

@@ -21,8 +21,8 @@ var Create = cli.Command{
 			Usage: "Sandbox name",
 		},
 		cli.BoolFlag{
-			Name:  "dev",
-			Usage: "Use development mode when starting sandbox",
+			Name:  "prod",
+			Usage: "Run Enonic XP distribution in non-development mode",
 		},
 		common.FORCE_FLAG,
 	},
