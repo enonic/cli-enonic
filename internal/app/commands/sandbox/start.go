@@ -58,7 +58,14 @@ func ReadSandboxFromProjectOrAsk(c *cli.Context, useArguments bool) *Sandbox {
 		if useArguments && c.NArg() > 0 {
 			sandboxName = c.Args().First()
 		}
-		sandbox, _ = EnsureSandboxExists(c, minDistroVersion, sandboxName, "No sandboxes found, create one", "Select sandbox to start", true, true)
+		sandbox, _ = EnsureSandboxExists(c, EnsureSandboxOptions{
+			MinDistroVersion:   minDistroVersion,
+			Name:               sandboxName,
+			NoBoxMessage:       "No sandboxes found, do you want to create one",
+			SelectBoxMessage:   "Select sandbox to start",
+			ShowSuccessMessage: true,
+			ShowCreateOption:   true,
+		})
 		if sandbox == nil {
 			os.Exit(1)
 		}

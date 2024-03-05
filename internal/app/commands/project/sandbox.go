@@ -3,6 +3,7 @@ package project
 import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/commands/sandbox"
+	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
@@ -17,13 +18,31 @@ var Sandbox = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		ensureValidProjectFolder(".")
+		pData := common.ReadProjectData(".")
 
 		var sandboxName string
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
+		} else {
+			fmt.Fprint(os.Stdout, "\n")
+			projectName := common.ReadProjectName(".")
+			question := fmt.Sprintf("\"%s\" is using sandbox \"%s\". Change the project's sandbox", projectName, pData.Sandbox)
+			answer := util.PromptBool(question, false)
+			fmt.Fprint(os.Stdout, "\n")
+			if !answer {
+				return nil
+			}
 		}
-		minDistroVersion := common.ReadProjectDistroVersion(".")
-		sandbox, _ := sandbox.EnsureSandboxExists(c, minDistroVersion, sandboxName, "No sandboxes found, do you want to create one", "Select sandbox to use as default for this project", true, true)
+
+		sandbox, _ := sandbox.EnsureSandboxExists(c, sandbox.EnsureSandboxOptions{
+			MinDistroVersion:   common.ReadProjectDistroVersion("."),
+			Name:               sandboxName,
+			NoBoxMessage:       "No sandboxes found, do you want to create one",
+			SelectBoxMessage:   "Select sandbox to use as default for this project",
+			ShowSuccessMessage: true,
+			ShowCreateOption:   true,
+			ExcludeSandboxes:   []string{pData.Sandbox},
+		})
 		if sandbox == nil {
 			os.Exit(1)
 		}
