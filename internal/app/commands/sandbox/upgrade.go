@@ -28,6 +28,9 @@ var Upgrade = cli.Command{
 		var sandboxName string
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
+		} else if common.HasProjectData(".") {
+			prjData := common.ReadProjectData(".")
+			sandboxName = prjData.Sandbox
 		}
 		sandbox, _ := EnsureSandboxExists(c, "", sandboxName, "No sandboxes found, do you want to create one", "Select sandbox", true, false)
 		if sandbox == nil {
