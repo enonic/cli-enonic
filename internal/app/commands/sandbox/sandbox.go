@@ -200,8 +200,18 @@ func AskToStopSandbox(rData common.RuntimeData, force bool) bool {
 	}
 }
 
-func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMessage, selectBoxMessage string, showSuccessMessage, showCreateOption bool) (*Sandbox, bool) {
-	existingBoxes := listSandboxes(minDistroVersion)
+type EnsureSandboxOptions struct {
+	MinDistroVersion   string
+	Name               string
+	NoBoxMessage       string
+	SelectBoxMessage   string
+	ShowSuccessMessage bool
+	ShowCreateOption   bool
+	ExcludeSandboxes   []string
+}
+
+func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox, bool) {
+	existingBoxes := listSandboxes(options.MinDistroVersion)
 	force := common.IsForceMode(c)
 
 	if len(existingBoxes) == 0 {
@@ -209,22 +219,22 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 			fmt.Fprintln(os.Stderr, "No sandboxes found. Create one using 'enonic sandbox create' first.")
 			os.Exit(1)
 		}
-		if showCreateOption == false || !util.PromptBool(noBoxMessage, true) {
+		if options.ShowCreateOption == false || !util.PromptBool(options.NoBoxMessage, true) {
 			return nil, false
 		}
-		newBox := SandboxCreateWizard(c, "", "", minDistroVersion, false, showSuccessMessage, force)
+		newBox := SandboxCreateWizard(c, "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
 		return newBox, true
 	}
 
-	if name != "" {
-		lowerName := strings.ToLower(name)
+	if options.Name != "" {
+		lowerName := strings.ToLower(options.Name)
 		for _, existingBox := range existingBoxes {
 			if strings.ToLower(existingBox.Name) == lowerName {
 				return existingBox, false
 			}
 		}
 		if force {
-			fmt.Fprintf(os.Stderr, "Sandbox with name '%s' can not be found\n", name)
+			fmt.Fprintf(os.Stderr, "Sandbox with name '%s' can not be found\n", options.Name)
 			os.Exit(1)
 		}
 	}
@@ -234,12 +244,15 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 	}
 
 	var selectOptions []string
-	if showCreateOption {
+	if options.ShowCreateOption {
 		selectOptions = append(selectOptions, CREATE_NEW_BOX)
 	}
 	var boxName, defaultBox string
 	osWithArch := util.GetCurrentOsWithArch()
 	for i, box := range existingBoxes {
+		if util.IndexOf(box.Name, options.ExcludeSandboxes) >= 0 {
+			continue
+		}
 		version := parseDistroVersion(box.Distro, false)
 		boxName = formatSandboxListItemName(box.Name, version, osWithArch)
 		if i == 0 {
@@ -249,7 +262,7 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 	}
 
 	name, optionIndex, err := util.PromptSelect(&util.SelectOptions{
-		Message:  selectBoxMessage,
+		Message: options.SelectBoxMessage,
 		Options:  selectOptions,
 		Default:  defaultBox,
 		PageSize: len(selectOptions),
@@ -257,11 +270,11 @@ func EnsureSandboxExists(c *cli.Context, minDistroVersion, name string, noBoxMes
 	util.Fatal(err, "Could not select sandbox: ")
 
 	if name == CREATE_NEW_BOX {
-		newBox := SandboxCreateWizard(c, "", "", minDistroVersion, false, showSuccessMessage, force)
+		newBox := SandboxCreateWizard(c, "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
 		return newBox, true
 	}
 
-	if showCreateOption {
+	if options.ShowCreateOption {
 		optionIndex -= 1 // subtract 1 because of 'new sandbox' option
 	}
 	return existingBoxes[optionIndex], false

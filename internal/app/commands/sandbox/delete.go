@@ -20,7 +20,11 @@ var Delete = cli.Command{
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
 		}
-		sandbox, _ := EnsureSandboxExists(c, "", sandboxName, "No sandboxes found, do you want to create one", "Select sandbox to delete", true, false)
+		sandbox, _ := EnsureSandboxExists(c, EnsureSandboxOptions{
+			Name:               sandboxName,
+			SelectBoxMessage:   "Select sandbox to delete",
+			ShowSuccessMessage: true,
+		})
 		force := common.IsForceMode(c)
 		if sandbox == nil || !acceptToDeleteSandbox(sandbox.Name, force) {
 			os.Exit(1)

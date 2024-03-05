@@ -30,7 +30,11 @@ var Copy = cli.Command{
 			originalName = c.Args().First()
 			targetName = c.Args().Get(1)
 		}
-		sandbox, _ := EnsureSandboxExists(c, "", originalName, "", "Select source sandbox", true, false)
+		sandbox, _ := EnsureSandboxExists(c, EnsureSandboxOptions{
+			Name:               originalName,
+			SelectBoxMessage:   "Select sandbox to copy",
+			ShowSuccessMessage: true,
+		})
 		if sandbox == nil {
 			os.Exit(1)
 		}
