@@ -17,8 +17,8 @@ var Start = cli.Command{
 			Usage: "Run in the background even after console is closed",
 		},
 		cli.BoolFlag{
-			Name:  "dev",
-			Usage: "Run enonic XP distribution in development mode",
+			Name:  "prod",
+			Usage: "Run Enonic XP distribution in non-development mode",
 		},
 		cli.BoolFlag{
 			Name:  "debug",
@@ -37,7 +37,7 @@ var Start = cli.Command{
 
 		sandbox := ReadSandboxFromProjectOrAsk(c, true)
 
-		err, _ := StartSandbox(c, sandbox, c.Bool("detach"), c.Bool("dev"), c.Bool("debug"), uint16(c.Uint("http.port")))
+		err, _ := StartSandbox(c, sandbox, c.Bool("detach"), !c.Bool("prod"), c.Bool("debug"), uint16(c.Uint("http.port")))
 		util.Fatal(err, "")
 
 		return nil

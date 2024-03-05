@@ -24,10 +24,10 @@ Options:
 |repository path of the starter to base the project on. Format: <enonic repo> or <organisation>/<repo> on github or <full repo url>
 
 |`-s, --sb, --sandbox`
-| Sandbox name to link project to
+|sandbox name to link project to
 
-|`--dev`
-| Use development mode when starting sandbox
+|`--prod`
+|run Enonic XP distribution in non-development mode
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -65,7 +65,7 @@ This command does two things:
 1. Starts the project's sandbox in *detached* dev mode. *Detached* means that logs from the XP instance running in the sandbox will *not* be output in the terminal window. Read the tip below if you need to combine the `dev` command with being able to see the XP logs.
 2. Executes `dev` command for the app itself. This will deploy the app once (for XP to pick it up) and then read server-side source files directly from the app's folder, also build client-side code if needed. In the Terminal window you'll only see the output from this command.
 
-TIP: If you need to see XP logs while working on the app, you will need to start the sandbox in a *separate* Terminal window/tab: `enonic sandbox start --dev`, then run `enonic dev` in the first window/tab to start the project in dev mode. `--dev` parameter is essential - you won't be able to run dev mode for a project unless its sandbox is running in dev mode as well.
+TIP: If you need to see XP logs while working on the app, you will need to start the sandbox in a *separate* Terminal window/tab: `enonic sandbox start`, then run `enonic dev` in the first window/tab to start the project in dev mode.
 
 .Example starting a project in development mode from the project's folder:
 ----
@@ -145,13 +145,13 @@ Options:
 |version number to assign to new project. Default value `1.0.0-SNAPSHOT`
 
 |`-s, --sb, --sandbox`
-| Sandbox name to link project to
+|sandbox name to link project to
 
-|`--dev`
-| Use development mode when starting sandbox
+|`--prod`
+|run Enonic XP distribution in non-development mode
 
 |`-a, --auth`
-|Authentication token for basic authentication in the following format <user:password>
+|authentication token for basic authentication in the following format <user:password>
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -260,14 +260,14 @@ Options:
 |Option
 |Description
 
-|`--dev`
-|Start enonic XP distribution in development mode
+|`--prod`
+|run Enonic XP distribution in non-development mode
 
 |`--debug`
-|Run enonic XP server with debug enabled on port 5005
+|run enonic XP server with debug enabled on port 5005
 
 |`-c, --continuous`
-|Watch changes and deploy project continuously
+|watch changes and deploy project continuously
 
 |`name`
 |sandbox name to deploy to (overrides associated sandbox)
@@ -276,7 +276,8 @@ Options:
 |accept default answers to all prompts and run non-interactively
 |===
 
-IMPORTANT: If the sandbox is already running, `--dev` parameter will be ignored. In this case
+IMPORTANT: If the sandbox is already running, `--prod` and `--debug` parameters will be ignored.
+In this case
 you'll have to make sure the sandbox is running in dev mode.
 
 NOTE: If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
@@ -285,7 +286,7 @@ NOTE: Sandbox is not required when running with `--force` flag. In that case sys
 
 .Example deploying current project to 'otherSandbox' sandbox, starting XP in dev mode and continuously watching changes:
 ----
-$ enonic project deploy otherSandbox --dev -c
+$ enonic project deploy otherSandbox -c
 ----
 
 === Install
@@ -424,19 +425,19 @@ Options:
 |sandbox name
 
 |`-t, --template`
-|Use specific template
+|use specific template
 
 |`--skip-template`
-|Skip template selection step
+|skip template selection step
 
 |`-v, --version`
-|Use specific distro version
+|use specific distro version
 
 |`-a, --all`
-|List all distro versions (including Betas and Release Candidates)
+|list all distro versions (including Betas and Release Candidates)
 
-|`--dev`
-| Use development mode when starting sandbox
+|`--prod`
+|run Enonic XP distribution in non-development mode
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -496,25 +497,28 @@ Options:
 |`name`
 |sandbox name
 
-|`--dev`
-|Run enonic XP distribution in development mode
+|`--prod`
+|run Enonic XP distribution in non-development mode
 
 |`--debug`
-|Run enonic XP server with debug enabled on port 5005
+|run enonic XP server with debug enabled on port 5005
 
 |`-d, --detach`
 |flag to start sandbox in detached mode (background process)
 
 |`--http.port`
-|Set to the http port used by Enonic XP to check availability on startup (default: 8080)
+|set to the http port used by Enonic XP to check availability on startup (default: 8080)
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-.Example starting 'myBox' sandbox in a dev mode:
+NOTE: Sandox is started in development mode by default.
+Use `--prod` flag to start it in non-development mode.
+
+.Example starting 'myBox' sandbox in a prod mode:
 ----
-$ enonic sandbox start myBox --dev
+$ enonic sandbox start myBox --prod
 ----
 
 === Stop

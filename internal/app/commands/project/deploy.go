@@ -14,8 +14,8 @@ var Deploy = cli.Command{
 	ArgsUsage: "<sandbox name>",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
-			Name:  "dev",
-			Usage: "Run enonic XP distribution in development mode",
+			Name:  "prod",
+			Usage: "Run Enonic XP distribution in non-development mode",
 		},
 		cli.BoolFlag{
 			Name:  "debug",
