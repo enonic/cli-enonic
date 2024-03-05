@@ -29,7 +29,11 @@ var Upgrade = cli.Command{
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
 		}
-		sandbox, _ := EnsureSandboxExists(c, "", sandboxName, "No sandboxes found, do you want to create one", "Select sandbox", true, false)
+		sandbox, _ := EnsureSandboxExists(c, EnsureSandboxOptions{
+			Name:               sandboxName,
+			SelectBoxMessage:   "Select sandbox to upgrade",
+			ShowSuccessMessage: true,
+		})
 		if sandbox == nil {
 			os.Exit(1)
 		}

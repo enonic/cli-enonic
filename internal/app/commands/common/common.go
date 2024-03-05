@@ -119,12 +119,23 @@ func ReadProjectData(prjPath string) *ProjectData {
 	return &data
 }
 
+func ReadGradlePropertiesFile(path string) (*properties.Properties, error) {
+	return properties.LoadFile(filepath.Join(path, "gradle.properties"), properties.UTF8)
+}
+
 func ReadProjectDistroVersion(prjPath string) string {
-	if props, _ := properties.LoadFile(filepath.Join(prjPath, "gradle.properties"), properties.UTF8); props != nil {
+	if props, _ := ReadGradlePropertiesFile(prjPath); props != nil {
 		return props.GetString("xpVersion", MIN_XP_VERSION)
 	} else {
 		return MIN_XP_VERSION
 	}
+}
+
+func ReadProjectName(prjPath string) string {
+	if props, _ := ReadGradlePropertiesFile(prjPath); props != nil {
+		return props.GetString("projectName", "")
+	}
+	return ""
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {

@@ -504,7 +504,7 @@ func ReadOrCreateDir(path string) ([]os.DirEntry, error) {
 }
 
 func DecodeTomlFile(file *os.File, data interface{}) {
-	if _, err := toml.DecodeReader(bufio.NewReader(file), data); err != nil {
+	if _, err := toml.NewDecoder(bufio.NewReader(file)).Decode(data); err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse toml file: ", err)
 		os.Exit(1)
 	}
