@@ -23,6 +23,7 @@ func All() []cli.Command {
 		Shell,
 		Gradle,
 		Dev,
+		Test,
 	}
 
 	switch util.GetCurrentOs() {
