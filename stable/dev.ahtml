@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.21">
+<meta name="generator" content="Asciidoctor 2.0.22">
 <title>Development commands</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -517,11 +517,11 @@ There are two main commands available to assist developers with setting up and m
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sb, --sandbox</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox name to link project to</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to link project to</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use development mode when starting sandbox</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -603,7 +603,7 @@ All the Enonic starters are coming with built-in support of the CLI&#8217;s <cod
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-If you need to see XP logs while working on the app, you will need to start the sandbox in a <strong>separate</strong> Terminal window/tab: <code>enonic sandbox start --dev</code>, then run <code>enonic dev</code> in the first window/tab to start the project in dev mode. <code>--dev</code> parameter is essential - you won&#8217;t be able to run dev mode for a project unless its sandbox is running in dev mode as well.
+If you need to see XP logs while working on the app, you will need to start the sandbox in a <strong>separate</strong> Terminal window/tab: <code>enonic sandbox start</code>, then run <code>enonic dev</code> in the first window/tab to start the project in dev mode.
 </td>
 </tr>
 </table>
@@ -726,15 +726,15 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sb, --sandbox</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox name to link project to</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to link project to</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use development mode when starting sandbox</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -970,16 +970,16 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Start enonic XP distribution in development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run enonic XP server with debug enabled on port 5005</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-c, --continuous</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Watch changes and deploy project continuously</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">watch changes and deploy project continuously</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
@@ -998,7 +998,8 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-If the sandbox is already running, <code>--dev</code> parameter will be ignored. In this case
+If the sandbox is already running, <code>--prod</code> and <code>--debug</code> parameters will be ignored.
+In this case
 you&#8217;ll have to make sure the sandbox is running in dev mode.
 </td>
 </tr>
@@ -1031,7 +1032,7 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 <div class="listingblock">
 <div class="title">Example deploying current project to 'otherSandbox' sandbox, starting XP in dev mode and continuously watching changes:</div>
 <div class="content">
-<pre>$ enonic project deploy otherSandbox --dev -c</pre>
+<pre>$ enonic project deploy otherSandbox -c</pre>
 </div>
 </div>
 </div>
@@ -1328,23 +1329,23 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --template</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific template</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use specific template</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-template</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Skip template selection step</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">skip template selection step</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific distro version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use specific distro version</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions (including Betas and Release Candidates)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">list all distro versions (including Betas and Release Candidates)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use development mode when starting sandbox</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1453,12 +1454,12 @@ Asterisk marks currently running sandbox
 <td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP distribution in development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run enonic XP server with debug enabled on port 5005</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d, --detach</code></p></td>
@@ -1466,7 +1467,7 @@ Asterisk marks currently running sandbox
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--http.port</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set to the http port used by Enonic XP to check availability on startup (default: 8080)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">set to the http port used by Enonic XP to check availability on startup (default: 8080)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1474,10 +1475,23 @@ Asterisk marks currently running sandbox
 </tr>
 </tbody>
 </table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Sandox is started in development mode by default.
+Use <code>--prod</code> flag to start it in non-development mode.
+</td>
+</tr>
+</table>
+</div>
 <div class="listingblock">
-<div class="title">Example starting 'myBox' sandbox in a dev mode:</div>
+<div class="title">Example starting 'myBox' sandbox in a prod mode:</div>
 <div class="content">
-<pre>$ enonic sandbox start myBox --dev</pre>
+<pre>$ enonic sandbox start myBox --prod</pre>
 </div>
 </div>
 </div>
@@ -1677,7 +1691,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-04 19:49:55 UTC
+Last updated 2024-04-11 14:28:11 UTC
 </div>
 </div>
 </body>
