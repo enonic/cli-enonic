@@ -1,6 +1,28 @@
 = Release notes
 
-== v2.8.0
+== CLI 3
+
+=== Features
+
+* `sandbox start` starts sandbox in dev mode by default
+* `project test` command to execute `gradle test` task for a project
+* `sandbox copy` command for copying an existing sandbox
+* `threshold` option for the `vacuum` command for specifying age of data to be removed
+* `clean` option for the `snapshot restore` command to delete indices before restoring
+
+=== Improvements
+
+* Suggest starting a new sandbox after it's created
+* Support short `-s` flag for specifying a sandbox for project commands
+* `sandbox upgrade` command will no longer ask which sandbox to upgrade when executed from inside a project's folder
+* `project sandbox` command now outputs current project's sandbox
+
+
+=== Bug fixes
+
+* Removed unsupported options for `upgrade` and `uninstall` commands
+
+== CLI 2 Update 8
 
 === Features
 
@@ -13,7 +35,7 @@
 * `--force` flag should use default destination folder for a new project
 * _(latest, stable)_ should not be displayed for Beta/RC versions
 
-== v2.7.0
+== CLI 2 Update 7
 
 === Features
 
@@ -28,14 +50,14 @@
 * Problem stopping a sandbox on Mac/Linux
 * Can't use camelCase in project name in the global `create` command
 
-== v2.6.0
+== CLI 2 Update 6
 
 === Features
 
 * `upgrade` command
 * `uninstall` command
 
-== v2.5.0
+== CLI 2 Update 5
 
 === Features
 
@@ -56,7 +78,7 @@
 * Comparison of user input with a sandbox name should be case-insensitive
 * Github bash cant select from lists
 
-== v2.4.0
+== CLI 2 Update 4
 
 === Features
 
@@ -70,34 +92,18 @@
 * Incorrect error message for `app install` command
 * The template adds "Enonic CLI" to the usage
 * 'Stopping sandbox' message shown after the sandbox is stopped
-
-
-== v2.3.3
-
-=== Bug fixes
-
 * CLI fails to download distro for XP versions below 7.10.0
-
-== v2.3.2
-
-=== Bug fixes
-
 * Detect when CLI is running on Mac arm64 and pick the right XP sdk
-
-== v2.3.1
-
-=== Bug fixes
-
-* Reinstalling cli through snapcraft after it was manually installed fails
+* Reinstalling CLI through snapcraft after it was manually installed fails
 * Account query is no longer available
 
-== v2.3.0
+== CLI 2 Update 3
 
 === Features
 
 * Switched to Nexus Repository.
 
-== v2.2.0
+== CLI 2 Update 2
 
 === Features
 
@@ -107,14 +113,12 @@
 
 * Project can now be built without a sandbox (with `--force` flag).
 
-== v2.1.1
-
 === Bug fixes
 
 * Fix "_empty dump name_" error when doing `dump upgrade`
 * Fix excessive help text when creating a new project
 
-== v2.1.0
+== CLI 2 Update 1
 
 === Improvements
 
@@ -123,20 +127,10 @@
 === Bug fixes
 
 * Fix access token parsing
-
-== v2.0.2
-
-=== Bug fixes
-
 * Fix JWT expiration handling
-
-== v2.0.1
-
-=== Bug fixes
-
 * App install confuses force flag with jar file path
 
-== v2.0.0
+== CLI 2
 
 === Features
 
@@ -161,14 +155,9 @@
 * Snapcraft installation on Ubuntu not working
 * Sandbox not properly deleted if running
 * Check for illegal characters in sandbox names
-
-== v1.5.1
-
-=== Bug fixes
-
 * Allow setting number of replicas to 0
 
-== v1.5.0
+== CLI 1 Update 5
 
 === Features
 
@@ -184,7 +173,7 @@
 * Fixed permissions on `cloud` folder
 * Command `enonic project ?` always returns exit code 0
 
-== v1.4.0
+== CLI 1 Update 4
 
 === Improvements
 
@@ -196,7 +185,7 @@
 * `latest` returns incorrect result when called the first time
 * Command `enonic project ?` always returns exit code 0
 
-== v1.3.0
+== CLI 1 Update 3
 
 === Improvements
 
@@ -207,22 +196,17 @@
 === Bug fixes
 
 * `enonic repo readonly` command unnecessarily closes indices
-
-== v1.2.1
-
-=== Bug fixes
-
 * Enonic sandbox does not start in detached mode on CentOS7/macOS
 * `deploy` command erases runtime PID info when sandbox was started in detached mode
 * `install` command gives NPE when env variable is not defined and host is not provided
 
-== v1.2.0
+== CLI 1 Update 2
 
 === Improvements
 
 * Add support for proxy
 
-== v1.1.1
+== CLI 1 Update 1
 
 === Improvements
 
@@ -233,7 +217,7 @@
 * CLI asks to start the sandbox that is already running
 * Remove _enonic-xp-_ from distro name in the sandbox list
 
-== v.1.1.0
+== CLI 1
 
 === Features
 

@@ -798,7 +798,7 @@ $ enonic auditlog cleanup --age P30D
 
 Permanently removes old versions and deleted items from disk.
 
-To support `snapshot restore` and a rich version history, XP does not physically remove the data from disk. The side-effect is that the disk usage will keep growing, even if you delete nodes from the repository. Vacuum command permanently removes old unused versions, as well as deleted nodes from disk. XP defines a default threshold of 21 days (configurable). This basically means that only items deleted at least 21 days ago, or version that are older than 21 days will be vacuumed. 
+To support `snapshot restore` and a rich version history, XP does not physically remove the data from disk. The side-effect is that the disk usage will keep growing, even if you delete nodes from the repository. Vacuum command permanently removes old unused versions, as well as deleted nodes from disk. XP defines a default threshold of 21 days (configurable). This basically means that only items deleted at least 21 days ago, or version that are older than 21 days will be vacuumed.
 
 NOTE: Using the `-b` option will remove the underlying blobs, meaning restoring a snapshot that is older than 21 days (since last vacuum) will result in an inconsistent and broken dataset.
 
@@ -814,6 +814,7 @@ $ enonic vacuum -h
 
   OPTIONS:
      --blob, -b              Also removes unused blobs
+     --threshold, -t         Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
      --auth value, -a value  Authentication token for basic authentication (user:password)
      --force, -f             Accept default answers to all prompts and run non-interactively
 ----
