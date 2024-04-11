@@ -66,6 +66,11 @@ var Create = cli.Command{
 			Usage: "List all distro versions.",
 		},
 		cli.BoolFlag{
+			Name:   "dev",
+			Usage:  "Run Enonic XP distribution in development mode",
+			Hidden: true,
+		},
+		cli.BoolFlag{
 			Name:  "prod",
 			Usage: "Run Enonic XP distribution in non-development mode",
 		},
