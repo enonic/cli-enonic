@@ -248,6 +248,26 @@ Options:
 
 NOTE: Sandbox is not required when running with `--force` flag. In that case system wide java version will be used.
 
+=== Test
+
+Alias for the `gradlew test` command
+
+ $ enonic project test
+
+Options:
+
+[cols="1,3",options="header"]
+|===
+|Option
+|Description
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+NOTE: Sandbox is not required when running with `--force` flag.
+In that case system wide java version will be used.
+
 === Deploy
 
 As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <<project-sandbox, sandbox>>:
