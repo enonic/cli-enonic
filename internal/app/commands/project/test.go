@@ -9,7 +9,7 @@ import (
 
 var Test = cli.Command{
 	Name:  "test",
-	Usage: "Test current project",
+	Usage: "Run tests in the current project",
 	Flags: []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 		if projectData := ensureProjectDataExists(c, ".", "", "A sandbox is required to test the project, do you want to create one"); projectData != nil {
