@@ -449,7 +449,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#project-sandbox">Sandbox</a></li>
 <li><a href="#project-build">Build</a></li>
 <li><a href="#clean">Clean</a></li>
-<li><a href="#test">Test</a></li>
 <li><a href="#deploy">Deploy</a></li>
 <li><a href="#install">Install</a></li>
 <li><a href="#shell">Shell</a></li>
@@ -466,7 +465,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#stop">Stop</a></li>
 <li><a href="#upgrade">Upgrade</a></li>
 <li><a href="#delete">Delete</a></li>
-<li><a href="#copy">Copy</a></li>
 </ul>
 </li>
 </ul>
@@ -517,12 +515,8 @@ There are two main commands available to assist developers with setting up and m
 <td class="tableblock halign-left valign-top"><p class="tableblock">repository path of the starter to base the project on. Format: &lt;enonic repo&gt; or &lt;organisation&gt;/&lt;repo&gt; on github or &lt;full repo url&gt;</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sb, --sandbox</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to link project to</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--sb, --sandbox</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox name to link project to</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -604,7 +598,7 @@ All the Enonic starters are coming with built-in support of the CLI&#8217;s <cod
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-If you need to see XP logs while working on the app, you will need to start the sandbox in a <strong>separate</strong> Terminal window/tab: <code>enonic sandbox start</code>, then run <code>enonic dev</code> in the first window/tab to start the project in dev mode.
+If you need to see XP logs while working on the app, you will need to start the sandbox in a <strong>separate</strong> Terminal window/tab: <code>enonic sandbox start --dev</code>, then run <code>enonic dev</code> in the first window/tab to start the project in dev mode. <code>--dev</code> parameter is essential - you won&#8217;t be able to run dev mode for a project unless its sandbox is running in dev mode as well.
 </td>
 </tr>
 </table>
@@ -726,16 +720,12 @@ OPTIONS:
 <td class="tableblock halign-left valign-top"><p class="tableblock">version number to assign to new project. Default value <code>1.0.0-SNAPSHOT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sb, --sandbox</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to link project to</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--sb, --sandbox</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox name to link project to</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -946,51 +936,6 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 </div>
 </div>
 <div class="sect2">
-<h3 id="test"><a class="link" href="#test">Test</a></h3>
-<div class="paragraph">
-<p>Alias for the <code>gradlew test</code> command</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic project test</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Sandbox is not required when running with <code>--force</code> flag.
-In that case system wide java version will be used.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
 <h3 id="deploy"><a class="link" href="#deploy">Deploy</a></h3>
 <div class="paragraph">
 <p>As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <a href="#project-sandbox">sandbox</a>:</p>
@@ -1016,16 +961,16 @@ In that case system wide java version will be used.
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Start enonic XP distribution in development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run enonic XP server with debug enabled on port 5005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-c, --continuous</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">watch changes and deploy project continuously</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Watch changes and deploy project continuously</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
@@ -1044,8 +989,7 @@ In that case system wide java version will be used.
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-If the sandbox is already running, <code>--prod</code> and <code>--debug</code> parameters will be ignored.
-In this case
+If the sandbox is already running, <code>--dev</code> parameter will be ignored. In this case
 you&#8217;ll have to make sure the sandbox is running in dev mode.
 </td>
 </tr>
@@ -1078,7 +1022,7 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 <div class="listingblock">
 <div class="title">Example deploying current project to 'otherSandbox' sandbox, starting XP in dev mode and continuously watching changes:</div>
 <div class="content">
-<pre>$ enonic project deploy otherSandbox -c</pre>
+<pre>$ enonic project deploy otherSandbox --dev -c</pre>
 </div>
 </div>
 </div>
@@ -1338,7 +1282,6 @@ COMMANDS:
      create           Create a new sandbox.
      delete, del, rm  Delete a sandbox
      upgrade, up      Upgrades the distribution version.
-     copy, cp         Create a copy of a sandbox with all content.
 
 OPTIONS:
    --help, -h  show help</pre>
@@ -1375,23 +1318,19 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --template</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">use specific template</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific template</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-template</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">skip template selection step</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Skip template selection step</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">use specific distro version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific distro version</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">list all distro versions (including Betas and Release Candidates)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions (including Betas and Release Candidates)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1500,12 +1439,12 @@ Asterisk marks currently running sandbox
 <td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP distribution in development mode</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run enonic XP server with debug enabled on port 5005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d, --detach</code></p></td>
@@ -1513,7 +1452,7 @@ Asterisk marks currently running sandbox
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--http.port</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">set to the http port used by Enonic XP to check availability on startup (default: 8080)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set to the http port used by Enonic XP to check availability on startup (default: 8080)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1521,23 +1460,10 @@ Asterisk marks currently running sandbox
 </tr>
 </tbody>
 </table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Sandox is started in development mode by default.
-Use <code>--prod</code> flag to start it in non-development mode.
-</td>
-</tr>
-</table>
-</div>
 <div class="listingblock">
-<div class="title">Example starting 'myBox' sandbox in a prod mode:</div>
+<div class="title">Example starting 'myBox' sandbox in a dev mode:</div>
 <div class="content">
-<pre>$ enonic sandbox start myBox --prod</pre>
+<pre>$ enonic sandbox start myBox --dev</pre>
 </div>
 </div>
 </div>
@@ -1686,58 +1612,12 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="copy"><a class="link" href="#copy">Copy</a></h3>
-<div class="paragraph">
-<p>Copies a sandbox with all content to a new sandbox:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic sandbox copy [source] [target] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">existing sandbox name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>target</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">new sandbox name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="listingblock">
-<div class="title">Example copying 'oldBox' sandbox to 'newBox' sandbox:</div>
-<div class="content">
-<pre>$ enonic sandbox copy oldBox newBox</pre>
-</div>
-</div>
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-11 14:28:56 UTC
+Last updated 2024-04-11 14:32:50 UTC
 </div>
 </div>
 </body>

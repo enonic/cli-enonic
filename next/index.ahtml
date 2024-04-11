@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Untitled</title>
+<title>Enonic CLI documentation</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,15 +435,55 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
+<h1>Enonic CLI documentation</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#overview">Overview</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
-
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Enonic Command Line Interface (CLI) automates tasks related to software development tasks, as well as common management tasks for both local and remote instances of Enonic XP.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Check out the following sections of the documentation to get started:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="install.ahtml">Installing or upgrading Enonic CLI</a></p>
+</li>
+<li>
+<p><a href="usage.ahtml">Get familiar with the CLI basics</a></p>
+</li>
+<li>
+<p><a href="dev.ahtml">Commands for software developers</a></p>
+</li>
+<li>
+<p><a href="xp.ahtml">Managing XP instances</a></p>
+</li>
+<li>
+<p><a href="cloud.ahtml">Cloud management commands</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-11 14:32:50 UTC
+Last updated 2024-04-11 14:32:36 UTC
 </div>
 </div>
 </body>

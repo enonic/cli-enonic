@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Untitled</title>
+<title>Cloud commands</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,15 +435,166 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
+<h1>Cloud commands</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#cloud">Cloud</a>
+<ul class="sectlevel2">
+<li><a href="#login">Login</a></li>
+<li><a href="#logout">Logout</a></li>
+<li><a href="#app">App</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following commands are used for managing Enonic Cloud.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cloud"><a class="link" href="#cloud">Cloud</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>List of commands for managing Enonic Cloud can be seen by typing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ enonic cloud
 
+Manage Enonic cloud
+
+USAGE:
+   enonic cloud [command] [command options] [arguments...]
+
+COMMANDS:
+     login   Login to Enonic Cloud
+     logout  Logout of Enonic Cloud
+     app     Manage apps in Enonic Cloud
+
+OPTIONS:
+   --help, -h  show help</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="login"><a class="link" href="#login">Login</a></h3>
+<div class="paragraph">
+<p>Login to Enonic Cloud.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic cloud login [-qr]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--qr</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print out QR code instead of url to log in with a mobile device</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="logout"><a class="link" href="#logout">Logout</a></h3>
+<div class="paragraph">
+<p>Log out from Enonic Cloud</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic cloud logout</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="app"><a class="link" href="#app">App</a></h3>
+<div class="paragraph">
+<p>Manage apps in Enonic Cloud.
+List of commands can be seen by typing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ enonic cloud app
+
+Manage apps in Enonic Cloud
+
+USAGE:
+   enonic cloud app [command] [command options] [arguments...]
+
+COMMANDS:
+     install  Install project jar to Enonic Cloud
+
+OPTIONS:
+   --help, -h  show help</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="install"><a class="link" href="#install">Install</a></h4>
+<div class="paragraph">
+<p>Install project jar to Enonic Cloud.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic cloud app install [-j &lt;value&gt;] [-t &lt;value&gt;] [-y]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jar to deploy (default: "./build/libs/*.jar")</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">upload timeout in seconds (default: 300)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-y</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">skip confirmation prompt</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-11 14:32:50 UTC
+Last updated 2024-04-11 14:32:36 UTC
 </div>
 </div>
 </body>
