@@ -1,0 +1,24 @@
+{
+  "menuItems": [
+    {
+      "title": "Installation",
+      "document": "install"
+    },
+    {
+      "title": "Usage",
+      "document": "usage"
+    },
+    {
+      "title": "Development commands",
+      "document": "dev"
+    },
+    {
+      "title": "XP commands",
+      "document": "xp"
+    },
+    {
+      "title": "Release notes",
+      "document": "releases"
+    }
+  ]
+}

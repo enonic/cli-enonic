@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Getting started with Enonic CLI</title>
+<title>Install, upgrade or uninstall Enonic CLI</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,141 +435,241 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
-<h1>Getting started with Enonic CLI</h1>
+<h1>Install, upgrade or uninstall Enonic CLI</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#install_enonic_cli">Install Enonic CLI</a>
+<ul class="sectlevel2">
+<li><a href="#npm">NPM</a></li>
+<li><a href="#macos">MacOS</a></li>
+<li><a href="#linux">Linux</a></li>
+<li><a href="#windows">Windows</a></li>
+</ul>
+</li>
+<li><a href="#upgrade_enonic_cli">Upgrade Enonic CLI</a></li>
+<li><a href="#uninstall_enonic_cli">Uninstall Enonic CLI</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
-<p>Once installed, the CLI includes standard CLI help functions for listing available commands and options.
-To get a list of commands, simply type the following in your terminal:</p>
+<p>The CLI is available for Mac, Linux and Windows.
+To install the CLI on your local device, visit our <a href="https://developer.enonic.com/start">Quickstart page</a> or follow the instructions below</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="install_enonic_cli"><a class="link" href="#install_enonic_cli">Install Enonic CLI</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="npm"><a class="link" href="#npm">NPM</a></h3>
+<div class="paragraph">
+<p>If you have npm installed (on any OS), run the following command in your terminal:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>enonic</pre>
+<pre>npm install -g @enonic/cli</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>The feedback will contain available commands and options:</p>
 </div>
-<div class="listingblock">
+<div class="sect2">
+<h3 id="macos"><a class="link" href="#macos">MacOS</a></h3>
+<div class="sect3">
+<h4 id="brew"><a class="link" href="#brew">Brew</a></h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Enonic CLI is available from the <a href="https://brew.sh/">Homebrew package service</a>.
+With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:</p>
+<div class="literalblock">
 <div class="content">
-<pre>Enonic CLI v2.8.2
-Manage XP instances, home folders and projects
-
-USAGE:
-   enonic [global options] command [command options] [arguments...]
-
-COMMANDS:
-     create    Create a new Enonic project
-     dev       Start current project in dev mode
-     snapshot  Create and restore snapshots
-     dump      Dump and load complete repositories
-     export    Export data from a given repository, branch and content path.
-     import    Import data from a named export.
-     app       Install, stop and start applications
-     repo      Tune and manage repositories
-     cms       CMS commands
-     system    System commands
-     auditlog  Manage audit log repository
-     latest    Check for latest version
-     upgrade   Upgrade to the latest version
-     uninstall Uninstall Enonic CLI
-     vacuum    Removes unused blobs and binaries from blobstore
-     help, h   Shows a list of commands or help for one command
-
-CLOUD COMMANDS:
-     cloud  Manage Enonic cloud
-
-PROJECT COMMANDS:
-     sandbox  Manage Enonic instances
-     project  Manage Enonic projects
-
-GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version</pre>
+<pre>brew tap enonic/cli</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Most of the top-level commands contain sub-commands that can be printed out by typing the command name:</p>
-</div>
-<div class="listingblock">
+</li>
+<li>
+<p>Now you can install CLI by running:</p>
+<div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot
-
-Create and restore snapshots
-
-USAGE:
-   enonic snapshot [command] [command options] [arguments...]
-
-COMMANDS:
-     list, ls     Returns a list of existing snapshots with name and status.
-     create       Stores a snapshot of the current state of the repository.
-     restore      Restores a snapshot of a previous state of the repository.
-     delete, del  Deletes snapshots, either before a given timestamp or by name.
-
-OPTIONS:
-   --help, -h  show help</pre>
+<pre>brew install enonic</pre>
 </div>
 </div>
-<div class="admonitionblock note">
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="direct_download"><a class="link" href="#direct_download">Direct download</a></h4>
+<div class="paragraph">
+<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Darwin_64-bit.tar.gz">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Darwin_arm64.tar.gz">ARM</a></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="linux"><a class="link" href="#linux">Linux</a></h3>
+<div class="sect3">
+<h4 id="wget"><a class="link" href="#wget">wget</a></h4>
+<div class="paragraph">
+<p>Open the Shell and run the following:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>wget -qO- https://repo.enonic.com/public/com/enonic/cli/installer/cli-linux/1.0.0/cli-linux-1.0.0.sh | sh</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="snapcraft"><a class="link" href="#snapcraft">Snapcraft</a></h4>
+<div class="paragraph">
+<p>Open the Shell and run the following:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo snap install enonic</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="direct_download_2"><a class="link" href="#direct_download_2">Direct download</a></h4>
+<div class="paragraph">
+<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Linux_64-bit.tar.gz">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Linux_arm64.tar.gz">ARM</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Linux_arm_v6.tar.gz">ARMv6</a></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="windows"><a class="link" href="#windows">Windows</a></h3>
+<div class="sect3">
+<h4 id="scoop"><a class="link" href="#scoop">Scoop</a></h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>After having <a href="https://scoop.sh/">Scoop command-line installer</a> installed, open command prompt and add CLI github repo to scoop known repositories with the following command:</p>
+<div class="literalblock">
+<div class="content">
+<pre>scoop bucket add enonic https://github.com/enonic/cli-scoop.git</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now you can install CLI by running:</p>
+<div class="literalblock">
+<div class="content">
+<pre>scoop install enonic</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="native_installer"><a class="link" href="#native_installer">Native installer</a></h4>
+<div class="paragraph">
+<p>To install the latest available version on your PC with native installer:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download <a href="https://repo.enonic.com/public/com/enonic/cli/installer/cli-windows/1.0.0/cli-windows-1.0.0.exe">windows installer</a>.</p>
+</li>
+<li>
+<p>Run it and follow the wizard instructions.</p>
+</li>
+<li>
+<p>If you need to update the CLI later, just run the installer once again to fetch the latest version.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="direct_download_3"><a class="link" href="#direct_download_3">Direct download</a></h4>
+<div class="paragraph">
+<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Windows_64-bit.zip">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/2.8.2/enonic_2.8.2_Windows_arm_v6.zip">ARMv6</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade_enonic_cli"><a class="link" href="#upgrade_enonic_cli">Upgrade Enonic CLI</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To upgrade to the latest version, run the following command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>enonic upgrade</pre>
+</div>
+</div>
+<div class="admonitionblock important">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-some commands have aliases for convenience like <code>ls</code> for <code>list</code>
+This command will not work if you installed CLI via direct download or native Windows installer.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>To execute a sub-command you need to type full path to that command:</p>
+<p>You can check if there&#8217;s a newer version of Enonic CLI by running the following command:</p>
 </div>
-<div class="listingblock">
+<div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot list
-
-Loading snapshots...Done
-{
-    "Results": [
-        {
-            "Name": "2019-04-05t11-31-26.184z",
-            "Reason": "",
-            "State": "SUCCESS",
-            "Timestamp": "2019-04-05T11:31:26.47Z",
-            "Indices": [
-                "search-com.enonic.cms.default",
-                "storage-com.enonic.cms.default",
-                "search-system-repo",
-                "storage-system-repo"
-            ]
-        }
-    ]
-}</pre>
+<pre>enonic latest</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>To get help for any command at any level type its name followed by <code>-h</code> or <code>--help</code>:</p>
+<p>This will report if there&#8217;s an upgrade available and what command to run to update CLI.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>$ enonic snapshot list -h
+<pre>$ enonic latest
 
-Returns a list of existing snapshots with name and status.
-
-USAGE:
-   enonic snapshot list [command options] [arguments...]
-
-OPTIONS:
-   --auth value, -a value  Authentication token for basic authentication (user:password)</pre>
+Loading...
+You are using the latest version of Enonic CLI: 2.8.2</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="uninstall_enonic_cli"><a class="link" href="#uninstall_enonic_cli">Uninstall Enonic CLI</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Run</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>enonic uninstall</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>to remove Enonic CLI from your system.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This command will not work if you installed CLI via direct download or native Windows installer.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:21:34 UTC
+Last updated 2024-04-15 08:28:51 UTC
 </div>
 </div>
 </body>

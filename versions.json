@@ -1,13 +1,17 @@
 {
   "versions": [
     {
-      "label": "next",
-      "checkout": "master"
+      "label": "stable",
+      "checkout": "master",
+      "latest": true
     },
     {
-      "label": "stable",
-      "checkout": "8788e0f2441af6a1810a376898c477dbf0699f2e",
-      "latest": true
+      "label": "1.x",
+      "checkout": "1.5.2"
+    },
+    {
+      "label": "2.x",
+      "checkout": "v2.8.2"
     }
   ]
 }

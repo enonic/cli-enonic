@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Enonic CLI documentation</title>
+<title>Installing Enonic CLI</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,11 +437,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Enonic CLI documentation</h1>
+<h1>Installing Enonic CLI</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#overview">Overview</a></li>
+<li><a href="#macos_installation">MacOS installation</a></li>
+<li><a href="#linux_installation">Linux installation</a>
+<ul class="sectlevel2">
+<li><a href="#install_with_script">Install with script</a></li>
+<li><a href="#install_from_snapcraft">Install from Snapcraft</a></li>
+<li><a href="#install_via_direct_download">Install via direct download</a></li>
+</ul>
+</li>
+<li><a href="#windows_installation">Windows installation</a>
+<ul class="sectlevel2">
+<li><a href="#install_using_scoop">Install using Scoop</a></li>
+<li><a href="#windows_native_installer">Windows native installer</a></li>
+</ul>
+</li>
+<li><a href="#upgrading_enonic_cli">Upgrading Enonic CLI</a></li>
 </ul>
 </div>
 </div>
@@ -449,41 +463,160 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Enonic Command Line Interface (CLI) automates tasks related to software development tasks, as well as common management tasks for both local and remote instances of Enonic XP.</p>
+<p>The CLI is available for Mac, Linux and Windows. To install the CLI on your local device, visit our <a href="https://enonic.com/downloads">downloads page</a> or follow the instructions below</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
+<h2 id="macos_installation"><a class="link" href="#macos_installation">MacOS installation</a></h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Enonic CLI is available from the <a href="https://brew.sh/">Homebrew package service</a>. With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:</p>
+<div class="literalblock">
+<div class="content">
+<pre>brew tap enonic/cli</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now you can install CLI by running:</p>
+<div class="literalblock">
+<div class="content">
+<pre>brew install enonic</pre>
+</div>
+</div>
+</li>
+<li>
+<p>If you later want to update the CLI, simply run:</p>
+<div class="literalblock">
+<div class="content">
+<pre>brew upgrade enonic</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="linux_installation"><a class="link" href="#linux_installation">Linux installation</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="install_with_script"><a class="link" href="#install_with_script">Install with script</a></h3>
+<div class="paragraph">
+<p>Open the Shell and run the following:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>wget -qO- https://repo.enonic.com/public/com/enonic/cli/installer/cli-linux/1.0.0/cli-linux-1.0.0.sh | sh</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="install_from_snapcraft"><a class="link" href="#install_from_snapcraft">Install from Snapcraft</a></h3>
+<div class="paragraph">
+<p>Open the Shell and run the following:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo snap install enonic</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="install_via_direct_download"><a class="link" href="#install_via_direct_download">Install via direct download</a></h3>
+<div class="paragraph">
+<p>If you know exact version you need, you can download CLI binary directly from our repository:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>curl -O https://repo.enonic.com/public/com/enonic/cli/enonic/1.1.1/enonic_1.1.1_Linux_64-bit.tar.gz</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="windows_installation"><a class="link" href="#windows_installation">Windows installation</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Check out the following sections of the documentation to get started:</p>
+<p>There are two ways to install CLI on windows</p>
 </div>
-<div class="ulist">
-<ul>
+<div class="sect2">
+<h3 id="install_using_scoop"><a class="link" href="#install_using_scoop">Install using Scoop</a></h3>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p><a href="install.ahtml">Installing or upgrading Enonic CLI</a></p>
+<p>After having <a href="https://scoop.sh/">Scoop command-line installer</a> installed, open command prompt and add CLI github repo to scoop known repositories with the following command:</p>
+<div class="literalblock">
+<div class="content">
+<pre>scoop bucket add enonic https://github.com/enonic/cli-scoop.git</pre>
+</div>
+</div>
 </li>
 <li>
-<p><a href="usage.ahtml">Get familiar with the CLI basics</a></p>
+<p>Now you can install CLI by running:</p>
+<div class="literalblock">
+<div class="content">
+<pre>scoop install enonic</pre>
+</div>
+</div>
 </li>
 <li>
-<p><a href="dev.ahtml">Commands for software developers</a></p>
+<p>Updating CLI is done with the following comand:</p>
+<div class="literalblock">
+<div class="content">
+<pre>scoop update enonic</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="windows_native_installer"><a class="link" href="#windows_native_installer">Windows native installer</a></h3>
+<div class="paragraph">
+<p>To download the latest available CLI and install it on your PC with native installer:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download <a href="https://repo.enonic.com/public/com/enonic/cli/installer/cli-windows/1.0.0/cli-windows-1.0.0.exe">windows installer</a>.</p>
 </li>
 <li>
-<p><a href="xp.ahtml">Managing XP instances</a></p>
+<p>Run it and follow the wizard instructions.</p>
 </li>
 <li>
-<p><a href="cloud.ahtml">Cloud management commands</a></p>
+<p>If you need to update the CLI later, just run the installer once again to fetch the latest version.</p>
 </li>
-</ul>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrading_enonic_cli"><a class="link" href="#upgrading_enonic_cli">Upgrading Enonic CLI</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To update, start by running the <code>enonic latest</code> command.
+This will report if there are upgrades available, and also how to update for your specific OS.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ enonic latest
+
+Loading...
+You are using the latest version of Enonic CLI: 1.3.0</pre>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:21:34 UTC
+Last updated 2024-04-15 08:28:50 UTC
 </div>
 </div>
 </body>

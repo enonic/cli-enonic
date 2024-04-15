@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Getting started with Enonic CLI</title>
+<title>Release notes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,141 +435,835 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
-<h1>Getting started with Enonic CLI</h1>
+<h1>Release notes</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#v2_8_0">v2.8.0</a>
+<ul class="sectlevel2">
+<li><a href="#features">Features</a></li>
+<li><a href="#bug_fixes">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_7_0">v2.7.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_2">Features</a></li>
+<li><a href="#improvements">Improvements</a></li>
+<li><a href="#bug_fixes_2">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_6_0">v2.6.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_3">Features</a></li>
+</ul>
+</li>
+<li><a href="#v2_5_0">v2.5.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_4">Features</a></li>
+<li><a href="#improvements_2">Improvements</a></li>
+<li><a href="#bug_fixes_3">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_4_0">v2.4.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_5">Features</a></li>
+<li><a href="#bug_fixes_4">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_3_3">v2.3.3</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_5">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_3_2">v2.3.2</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_6">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_3_1">v2.3.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_7">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_3_0">v2.3.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_6">Features</a></li>
+</ul>
+</li>
+<li><a href="#v2_2_0">v2.2.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_7">Features</a></li>
+<li><a href="#improvements_3">Improvements</a></li>
+</ul>
+</li>
+<li><a href="#v2_1_1">v2.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_8">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_1_0">v2.1.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_4">Improvements</a></li>
+<li><a href="#bug_fixes_9">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_0_2">v2.0.2</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_10">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_0_1">v2.0.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_11">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v2_0_0">v2.0.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_8">Features</a></li>
+<li><a href="#improvements_5">Improvements</a></li>
+<li><a href="#bug_fixes_12">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v1_5_1">v1.5.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_13">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v1_5_0">v1.5.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_9">Features</a></li>
+<li><a href="#improvements_6">Improvements</a></li>
+<li><a href="#bug_fixes_14">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v1_4_0">v1.4.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_7">Improvements</a></li>
+<li><a href="#bug_fixes_15">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v1_3_0">v1.3.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_8">Improvements</a></li>
+<li><a href="#bug_fixes_16">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v1_2_1">v1.2.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_17">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v1_2_0">v1.2.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_9">Improvements</a></li>
+</ul>
+</li>
+<li><a href="#v1_1_1">v1.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_10">Improvements</a></li>
+<li><a href="#bug_fixes_18">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#v_1_1_0">v.1.1.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_10">Features</a></li>
+<li><a href="#improvements_11">Improvements</a></li>
+<li><a href="#bug_fixes_19">Bug fixes</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div class="paragraph">
-<p>Once installed, the CLI includes standard CLI help functions for listing available commands and options.
-To get a list of commands, simply type the following in your terminal:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>enonic</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The feedback will contain available commands and options:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>Enonic CLI v2.8.2
-Manage XP instances, home folders and projects
-
-USAGE:
-   enonic [global options] command [command options] [arguments...]
-
-COMMANDS:
-     create    Create a new Enonic project
-     dev       Start current project in dev mode
-     snapshot  Create and restore snapshots
-     dump      Dump and load complete repositories
-     export    Export data from a given repository, branch and content path.
-     import    Import data from a named export.
-     app       Install, stop and start applications
-     repo      Tune and manage repositories
-     cms       CMS commands
-     system    System commands
-     auditlog  Manage audit log repository
-     latest    Check for latest version
-     upgrade   Upgrade to the latest version
-     uninstall Uninstall Enonic CLI
-     vacuum    Removes unused blobs and binaries from blobstore
-     help, h   Shows a list of commands or help for one command
-
-CLOUD COMMANDS:
-     cloud  Manage Enonic cloud
-
-PROJECT COMMANDS:
-     sandbox  Manage Enonic instances
-     project  Manage Enonic projects
-
-GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version</pre>
+<div class="sect1">
+<h2 id="v2_8_0"><a class="link" href="#v2_8_0">v2.8.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features"><a class="link" href="#features">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Enable selection of a template when creating a new sandbox</p>
+</li>
+<li>
+<p>Automatic renewal of token for Enonic Cloud login</p>
+</li>
+</ul>
 </div>
 </div>
-<div class="paragraph">
-<p>Most of the top-level commands contain sub-commands that can be printed out by typing the command name:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot
-
-Create and restore snapshots
-
-USAGE:
-   enonic snapshot [command] [command options] [arguments...]
-
-COMMANDS:
-     list, ls     Returns a list of existing snapshots with name and status.
-     create       Stores a snapshot of the current state of the repository.
-     restore      Restores a snapshot of a previous state of the repository.
-     delete, del  Deletes snapshots, either before a given timestamp or by name.
-
-OPTIONS:
-   --help, -h  show help</pre>
+<div class="sect2">
+<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--force</code> flag should use default distro selection for a new sandbox</p>
+</li>
+<li>
+<p><code>--force</code> flag should use default destination folder for a new project</p>
+</li>
+<li>
+<p><em>(latest, stable)</em> should not be displayed for Beta/RC versions</p>
+</li>
+</ul>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-some commands have aliases for convenience like <code>ls</code> for <code>list</code>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>To execute a sub-command you need to type full path to that command:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot list
-
-Loading snapshots...Done
-{
-    "Results": [
-        {
-            "Name": "2019-04-05t11-31-26.184z",
-            "Reason": "",
-            "State": "SUCCESS",
-            "Timestamp": "2019-04-05T11:31:26.47Z",
-            "Indices": [
-                "search-com.enonic.cms.default",
-                "storage-com.enonic.cms.default",
-                "search-system-repo",
-                "storage-system-repo"
-            ]
-        }
-    ]
-}</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>To get help for any command at any level type its name followed by <code>-h</code> or <code>--help</code>:</p>
+<div class="sect1">
+<h2 id="v2_7_0"><a class="link" href="#v2_7_0">v2.7.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Development mode: <code>dev</code> and <code>project dev</code> commands</p>
+</li>
+</ul>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot list -h
-
-Returns a list of existing snapshots with name and status.
-
-USAGE:
-   enonic snapshot list [command options] [arguments...]
-
-OPTIONS:
-   --auth value, -a value  Authentication token for basic authentication (user:password)</pre>
+</div>
+<div class="sect2">
+<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Repository and sandbox arguments for the global <code>create</code> command</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Problem stopping a sandbox on Mac/Linux</p>
+</li>
+<li>
+<p>Can&#8217;t use camelCase in project name in the global <code>create</code> command</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_6_0"><a class="link" href="#v2_6_0">v2.6.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_3"><a class="link" href="#features_3">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>upgrade</code> command</p>
+</li>
+<li>
+<p><code>uninstall</code> command</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_5_0"><a class="link" href="#v2_5_0">v2.5.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_4"><a class="link" href="#features_4">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Implement shortcut command for project create</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add sandbox flag to <code>enonic project create</code></p>
+</li>
+<li>
+<p>Simplify selection of XP distro version</p>
+</li>
+<li>
+<p>Move version upgrade reminder to the bottom</p>
+</li>
+<li>
+<p>Improve error message given when trying to create a snapshot with incorrect repository name</p>
+</li>
+<li>
+<p>Filter the list of distros in sandbox upgrade command</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_3"><a class="link" href="#bug_fixes_3">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Select and prompt input answers have different colors on mac</p>
+</li>
+<li>
+<p>Select by name does not work in deleting snapshot by name</p>
+</li>
+<li>
+<p>Comparison of user input with a sandbox name should be case-insensitive</p>
+</li>
+<li>
+<p>Github bash cant select from lists</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_4_0"><a class="link" href="#v2_4_0">v2.4.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_5"><a class="link" href="#features_5">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Set up publishing to NPM</p>
+</li>
+<li>
+<p>Better message after project creation</p>
+</li>
+<li>
+<p>Show sandbox name in XP menu</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_4"><a class="link" href="#bug_fixes_4">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--url</code> parameter is incorrectly documented</p>
+</li>
+<li>
+<p>Incorrect error message for <code>app install</code> command</p>
+</li>
+<li>
+<p>The template adds "Enonic CLI" to the usage</p>
+</li>
+<li>
+<p>'Stopping sandbox' message shown after the sandbox is stopped</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_3_3"><a class="link" href="#v2_3_3">v2.3.3</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_5"><a class="link" href="#bug_fixes_5">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>CLI fails to download distro for XP versions below 7.10.0</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_3_2"><a class="link" href="#v2_3_2">v2.3.2</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_6"><a class="link" href="#bug_fixes_6">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Detect when CLI is running on Mac arm64 and pick the right XP sdk</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_3_1"><a class="link" href="#v2_3_1">v2.3.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_7"><a class="link" href="#bug_fixes_7">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Reinstalling cli through snapcraft after it was manually installed fails</p>
+</li>
+<li>
+<p>Account query is no longer available</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_3_0"><a class="link" href="#v2_3_0">v2.3.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_6"><a class="link" href="#features_6">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Switched to Nexus Repository.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_2_0"><a class="link" href="#v2_2_0">v2.2.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_7"><a class="link" href="#features_7">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support start/stop of applications in a sandbox.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements_3"><a class="link" href="#improvements_3">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Project can now be built without a sandbox (with <code>--force</code> flag).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_1_1"><a class="link" href="#v2_1_1">v2.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_8"><a class="link" href="#bug_fixes_8">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix "<em>empty dump name</em>" error when doing <code>dump upgrade</code></p>
+</li>
+<li>
+<p>Fix excessive help text when creating a new project</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_1_0"><a class="link" href="#v2_1_0">v2.1.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_4"><a class="link" href="#improvements_4">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Compile for Apple M1 chips and other architectures</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_9"><a class="link" href="#bug_fixes_9">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix access token parsing</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_0_2"><a class="link" href="#v2_0_2">v2.0.2</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_10"><a class="link" href="#bug_fixes_10">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix JWT expiration handling</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_0_1"><a class="link" href="#v2_0_1">v2.0.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_11"><a class="link" href="#bug_fixes_11">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>App install confuses force flag with jar file path</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v2_0_0"><a class="link" href="#v2_0_0">v2.0.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_8"><a class="link" href="#features_8">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Enable global no-prompts flag</p>
+</li>
+<li>
+<p>Handle symlinked distributions</p>
+</li>
+<li>
+<p>Enable cloud commands</p>
+</li>
+<li>
+<p>Add auditlog/cleanup management endpoint</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements_5"><a class="link" href="#improvements_5">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add support for debug parameter when starting a sandbox</p>
+</li>
+<li>
+<p>Support port other than 8080</p>
+</li>
+<li>
+<p>Show entire list of sandboxes in sandbox start</p>
+</li>
+<li>
+<p>Improve feedback when user provides an invalid project name</p>
+</li>
+<li>
+<p>Give feedback when project deploy is executed with dev parameter</p>
+</li>
+<li>
+<p>Alias for dev mode</p>
+</li>
+<li>
+<p>Migrate to go modules</p>
+</li>
+<li>
+<p>Handle all unavailable ports in the same manner</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_12"><a class="link" href="#bug_fixes_12">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Snapcraft installation on Ubuntu not working</p>
+</li>
+<li>
+<p>Sandbox not properly deleted if running</p>
+</li>
+<li>
+<p>Check for illegal characters in sandbox names</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_5_1"><a class="link" href="#v1_5_1">v1.5.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_13"><a class="link" href="#bug_fixes_13">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow setting number of replicas to 0</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_5_0"><a class="link" href="#v1_5_0">v1.5.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_9"><a class="link" href="#features_9">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support <code>snapshot restore --latest</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements_6"><a class="link" href="#improvements_6">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Install apps from the project directory by default</p>
+</li>
+<li>
+<p>Show progress of <code>sandbox delete</code> command</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_14"><a class="link" href="#bug_fixes_14">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed permissions on <code>cloud</code> folder</p>
+</li>
+<li>
+<p>Command <code>enonic project ?</code> always returns exit code 0</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_4_0"><a class="link" href="#v1_4_0">v1.4.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_7"><a class="link" href="#improvements_7">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Filter the list of distributions based on XP version of the project</p>
+</li>
+<li>
+<p>Check compatibility with sandbox' XP version before deploying an app</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_15"><a class="link" href="#bug_fixes_15">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>latest</code> returns incorrect result when called the first time</p>
+</li>
+<li>
+<p>Command <code>enonic project ?</code> always returns exit code 0</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_3_0"><a class="link" href="#v1_3_0">v1.3.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_8"><a class="link" href="#improvements_8">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add <code>--archive</code> parameter to <code>dump create</code> command</p>
+</li>
+<li>
+<p>Add <code>--archive</code> parameter to <code>dump load</code> command</p>
+</li>
+<li>
+<p>Show instructions on project deployment upon completing new project wizard</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_16"><a class="link" href="#bug_fixes_16">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>enonic repo readonly</code> command unnecessarily closes indices</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_2_1"><a class="link" href="#v1_2_1">v1.2.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_17"><a class="link" href="#bug_fixes_17">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Enonic sandbox does not start in detached mode on CentOS7/macOS</p>
+</li>
+<li>
+<p><code>deploy</code> command erases runtime PID info when sandbox was started in detached mode</p>
+</li>
+<li>
+<p><code>install</code> command gives NPE when env variable is not defined and host is not provided</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_2_0"><a class="link" href="#v1_2_0">v1.2.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_9"><a class="link" href="#improvements_9">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add support for proxy</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_1_1"><a class="link" href="#v1_1_1">v1.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_10"><a class="link" href="#improvements_10">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Change update message when local version of CLI is the latest</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_18"><a class="link" href="#bug_fixes_18">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>CLI asks to start the sandbox that is already running</p>
+</li>
+<li>
+<p>Remove <em>enonic-xp-</em> from distro name in the sandbox list</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v_1_1_0"><a class="link" href="#v_1_1_0">v.1.1.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_10"><a class="link" href="#features_10">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow passing flags to Gradle</p>
+</li>
+<li>
+<p>Enable <code>vacuum</code> command</p>
+</li>
+<li>
+<p>keep-alive in <code>cms reprocess</code></p>
+</li>
+<li>
+<p>keep-alive in <code>repo reindex</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements_11"><a class="link" href="#improvements_11">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add backwards compatibility for <code>reprocess</code> command</p>
+</li>
+<li>
+<p>Change update message when local version of CLI is the latest</p>
+</li>
+<li>
+<p>Flag to list B- and RC- versions of the distro on `create sandbox</p>
+</li>
+<li>
+<p>Hide password when dump upgrading</p>
+</li>
+<li>
+<p>Indicate latest, stable and unstable releases</p>
+</li>
+<li>
+<p>Make <code>import</code> top level command</p>
+</li>
+<li>
+<p>Show example of a custom repo path in project create wizard</p>
+</li>
+<li>
+<p><code>enonic app install --file</code> panics when file is not found</p>
+</li>
+<li>
+<p><code>enonic project create</code> project name cmdline parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bug_fixes_19"><a class="link" href="#bug_fixes_19">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>After restart of server - token is invalid but no revalidation is attempted</p>
+</li>
+<li>
+<p>CLI does not exit on SIGINT (Crtl + C) when creating new projects</p>
+</li>
+<li>
+<p>Change <code>update</code> to <code>upgrade</code> in the description of how to upgrade CLI with brew</p>
+</li>
+<li>
+<p><code>deploy</code> task is interrupted when processId of previously running sandbox cannot be not found</p>
+</li>
+<li>
+<p><code>enonic project create --help</code> parameters not documented</p>
+</li>
+<li>
+<p><code>enonic project create</code> doesn&#8217;t include <code>.gitignore</code></p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:28:27 UTC
+Last updated 2024-04-15 08:28:51 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>XP commands</title>
+<title>Development commands</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,60 +437,36 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>XP commands</h1>
+<h1>Development commands</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#environment_variables">Environment variables</a></li>
-<li><a href="#snapshot">Snapshot</a>
-<ul class="sectlevel2">
 <li><a href="#create">Create</a></li>
+<li><a href="#dev">Dev</a></li>
+<li><a href="#project">Project</a>
+<ul class="sectlevel2">
+<li><a href="#create_2">Create</a></li>
+<li><a href="#project-sandbox">Sandbox</a></li>
+<li><a href="#project-build">Build</a></li>
+<li><a href="#clean">Clean</a></li>
+<li><a href="#deploy">Deploy</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#shell">Shell</a></li>
+<li><a href="#gradle">Gradle</a></li>
+<li><a href="#dev_2">Dev</a></li>
+<li><a href="#env">Env</a></li>
+</ul>
+</li>
+<li><a href="#sandbox-command">Sandbox</a>
+<ul class="sectlevel2">
+<li><a href="#create_3">Create</a></li>
 <li><a href="#list">List</a></li>
-<li><a href="#restore">Restore</a></li>
+<li><a href="#start">Start</a></li>
+<li><a href="#stop">Stop</a></li>
+<li><a href="#upgrade">Upgrade</a></li>
 <li><a href="#delete">Delete</a></li>
 </ul>
 </li>
-<li><a href="#dump">Dump</a>
-<ul class="sectlevel2">
-<li><a href="#create_2">Create</a></li>
-<li><a href="#upgrade">Upgrade</a></li>
-<li><a href="#list_2">List</a></li>
-<li><a href="#load">Load</a></li>
-</ul>
-</li>
-<li><a href="#export">Export</a></li>
-<li><a href="#import">Import</a></li>
-<li><a href="#app">App</a>
-<ul class="sectlevel2">
-<li><a href="#install">Install</a></li>
-<li><a href="#start">Start</a></li>
-<li><a href="#stop">Stop</a></li>
-</ul>
-</li>
-<li><a href="#repo">Repo</a>
-<ul class="sectlevel2">
-<li><a href="#reindex">Reindex</a></li>
-<li><a href="#readonly">Readonly</a></li>
-<li><a href="#replicas">Replicas</a></li>
-<li><a href="#list_3">List</a></li>
-</ul>
-</li>
-<li><a href="#cms">Cms</a>
-<ul class="sectlevel2">
-<li><a href="#reprocess">Reprocess</a></li>
-</ul>
-</li>
-<li><a href="#system">System</a>
-<ul class="sectlevel2">
-<li><a href="#info">Info</a></li>
-</ul>
-</li>
-<li><a href="#auditlog">Auditlog</a>
-<ul class="sectlevel2">
-<li><a href="#cleanup">Cleanup</a></li>
-</ul>
-</li>
-<li><a href="#vacuum">Vacuum</a></li>
 </ul>
 </div>
 </div>
@@ -498,109 +474,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The following commands are used when communicating directly with an Enonic XP instance.
-For these commands to work, the CLI must have access to the <a href="https://developer.enonic.com/docs/xp/stable/runtime/management">management API</a> of your XP instance.</p>
+<p>By projects, we generally refer to the set of code and configuration required to build applications or libraries for XP.
+There are two main commands available to assist developers with setting up and managing projects:</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="environment_variables"><a class="link" href="#environment_variables">Environment variables</a></h2>
+<h2 id="create"><a class="link" href="#create">Create</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic CLI communicates with XP&#8217;s management API which require both endpoint details and credentials to be defined. These parameters may be specified directly via command line, but it is recommended to specify these as environment variables instead.</p>
-</div>
-<div class="paragraph">
-<p>Use the following environment variables in your terminal to simplify the communication with XP:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_REMOTE_URL</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL of the running enonic XP instance ( Default is <code>localhost:4848</code> )</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_REMOTE_USER</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">User name for authentication in enonic XP</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_REMOTE_PASS</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">User password for authentication in enonic XP</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_HTTP_PROXY</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL of proxy server to use</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Credentials passed via command line overrides the environment variables.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="snapshot"><a class="link" href="#snapshot">Snapshot</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>List of commands for manipulating repository snapshots can be seen by typing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot
-
-Create and restore snapshots
-
-USAGE:
-   Enonic CLI snapshot command [command options] [arguments...]
-
-COMMANDS:
-     list, ls     Returns a list of existing snapshots with name and status.
-     create       Stores a snapshot of the current state of the repository.
-     restore      Restores a snapshot of a previous state of the repository.
-     delete, del  Deletes snapshots, either before a given timestamp or by name.
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="create"><a class="link" href="#create">Create</a></h3>
-<div class="paragraph">
-<p>Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in <code>snapshots.dir</code> option in the <a href="https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration">Repo Configuration</a> (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-For a clustered installation, the snapshot-location must be on a shared file-system.
-</td>
-</tr>
-</table>
+<p>Simplified Enonic project creation with most values having reasonable defaults.</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot create [-r &lt;value&gt;] [-a &lt;value&gt;]</pre>
+<pre>$ enonic create [project name]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -619,12 +506,17 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>project name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">project name. E.g. <code>myproject</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to snapshot.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo,<br>
+--repository</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">repository path of the starter to base the project on. Format: &lt;enonic repo&gt; or &lt;organisation&gt;/&lt;repo&gt; on github or &lt;full repo url&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--sb, --sandbox</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox name to link project to</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -639,588 +531,65 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<code>destination</code> and <code>version</code> params for the new project will have default values equal to <code>project name</code> and <code>1.0.0-SNAPSHOT</code> respectively
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example creating new snapshot from 'cms-repo':</div>
+<div class="title">Example creating a project called 'foo' in a new folder with the same name ('foo'), with default version number ('1.0.0-SNAPSHOT'):</div>
 <div class="content">
-<pre>$ enonic snapshot create -a su:password -r cms-repo</pre>
+<pre>$ enonic create foo</pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="list"><a class="link" href="#list">List</a></h3>
-<div class="paragraph">
-<p>List all the snapshots for the installation. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
-</div>
-<div class="literalblock">
+<div class="listingblock">
+<div class="title">Equivalent <code>enonic project create</code> command will be:</div>
 <div class="content">
-<pre>$ enonic snapshot ls</pre>
+<pre>$ enonic project create foo -d foo -n foo -v 1.0.0-SHAPSHOT</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Options:</p>
+<p>The only values you will need to choose in the above example are a starter and a sandbox to link the new project to.
+If you need to automate this command completely for pipeline integration, you can use <code>-f</code> flag and specify a starter repo and an existing sandbox:</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="restore"><a class="link" href="#restore">Restore</a></h3>
-<div class="paragraph">
-<p>Restore a named snapshot. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
-</div>
-<div class="literalblock">
+<div class="listingblock">
+<div class="title">Example creating a project called 'foo' non-interactively in a new folder with the same name ('foo') using the Vanilla starter and existing sandbox called 'Sandbox1', with default version number ('1.0.0-SNAPSHOT'):</div>
 <div class="content">
-<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--snap, --snapshot</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">snapshot name to restore</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to restore</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--clean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">delete indices before restoring</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="delete"><a class="link" href="#delete">Delete</a></h3>
-<div class="paragraph">
-<p>Deletes a snapshot by name or date:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic snapshot delete [-before &lt;value&gt;] [--snap &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-b, --before</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>"2 Jan 06"</em> formatted date to delete snapshots up to</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--snap, --snapshot</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">snapshot name to delete</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
+<pre>$ enonic create foo -f -r starter-vanilla --sb Sandbox1</pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="dump"><a class="link" href="#dump">Dump</a></h2>
+<h2 id="dev"><a class="link" href="#dev">Dev</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>List of command for manipulating all repositories can be seen by typing:</p>
+<p>This command is essential for developers who want to work on their app in "hot reload" mode, which will "pick up" changes (both server- and client-side) made to the app&#8217;s source code without developer having to rebuild and redeploy the app. Make sure you execute this command from the project&#8217;s folder.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic dump
-
-Dump and load complete repositories
-
-USAGE:
-   Enonic CLI dump command [command options] [arguments...]
-
-COMMANDS:
-     create       Export data from every repository.
-     upgrade, up  Upgrade a dump.
-     load         Import data from a dump.
-     list, ls     List available dumps
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="create_2"><a class="link" href="#create_2">Create</a></h3>
-<div class="paragraph">
-<p>Export data from every repository. The result will be stored in the <code>$XP_HOME/data/dump</code> directory.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">dump name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-versions</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">don&#8217;t dump version-history, only current versions included</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--max-version-age</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">max age of versions to include, in days, in addition to current version</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--max-versions</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">max number of versions to dump in addition to current version</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--archive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">outputs dump output to an archive (%name%.zip) file (default is false)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
+<div class="admonitionblock important">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example creating new dump named 'myDump':</div>
-<div class="content">
-<pre>$ enonic dump create -a su:password -d myDump</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="upgrade"><a class="link" href="#upgrade">Upgrade</a></h3>
-<div class="paragraph">
-<p>Upgrade a data dump from a previous version to the current version. The output of the upgrade will be placed alongside the dump that is being upgraded and will have the name <code>&lt;dump-name&gt;_upgraded_&lt;new-version&gt;</code>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-The current version XP installation must be running with the upgraded app deployed.
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic dump upgrade [-d &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">dump name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example upgrading dump named 'myDump' to current version:</div>
-<div class="content">
-<pre>$ enonic dump upgrade -a su:password -d myDump</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="list_2"><a class="link" href="#list_2">List</a></h3>
-<div class="paragraph">
-<p>Lists all the dumps</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic dump ls [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="load"><a class="link" href="#load">Load</a></h3>
-<div class="paragraph">
-<p>Load data from a named system dump into Enonic XP. The dump read has to be stored in the <code>$XP_HOME/data/dump</code> directory. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on system dump/load.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-A load will delete all existing repositories before loading the repositories present in the system-dump
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic dump load [-d &lt;value&gt;] [--upgrade] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">dump name to load</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--upgrade</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">upgrade the dump if necessary (default is false)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--archive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">loads dump form an archive (%name%.zip) file (default is false)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:</div>
-<div class="content">
-<pre>$ enonic dump load -a su:password -d newDump -f --upgrade</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="export"><a class="link" href="#export">Export</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Extract data from a given repository, branch and content path. The result will be stored in the <code>$XP_HOME/data/export</code> directory. This is useful to move a part of a site from one installation to another. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on content export/import.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-Exporting content will not include the version history of the content, just the current version.
+All the Enonic starters are coming with built-in support of the CLI&#8217;s <code>dev</code> command. This means that a project based on any of the Enonic starters will run smoothly in the dev mode. It will not work in your custom repository unless you implement the Gradle task called "dev" which runs your app in watch mode.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>To list available configuration options, type:</p>
+<p>This command does two things:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic export -h
-
-Export data from a given repository, branch and content path.
-
-USAGE:
-   enonic export [command options] [arguments...]
-
-OPTIONS:
-   -t value                Target name to save export.
-   --path value            Path of data to export. Format: &lt;repo-name&gt;:&lt;branch-name&gt;:&lt;node-path&gt; e.g. 'cms-repo:draft:/'
-   --skip-ids              Flag to skip ids in data when exporting.
-   --skip-versions         Flag to skip versions in data when exporting.
-   --dry                   Show the result without making actual changes.
-   --auth value, -a value  Authentication token for basic authentication (user:password)
-   -f, --force             Accept default answers to all prompts and run non-interactively</pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:</div>
-<div class="content">
-<pre>$ enonic export -a su:password -t myExport --path cms-repo:draft:/some-content</pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="import"><a class="link" href="#import">Import</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the <code>$XP_HOME/data/export</code> directory. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on content export/import.</p>
-</div>
-<div class="paragraph">
-<p>To list available configuration options, type:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic import -h
-
-  Import data from a named export.
-
-  USAGE:
-     enonic import [command options] [arguments...]
-
-  OPTIONS:
-     -t value                A named export to import.
-     --path value            Target path for import. Format: &lt;repo-name&gt;:&lt;branch-name&gt;:&lt;node-path&gt; e.g. 'cms-repo:draft:/'
-     --xsl-source value      Path to xsl file (relative to &lt;XP_HOME&gt;/data/export) for applying transformations to node.xml before importing.
-     --xsl-param value       Parameters to pass to the XSL transformations before importing nodes. Format: &lt;parameter-name&gt;=&lt;parameter-value&gt; e.g. 'applicationId=com.enonic.myapp'
-     --skip-ids              Flag to skips ids when importing
-     --skip-permissions      Flag to skips permissions when importing
-     --dry                   Show the result without making actual changes.
-     -a value, --auth value  Authentication token for basic authentication (user:password)
-     -f, --force             Accept default answers to all prompts and run non-interactively</pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example:</div>
-<div class="content">
-<pre>$ enonic import -a su:password -t myExport --path cms-repo:draft:/some-content</pre>
-</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Starts the project&#8217;s sandbox in <strong>detached</strong> dev mode. <strong>Detached</strong> means that logs from the XP instance running in the sandbox will <strong>not</strong> be output in the terminal window. Read the tip below if you need to combine the <code>dev</code> command with being able to see the XP logs.</p>
+</li>
+<li>
+<p>Executes <code>dev</code> command for the app itself. This will deploy the app once (for XP to pick it up) and then read server-side source files directly from the app&#8217;s folder, also build client-side code if needed. In the Terminal window you&#8217;ll only see the output from this command.</p>
+</li>
+</ol>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1229,48 +598,174 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<div class="paragraph">
-<p>An XSL file and a set of name=value parameters can be optionally passed for applying transformations to each node.xml file, before importing it.</p>
-</div>
-<div class="paragraph">
-<p>This option could for example be used for renaming types or fields. The .xsl file must be located in the <code>$XP_HOME/data/export</code> directory.</p>
-</div>
+If you need to see XP logs while working on the app, you will need to start the sandbox in a <strong>separate</strong> Terminal window/tab: <code>enonic sandbox start --dev</code>, then run <code>enonic dev</code> in the first window/tab to start the project in dev mode. <code>--dev</code> parameter is essential - you won&#8217;t be able to run dev mode for a project unless its sandbox is running in dev mode as well.
 </td>
 </tr>
 </table>
 </div>
+<div class="listingblock">
+<div class="title">Example starting a project in development mode from the project&#8217;s folder:</div>
+<div class="content">
+<pre>$ enonic dev</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To terminate the dev mode, use Ctrl-C combination. If the sandbox was started in the detached mode in the same Terminal window/tab, CLI will attempt to stop the sandbox as well.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="app"><a class="link" href="#app">App</a></h2>
+<h2 id="project"><a class="link" href="#project">Project</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Commands to install applications to the running enonic XP instance. Currently only one command is available here:</p>
+<p>Projects are commonly hosted in a Git repo and need to follow a set of principles to work with Enonic XP.
+Each project is associated with a <a href="#sandbox-command">sandbox</a> to which it will be deployed.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+All project commands should be run from the project root folder.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Command list is available by running following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>$ enonic app
+<pre>$ enonic project
 
-Install, stop and start applications
+Manage Enonic projects
 
 USAGE:
-   Enonic CLI app command [command options] [arguments...]
+   enonic [command] [options] [arguments...]
 
 COMMANDS:
-     install, i  Install an application from URL or file
+     create             Create a new Enonic project
+     sandbox, sbox, sb  Set the default sandbox associated with the current project
+     clean              Clean current project
+     build              Build current project
+     deploy             Deploy current project to its sandbox
+     install, i         Build current project and install it to Enonic XP
+     shell              Create a new shell with project environment variables
+     gradle             Run arbitrary gradle task in current project
+     dev                Start current project in dev mode
+     env                Export project environment variables as string to be used in any third-party shell
 
 OPTIONS:
    --help, -h  show help</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="install"><a class="link" href="#install">Install</a></h3>
+<h3 id="create_2"><a class="link" href="#create_2">Create</a></h3>
 <div class="paragraph">
-<p>Installs an application on all nodes.</p>
+<p>Navigate to the folder you wish to place your project in and run the following command:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app install [--url &lt;value&gt;] [--file &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic project create [name] [-n &lt;value&gt;] [-b &lt;value&gt;] [-c &lt;value&gt;] [-d &lt;value&gt;] [-r &lt;value&gt;] [-v &lt;value&gt;] [--sb &lt;value&gt;]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Follow wizard instructions that will set everything up for you.</p>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">project name (e.g. <code>com.example.myapp</code>). Can also be specified using <code>--name</code> flag</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-n, --name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">project name. Overrides [name] argument if specified</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo,<br>
+--repository</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">repository path of the starter to base the project on. Format: &lt;enonic repo&gt; or &lt;organisation&gt;/&lt;repo&gt; on github or &lt;full repo url&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-b, --branch</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">repository branch to use. <code>master</code> is used if none specified</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-c, --checkout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">commit hash to use (mutually exclusive with branch option, used if both are present)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d, --dest,<br>
+--destination</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">destination folder name. Defaults to last word of the project name, i.e. <code>myapp</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --ver, --version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version number to assign to new project. Default value <code>1.0.0-SNAPSHOT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--sb, --sandbox</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox name to link project to</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<code>name</code>, <code>repository</code>, <code>destination</code> and <code>version</code> params are sufficient to create a project without a wizard allowing it to be used in script files.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example creating 'myProject' project in 'myFolder' folder from vanilla starter and setting '1.0.0-SNAPSHOT' version:</div>
+<div class="content">
+<pre>$ enonic project create myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Same example but providing name as a flag:</div>
+<div class="content">
+<pre>$ enonic project create -n myProject -d myFolder -r starter-vanilla -v 1.0.0-SHAPSHOT</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="project-sandbox"><a class="link" href="#project-sandbox">Sandbox</a></h3>
+<div class="paragraph">
+<p><code>create</code> command will link the project to a sandbox. To change it later, run this command inside the project folder:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic project sandbox [name]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1289,16 +784,326 @@ OPTIONS:
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--url</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">the URL of the application</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--file</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">path to an application file (mutually exclusive with url, used if both are present)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If name is not provided or does not exist, you will be asked for it.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example setting 'myOtherBox' as default sandbox for current project:</div>
+<div class="content">
+<pre>$ enonic project sandbox myOtherBox</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="project-build"><a class="link" href="#project-build">Build</a></h3>
+<div class="paragraph">
+<p>You can build your project by running following command inside the project folder:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic project build</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Sandbox is not required when running with <code>--force</code> flag. In that case system wide java version will be used.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The build command helps you with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Compiling code</p>
+</li>
+<li>
+<p>Running tests</p>
+</li>
+<li>
+<p>Creating artifacts (executables)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The build system is based on <a href="https://gradle.org/">Gradle</a> and the <a href="https://plugins.gradle.org/plugin/com.enonic.xp.app">XP Gradle plugin</a>.</p>
+</div>
+<div class="paragraph">
+<p>The "project build" command is an alias for the Gradle Wrapper, which must be located in your project through a file called .gradlew (linux/mac) or gradlew.bat (windows).
+The Gradle Wrapper is by default available with all <a href="https://market.enonic.com/starters">Starter Kits on Enonic Market</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You may also use the Gradle Wrapper directly by running <code>./gradlew build</code> (linux/mac) or <code>gradlew build</code> (windows) from your projects directory.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="clean"><a class="link" href="#clean">Clean</a></h3>
+<div class="paragraph">
+<p>Alias for the <code>gradlew clean</code> command</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic project clean</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Sandbox is not required when running with <code>--force</code> flag. In that case system wide java version will be used.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="deploy"><a class="link" href="#deploy">Deploy</a></h3>
+<div class="paragraph">
+<p>As developers, we continuously need to deploy and test our code. Following command will build current project and deploy it to associated <a href="#project-sandbox">sandbox</a>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic project deploy [name]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Start enonic XP distribution in development mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-c, --continuous</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Watch changes and deploy project continuously</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to deploy to (overrides associated sandbox)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+If the sandbox is already running, <code>--dev</code> parameter will be ignored. In this case
+you&#8217;ll have to make sure the sandbox is running in dev mode.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If sandbox name is provided, it overrides the sandbox associated with the project for this time only.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Sandbox is not required when running with <code>--force</code> flag. In that case system wide java version will be used.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example deploying current project to 'otherSandbox' sandbox, starting XP in dev mode and continuously watching changes:</div>
+<div class="content">
+<pre>$ enonic project deploy otherSandbox --dev -c</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="install"><a class="link" href="#install">Install</a></h3>
+<div class="paragraph">
+<p>To install current project to running enonic instance</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic project install</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Enonic XP instance must be running when executing this command !
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Install command does 2 things:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#project-build">Builds</a> the project</p>
+</li>
+<li>
+<p>Installs built project to a running enonic XP instance using XP API</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1318,27 +1123,300 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 </table>
 </div>
-<div class="listingblock">
-<div class="title">Example installing app from a URL:</div>
+</div>
+<div class="sect2">
+<h3 id="shell"><a class="link" href="#shell">Shell</a></h3>
+<div class="paragraph">
+<p>This is an advanced command to export project <code>JAVA_HOME</code> and <code>XP_HOME</code> variables to a new shell. Following command starts a new shell bound to project sandbox and enonic XP distribution</p>
+</div>
+<div class="literalblock">
 <div class="content">
-<pre>$ enonic app install -a su:password --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar</pre>
+<pre>$ enonic project shell</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Run <code>quit</code> command to exit enonic shell. Parent shell environment is not modified.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="gradle"><a class="link" href="#gradle">Gradle</a></h3>
+<div class="paragraph">
+<p>In case you want to run arbitrary gradle task or group multiple ones in one command you can use following command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic project gradle [tasks / flags ...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The text after <code>gradle</code> is sent directly to <code>gradlew</code>, without modifications.</p>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tasks</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a space delimited list of gradle tasks and flags to invoke</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Flags like <code>--force</code> or <code>--help</code> are not supported by this command because it forwards all flags directly to gradle!
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The difference between <code>enonic project gradle clean build deploy</code> and <code>gradlew clean build deploy</code> is that the former uses sandbox and Enonic XP distribution configured for the project, while the latter uses system-wide settings.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example running gradle clean build deploy:</div>
+<div class="content">
+<pre>$ enonic project gradle clean build deploy</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="dev_2"><a class="link" href="#dev_2">Dev</a></h3>
+<div class="paragraph">
+<p>Same as the global <code>dev</code> command (<a href="#dev">see above</a>)</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="env"><a class="link" href="#env">Env</a></h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This command is currently not available on Windows.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If you are an expert user loving your shell you can export project <code>JAVA_HOME</code> and <code>XP_HOME</code> environment variables as strings to be used there</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ eval $(enonic project env)</pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Unlike <code>enonic project shell</code> command, this one will modify your <em>current</em> shell environment varialbes. Shell restart is needed to undo the changes.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sandbox-command"><a class="link" href="#sandbox-command">Sandbox</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Developers can use the CLI to work with one or several instances of XP locally. These instances are called sandboxes.
+Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.</p>
+</div>
+<div class="paragraph">
+<p>The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.
+Sandbox commands list is available by running following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ enonic sandbox
+
+Manage Enonic instances
+
+USAGE:
+   enonic sandbox [command] [command options] [arguments...]
+
+COMMANDS:
+     list, ls         List all sandboxes
+     start            Start the sandbox.
+     stop             Stop the sandbox started in detached mode.
+     create           Create a new sandbox.
+     delete, del, rm  Delete a sandbox
+     upgrade, up      Upgrades the distribution version.
+
+OPTIONS:
+   --help, -h  show help</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="create_3"><a class="link" href="#create_3">Create</a></h3>
+<div class="paragraph">
+<p>Starts a new sandbox wizard:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic sandbox create [name] [-v &lt;value&gt;] [-a]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --template</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific template</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-template</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Skip template selection step</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use specific distro version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions (including Betas and Release Candidates)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example creating a sandbox called 'myBox' using the latest version of Enonic XP</div>
+<div class="content">
+<pre>$ enonic sandbox create myBox -f</pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Example installing app from a file:</div>
+<div class="title">Example creating a sandbox called 'myBox' using the latest version of Enonic XP and "Headless Demo" template</div>
 <div class="content">
-<pre>$ enonic app install -a su:password --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar</pre>
+<pre>$ enonic sandbox create myBox -t "Headless Demo" -f</pre>
 </div>
+</div>
+<div class="listingblock">
+<div class="title">Example creating a sandbox called 'myBox' using the latest version of Enonic XP and without a template (no apps will be preinstalled)</div>
+<div class="content">
+<pre>$ enonic sandbox create myBox --skip-template -f</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example creating sandbox called 'myBox' using Enonic XP version 7.2.1</div>
+<div class="content">
+<pre>$ enonic sandbox create myBox -v 7.2.1</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="list"><a class="link" href="#list">List</a></h3>
+<div class="paragraph">
+<p>Lists all sandboxes previously created by user:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ enonic sandbox list</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>$ enonic sandbox ls
+
+* Sandbox1 ( windows-sdk-7.2.1 )
+  Sandbox2 ( windows-sdk-7.2.0 )
+  Sandbox3 ( windows-sdk-7.0.3 )
+  Sandbox4 ( windows-sdk-7.2.1 )</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Asterisk marks currently running sandbox
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
 <h3 id="start"><a class="link" href="#start">Start</a></h3>
 <div class="paragraph">
-<p>Start application on all nodes.</p>
+<p>Starts a sandbox and ensures that only one is started at a time:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app start &lt;app key&gt; [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic sandbox start [name] [-d]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1357,12 +1435,24 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;app key&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">application key</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--dev</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP distribution in development mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--debug</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run enonic XP server with debug enabled on port 5005</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d, --detach</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">flag to start sandbox in detached mode (background process)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--http.port</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set to the http port used by Enonic XP to check availability on startup (default: 8080)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1370,64 +1460,23 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 </tbody>
 </table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
 <div class="listingblock">
-<div class="title">Example starting <code>com.enonic.app.superhero</code> app:</div>
+<div class="title">Example starting 'myBox' sandbox in a dev mode:</div>
 <div class="content">
-<pre>$ enonic app start com.enonic.app.superhero -a su:password</pre>
+<pre>$ enonic sandbox start myBox --dev</pre>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="stop"><a class="link" href="#stop">Stop</a></h3>
 <div class="paragraph">
-<p>Stop application on all nodes.</p>
+<p>Stops a running sandbox:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app stop &lt;app key&gt; [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic sandbox stop</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;app key&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">application key</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1435,119 +1484,26 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+only sandboxes started with CLI can be stopped using this command.
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example stopping <code>com.enonic.app.superhero</code> app:</div>
+<div class="title">Example stopping sandbox:</div>
 <div class="content">
-<pre>$ enonic app stop com.enonic.app.superhero -a su:password</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="repo"><a class="link" href="#repo">Repo</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Commands for configuring and managing repositories. Full list is available by typing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic repo
-
-Tune and manage repositories
-
-USAGE:
-   Enonic CLI repo command [command options] [arguments...]
-
-COMMANDS:
-     reindex   Reindex content in search indices for the given repository and branches.
-     readonly  Toggle read-only mode for server or single repository
-     replicas  Set the number of replicas in the cluster.
-     list, ls  List available repos
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="reindex"><a class="link" href="#reindex">Reindex</a></h3>
-<div class="paragraph">
-<p>Reindex the content in the search indices for the given repository and branches. This is usually required after upgrades, and may be useful in many other situation.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic repo reindex [--b &lt;value, value...&gt;] [-r &lt;value&gt;] [-i] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-b</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">a comma-separated list of branches to be reindexed</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to reindex</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-i</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">if true, the indices will be deleted before recreated</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:</div>
-<div class="content">
-<pre>$ enonic repo reindex -a su:password -b draft,master -i -r cms-repo</pre>
+<pre>$ enonic sandbox stop</pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="readonly"><a class="link" href="#readonly">Readonly</a></h3>
+<h3 id="upgrade"><a class="link" href="#upgrade">Upgrade</a></h3>
 <div class="paragraph">
-<p>Toggle read-only mode. In read-only mode, no changes can be made on the server, or a single repo if specified</p>
+<p>Upgrades enonic distribution used for a sandbox:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo readonly [readOnly] [-r &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic sandbox upgrade [name] [-v &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1566,16 +1522,16 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>readOnly</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">boolean value to set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">single repository to toggle read-only mode for</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enonic distribution version</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List all distro versions</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1590,26 +1546,26 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+Downgrades are not permitted.
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example setting 'cms-repo' repository to read-only mode:</div>
+<div class="title">Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':</div>
 <div class="content">
-<pre>$ enonic repo readonly true -a su:password -r cms-repo</pre>
+<pre>$ enonic sandbox upgrade myBox -v 7.2.1</pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="replicas"><a class="link" href="#replicas">Replicas</a></h3>
+<h3 id="delete"><a class="link" href="#delete">Delete</a></h3>
 <div class="paragraph">
-<p>Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: <a href="https://developer.enonic.com/docs/xp/stable/deployment/clustering#shard_replication">Replica setup</a>.</p>
+<p>Deletes a sandbox:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo replicas [replicasNum] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic sandbox delete [name] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1628,12 +1584,8 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>replicasNum</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">whole number between 1 and 99 to set</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1641,389 +1593,23 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 </tbody>
 </table>
-<div class="admonitionblock note">
+<div class="admonitionblock warning">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+All data that may have been created in this sandbox will be deleted.
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example setting number of replicas to 3:</div>
+<div class="title">Example deleting 'myBox' sandbox:</div>
 <div class="content">
-<pre>$ enonic repo replicas 3 -a su:password</pre>
+<pre>$ enonic sandbox delete myBox -f</pre>
 </div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="list_3"><a class="link" href="#list_3">List</a></h3>
-<div class="paragraph">
-<p>List available repositories.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic repo list [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example listing repositories:</div>
-<div class="content">
-<pre>$ enonic repo list -a su:password</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="cms"><a class="link" href="#cms">Cms</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Content metadata commands. Currently only one command present here:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic cms
-
-CMS commands
-
-USAGE:
-   Enonic CLI cms command [command options] [arguments...]
-
-COMMANDS:
-     reprocess  Reprocesses content in the repository.
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="reprocess"><a class="link" href="#reprocess">Reprocess</a></h3>
-<div class="paragraph">
-<p>Reprocesses content in the repository and <strong>regenerates metadata for the media attachments</strong>. Only content of a media type (super-type = <em>base:media</em>) are processed.</p>
-</div>
-<div class="paragraph">
-<p>Unless the <code>–skip-children</code> flag is specified, it processes all descendants of the specified content path.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-This command should be used after migrating content from Enonic CMS using the cms2xp tool.
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic cms reprocess [--path &lt;value&gt;] [--skip-children] [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--path</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">target content path to be reprocessed. Format: <code>&lt;branch-name&gt;:&lt;content-path&gt;</code>. e.g <code>draft:/</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-children</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">flag to skip processing of content children</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example reprocessing media in branch 'draft' and content path '/some-content':</div>
-<div class="content">
-<pre>$ enonic reprocess -a su:password -s draft:/some-content</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="system"><a class="link" href="#system">System</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>System tasks show info about currently running enonic XP instance. Currently there is only one command as can be seen by running:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic system
-
-System commands
-
-USAGE:
-   Enonic CLI system command [command options] [arguments...]
-
-COMMANDS:
-     info, i  XP distribution info
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="info"><a class="link" href="#info">Info</a></h3>
-<div class="paragraph">
-<p>Shows info about currently running enonic XP instance.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic system info
-
-{
-    "Version": "7.2.0",
-    "Installation": "demo",
-    "RunMode": "PROD",
-    "Build": {
-        "Hash": "39d4b215fd2009d7ba65e07efc54ebad50638741",
-        "ShortHash": "39d4b21",
-        "Branch": "master",
-        "Timestamp": "2019-12-19T15:18:13Z"
-    }
-}</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="auditlog"><a class="link" href="#auditlog">Auditlog</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>List of commands for managing audit log repository can be seen by typing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic auditlog
-
-Manage audit log repository
-
-USAGE:
-   Enonic CLI auditlog command [command options] [arguments...]
-
-COMMANDS:
-     cleanup  Deletes records from audit log repository.
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="cleanup"><a class="link" href="#cleanup">Cleanup</a></h3>
-<div class="paragraph">
-<p>Deletes records from audit log repository.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic auditlog cleanup</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--age</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">age of records to be removed.<br>
-<em>Format is based on the ISO-8601 duration format <code>PnDTnHnMn.nS</code> with days considered to be exactly 24 hours</em>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="listingblock">
-<div class="title">Example cleaning up audit log repository for the past 30 days:</div>
-<div class="content">
-<pre>$ enonic auditlog cleanup --age P30D</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="vacuum"><a class="link" href="#vacuum">Vacuum</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Permanently removes old versions and deleted items from disk.</p>
-</div>
-<div class="paragraph">
-<p>To support <code>snapshot restore</code> and a rich version history, XP does not physically remove the data from disk. The side-effect is that the disk usage will keep growing, even if you delete nodes from the repository. Vacuum command permanently removes old unused versions, as well as deleted nodes from disk. XP defines a default threshold of 21 days (configurable). This basically means that only items deleted at least 21 days ago, or version that are older than 21 days will be vacuumed.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Using the <code>-b</code> option will remove the underlying blobs, meaning restoring a snapshot that is older than 21 days (since last vacuum) will result in an inconsistent and broken dataset.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>To list available configuration options, type:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic vacuum -h
-
-  Removes old version history and segments from content storage.
-
-  USAGE:
-     enonic vacuum [command options] [arguments...]
-
-  OPTIONS:
-     --blob, -b              Also removes unused blobs
-     --threshold, -t         Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
-     --auth value, -a value  Authentication token for basic authentication (user:password)
-     --force, -f             Accept default answers to all prompts and run non-interactively</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--blob, -b</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code> and <code>NodeBlobVacuumTask</code> in addition to <code>SegmentVacuumTask</code> and <code>VersionTableVacuumTask</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --threshold</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example</div>
-<div class="content">
-<pre>$ enonic vacuum -b</pre>
 </div>
 </div>
 </div>
@@ -2031,7 +1617,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:21:34 UTC
+Last updated 2024-04-15 08:28:51 UTC
 </div>
 </div>
 </body>

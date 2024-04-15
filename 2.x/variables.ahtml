@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Getting started with Enonic CLI</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,139 +437,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Getting started with Enonic CLI</h1>
 </div>
 <div id="content">
-<div class="paragraph">
-<p>Once installed, the CLI includes standard CLI help functions for listing available commands and options.
-To get a list of commands, simply type the following in your terminal:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>enonic</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The feedback will contain available commands and options:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>Enonic CLI v2.8.2
-Manage XP instances, home folders and projects
 
-USAGE:
-   enonic [global options] command [command options] [arguments...]
-
-COMMANDS:
-     create    Create a new Enonic project
-     dev       Start current project in dev mode
-     snapshot  Create and restore snapshots
-     dump      Dump and load complete repositories
-     export    Export data from a given repository, branch and content path.
-     import    Import data from a named export.
-     app       Install, stop and start applications
-     repo      Tune and manage repositories
-     cms       CMS commands
-     system    System commands
-     auditlog  Manage audit log repository
-     latest    Check for latest version
-     upgrade   Upgrade to the latest version
-     uninstall Uninstall Enonic CLI
-     vacuum    Removes unused blobs and binaries from blobstore
-     help, h   Shows a list of commands or help for one command
-
-CLOUD COMMANDS:
-     cloud  Manage Enonic cloud
-
-PROJECT COMMANDS:
-     sandbox  Manage Enonic instances
-     project  Manage Enonic projects
-
-GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Most of the top-level commands contain sub-commands that can be printed out by typing the command name:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot
-
-Create and restore snapshots
-
-USAGE:
-   enonic snapshot [command] [command options] [arguments...]
-
-COMMANDS:
-     list, ls     Returns a list of existing snapshots with name and status.
-     create       Stores a snapshot of the current state of the repository.
-     restore      Restores a snapshot of a previous state of the repository.
-     delete, del  Deletes snapshots, either before a given timestamp or by name.
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-some commands have aliases for convenience like <code>ls</code> for <code>list</code>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>To execute a sub-command you need to type full path to that command:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot list
-
-Loading snapshots...Done
-{
-    "Results": [
-        {
-            "Name": "2019-04-05t11-31-26.184z",
-            "Reason": "",
-            "State": "SUCCESS",
-            "Timestamp": "2019-04-05T11:31:26.47Z",
-            "Indices": [
-                "search-com.enonic.cms.default",
-                "storage-com.enonic.cms.default",
-                "search-system-repo",
-                "storage-system-repo"
-            ]
-        }
-    ]
-}</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>To get help for any command at any level type its name followed by <code>-h</code> or <code>--help</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic snapshot list -h
-
-Returns a list of existing snapshots with name and status.
-
-USAGE:
-   enonic snapshot list [command options] [arguments...]
-
-OPTIONS:
-   --auth value, -a value  Authentication token for basic authentication (user:password)</pre>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:28:27 UTC
+Last updated 2024-04-15 08:28:51 UTC
 </div>
 </div>
 </body>

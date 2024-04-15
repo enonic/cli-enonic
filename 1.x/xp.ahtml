@@ -463,8 +463,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#app">App</a>
 <ul class="sectlevel2">
 <li><a href="#install">Install</a></li>
-<li><a href="#start">Start</a></li>
-<li><a href="#stop">Stop</a></li>
 </ul>
 </li>
 <li><a href="#repo">Repo</a>
@@ -483,11 +481,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#system">System</a>
 <ul class="sectlevel2">
 <li><a href="#info">Info</a></li>
-</ul>
-</li>
-<li><a href="#auditlog">Auditlog</a>
-<ul class="sectlevel2">
-<li><a href="#cleanup">Cleanup</a></li>
 </ul>
 </li>
 <li><a href="#vacuum">Vacuum</a></li>
@@ -626,10 +619,6 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to snapshot.</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -680,10 +669,6 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -706,7 +691,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [--a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -733,16 +718,8 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to restore</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--clean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">delete indices before restoring</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -766,7 +743,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot delete [-before &lt;value&gt;] [--snap &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic snapshot delete [-before &lt;value&gt;] [--snap &lt;value&gt;] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -795,10 +772,6 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -849,7 +822,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -891,10 +864,6 @@ OPTIONS:
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -935,7 +904,7 @@ The current version XP installation must be running with the upgraded app deploy
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump upgrade [-d &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump upgrade [-d &lt;value&gt;] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -960,10 +929,6 @@ The current version XP installation must be running with the upgraded app deploy
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -993,7 +958,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump ls [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump ls</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1014,10 +979,6 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1053,7 +1014,7 @@ A load will delete all existing repositories before loading the repositories pre
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump load [-d &lt;value&gt;] [--upgrade] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump load [--d &lt;value&gt;] [-f] [--upgrade] [--a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1076,6 +1037,10 @@ A load will delete all existing repositories before loading the repositories pre
 <td class="tableblock halign-left valign-top"><p class="tableblock">dump name to load</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">assume “Yes” as answer to all prompts and run non-interactively</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--upgrade</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">upgrade the dump if necessary (default is false)</p></td>
 </tr>
@@ -1086,10 +1051,6 @@ A load will delete all existing repositories before loading the repositories pre
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1108,7 +1069,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:</div>
 <div class="content">
-<pre>$ enonic dump load -a su:password -d newDump -f --upgrade</pre>
+<pre>$ enonic dump load -a su:password --na newSu:newPassword -d newDump -f --upgrade</pre>
 </div>
 </div>
 </div>
@@ -1150,8 +1111,7 @@ OPTIONS:
    --skip-ids              Flag to skip ids in data when exporting.
    --skip-versions         Flag to skip versions in data when exporting.
    --dry                   Show the result without making actual changes.
-   --auth value, -a value  Authentication token for basic authentication (user:password)
-   -f, --force             Accept default answers to all prompts and run non-interactively</pre>
+   --auth value, -a value  Authentication token for basic authentication (user:password)</pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1200,8 +1160,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
      --skip-ids              Flag to skips ids when importing
      --skip-permissions      Flag to skips permissions when importing
      --dry                   Show the result without making actual changes.
-     -a value, --auth value  Authentication token for basic authentication (user:password)
-     -f, --force             Accept default answers to all prompts and run non-interactively</pre>
+     --auth value, -a value  Authentication token for basic authentication (user:password)</pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1270,7 +1229,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app install [--url &lt;value&gt;] [--file &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic app install [-u &lt;value&gt;] [-f &lt;value&gt;] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1289,20 +1248,16 @@ OPTIONS:
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--url</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-u, --url</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">the URL of the application</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --file</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path to an application file (mutually exclusive with url, used if both are present)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1319,131 +1274,15 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example installing app from a URL:</div>
+<div class="title">Example installing app from URL:</div>
 <div class="content">
-<pre>$ enonic app install -a su:password --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar</pre>
+<pre>$ enonic app install -a su:password -u https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar</pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Example installing app from a file:</div>
+<div class="title">Example installing app from file:</div>
 <div class="content">
-<pre>$ enonic app install -a su:password --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="start"><a class="link" href="#start">Start</a></h3>
-<div class="paragraph">
-<p>Start application on all nodes.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic app start &lt;app key&gt; [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;app key&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">application key</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example starting <code>com.enonic.app.superhero</code> app:</div>
-<div class="content">
-<pre>$ enonic app start com.enonic.app.superhero -a su:password</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="stop"><a class="link" href="#stop">Stop</a></h3>
-<div class="paragraph">
-<p>Stop application on all nodes.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic app stop &lt;app key&gt; [-a &lt;value&gt;] [-f]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;app key&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">application key</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example stopping <code>com.enonic.app.superhero</code> app:</div>
-<div class="content">
-<pre>$ enonic app stop com.enonic.app.superhero -a su:password</pre>
+<pre>$ enonic app install -a su:password -f /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar</pre>
 </div>
 </div>
 </div>
@@ -1481,7 +1320,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo reindex [--b &lt;value, value...&gt;] [-r &lt;value&gt;] [-i] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo reindex [--b &lt;value, value...&gt;] [-r &lt;value&gt;] [-i] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1512,12 +1351,8 @@ OPTIONS:
 <td class="tableblock halign-left valign-top"><p class="tableblock">if true, the indices will be deleted before recreated</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1547,7 +1382,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo readonly [readOnly] [-r &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo readonly [readOnly] [-r &lt;value&gt;] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1577,10 +1412,6 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -1605,11 +1436,11 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="sect2">
 <h3 id="replicas"><a class="link" href="#replicas">Replicas</a></h3>
 <div class="paragraph">
-<p>Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: <a href="https://developer.enonic.com/docs/xp/stable/deployment/clustering#shard_replication">Replica setup</a>.</p>
+<p>Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: <a href="https://xp.readthedocs.io/en/stable/operations/clustering.html#replica-setup">Replica setup</a>.</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo replicas [replicasNum] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo replicas [replicasNum] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1632,12 +1463,8 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock">whole number between 1 and 99 to set</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1667,7 +1494,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo list [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo list [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1686,12 +1513,8 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1760,7 +1583,7 @@ This command should be used after migrating content from Enonic CMS using the cm
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic cms reprocess [--path &lt;value&gt;] [--skip-children] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic cms reprocess [--path &lt;value&gt;] [--skip-children] [-a &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1787,12 +1610,8 @@ This command should be used after migrating content from Enonic CMS using the cm
 <td class="tableblock halign-left valign-top"><p class="tableblock">flag to skip processing of content children</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
 </tbody>
 </table>
@@ -1865,96 +1684,14 @@ OPTIONS:
 </div>
 </div>
 <div class="sect1">
-<h2 id="auditlog"><a class="link" href="#auditlog">Auditlog</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>List of commands for managing audit log repository can be seen by typing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic auditlog
-
-Manage audit log repository
-
-USAGE:
-   Enonic CLI auditlog command [command options] [arguments...]
-
-COMMANDS:
-     cleanup  Deletes records from audit log repository.
-
-OPTIONS:
-   --help, -h  show help</pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="cleanup"><a class="link" href="#cleanup">Cleanup</a></h3>
-<div class="paragraph">
-<p>Deletes records from audit log repository.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic auditlog cleanup</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--age</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">age of records to be removed.<br>
-<em>Format is based on the ISO-8601 duration format <code>PnDTnHnMn.nS</code> with days considered to be exactly 24 hours</em>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="listingblock">
-<div class="title">Example cleaning up audit log repository for the past 30 days:</div>
-<div class="content">
-<pre>$ enonic auditlog cleanup --age P30D</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="vacuum"><a class="link" href="#vacuum">Vacuum</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Permanently removes old versions and deleted items from disk.</p>
+<p>Removes unused data from storage.</p>
 </div>
 <div class="paragraph">
-<p>To support <code>snapshot restore</code> and a rich version history, XP does not physically remove the data from disk. The side-effect is that the disk usage will keep growing, even if you delete nodes from the repository. Vacuum command permanently removes old unused versions, as well as deleted nodes from disk. XP defines a default threshold of 21 days (configurable). This basically means that only items deleted at least 21 days ago, or version that are older than 21 days will be vacuumed.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Using the <code>-b</code> option will remove the underlying blobs, meaning restoring a snapshot that is older than 21 days (since last vacuum) will result in an inconsistent and broken dataset.
-</td>
-</tr>
-</table>
+<p>Working with the current running sandbox, the vacuum command will clean up the version history and the index segments that are not in use.
+To also clean up binary files and data, add the <code>-b</code> option.</p>
 </div>
 <div class="paragraph">
 <p>To list available configuration options, type:</p>
@@ -1970,44 +1707,9 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 
   OPTIONS:
      --blob, -b              Also removes unused blobs
-     --threshold, -t         Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
-     --auth value, -a value  Authentication token for basic authentication (user:password)
-     --force, -f             Accept default answers to all prompts and run non-interactively</pre>
+     --auth value, -a value  Authentication token for basic authentication (user:password)</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--blob, -b</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code> and <code>NodeBlobVacuumTask</code> in addition to <code>SegmentVacuumTask</code> and <code>VersionTableVacuumTask</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --threshold</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -2031,7 +1733,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:28:27 UTC
+Last updated 2024-04-15 08:28:50 UTC
 </div>
 </div>
 </body>

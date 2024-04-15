@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.22">
-<title>Cloud commands</title>
+<title>Release notes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,156 +437,322 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Cloud commands</h1>
+<h1>Release notes</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#cloud">Cloud</a>
+<li><a href="#v1_5_1">v1.5.1</a>
 <ul class="sectlevel2">
-<li><a href="#login">Login</a></li>
-<li><a href="#logout">Logout</a></li>
-<li><a href="#app">App</a></li>
+<li><a href="#bugs">Bugs</a></li>
+</ul>
+</li>
+<li><a href="#v1_5_0">v1.5.0</a>
+<ul class="sectlevel2">
+<li><a href="#features">Features</a></li>
+<li><a href="#improvements">Improvements</a></li>
+<li><a href="#bugs_2">Bugs</a></li>
+</ul>
+</li>
+<li><a href="#v1_4_0">v1.4.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_2">Improvements</a></li>
+<li><a href="#bugs_3">Bugs</a></li>
+</ul>
+</li>
+<li><a href="#v1_3_0">v1.3.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_3">Improvements</a></li>
+<li><a href="#bugs_4">Bugs</a></li>
+</ul>
+</li>
+<li><a href="#v1_2_1">v1.2.1</a>
+<ul class="sectlevel2">
+<li><a href="#bugs_5">Bugs</a></li>
+</ul>
+</li>
+<li><a href="#v1_2_0">v1.2.0</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_4">Improvements</a></li>
+</ul>
+</li>
+<li><a href="#v1_1_1">v1.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_5">Improvements</a></li>
+<li><a href="#bugs_6">Bugs</a></li>
+</ul>
+</li>
+<li><a href="#v_1_1_0">v.1.1.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_2">Features</a></li>
+<li><a href="#improvements_6">Improvements</a></li>
+<li><a href="#bugs_7">Bugs</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
+<div class="sect1">
+<h2 id="v1_5_1"><a class="link" href="#v1_5_1">v1.5.1</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>The following commands are used for managing Enonic Cloud.</p>
+<div class="sect2">
+<h3 id="bugs"><a class="link" href="#bugs">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow setting number of replicas to 0</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="cloud"><a class="link" href="#cloud">Cloud</a></h2>
+<h2 id="v1_5_0"><a class="link" href="#v1_5_0">v1.5.0</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>List of commands for managing Enonic Cloud can be seen by typing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic cloud
-
-Manage Enonic cloud
-
-USAGE:
-   enonic cloud [command] [command options] [arguments...]
-
-COMMANDS:
-     login   Login to Enonic Cloud
-     logout  Logout of Enonic Cloud
-     app     Manage apps in Enonic Cloud
-
-OPTIONS:
-   --help, -h  show help</pre>
+<div class="sect2">
+<h3 id="features"><a class="link" href="#features">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support <code>snapshot restore --latest</code></p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect2">
-<h3 id="login"><a class="link" href="#login">Login</a></h3>
-<div class="paragraph">
-<p>Login to Enonic Cloud.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic cloud login [-qr]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--qr</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print out QR code instead of url to log in with a mobile device</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect2">
-<h3 id="logout"><a class="link" href="#logout">Logout</a></h3>
-<div class="paragraph">
-<p>Log out from Enonic Cloud</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic cloud logout</pre>
-</div>
+<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Install apps from the project directory by default</p>
+</li>
+<li>
+<p>Show progress of <code>sandbox delete</code> command</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect2">
-<h3 id="app"><a class="link" href="#app">App</a></h3>
-<div class="paragraph">
-<p>Manage apps in Enonic Cloud.
-List of commands can be seen by typing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ enonic cloud app
-
-Manage apps in Enonic Cloud
-
-USAGE:
-   enonic cloud app [command] [command options] [arguments...]
-
-COMMANDS:
-     install  Install project jar to Enonic Cloud
-
-OPTIONS:
-   --help, -h  show help</pre>
+<h3 id="bugs_2"><a class="link" href="#bugs_2">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed permissions on <code>cloud</code> folder</p>
+</li>
+<li>
+<p>Command <code>enonic project ?</code> always returns exit code 0</p>
+</li>
+</ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="install"><a class="link" href="#install">Install</a></h4>
-<div class="paragraph">
-<p>Install project jar to Enonic Cloud.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ enonic cloud app install [-j &lt;value&gt;] [-t &lt;value&gt;] [-y]</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Options:</p>
+<div class="sect1">
+<h2 id="v1_4_0"><a class="link" href="#v1_4_0">v1.4.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Filter the list of distributions based on XP version of the project</p>
+</li>
+<li>
+<p>Check compatibility with sandbox' XP version before deploying an app</p>
+</li>
+</ul>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-j</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">jar to deploy (default: "./build/libs/*.jar")</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">upload timeout in seconds (default: 300)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-y</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">skip confirmation prompt</p></td>
-</tr>
-</tbody>
-</table>
+</div>
+<div class="sect2">
+<h3 id="bugs_3"><a class="link" href="#bugs_3">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>latest</code> returns incorrect result when called the first time</p>
+</li>
+<li>
+<p>Command <code>enonic project ?</code> always returns exit code 0</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_3_0"><a class="link" href="#v1_3_0">v1.3.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_3"><a class="link" href="#improvements_3">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add <code>--archive</code> parameter to <code>dump create</code> command</p>
+</li>
+<li>
+<p>Add <code>--archive</code> parameter to <code>dump load</code> command</p>
+</li>
+<li>
+<p>Show instructions on project deployment upon completing new project wizard</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bugs_4"><a class="link" href="#bugs_4">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>enonic repo readonly</code> command unnecessarily closes indices</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_2_1"><a class="link" href="#v1_2_1">v1.2.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bugs_5"><a class="link" href="#bugs_5">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Enonic sandbox does not start in detached mode on CentOS7/macOS</p>
+</li>
+<li>
+<p><code>deploy</code> command erases runtime PID info when sandbox was started in detached mode</p>
+</li>
+<li>
+<p><code>install</code> command gives NPE when env variable is not defined and host is not provided</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_2_0"><a class="link" href="#v1_2_0">v1.2.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_4"><a class="link" href="#improvements_4">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add support for proxy</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v1_1_1"><a class="link" href="#v1_1_1">v1.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements_5"><a class="link" href="#improvements_5">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Change update message when local version of CLI is the latest</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bugs_6"><a class="link" href="#bugs_6">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>CLI asks to start the sandbox that is already running</p>
+</li>
+<li>
+<p>Remove <em>enonic-xp-</em> from distro name in the sandbox list</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v_1_1_0"><a class="link" href="#v_1_1_0">v.1.1.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow passing flags to Gradle</p>
+</li>
+<li>
+<p>Enable <code>vacuum</code> command</p>
+</li>
+<li>
+<p>keep-alive in <code>cms reprocess</code></p>
+</li>
+<li>
+<p>keep-alive in <code>repo reindex</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements_6"><a class="link" href="#improvements_6">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add backwards compatibility for <code>reprocess</code> command</p>
+</li>
+<li>
+<p>Change update message when local version of CLI is the latest</p>
+</li>
+<li>
+<p>Flag to list B- and RC- versions of the distro on `create sandbox</p>
+</li>
+<li>
+<p>Hide password when dump upgrading</p>
+</li>
+<li>
+<p>Indicate latest, stable and unstable releases</p>
+</li>
+<li>
+<p>Make <code>import</code> top level command</p>
+</li>
+<li>
+<p>Show example of a custom repo path in project create wizard</p>
+</li>
+<li>
+<p><code>enonic app install --file</code> panics when file is not found</p>
+</li>
+<li>
+<p><code>enonic project create</code> project name cmdline parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bugs_7"><a class="link" href="#bugs_7">Bugs</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>After restart of server - token is invalid but no revalidation is attempted</p>
+</li>
+<li>
+<p>CLI does not exit on SIGINT (Crtl + C) when creating new projects</p>
+</li>
+<li>
+<p>Change <code>update</code> to <code>upgrade</code> in the description of how to upgrade CLI with brew</p>
+</li>
+<li>
+<p><code>deploy</code> task is interrupted when processId of previously running sandbox cannot be not found</p>
+</li>
+<li>
+<p><code>enonic project create --help</code> parameters not documented</p>
+</li>
+<li>
+<p><code>enonic project create</code> doesn&#8217;t include <code>.gitignore</code></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -594,7 +760,7 @@ OPTIONS:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:21:34 UTC
+Last updated 2024-04-15 08:28:50 UTC
 </div>
 </div>
 </body>
