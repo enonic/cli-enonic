@@ -33,13 +33,13 @@ npm install @enonic/cli -g
 $ enonic
 ```
 
-* Create a new _empty_ sandbox (local instance) called `mysandbox` on the latest stable release of Enonic XP:
+* Create and start a new _empty_ sandbox (local instance of Enonic XP) called `mysandbox` using the latest stable release of Enonic XP:
 
 ```bash
 $ enonic sandbox create mysandbox --skip-template -f
 ```
 
-* Create a new sandbox called `mysandbox` with the bare minimum of pre-installed applications on the latest stable release of Enonic XP:
+* Create and start a new sandbox called `mysandbox` with the bare minimum of pre-installed applications using the latest stable release of Enonic XP:
 
 ```bash
 $ enonic sandbox create mysandbox -t essentials -f
@@ -48,7 +48,7 @@ $ enonic sandbox create mysandbox -t essentials -f
 * Create a new project called `myproject` and link it to the `mysandbox` instance:
 
 ```bash
-$ enonic create com.example.myproject --sb mysandbox
+$ enonic create com.example.myproject -s mysandbox
 ```
 
 ### Available Commands
