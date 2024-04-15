@@ -1970,6 +1970,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 
   OPTIONS:
      --blob, -b              Also removes unused blobs
+     --threshold, -t         Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
      --auth value, -a value  Authentication token for basic authentication (user:password)
      --force, -f             Accept default answers to all prompts and run non-interactively</pre>
 </div>
@@ -2030,7 +2031,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-11 14:32:36 UTC
+Last updated 2024-04-15 08:21:34 UTC
 </div>
 </div>
 </body>

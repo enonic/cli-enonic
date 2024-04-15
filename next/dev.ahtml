@@ -517,7 +517,7 @@ There are two main commands available to assist developers with setting up and m
 <td class="tableblock halign-left valign-top"><p class="tableblock">repository path of the starter to base the project on. Format: &lt;enonic repo&gt; or &lt;organisation&gt;/&lt;repo&gt; on github or &lt;full repo url&gt;</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sb, --sandbox</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sandbox</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to link project to</p></td>
 </tr>
 <tr>
@@ -561,7 +561,7 @@ If you need to automate this command completely for pipeline integration, you ca
 <div class="listingblock">
 <div class="title">Example creating a project called 'foo' non-interactively in a new folder with the same name ('foo') using the Vanilla starter and existing sandbox called 'Sandbox1', with default version number ('1.0.0-SNAPSHOT'):</div>
 <div class="content">
-<pre>$ enonic create foo -f -r starter-vanilla --sb Sandbox1</pre>
+<pre>$ enonic create foo -f -r starter-vanilla -s Sandbox1</pre>
 </div>
 </div>
 </div>
@@ -674,7 +674,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic project create [name] [-n &lt;value&gt;] [-b &lt;value&gt;] [-c &lt;value&gt;] [-d &lt;value&gt;] [-r &lt;value&gt;] [-v &lt;value&gt;] [--sb &lt;value&gt;]</pre>
+<pre>$ enonic project create [name] [-n &lt;value&gt;] [-b &lt;value&gt;] [-c &lt;value&gt;] [-d &lt;value&gt;] [-r &lt;value&gt;] [-v &lt;value&gt;] [-s &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -726,7 +726,7 @@ OPTIONS:
 <td class="tableblock halign-left valign-top"><p class="tableblock">version number to assign to new project. Default value <code>1.0.0-SNAPSHOT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sb, --sandbox</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s, --sandbox</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to link project to</p></td>
 </tr>
 <tr>
@@ -1737,7 +1737,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-11 14:32:36 UTC
+Last updated 2024-04-15 08:21:34 UTC
 </div>
 </div>
 </body>
