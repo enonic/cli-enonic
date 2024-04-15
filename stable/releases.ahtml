@@ -512,15 +512,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="upgrade_notes"><a class="link" href="#upgrade_notes">Upgrade notes</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
+<div class="ulist">
+<ul>
+<li>
 <p>In CLI 3.x, the <code>sandbox start</code> command will start the sandbox in dev mode by default. If you want to start the sandbox in prod mode, provide the <code>--prod</code> option.</p>
+</li>
+<li>
+<p>All the commands that may potentially create a new sandbox (f.ex. <code>sandbox create</code> or <code>project create</code>) will now suggest starting the new sandbox after it&#8217;s created. If such a command is used in combination with <code>-f</code> (<code>--force</code>) option, the sandbox will be started without prompt. This may potentially affect some scripts if the command is followed by another command which now won&#8217;t be reached because script execution will be taken over by the running sandbox.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-15 08:28:27 UTC
+Last updated 2024-04-15 09:03:27 UTC
 </div>
 </div>
 </body>
