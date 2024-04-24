@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-      ARTIFACTORY_REPO_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+      ARTIFACTORY_REPO_USERNAME: ci
       ARTIFACTORY_REPO_SECRET: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
     steps:
