@@ -33,9 +33,11 @@ var Create = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		project := project.ProjectCreateWizard(c, true)
+		project, newBox := project.ProjectCreateWizard(c, true)
 
-		sandbox.AskToStartSandbox(c, project.Sandbox)
+		if newBox {
+			sandbox.AskToStartSandbox(c, project.Sandbox)
+		}
 
 		return nil
 	},

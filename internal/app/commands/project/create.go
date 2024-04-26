@@ -105,7 +105,7 @@ var Create = cli.Command{
 			Usage: "Application name.",
 		},
 		cli.StringFlag{
-			Name: "sandbox, sb, s",
+			Name:  "sandbox, sb, s",
 			Usage: "Sandbox name",
 		},
 		cli.BoolFlag{
@@ -121,15 +121,16 @@ var Create = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 
-		project := ProjectCreateWizard(c, false)
+		project, newBox := ProjectCreateWizard(c, false)
 
-		sandbox.AskToStartSandbox(c, project.Sandbox)
-
+		if newBox {
+			sandbox.AskToStartSandbox(c, project.Sandbox)
+		}
 		return nil
 	},
 }
 
-func ProjectCreateWizard(c *cli.Context, simplified bool) *common.ProjectData {
+func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, bool) {
 	fmt.Fprint(os.Stderr, "\n")
 
 	branch := c.String("branch")
@@ -167,7 +168,7 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) *common.ProjectData {
 	util.Fatal(err, "Error creating project")
 
 	sandboxName := c.String("sandbox")
-	pData := ensureProjectDataExists(c, dest, sandboxName, "A sandbox is required for your project, create one")
+	pData, newBox := ensureProjectDataExists(c, dest, sandboxName, "A sandbox is required for your project, create one")
 
 	if pData == nil || pData.Sandbox == "" {
 		fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
@@ -194,7 +195,7 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) *common.ProjectData {
 
 	fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic dev\n\n"), dest)
 
-	return pData
+	return pData, newBox
 }
 
 func ensureVersion(c *cli.Context, version string) string {

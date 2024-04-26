@@ -39,7 +39,8 @@ var Deploy = cli.Command{
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
 		}
-		if projectData := ensureProjectDataExists(c, ".", sandboxName, "A sandbox is required to deploy the project, do you want to create one"); projectData != nil {
+		if projectData, _ := ensureProjectDataExists(c, ".", sandboxName, "A sandbox is required to deploy the project, "+
+			"do you want to create one"); projectData != nil {
 			sandboxExists := sandbox.Exists(projectData.Sandbox)
 			tasks := []string{"deploy"}
 			if continuous {

@@ -54,7 +54,7 @@ func ensureValidProjectFolder(prjPath string) {
 	}
 }
 
-func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage string) *common.ProjectData {
+func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage string) (*common.ProjectData, bool) {
 	var newBox bool
 	var sBox *sandbox.Sandbox
 
@@ -74,7 +74,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage 
 
 	if force && badSandbox && sandboxName == "" {
 		// allow project without a sandbox in force mode
-		return projectData
+		return projectData, newBox
 	} else if badSandbox || sandboxName != "" {
 		sBox, newBox = sandbox.EnsureSandboxExists(c, sandbox.EnsureSandboxOptions{
 			MinDistroVersion: minDistroVersion,
@@ -84,7 +84,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage 
 			ShowCreateOption: true,
 		})
 		if sBox == nil {
-			return nil
+			return nil, newBox
 		}
 		projectData.Sandbox = sBox.Name
 		if badSandbox {
@@ -107,7 +107,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage 
 		}
 	}
 
-	return projectData
+	return projectData, newBox
 }
 
 func runGradleTask(projectData *common.ProjectData, message string, tasks ...string) {
