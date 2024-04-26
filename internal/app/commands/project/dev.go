@@ -22,7 +22,8 @@ var Dev = cli.Command{
 }
 
 func StartDevMode(c *cli.Context) {
-	if projectData := ensureProjectDataExists(c, ".", "", "A sandbox is required to run the project in dev mode, do you want to create one"); projectData != nil {
+	if projectData, _ := ensureProjectDataExists(c, ".", "", "A sandbox is required to run the project in dev mode, "+
+		"do you want to create one"); projectData != nil {
 
 		sbox := sandbox.ReadSandboxFromProjectOrAsk(c, false)
 
