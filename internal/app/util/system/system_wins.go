@@ -93,14 +93,14 @@ func Setpgid(pid, pgid int) error {
 }
 
 func KillAll(pid int) error {
-	pids := Getppids(uint32(pid))
+	pids := getppids(pid)
 	Kill(pids)
 	return nil
 }
 
-func Kill(pids []uint32) {
+func Kill(pids []int) {
 	for _, pid := range pids {
-		pro, err := os.FindProcess(int(pid))
+		pro, err := os.FindProcess(pid)
 		if err != nil {
 			continue
 		}
@@ -108,20 +108,20 @@ func Kill(pids []uint32) {
 	}
 }
 
-func Getppids(pid uint32) []uint32 {
+func getppids(pid int) []int {
 	infos, err := GetProcs()
 	if err != nil {
-		return []uint32{pid}
+		return []int{pid}
 	}
-	var pids []uint32 = make([]uint32, 0, len(infos))
+	var pids = make([]int, 0, len(infos))
 	var index int = 0
 	pids = append(pids, pid)
 
 	var length int = len(pids)
 	for index < length {
 		for _, info := range infos {
-			if info.PPid == pids[index] {
-				pids = append(pids, info.Pid)
+			if int(info.PPid) == pids[index] {
+				pids = append(pids, int(info.Pid))
 			}
 		}
 		index += 1
@@ -129,6 +129,7 @@ func Getppids(pid uint32) []uint32 {
 	}
 	return pids
 }
+
 func GetProcs() (procs []ProcessInfo, err error) {
 	snap := createToolhelp32Snapshot(TH32CS_SNAPPROCESS, uint32(0))
 	if snap == 0 {
@@ -148,6 +149,7 @@ func GetProcs() (procs []ProcessInfo, err error) {
 	}
 	return
 }
+
 func createToolhelp32Snapshot(flags, processId uint32) HANDLE {
 	ret, _, _ := procCreateToolhelp32Snapshot.Call(
 		uintptr(flags),
@@ -157,18 +159,21 @@ func createToolhelp32Snapshot(flags, processId uint32) HANDLE {
 	}
 	return HANDLE(ret)
 }
+
 func process32First(snapshot HANDLE, pe *PROCESSENTRY32) bool {
 	ret, _, _ := procProcess32First.Call(
 		uintptr(snapshot),
 		uintptr(unsafe.Pointer(pe)))
 	return ret != 0
 }
+
 func process32Next(snapshot HANDLE, pe *PROCESSENTRY32) bool {
 	ret, _, _ := procProcess32Next.Call(
 		uintptr(snapshot),
 		uintptr(unsafe.Pointer(pe)))
 	return ret != 0
 }
+
 func closeHandle(object HANDLE) bool {
 	ret, _, _ := procCloseHandle.Call(
 		uintptr(object))

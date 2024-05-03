@@ -36,7 +36,7 @@ var Start = cli.Command{
 		},
 		common.FORCE_FLAG,
 	},
-	Usage: "Start the sandbox in dev mode.",
+	Usage:     "Start the sandbox in dev mode.",
 	ArgsUsage: "<name>",
 	Action: func(c *cli.Context) error {
 
@@ -89,6 +89,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 
 	if isSandboxRunning {
 		if rData.Running == sandbox.Name && ((rData.Mode == common.MODE_DEV) == devMode) {
+			fmt.Fprintf(os.Stderr, "\nSandbox '%s' is already running.\n\n", sandbox.Name)
 			return nil, true
 		} else if !AskToStopSandbox(rData, force) {
 			return errors.New(fmt.Sprintf("Sandbox '%s' is already running in %s mode", rData.Running, rData.Mode)), true
@@ -110,15 +111,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode, debug)
 
-	var pid int
-	if !detach {
-		// current process' PID
-		pid = os.Getpid()
-	} else {
-		// current process will finish so use detached process' PID
-		pid = cmd.Process.Pid
-	}
-	writeRunningSandbox(sandbox.Name, pid, devMode)
+	writeRunningSandbox(sandbox.Name, cmd.Process.Pid, devMode)
 
 	if !detach {
 		util.ListenForInterrupt(func() {
