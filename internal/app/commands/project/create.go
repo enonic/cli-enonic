@@ -105,7 +105,7 @@ var Create = cli.Command{
 			Usage: "Application name.",
 		},
 		cli.StringFlag{
-			Name: "sandbox, sb, s",
+			Name:  "sandbox, sb, s",
 			Usage: "Sandbox name",
 		},
 		cli.BoolFlag{
@@ -608,6 +608,7 @@ func isRemoteBranchExist(repo *git.Repository, branch string) (bool, error) {
 
 func clearGitData(dest string) {
 	os.RemoveAll(filepath.Join(dest, ".git"))
+	os.RemoveAll(filepath.Join(dest, ".github"))
 }
 
 type StarterVersion struct {
