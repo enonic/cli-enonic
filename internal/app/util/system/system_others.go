@@ -1,14 +1,15 @@
-//go:build !windows && !darwin
-// +build !windows,!darwin
+//go:build !windows
 
 package system
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
 	"os/user"
 	"strconv"
+	"strings"
 	"syscall"
 )
 
@@ -87,5 +88,50 @@ func Kill(pids []int) {
 }
 
 func KillAll(pid int) error {
-	return syscall.Kill(-pid, syscall.SIGTERM)
+	pids, err := findChildPIDs(pid)
+	if err != nil {
+		return err
+	}
+	// Append the parent PID at the end to ensure it gets killed last
+	pids = append(pids, pid)
+
+	Kill(pids)
+
+	return nil
+}
+
+func findChildPIDs(parentPID int) ([]int, error) {
+	var pids []int
+	var out bytes.Buffer
+	// Using 'ps' to get child processes of a given PID
+	cmd := exec.Command("pgrep", "-P", strconv.Itoa(parentPID))
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		errCode := (err.(*exec.ExitError)).ExitCode()
+		if errCode == 1 {
+			// No child processes found
+			return pids, nil
+		} else if errCode == 2 {
+			// Syntax error
+			return nil, err
+		}
+	}
+	// Parse the output to get the child PIDs
+	for _, pidStr := range strings.Split(out.String(), "\n") {
+		pidStr = strings.TrimSpace(pidStr)
+		if pidStr != "" {
+			pid, err := strconv.Atoi(pidStr)
+			if err != nil {
+				continue // skip individual errors
+			}
+			pids = append(pids, pid)
+			// Recursively find children of this child
+			childPIDs, err := findChildPIDs(pid)
+			if err == nil {
+				pids = append(pids, childPIDs...)
+			}
+		}
+	}
+	return pids, nil
 }
