@@ -244,8 +244,10 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 	}
 
 	var selectOptions []string
+	var selectSandboxes []*Sandbox
 	if options.ShowCreateOption {
 		selectOptions = append(selectOptions, CREATE_NEW_BOX)
+		selectSandboxes = append(selectSandboxes, nil)
 	}
 	var boxName, defaultBox string
 	osWithArch := util.GetCurrentOsWithArch()
@@ -259,10 +261,11 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 			defaultBox = boxName
 		}
 		selectOptions = append(selectOptions, boxName)
+		selectSandboxes = append(selectSandboxes, box)
 	}
 
-	name, optionIndex, err := util.PromptSelect(&util.SelectOptions{
-		Message: options.SelectBoxMessage,
+	name, selectIndex, err := util.PromptSelect(&util.SelectOptions{
+		Message:  options.SelectBoxMessage,
 		Options:  selectOptions,
 		Default:  defaultBox,
 		PageSize: len(selectOptions),
@@ -274,10 +277,7 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 		return newBox, true
 	}
 
-	if options.ShowCreateOption {
-		optionIndex -= 1 // subtract 1 because of 'new sandbox' option
-	}
-	return existingBoxes[optionIndex], false
+	return selectSandboxes[selectIndex], false
 }
 
 func CopyHomeFolder(distroPath, sandboxName string) {

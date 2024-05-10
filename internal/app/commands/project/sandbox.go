@@ -23,7 +23,7 @@ var Sandbox = cli.Command{
 		var sandboxName string
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
-		} else {
+		} else if pData.Sandbox != "" {
 			fmt.Fprint(os.Stdout, "\n")
 			projectName := common.ReadProjectName(".")
 			question := fmt.Sprintf("\"%s\" is using sandbox \"%s\". Change the project's sandbox", projectName, pData.Sandbox)
