@@ -1,1 +1,1 @@
-:xp_version: 3.0.0
+:xp_version: 3.0.1
