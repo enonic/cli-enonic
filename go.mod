@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/Baozisoftware/qrcode-terminal-go v0.0.0-20170407111555-c0650d8dff0f
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.4.0
 	github.com/Masterminds/semver v1.5.0
 	github.com/briandowns/spinner v1.23.0
 	github.com/fatih/color v1.16.0
