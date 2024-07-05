@@ -30,6 +30,10 @@ var Deploy = cli.Command{
 			Name:  "continuous, c",
 			Usage: "Watch changes and deploy project continuously",
 		},
+		cli.BoolFlag{
+			Name:  "skip-start",
+			Usage: "Don't ask to start sandbox after deploying the project",
+		},
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
@@ -46,7 +50,7 @@ var Deploy = cli.Command{
 			if continuous {
 				tasks = append(tasks, "--continuous")
 				// ask to run sandbox in detached mode before gradle deploy because it has continuous flag
-				if sandboxExists {
+				if sandboxExists && !c.Bool("skip-start") {
 					sandbox.AskToStartSandbox(c, projectData.Sandbox)
 					fmt.Fprintln(os.Stderr, "")
 				}
@@ -61,7 +65,7 @@ var Deploy = cli.Command{
 			runGradleTask(projectData, deployMessage, tasks...)
 			fmt.Fprintln(os.Stderr, "")
 
-			if sandboxExists {
+			if sandboxExists && !c.Bool("skip-start") {
 				if !continuous {
 					sandbox.AskToStartSandbox(c, projectData.Sandbox)
 				} else if rData := common.ReadRuntimeData(); rData.Running != "" {
