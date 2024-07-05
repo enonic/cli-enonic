@@ -117,13 +117,17 @@ var Create = cli.Command{
 			Name:  "prod",
 			Usage: "Run Enonic XP distribution in non-development mode",
 		},
+		cli.BoolFlag{
+			Name:  "skip-start",
+			Usage: "Don't ask to start sandbox after creating the project",
+		},
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 
 		project, newBox := ProjectCreateWizard(c, false)
 
-		if newBox {
+		if newBox && !c.Bool("skip-start") {
 			sandbox.AskToStartSandbox(c, project.Sandbox)
 		}
 		return nil

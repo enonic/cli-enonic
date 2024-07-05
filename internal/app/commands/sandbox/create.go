@@ -74,6 +74,10 @@ var Create = cli.Command{
 			Name:  "prod",
 			Usage: "Run Enonic XP distribution in non-development mode",
 		},
+		cli.BoolFlag{
+			Name:  "skip-start",
+			Usage: "Don't ask to start sandbox after creation",
+		},
 		common.FORCE_FLAG,
 	},
 	Action: func(c *cli.Context) error {
@@ -84,7 +88,9 @@ var Create = cli.Command{
 		}
 		sbox := SandboxCreateWizard(c, name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
 
-		AskToStartSandbox(c, sbox.Name)
+		if !c.Bool("skip-start") {
+			AskToStartSandbox(c, sbox.Name)
+		}
 
 		return nil
 	},
