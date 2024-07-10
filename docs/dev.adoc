@@ -29,6 +29,9 @@ Options:
 |`--prod`
 |run Enonic XP distribution in non-development mode
 
+|`--skip-start`
+|If a new sandbox was created during project creation, do not start it
+
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 
@@ -125,7 +128,7 @@ Options:
 |project name (e.g. `com.example.myapp`). Can also be specified using `--name` flag
 
 |`-n, --name`
-|project name. Overrides [name] argument if specified
+|project name. Overrides `[name]` argument if specified
 
 |`-r, --repo, +
 --repository`
@@ -150,8 +153,8 @@ Options:
 |`--prod`
 |run Enonic XP distribution in non-development mode
 
-|`-a, --auth`
-|authentication token for basic authentication in the following format <user:password>
+|`--skip-start`
+|If a new sandbox was created during project creation, do not start it
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -280,6 +283,9 @@ Options:
 |Option
 |Description
 
+|`name`
+|sandbox name to deploy to (overrides associated sandbox)
+
 |`--prod`
 |run Enonic XP distribution in non-development mode
 
@@ -289,8 +295,8 @@ Options:
 |`-c, --continuous`
 |watch changes and deploy project continuously
 
-|`name`
-|sandbox name to deploy to (overrides associated sandbox)
+|`--skip-start`
+|Do not start the new sandbox after deployment
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -454,10 +460,13 @@ Options:
 |use specific distro version
 
 |`-a, --all`
-|list all distro versions (including Betas and Release Candidates)
+|include pre-releases when selecting XP version for the new sandbox
 
 |`--prod`
 |run Enonic XP distribution in non-development mode
+
+|`--skip-start`
+|Do not start the new sandbox after creation
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
