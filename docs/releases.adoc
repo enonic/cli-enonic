@@ -1,6 +1,12 @@
 = Release notes
 
-== CLI 3
+== CLI v3.1
+
+=== Improvements
+
+* Support `--skip-start` option for `sandbox create`, `project create` and `project deploy` commands
+
+== CLI v3.0
 
 === Features
 
