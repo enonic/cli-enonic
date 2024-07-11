@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.22">
+<meta name="generator" content="Asciidoctor 2.0.23">
 <title>Development commands</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -525,6 +525,10 @@ There are two main commands available to assist developers with setting up and m
 <td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-start</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If a new sandbox was created during project creation, do not start it</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
 </tr>
@@ -701,7 +705,7 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-n, --name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">project name. Overrides [name] argument if specified</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">project name. Overrides <code>[name]</code> argument if specified</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo,<br>
@@ -734,8 +738,8 @@ OPTIONS:
 <td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-start</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If a new sandbox was created during project creation, do not start it</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1016,6 +1020,10 @@ In that case system wide java version will be used.
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to deploy to (overrides associated sandbox)</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
 </tr>
@@ -1028,8 +1036,8 @@ In that case system wide java version will be used.
 <td class="tableblock halign-left valign-top"><p class="tableblock">watch changes and deploy project continuously</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">sandbox name to deploy to (overrides associated sandbox)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-start</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not start the new sandbox after deployment</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1387,11 +1395,15 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">list all distro versions (including Betas and Release Candidates)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">include pre-releases when selecting XP version for the new sandbox</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--prod</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">run Enonic XP distribution in non-development mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--skip-start</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not start the new sandbox after creation</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1737,7 +1749,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-10 08:20:44 UTC
+Last updated 2024-07-11 09:28:42 UTC
 </div>
 </div>
 </body>

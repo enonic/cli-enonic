@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.22">
+<meta name="generator" content="Asciidoctor 2.0.23">
 <title>Release notes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -441,10 +441,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#cli_3">CLI 3</a>
+<li><a href="#cli_v3_1">CLI v3.1</a>
+<ul class="sectlevel2">
+<li><a href="#improvements">Improvements</a></li>
+</ul>
+</li>
+<li><a href="#cli_v3_0">CLI v3.0</a>
 <ul class="sectlevel2">
 <li><a href="#features">Features</a></li>
-<li><a href="#improvements">Improvements</a></li>
+<li><a href="#improvements_2">Improvements</a></li>
 <li><a href="#bug_fixes">Bug fixes</a></li>
 </ul>
 </li>
@@ -454,7 +459,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="cli_3"><a class="link" href="#cli_3">CLI 3</a></h2>
+<h2 id="cli_v3_1"><a class="link" href="#cli_v3_1">CLI v3.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support <code>--skip-start</code> option for <code>sandbox create</code>, <code>project create</code> and <code>project deploy</code> commands</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v3_0"><a class="link" href="#cli_v3_0">CLI v3.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="features"><a class="link" href="#features">Features</a></h3>
@@ -479,7 +499,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
+<h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -527,7 +547,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-10 08:20:44 UTC
+Last updated 2024-07-11 09:28:42 UTC
 </div>
 </div>
 </body>
