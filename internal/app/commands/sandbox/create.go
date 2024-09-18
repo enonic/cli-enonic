@@ -143,8 +143,6 @@ func promptTemplate(c *cli.Context, force bool) *Template {
 func addTemplateToSandbox(box *Sandbox, template *Template) {
 	boxPath := GetSandboxHomePath(box.Name)
 	configDir := createFolderIfNotExist(boxPath, "config")
-	templateFile := util.OpenOrCreateDataFile(filepath.Join(configDir, TEMPLATE_FILE), false)
-	defer templateFile.Close()
 
 	var appsJson []interface{}
 	for _, app := range template.Data.Applications {
@@ -153,8 +151,14 @@ func addTemplateToSandbox(box *Sandbox, template *Template) {
 			"config": app.AppConfig.Config,
 		})
 	}
-	err := json.NewEncoder(templateFile).Encode(appsJson)
-	util.Warn(err, "Could not write template to sandbox: ")
+
+	if len(appsJson) > 0 {
+		templateFile := util.OpenOrCreateDataFile(filepath.Join(configDir, TEMPLATE_FILE), false)
+		defer templateFile.Close()
+
+		err := json.NewEncoder(templateFile).Encode(appsJson)
+		util.Warn(err, "Could not write template to sandbox: ")
+	}
 }
 
 func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage,
