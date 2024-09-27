@@ -31,7 +31,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: GoReleaser Action
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
             args: release --clean --parallelism=1
         env:
