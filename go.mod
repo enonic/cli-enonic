@@ -18,7 +18,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
 	github.com/urfave/cli v1.22.15
-	golang.org/x/crypto v0.26.0
+	golang.org/x/crypto v0.27.0
 	gopkg.in/AlecAivazis/survey.v1 v1.8.8
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/src-d/go-git.v4 v4.13.1
@@ -43,8 +43,8 @@ require (
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
