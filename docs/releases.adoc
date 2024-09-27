@@ -1,5 +1,11 @@
 = Release notes
 
+== CLI v3.1.1
+
+=== Bug fixes
+
+* Don't create an empty config file when selecting "Clean/Empty" template for a new sandbox
+
 == CLI v3.1
 
 === Improvements
