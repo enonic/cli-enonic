@@ -506,7 +506,7 @@ With Homebrew installed, run the following command in your terminal app to add e
 <div class="sect3">
 <h4 id="direct_download"><a class="link" href="#direct_download">Direct download</a></h4>
 <div class="paragraph">
-<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Darwin_64-bit.tar.gz">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Darwin_arm64.tar.gz">ARM</a></p>
+<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Darwin_64-bit.tar.gz">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Darwin_arm64.tar.gz">ARM</a></p>
 </div>
 </div>
 </div>
@@ -537,7 +537,7 @@ With Homebrew installed, run the following command in your terminal app to add e
 <div class="sect3">
 <h4 id="direct_download_2"><a class="link" href="#direct_download_2">Direct download</a></h4>
 <div class="paragraph">
-<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Linux_64-bit.tar.gz">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Linux_arm64.tar.gz">ARM</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Linux_arm_v6.tar.gz">ARMv6</a></p>
+<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Linux_64-bit.tar.gz">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Linux_arm64.tar.gz">ARM</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Linux_arm_v6.tar.gz">ARMv6</a></p>
 </div>
 </div>
 </div>
@@ -588,7 +588,7 @@ With Homebrew installed, run the following command in your terminal app to add e
 <div class="sect3">
 <h4 id="direct_download_3"><a class="link" href="#direct_download_3">Direct download</a></h4>
 <div class="paragraph">
-<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Windows_64-bit.zip">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.0/enonic_3.1.0_Windows_arm_v6.zip">ARMv6</a></p>
+<p>You can download CLI directly from our repository: <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Windows_64-bit.zip">x64</a> | <a href="https://repo.enonic.com/public/com/enonic/cli/enonic/3.1.1/enonic_3.1.1_Windows_arm_v6.zip">ARMv6</a></p>
 </div>
 </div>
 </div>
@@ -633,7 +633,7 @@ This command will not work if you installed CLI via direct download or native Wi
 <pre>$ enonic latest
 
 Loading...
-You are using the latest version of Enonic CLI: 3.1.0</pre>
+You are using the latest version of Enonic CLI: 3.1.1</pre>
 </div>
 </div>
 </div>
@@ -669,7 +669,7 @@ This command will not work if you installed CLI via direct download or native Wi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-07-11 14:36:39 UTC
+Last updated 2024-09-27 08:15:01 UTC
 </div>
 </div>
 </body>
