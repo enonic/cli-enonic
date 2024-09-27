@@ -183,10 +183,6 @@ brews:
       name: goreleaserbot
       email: bot@goreleaser.com
 
-    # Folder inside the repository to put the formula.
-    # Default is the root folder.
-    folder: Formula
-
     # Your app's homepage.
     # Default is empty.
     homepage: https://enonic.com/
