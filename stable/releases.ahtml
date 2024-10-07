@@ -441,9 +441,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#cli_v3_1_1">CLI v3.1.1</a>
+<li><a href="#cli_v3_1_2">CLI v3.1.2</a>
 <ul class="sectlevel2">
 <li><a href="#bug_fixes">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#cli_v3_1_1">CLI v3.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_2">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#cli_v3_1">CLI v3.1</a>
@@ -455,7 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#features">Features</a></li>
 <li><a href="#improvements_2">Improvements</a></li>
-<li><a href="#bug_fixes_2">Bug fixes</a></li>
+<li><a href="#bug_fixes_3">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#upgrade_notes">Upgrade notes</a></li>
@@ -464,10 +469,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="cli_v3_1_1"><a class="link" href="#cli_v3_1_1">CLI v3.1.1</a></h2>
+<h2 id="cli_v3_1_2"><a class="link" href="#cli_v3_1_2">CLI v3.1.2</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix SHA256 mismatch for the Brew tap</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v3_1_1"><a class="link" href="#cli_v3_1_1">CLI v3.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -538,7 +558,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
+<h3 id="bug_fixes_3"><a class="link" href="#bug_fixes_3">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -567,7 +587,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-09-27 08:15:01 UTC
+Last updated 2024-10-07 14:57:34 UTC
 </div>
 </div>
 </body>
