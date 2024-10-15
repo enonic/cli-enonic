@@ -77,7 +77,7 @@ type RemotesData struct {
 }
 
 func readRemotesData() RemotesData {
-	path := filepath.Join(util.GetHomeDir(), ".enonic", ".enonic")
+	path := filepath.Join(util.GetEnonicHome(), ".enonic")
 	file := util.OpenOrCreateDataFile(path, true)
 	defer file.Close()
 
@@ -90,7 +90,7 @@ func readRemotesData() RemotesData {
 }
 
 func writeRemotesData(data RemotesData) {
-	path := filepath.Join(util.GetHomeDir(), ".enonic", ".enonic")
+	path := filepath.Join(util.GetEnonicHome(), ".enonic")
 	file := util.OpenOrCreateDataFile(path, false)
 	defer file.Close()
 
