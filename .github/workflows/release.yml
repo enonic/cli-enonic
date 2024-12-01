@@ -28,7 +28,7 @@ jobs:
           go-version: 1.22.0
 
       - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
+        uses: samuelmeuli/action-snapcraft@v3
 
       - name: GoReleaser Action
         uses: goreleaser/goreleaser-action@v6
