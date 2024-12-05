@@ -49,8 +49,10 @@ func createVacuumRequest(c *cli.Context) *http.Request {
 	params := map[string]interface{}{}
 	if c.Bool("blob") {
 		params["tasks"] = []string{
-			"NodeBlobVacuumTask", "BinaryBlobVacuumTask", "SegmentVacuumTask", "VersionTableVacuumTask",
+			"NodeBlobVacuumTask", "BinaryBlobVacuumTask", "SegmentVacuumTask", "VersionTableVacuumTask", "SnapshotsVacuumTask",
 		}
+	} else {
+		params["tasks"] = []string{"SegmentVacuumTask", "VersionTableVacuumTask", "SnapshotsVacuumTask"}
 	}
 	if c.IsSet("threshold") {
 		params["ageThreshold"] = c.String("threshold")
