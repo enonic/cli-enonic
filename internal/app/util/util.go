@@ -257,6 +257,13 @@ func GetCurrentOsWithArch() string {
 	return currentOs
 }
 
+func GetEnonicHome() string {
+	// Using go-homedir instead of user.Current()
+	// because of https://github.com/golang/go/issues/6376
+	home := GetHomeDir()
+	return filepath.Join(home, ".enonic")
+}
+
 // Taken from go-homedir
 func GetHomeDir() string {
 	var result string
