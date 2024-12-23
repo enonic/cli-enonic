@@ -57,6 +57,11 @@ var AUTH_FLAG = cli.StringFlag{
 	Usage: "Authentication token for basic authentication (user:password)",
 }
 
+var SERVICE_ACCOUNT_FLAG = cli.StringFlag{
+	Name:  "service-account, sa",
+	Usage: "Filename with service account key information (file must be in JSON format)",
+}
+
 var FORCE_FLAG = cli.BoolFlag{
 	Name:  "force, f",
 	Usage: "Accept default answers to all prompts and run non-interactively",
@@ -212,14 +217,27 @@ func EnsureAuth(authString string, force bool) (string, string) {
 	return splitAuth[0], splitAuth[1]
 }
 
+func generateJwtToken(valued string) string {
+	jwtToken, err := loadServiceAccountFile(valued)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	return jwtToken
+}
+
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
-	var auth, user, pass string
+	var auth, user, pass, serviceAccount string
 	if c != nil {
 		auth = c.String("auth")
+		serviceAccount = c.String("service-account")
 	}
 
-	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "") {
-		if auth == "" {
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || serviceAccount != "") {
+		if serviceAccount != "" {
+			jwtToken := generateJwtToken(serviceAccount)
+			return doCreateRequestWithBearerToken(method, url, jwtToken, body)
+		} else if auth == "" {
 			activeRemote := remote.GetActiveRemote()
 			if activeRemote.User != "" || activeRemote.Pass != "" {
 				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
@@ -229,6 +247,46 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	}
 
 	return doCreateRequest(method, url, user, pass, body, IsForceMode(c))
+}
+
+func doCreateRequestWithBearerToken(method, reqUrl, jwtToken string, body io.Reader) *http.Request {
+	var (
+		host, scheme, port, path string
+	)
+
+	parsedUrl, err := url.Parse(reqUrl)
+	util.Fatal(err, "Not a valid url: "+reqUrl)
+
+	if parsedUrl.IsAbs() {
+		host = parsedUrl.Hostname()
+		port = parsedUrl.Port()
+		scheme = parsedUrl.Scheme
+		path = parsedUrl.Path
+	} else {
+		activeRemote := remote.GetActiveRemote()
+		host = activeRemote.Url.Hostname()
+		port = activeRemote.Url.Port()
+		scheme = activeRemote.Url.Scheme
+
+		runeUrl := []rune(reqUrl)
+		if runeUrl[0] == '/' {
+			// absolute path
+			path = reqUrl
+		} else {
+			// relative path
+			path = activeRemote.Url.Path + "/" + reqUrl
+		}
+	}
+
+	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s%s", scheme, host, port, path), body)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Params error: ", err)
+		os.Exit(1)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	return req
 }
 
 func doCreateRequest(method, reqUrl, user, pass string, body io.Reader, force bool) *http.Request {
