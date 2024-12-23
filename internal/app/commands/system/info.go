@@ -12,7 +12,7 @@ var Info = cli.Command{
 	Name:    "info",
 	Aliases: []string{"i"},
 	Usage:   "XP distribution info",
-	Flags:   []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
+	Flags:   []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 
 		req := common.CreateRequest(c, "GET", "http://localhost:2609/server", nil)
@@ -31,7 +31,7 @@ type InfoResponse struct {
 	Version      string
 	Installation string
 	RunMode      string
-	Build struct {
+	Build        struct {
 		Hash      string
 		ShortHash string
 		Branch    string

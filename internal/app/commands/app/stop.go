@@ -14,7 +14,7 @@ var Stop = cli.Command{
 	Name:      "stop",
 	Usage:     "Stop an application",
 	ArgsUsage: "<app key>",
-	Flags:     append([]cli.Flag{}, common.AUTH_FLAG, common.FORCE_FLAG),
+	Flags:     append([]cli.Flag{}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		key := ensureAppKeyArg(c)
