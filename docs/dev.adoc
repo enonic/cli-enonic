@@ -331,6 +331,9 @@ Options:
 |`-a, --auth`
 |Authentication token for basic authentication in the following format <user:password>
 
+|`--cred-file`
+|The absolute path to the service account key file (in JSON format). This file is used to create a signed JWT token, which is included in the `Authorization: Bearer <token>` header to access protected resources. This is available only for users with System ID Provider. If specified, the flag `--auth` or `-a` will be ignored.
+
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
@@ -350,6 +353,9 @@ Options:
 
 |`-a, --auth`
 |Authentication token for basic authentication in the following format <user:password>
+
+|`--cred-file`
+|The absolute path to the service account key file (in JSON format). This file is used to create a signed JWT token, which is included in the `Authorization: Bearer <token>` header to access protected resources. This is available only for users with System ID Provider. If specified, the flag `--auth` or `-a` will be ignored.
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
