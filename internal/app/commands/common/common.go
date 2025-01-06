@@ -217,11 +217,20 @@ func EnsureAuth(authString string, force bool) (string, string) {
 	return splitAuth[0], splitAuth[1]
 }
 
+func resolveCredFile(path string) string {
+	pathFromEnv := os.Getenv("ENONIC_CLI_CRED_FILE")
+	if pathFromEnv != "" {
+		return pathFromEnv
+	} else {
+		return path
+	}
+}
+
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
 	var auth, user, pass, credFilePath string
 	if c != nil {
 		auth = c.String("auth")
-		credFilePath = c.String("cred-file")
+		credFilePath = resolveCredFile(c.String("cred-file"))
 	}
 
 	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || credFilePath != "") {
