@@ -1,0 +1,6 @@
+[NOTE]
+====
+* if the `auth` param is missing and there is no valid session the CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<environment_variables, configuration section.>>
+
+* if the `cred-file` param is missing, the CLI will look for the `ENONIC_CLI_CRED_FILE` environment variable. If this environment variable is also missing, then the CLI will fall back to the `auth` param. See <<environment_variables, configuration section.>>
+====
