@@ -217,12 +217,13 @@ func EnsureAuth(authString string, force bool) (string, string) {
 	return splitAuth[0], splitAuth[1]
 }
 
-func resolveCredFile(path string) string {
-	pathFromEnv := os.Getenv("ENONIC_CLI_CRED_FILE")
-	if pathFromEnv != "" {
+func resolveCredFilePath(path string) string {
+	if path != "" {
+		return path
+	} else if pathFromEnv := os.Getenv("ENONIC_CLI_CRED_FILE"); pathFromEnv != "" {
 		return pathFromEnv
 	} else {
-		return path
+		return ""
 	}
 }
 
@@ -230,14 +231,16 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	var auth, user, pass, credFilePath string
 	if c != nil {
 		auth = c.String("auth")
-		credFilePath = resolveCredFile(c.String("cred-file"))
+		credFilePath = resolveCredFilePath(c.String("cred-file"))
 	}
 
 	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
 			return doCreateRequestWithBearerToken(method, url, jwtToken, body)
-		} else if auth == "" {
+		}
+
+		if auth == "" {
 			activeRemote := remote.GetActiveRemote()
 			if activeRemote.User != "" || activeRemote.Pass != "" {
 				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
