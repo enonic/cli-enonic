@@ -71,7 +71,7 @@ Options:
 |Option
 |Description
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-r, --repo`
 |the name of the repository to snapshot.
@@ -80,7 +80,7 @@ include::auth_macro.adoc[]
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example creating new snapshot from 'cms-repo':
 ----
@@ -99,13 +99,13 @@ Options:
 |Option
 |Description
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 === Restore
 
@@ -128,13 +128,13 @@ Options:
 |`--clean`
 |delete indices before restoring
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 === Delete
 
@@ -154,13 +154,13 @@ Options:
 |`--snap, --snapshot`
 |snapshot name to delete
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 == Dump
 
@@ -211,13 +211,13 @@ Options:
 |`--archive`
 |outputs dump output to an archive (%name%.zip) file (default is false)
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example creating new dump named 'myDump' using `auth` param:
 ----
@@ -241,13 +241,13 @@ Options:
 |`-d`
 |dump name
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example upgrading dump named 'myDump' to current version:
 ----
@@ -266,13 +266,13 @@ Options:
 |Option
 |Description
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 === Load
 
@@ -297,13 +297,13 @@ Options:
 |`--archive`
 |loads dump form an archive (%name%.zip) file (default is false)
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary using `auth` param:
 ----
@@ -338,7 +338,7 @@ OPTIONS:
    -f, --force             Accept default answers to all prompts and run non-interactively
 ----
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:
 ----
@@ -373,7 +373,7 @@ $ enonic import -h
      -f, --force             Accept default answers to all prompts and run non-interactively
 ----
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example using `auth` param:
 ----
@@ -425,13 +425,13 @@ Options:
 |`--file`
 |path to an application file (mutually exclusive with url, used if both are present)
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example installing app from a URL:
 ----
@@ -457,13 +457,13 @@ Options:
 |`<app key>`
 |application key
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example starting `com.enonic.app.superhero` app:
 ----
@@ -485,13 +485,13 @@ Options:
 |`<app key>`
 |application key
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example stopping `com.enonic.app.superhero` app:
 ----
@@ -540,13 +540,13 @@ Options:
 |`-i`
 |if true, the indices will be deleted before recreated
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:
 ----
@@ -571,13 +571,13 @@ Options:
 |`-r`
 |single repository to toggle read-only mode for
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example setting 'cms-repo' repository to read-only mode:
 ----
@@ -599,13 +599,13 @@ Options:
 |`replicasNum`
 |whole number between 1 and 99 to set
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example setting number of replicas to 3:
 ----
@@ -624,13 +624,13 @@ Options:
 |Option
 |Description
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example listing repositories:
 ----
@@ -680,13 +680,13 @@ Options:
 |`--skip-children`
 |flag to skip processing of content children
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example reprocessing media in branch 'draft' and content path '/some-content':
 ----
@@ -770,7 +770,7 @@ Options:
 |age of records to be removed. +
 _Format is based on the ISO-8601 duration format `PnDTnHnMn.nS` with days considered to be exactly 24 hours_.
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -820,13 +820,13 @@ Options:
 |`-t, --threshold`
 |Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example
 ----

@@ -328,7 +328,7 @@ Options:
 |Option
 |Description
 
-include::auth_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -336,7 +336,7 @@ include::auth_macro.adoc[]
 
 IMPORTANT: Enonic XP instance must be running when executing this command !
 
-include::auth_notes_macro.adoc[]
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 Install command does 2 things:
 
