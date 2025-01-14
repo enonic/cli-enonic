@@ -25,7 +25,7 @@ var Vacuum = cli.Command{
 			Usage: "Age of data to be removed in ISO-8601 duration format " +
 				"PnDTnHnMn.nS with days considered to be exactly 24 hours",
 		},
-	}, common.AUTH_FLAG, common.FORCE_FLAG),
+	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 		req := createVacuumRequest(c)
 
@@ -49,8 +49,10 @@ func createVacuumRequest(c *cli.Context) *http.Request {
 	params := map[string]interface{}{}
 	if c.Bool("blob") {
 		params["tasks"] = []string{
-			"NodeBlobVacuumTask", "BinaryBlobVacuumTask", "SegmentVacuumTask", "VersionTableVacuumTask",
+			"NodeBlobVacuumTask", "BinaryBlobVacuumTask", "SegmentVacuumTask", "VersionTableVacuumTask", "SnapshotsVacuumTask",
 		}
+	} else {
+		params["tasks"] = []string{"SegmentVacuumTask", "VersionTableVacuumTask", "SnapshotsVacuumTask"}
 	}
 	if c.IsSet("threshold") {
 		params["ageThreshold"] = c.String("threshold")

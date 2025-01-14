@@ -12,7 +12,7 @@ var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "Returns a list of existing snapshots with name and status.",
-	Flags:   []cli.Flag{common.AUTH_FLAG, common.FORCE_FLAG},
+	Flags:   []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
 
 		snapshots := listSnapshots(c)

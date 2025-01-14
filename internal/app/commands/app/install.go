@@ -31,7 +31,7 @@ var Install = cli.Command{
 			Name:  "file",
 			Usage: "Application file",
 		},
-	}, common.AUTH_FLAG, common.FORCE_FLAG),
+	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
 	Action: func(c *cli.Context) error {
 
 		file, url := ensureURLOrFileFlag(c)
