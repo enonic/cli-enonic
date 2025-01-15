@@ -318,11 +318,7 @@ func updateXPConfig(sandboxName string) {
 }
 
 func ensureDirStructure() {
-	// Using go-homedir instead of user.Current()
-	// because of https://github.com/golang/go/issues/6376
-	home := util.GetHomeDir()
-
-	enonicPath := filepath.Join(home, ".enonic")
+	enonicPath := util.GetEnonicHome()
 	enonicPathInfo, _ := os.Lstat(enonicPath)
 	enonicPathExists := enonicPathInfo != nil
 	enonicPathIsSymlink := enonicPathExists && enonicPathInfo.Mode()&os.ModeSymlink == os.ModeSymlink
@@ -374,8 +370,8 @@ func ensureDirStructure() {
 		}
 	}
 
-	createFolderIfNotExist(home, ".enonic", "distributions")
-	createFolderIfNotExist(home, ".enonic", "sandboxes")
+	createFolderIfNotExist(enonicPath, "distributions")
+	createFolderIfNotExist(enonicPath, "sandboxes")
 }
 
 func mustMove(from, to string) {
