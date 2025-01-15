@@ -28,6 +28,8 @@ import (
 	"time"
 )
 
+const ENONIC_CLI_HOME_ENV_VAR_NAME = "ENONIC_CLI_HOME_PATH"
+
 func PrettyPrintJSON(data interface{}) string {
 	var out = new(bytes.Buffer)
 	enc := json.NewEncoder(out)
@@ -261,8 +263,8 @@ func GetEnonicHome() string {
 	// Using go-homedir instead of user.Current()
 	// because of https://github.com/golang/go/issues/6376
 	home := GetHomeDir()
-	// Allow people to override it, using the environment variable ENONIC_HOME_PATH.
-	if envHome := os.Getenv("ENONIC_HOME_PATH"); envHome != "" {
+	// Allow people to override it, using the environment variable ENONIC_CLI_HOME_PATH.
+	if envHome := os.Getenv(ENONIC_CLI_HOME_ENV_VAR_NAME); envHome != "" {
 		home = envHome
 	}
 	return filepath.Join(home, ".enonic")
