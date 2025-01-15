@@ -24,8 +24,8 @@ func TestGetEnonicDir(t *testing.T) {
 
 func TestGetEnonicDirOverridden(t *testing.T) {
 	expected := "/root/.enonic"
-	os.Setenv("ENONIC_HOME_PATH", "/root")
-	defer os.Unsetenv("ENONIC_HOME_PATH")
+	os.Setenv("ENONIC_CLI_HOME_PATH", "/root")
+	defer os.Unsetenv("ENONIC_CLI_HOME_PATH")
 	home := GetEnonicHome()
 	if (home != expected) {
 		t.Errorf("GetHomeDir() failed: %s", home)
