@@ -56,7 +56,7 @@ OPTIONS:
 
 === Create
 
-Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://developer.enonic.com/docs/xp/stable/deployment/config#repo[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://developer.enonic.com/docs/xp/stable/deployment/backup-restore[Backup and Restore] for more information on snapshots.
 
 WARNING: For a clustered installation, the snapshot-location must be on a shared file-system.
 
@@ -87,7 +87,7 @@ $ enonic snapshot create -a su:password -r cms-repo
 
 === List
 
-List all the snapshots for the installation. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+List all the snapshots for the installation. For more information on snapshots, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore[Backup and Restore].
 
  $ enonic snapshot ls
 
@@ -108,7 +108,7 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 === Restore
 
-Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+Restore a named snapshot. See https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore[Backup and Restore] for more information on snapshots.
 
  $ enonic snapshot restore [--snap <value>] [--repo <value>] [-a <value>] [-f]
 
@@ -281,7 +281,7 @@ NOTE: if `auth` param is missing and there is no valid session CLI will look for
 
 === Load
 
-Load data from a named system dump into Enonic XP. The dump read has to be stored in the `$XP_HOME/data/dump` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on system dump/load.
+Load data from a named system dump into Enonic XP. The dump read has to be stored in the `$XP_HOME/data/dump` directory.  For more information on system dump/load, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import[Export and Import].
 
 WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
 
@@ -319,7 +319,7 @@ $ enonic dump load -a su:password -d newDump -f --upgrade
 
 == Export
 
-Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another.  For more information on content export/import, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import[Export and Import].
 
 WARNING: Exporting content will not include the version history of the content, just the current version.
 
@@ -353,7 +353,7 @@ $ enonic export -a su:password -t myExport --path cms-repo:draft:/some-content
 
 == Import
 
-Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the `$XP_HOME/data/export` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the `$XP_HOME/data/export` directory.  For more information on content export/import, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import[Export and Import].
 
 To list available configuration options, type:
 
