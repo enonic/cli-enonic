@@ -26,6 +26,9 @@ Use the following environment variables in your terminal to simplify the communi
 
 |`ENONIC_CLI_HTTP_PROXY`
 |URL of proxy server to use
+
+|`ENONIC_CLI_HOME_PATH`
+|Path to use for the relative home directory for XP ( Default is `$HOME`, or the user directory of your user). For example, if you set this to `/tmp`, there will be placed a folder called `/tmp/.enonic` and your sandboxes and similar will live there.
 |===
 
 NOTE: Credentials passed via command line overrides the environment variables.
