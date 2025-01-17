@@ -584,7 +584,7 @@ OPTIONS:
 <div class="sect2">
 <h3 id="create"><a class="link" href="#create">Create</a></h3>
 <div class="paragraph">
-<p>Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in <code>snapshots.dir</code> option in the <a href="https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration">Repo Configuration</a> (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
+<p>Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in <code>snapshots.dir</code> option in the <a href="https://developer.enonic.com/docs/xp/stable/deployment/config#repo">Repo Configuration</a> (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore">Backup and Restore</a> for more information on snapshots.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -654,7 +654,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="sect2">
 <h3 id="list"><a class="link" href="#list">List</a></h3>
 <div class="paragraph">
-<p>List all the snapshots for the installation. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
+<p>List all the snapshots for the installation. For more information on snapshots, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore">Backup and Restore</a>.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -702,7 +702,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="sect2">
 <h3 id="restore"><a class="link" href="#restore">Restore</a></h3>
 <div class="paragraph">
-<p>Restore a named snapshot. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
+<p>Restore a named snapshot. See <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore">Backup and Restore</a> for more information on snapshots.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -1037,7 +1037,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="sect2">
 <h3 id="load"><a class="link" href="#load">Load</a></h3>
 <div class="paragraph">
-<p>Load data from a named system dump into Enonic XP. The dump read has to be stored in the <code>$XP_HOME/data/dump</code> directory. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on system dump/load.</p>
+<p>Load data from a named system dump into Enonic XP. The dump read has to be stored in the <code>$XP_HOME/data/dump</code> directory.  For more information on system dump/load, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import">Export and Import</a>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1118,7 +1118,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <h2 id="export"><a class="link" href="#export">Export</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Extract data from a given repository, branch and content path. The result will be stored in the <code>$XP_HOME/data/export</code> directory. This is useful to move a part of a site from one installation to another. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on content export/import.</p>
+<p>Extract data from a given repository, branch and content path. The result will be stored in the <code>$XP_HOME/data/export</code> directory. This is useful to move a part of a site from one installation to another.  For more information on content export/import, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import">Export and Import</a>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1178,7 +1178,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <h2 id="import"><a class="link" href="#import">Import</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the <code>$XP_HOME/data/export</code> directory. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on content export/import.</p>
+<p>Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the <code>$XP_HOME/data/export</code> directory.  For more information on content export/import, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import">Export and Import</a>.</p>
 </div>
 <div class="paragraph">
 <p>To list available configuration options, type:</p>
@@ -2031,7 +2031,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-12-13 13:20:35 UTC
+Last updated 2025-01-17 12:37:38 UTC
 </div>
 </div>
 </body>
