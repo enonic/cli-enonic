@@ -30,7 +30,7 @@ var Vacuum = cli.Command{
 		req := createVacuumRequest(c)
 
 		var result VacuumResponse
-		status := common.RunTask(req, "Vacuuming", &result)
+		status := common.RunTask(c, req, "Vacuuming", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

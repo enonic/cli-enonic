@@ -58,7 +58,7 @@ var Import = cli.Command{
 		req := createLoadRequest(c)
 
 		var result LoadDumpResponse
-		status := common.RunTask(req, "Importing data", &result)
+		status := common.RunTask(c, req, "Importing data", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

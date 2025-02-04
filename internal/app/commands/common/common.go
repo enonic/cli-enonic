@@ -218,13 +218,10 @@ func EnsureAuth(authString string, force bool) (string, string) {
 }
 
 func resolveCredFilePath(path string) string {
-	if path != "" {
-		return path
-	} else if pathFromEnv := os.Getenv("ENONIC_CLI_CRED_FILE"); pathFromEnv != "" {
-		return pathFromEnv
-	} else {
-		return ""
+	if path == "" {
+		path = os.Getenv("ENONIC_CLI_CRED_FILE")
 	}
+	return path
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
@@ -237,19 +234,19 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
-			return doCreateRequestWithBearerToken(method, url, jwtToken, body)
-		}
-
-		if auth == "" {
-			activeRemote := remote.GetActiveRemote()
-			if activeRemote.User != "" || activeRemote.Pass != "" {
-				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+			return doCreateRequestBearerAuthRequest(method, url, jwtToken, body)
+		} else {
+			if auth == "" {
+				activeRemote := remote.GetActiveRemote()
+				if activeRemote.User != "" || activeRemote.Pass != "" {
+					auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+				}
 			}
+			user, pass = EnsureAuth(auth, IsForceMode(c))
 		}
-		user, pass = EnsureAuth(auth, IsForceMode(c))
 	}
 
-	return doCreateRequest(method, url, user, pass, body, IsForceMode(c))
+	return doCreateBasicAuthRequest(method, url, user, pass, body, IsForceMode(c))
 }
 
 func doCreateSimpleRequest(method, reqUrl string, body io.Reader) *http.Request {
@@ -287,16 +284,14 @@ func doCreateSimpleRequest(method, reqUrl string, body io.Reader) *http.Request 
 	return req
 }
 
-func doCreateRequestWithBearerToken(method, reqUrl, jwtToken string, body io.Reader) *http.Request {
-	req := doCreateSimpleRequest(method, reqUrl, body)
-
+func doCreateRequestBearerAuthRequest(method, url, jwtToken string, body io.Reader) *http.Request {
+	req := doCreateSimpleRequest(method, url, body)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
-
 	return req
 }
 
-func doCreateRequest(method, reqUrl, user, pass string, body io.Reader, force bool) *http.Request {
+func doCreateBasicAuthRequest(method, reqUrl, user, pass string, body io.Reader, force bool) *http.Request {
 	req := doCreateSimpleRequest(method, reqUrl, body)
 
 	req.Header.Set("Content-Type", "application/json")
@@ -320,8 +315,8 @@ func doCreateRequest(method, reqUrl, user, pass string, body io.Reader, force bo
 	return req
 }
 
-func SendRequest(req *http.Request, message string) *http.Response {
-	res, err := SendRequestCustom(req, message, 1)
+func SendRequest(c *cli.Context, req *http.Request, message string) *http.Response {
+	res, err := SendRequestCustom(c, req, message, 1)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Unable to connect to remote service: ", err)
 		os.Exit(1)
@@ -329,7 +324,12 @@ func SendRequest(req *http.Request, message string) *http.Response {
 	return res
 }
 
-func SendRequestCustom(req *http.Request, message string, timeoutMin time.Duration) (*http.Response, error) {
+func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeoutMin time.Duration) (*http.Response, error) {
+	var isCredFileAbsent bool
+	if c != nil {
+		isCredFileAbsent = resolveCredFilePath(c.String("cred-file")) == ""
+	}
+
 	activeRemote := remote.GetActiveRemote()
 	var client *http.Client
 	if activeRemote.Proxy != nil {
@@ -359,54 +359,58 @@ func SendRequestCustom(req *http.Request, message string, timeoutMin time.Durati
 
 	rData := ReadRuntimeData()
 	if res.StatusCode >= 200 && res.StatusCode < 300 {
-		for _, cookie := range res.Cookies() {
-			if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
-				rData.SessionID = cookie.Value
-				WriteRuntimeData(rData)
+		if isCredFileAbsent {
+			for _, cookie := range res.Cookies() {
+				if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
+					rData.SessionID = cookie.Value
+					WriteRuntimeData(rData)
+				}
 			}
 		}
 	} else if res.StatusCode == http.StatusForbidden {
-		if rData.SessionID != "" {
-			fmt.Fprint(os.Stderr, "User session is not valid.")
-			rData.SessionID = ""
-			WriteRuntimeData(rData)
-		}
-
-		var auth string
-		user, pass, _ := res.Request.BasicAuth()
-		activeRemote := remote.GetActiveRemote()
-		if user == "" && pass == "" {
-			if activeRemote.User != "" {
-				fmt.Fprintln(os.Stderr, "Using environment defined user and password.")
-				auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
-			} else {
-				fmt.Fprintln(os.Stderr, "")
+		if isCredFileAbsent {
+			if rData.SessionID != "" {
+				fmt.Fprint(os.Stderr, "User session is not valid.")
+				rData.SessionID = ""
+				WriteRuntimeData(rData)
 			}
-		} else {
-			if activeRemote.User != "" {
-				fmt.Fprintln(os.Stderr, "Environment defined user and password are not valid.")
+
+			var auth string
+			user, pass, _ := res.Request.BasicAuth()
+			activeRemote := remote.GetActiveRemote()
+			if user == "" && pass == "" {
+				if activeRemote.User != "" {
+					fmt.Fprintln(os.Stderr, "Using environment defined user and password.")
+					auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
+				} else {
+					fmt.Fprintln(os.Stderr, "")
+				}
 			} else {
-				fmt.Fprintln(os.Stderr, "User and password are not valid.")
+				if activeRemote.User != "" {
+					fmt.Fprintln(os.Stderr, "Environment defined user and password are not valid.")
+				} else {
+					fmt.Fprintln(os.Stderr, "User and password are not valid.")
+				}
+				auth = ""
 			}
-			auth = ""
+			forceCookie, cookieError := res.Request.Cookie(FORCE_COOKIE)
+			util.Warn(cookieError, fmt.Sprintf("Could not read '%s' cookie", FORCE_COOKIE))
+			forceBool, boolError := strconv.ParseBool(forceCookie.Value)
+			util.Warn(boolError, fmt.Sprintf("Could not parse '%s' cookie value: %s", FORCE_COOKIE, forceCookie.Value))
+
+			if forceBool {
+				// Just exit cuz there's no way we can ask new auth in non-interactive mode
+				os.Exit(1)
+			}
+
+			user, pass = EnsureAuth(auth, forceBool)
+			fmt.Fprintln(os.Stderr, "")
+
+			newReq := CreateRequest(c, req.Method, req.URL.String(), bodyCopy)
+			// need to set it for install requests, because their content type may vary
+			newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
+			res, err = SendRequestCustom(c, newReq, message, timeoutMin)
 		}
-		forceCookie, cookieError := res.Request.Cookie(FORCE_COOKIE)
-		util.Warn(cookieError, fmt.Sprintf("Could not read '%s' cookie", FORCE_COOKIE))
-		forceBool, boolError := strconv.ParseBool(forceCookie.Value)
-		util.Warn(boolError, fmt.Sprintf("Could not parse '%s' cookie value: %s", FORCE_COOKIE, forceCookie.Value))
-
-		if forceBool {
-			// Just exit cuz there's no way we can ask new auth in non-interactive mode
-			os.Exit(1)
-		}
-
-		user, pass = EnsureAuth(auth, forceBool)
-		fmt.Fprintln(os.Stderr, "")
-
-		newReq := doCreateRequest(req.Method, req.URL.String(), user, pass, bodyCopy, forceBool)
-		// need to set it for install requests, because their content type may vary
-		newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
-		res, err = SendRequestCustom(newReq, message, timeoutMin)
 	}
 
 	return res, err

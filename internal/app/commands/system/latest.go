@@ -43,7 +43,7 @@ func FetchLatestVersion(c *cli.Context) *semver.Version {
 
 	} else {
 		req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
-		res := common.SendRequest(req, "Loading")
+		res := common.SendRequest(c, req, "Loading")
 
 		var result ScoopManifest
 		common.ParseResponse(res, &result)

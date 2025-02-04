@@ -28,7 +28,7 @@ var Stop = cli.Command{
 func stopApp(c *cli.Context, name string) {
 	req := createStopRequest(c, name)
 
-	res := common.SendRequest(req, fmt.Sprintf("Requesting stop \"%s\"", name))
+	res := common.SendRequest(c, req, fmt.Sprintf("Requesting stop \"%s\"", name))
 
 	var status string
 	if res.StatusCode >= 200 && res.StatusCode < 300 {

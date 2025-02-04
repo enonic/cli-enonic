@@ -43,7 +43,7 @@ var Create = cli.Command{
 		req := createNewRequest(c, name)
 
 		var result NewDumpResponse
-		status := common.RunTask(req, "Creating dump", &result)
+		status := common.RunTask(c, req, "Creating dump", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

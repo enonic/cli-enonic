@@ -37,7 +37,7 @@ var Restore = cli.Command{
 
 		req := createRestoreRequest(c)
 
-		resp, err := common.SendRequestCustom(req, "Restoring snapshot", 5)
+		resp, err := common.SendRequestCustom(c, req, "Restoring snapshot", 5)
 		util.Fatal(err, "Request error")
 
 		var result RestoreResult
