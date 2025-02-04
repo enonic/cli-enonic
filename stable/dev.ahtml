@@ -1117,7 +1117,11 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1125,6 +1129,18 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 </tr>
 </tbody>
 </table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Enonic XP instance must be running when executing this command !
+</td>
+</tr>
+</table>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1132,7 +1148,16 @@ Sandbox is not required when running with <code>--force</code> flag. In that cas
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Enonic XP instance must be running when executing this command !
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1149,43 +1174,6 @@ Enonic XP instance must be running when executing this command !
 <p>Installs built project to a running enonic XP instance using XP API</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>Options:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Option</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication token for basic authentication in the following format &lt;user:password&gt;</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect2">
@@ -1749,7 +1737,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-01-17 12:37:38 UTC
+Last updated 2025-02-04 08:44:15 UTC
 </div>
 </div>
 </body>
