@@ -1,0 +1,16 @@
+// tag::credentials-flags[]
+|`-a, --auth`
+|A token for basic authentication in the following format <user:password>. Starting from XP 7.15, the `--auth` flag is *deprecated*. Use service account keys with `--cred-file` flag instead
+
+|`--cred-file`
+|Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
+// end::credentials-flags[]
+
+// tag::credentials-flags-notes[]
+[NOTE]
+====
+* if the `auth` param is missing and there is no valid session, CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<environment_variables, configuration section.>>
+
+* if the `cred-file` param is missing, CLI will look for the `ENONIC_CLI_CRED_FILE` environment variable. If this environment variable is also missing, then CLI will fall back to the `auth` param. See <<environment_variables, configuration section.>>
+====
+// end::credentials-flags-notes[]

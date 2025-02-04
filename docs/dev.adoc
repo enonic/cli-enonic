@@ -328,34 +328,20 @@ Options:
 |Option
 |Description
 
-|`-a, --auth`
-|Authentication token for basic authentication in the following format <user:password>
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: Enonic XP instance must be running when executing this command !
+IMPORTANT: Enonic XP instance must be running when executing this command !
+
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 Install command does 2 things:
 
 * <<project-build, Builds>> the project
 * Installs built project to a running enonic XP instance using XP API
-
-Options:
-[cols="1,3", options="header"]
-|===
-|Option
-|Description
-
-|`-a, --auth`
-|Authentication token for basic authentication in the following format <user:password>
-
-|`-f, --force`
-|accept default answers to all prompts and run non-interactively
-|===
-
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
 
 === Shell
 
