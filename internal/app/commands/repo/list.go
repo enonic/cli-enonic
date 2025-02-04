@@ -16,7 +16,7 @@ var List = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		req := common.CreateRequest(c, "GET", "repo/list", nil)
-		res := common.SendRequest(req, "Loading")
+		res := common.SendRequest(c, req, "Loading")
 
 		var result RepositoriesResult
 		common.ParseResponse(res, &result)

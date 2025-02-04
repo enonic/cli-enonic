@@ -485,7 +485,7 @@ func lookupStarterDocs(c *cli.Context, repo string) *Starter {
 	json.NewEncoder(body).Encode(params)
 
 	req := common.CreateRequest(c, "POST", common.MARKET_URL, body)
-	res, err := common.SendRequestCustom(req, "", 1)
+	res, err := common.SendRequestCustom(c, req, "", 1)
 	if err != nil {
 		return nil
 	}
@@ -509,7 +509,7 @@ func fetchStarters(c *cli.Context) []Starter {
 	json.NewEncoder(body).Encode(params)
 
 	req := common.CreateRequest(c, "POST", common.MARKET_URL, body)
-	res, err := common.SendRequestCustom(req, "Loading starters from Enonic Market", 1)
+	res, err := common.SendRequestCustom(c, req, "Loading starters from Enonic Market", 1)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error, check your internet connection.")
 		return []Starter{}

@@ -23,7 +23,7 @@ var Replicas = cli.Command{
 
 		req := createReprocessRequest(c, replicasNum)
 
-		res := common.SendRequest(req, fmt.Sprintf("Setting replicas number to %d", replicasNum))
+		res := common.SendRequest(c, req, fmt.Sprintf("Setting replicas number to %d", replicasNum))
 
 		var result ReplicasResponse
 		common.ParseResponse(res, &result)

@@ -97,7 +97,7 @@ func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage 
 	sandbox.EnsureSanboxSupportsProjectVersion(sBox, minDistroVer)
 
 	fmt.Fprint(os.Stderr, "\n")
-	distroPath, newDistro := sandbox.EnsureDistroExists(sBox.Distro)
+	distroPath, newDistro := sandbox.EnsureDistroExists(c, sBox.Distro)
 
 	if newBox || newDistro {
 		sandbox.CopyHomeFolder(distroPath, projectData.Sandbox)

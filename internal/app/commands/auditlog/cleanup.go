@@ -31,7 +31,7 @@ var Cleanup = cli.Command{
 
 		var result CleanAuditlogResponse
 
-		status := common.RunTask(req, "Cleaning auditlog", &result)
+		status := common.RunTask(c, req, "Cleaning auditlog", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

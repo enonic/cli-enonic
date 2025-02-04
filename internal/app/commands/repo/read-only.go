@@ -34,7 +34,7 @@ var ReadOnly = cli.Command{
 		} else {
 			access = "read/write"
 		}
-		res := common.SendRequest(req, fmt.Sprintf("Setting access to %s", access))
+		res := common.SendRequest(c, req, fmt.Sprintf("Setting access to %s", access))
 
 		var result ReadOnlyResponse
 		common.ParseResponse(res, &result)

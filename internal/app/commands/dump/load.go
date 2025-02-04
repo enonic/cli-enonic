@@ -40,7 +40,7 @@ var Load = cli.Command{
 			req := createLoadRequest(c, name)
 			var result LoadDumpResponse
 
-			status := common.RunTask(req, "Loading dump", &result)
+			status := common.RunTask(c, req, "Loading dump", &result)
 
 			switch status.State {
 			case common.TASK_FINISHED:

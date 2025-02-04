@@ -4,6 +4,7 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
+	"github.com/urfave/cli"
 	"gopkg.in/cheggaaa/pb.v1"
 	"net/http"
 	"os"
@@ -16,20 +17,20 @@ const TASK_FAILED = "FAILED"
 const TASK_WAITING = "WAITING"
 const TASK_RUNNING = "RUNNING"
 
-func RunTask(req *http.Request, msg string, target interface{}) *TaskStatus {
-	resp, err := SendRequestCustom(req, "", 3)
+func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) *TaskStatus {
+	resp, err := SendRequestCustom(c, req, "", 3)
 	util.Fatal(err, "Request error")
 
 	var result TaskResponse
 	ParseResponse(resp, &result)
 
-	return DisplayTaskProgress(result.TaskId, msg, target)
+	return DisplayTaskProgress(c, result.TaskId, msg, target)
 }
 
-func DisplayTaskProgress(taskId, msg string, target interface{}) *TaskStatus {
+func DisplayTaskProgress(c *cli.Context, taskId, msg string, target interface{}) *TaskStatus {
 	doneCh := make(chan *TaskStatus)
 
-	go doDisplayTaskProgress(taskId, msg, doneCh)
+	go doDisplayTaskProgress(c, taskId, msg, doneCh)
 
 	status := <-doneCh
 	close(doneCh)
@@ -45,7 +46,7 @@ func DisplayTaskProgress(taskId, msg string, target interface{}) *TaskStatus {
 	return status
 }
 
-func doDisplayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
+func doDisplayTaskProgress(c *cli.Context, taskId, msg string, doneCh chan<- *TaskStatus) {
 	bar := pb.New(100)
 	bar.ShowSpeed = false
 	bar.ShowCounters = false
@@ -57,7 +58,7 @@ func doDisplayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
 	var exitFlag bool
 	for {
 		time.Sleep(time.Second)
-		status, statusOk := fetchTaskStatus(taskId)
+		status, statusOk := fetchTaskStatus(c, taskId)
 		if statusOk {
 			switch status.State {
 			case TASK_WAITING:
@@ -92,9 +93,9 @@ func doDisplayTaskProgress(taskId, msg string, doneCh chan<- *TaskStatus) {
 	}
 }
 
-func fetchTaskStatus(taskId string) (*TaskStatus, bool) {
-	req := doCreateRequest("GET", "/task/"+taskId, "", "", nil, false)
-	resp := SendRequest(req, "")
+func fetchTaskStatus(c *cli.Context, taskId string) (*TaskStatus, bool) {
+	req := CreateRequest(c, "GET", "/task/"+taskId, nil)
+	resp := SendRequest(c, req, "")
 	var taskStatus TaskStatus
 	ParseResponse(resp, &taskStatus)
 	return &taskStatus, resp.StatusCode == http.StatusOK

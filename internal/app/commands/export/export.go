@@ -46,7 +46,7 @@ var Export = cli.Command{
 
 		req := createNewRequest(c)
 		var result NewExportResponse
-		status := common.RunTask(req, "Exporting data", &result)
+		status := common.RunTask(c, req, "Exporting data", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

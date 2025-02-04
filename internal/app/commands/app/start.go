@@ -28,7 +28,7 @@ var Start = cli.Command{
 func startApp(c *cli.Context, name string) {
 	req := createStartRequest(c, name)
 
-	res := common.SendRequest(req, fmt.Sprintf("Requesting start \"%s\"", name))
+	res := common.SendRequest(c, req, fmt.Sprintf("Requesting start \"%s\"", name))
 
 	var status string
 	if res.StatusCode >= 200 && res.StatusCode < 300 {

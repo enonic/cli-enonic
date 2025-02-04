@@ -28,7 +28,7 @@ var Upgrade = cli.Command{
 
 		req := createUpgradeRequest(c, name)
 		var result UpgradeResult
-		status := common.RunTask(req, "Upgrading dump", &result)
+		status := common.RunTask(c, req, "Upgrading dump", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

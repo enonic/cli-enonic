@@ -35,7 +35,7 @@ var Reprocess = cli.Command{
 		ensurePathFlag(c)
 
 		req := createReprocessRequest(c, "content/reprocessTask")
-		res, err := common.SendRequestCustom(req, "", 3)
+		res, err := common.SendRequestCustom(c, req, "", 3)
 		util.Fatal(err, "Reprocess request error")
 
 		var taskResult common.TaskResponse
@@ -52,7 +52,7 @@ var Reprocess = cli.Command{
 			if enonicErr.Status == http.StatusNotFound {
 				// Async endpoint was not found, most likely XP version < 7.2 so trying synchronous endpoint
 				newReq := createReprocessRequest(c, "content/reprocess")
-				newRes := common.SendRequest(newReq, requestLabel)
+				newRes := common.SendRequest(c, newReq, requestLabel)
 				common.ParseResponse(newRes, &result)
 
 				fmt.Fprintf(os.Stderr, "Updated %d content(s) with %d error(s)\n", len(result.UpdatedContent), len(result.Errors))
@@ -66,7 +66,7 @@ var Reprocess = cli.Command{
 			os.Exit(1)
 
 		} else {
-			status := common.DisplayTaskProgress(taskResult.TaskId, requestLabel, &result)
+			status := common.DisplayTaskProgress(c, taskResult.TaskId, requestLabel, &result)
 
 			switch status.State {
 			case common.TASK_FINISHED:

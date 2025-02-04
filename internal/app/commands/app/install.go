@@ -45,7 +45,7 @@ var Install = cli.Command{
 func installApp(c *cli.Context, file, url string) InstallResult {
 	req := createInstallRequest(c, file, url)
 
-	resp := common.SendRequest(req, fmt.Sprintf("Installing \"%s\"", file))
+	resp := common.SendRequest(c, req, fmt.Sprintf("Installing \"%s\"", file))
 
 	var result InstallResult
 	common.ParseResponse(resp, &result)

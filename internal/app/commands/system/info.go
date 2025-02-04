@@ -16,7 +16,7 @@ var Info = cli.Command{
 	Action: func(c *cli.Context) error {
 
 		req := common.CreateRequest(c, "GET", "http://localhost:2609/server", nil)
-		res := common.SendRequest(req, "Loading")
+		res := common.SendRequest(c, req, "Loading")
 
 		var result InfoResponse
 		common.ParseResponse(res, &result)

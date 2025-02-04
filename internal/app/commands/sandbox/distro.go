@@ -8,6 +8,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/Masterminds/semver"
+	"github.com/urfave/cli"
 	"gopkg.in/cheggaaa/pb.v1"
 	"io"
 	"io/ioutil"
@@ -51,7 +52,7 @@ type Versioning struct {
 	Versions    []string `xml:"versions>version"`
 }
 
-func EnsureDistroExists(distroName string) (string, bool) {
+func EnsureDistroExists(c *cli.Context, distroName string) (string, bool) {
 	for _, distro := range listDistros() {
 		if distroName == distro {
 			return filepath.Join(getDistrosDir(), distro), false
@@ -59,7 +60,7 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	}
 
 	distroVersion := parseDistroVersion(distroName, false)
-	zipPath := downloadDistro(distroVersion)
+	zipPath := downloadDistro(c, distroVersion)
 
 	distroPath := unzipDistro(zipPath)
 
@@ -69,10 +70,10 @@ func EnsureDistroExists(distroName string) (string, bool) {
 	return distroPath, true
 }
 
-func getAllVersions(osName, minDistro string, includeMinVer, includeUnstable bool) ([]string, string) {
+func getAllVersions(c *cli.Context, osName, minDistro string, includeMinVer, includeUnstable bool) ([]string, string) {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
-	resp := common.SendRequest(req, "Loading")
+	resp := common.SendRequest(c, req, "Loading")
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 	fmt.Fprintln(os.Stderr, "Done")
 
@@ -155,7 +156,7 @@ func resolveArchiveExtension(version string) string {
 	}
 }
 
-func downloadDistro(version string) string {
+func downloadDistro(c *cli.Context, version string) string {
 	distroName := formatDistroVersion(version) + resolveArchiveExtension(version)
 
 	fullPath := filepath.Join(getDistrosDir(), distroName)
@@ -170,7 +171,7 @@ func downloadDistro(version string) string {
 	req, err := http.NewRequest("GET", url, nil)
 	util.Fatal(err, "Could not create request to: "+url)
 
-	resp, err := common.SendRequestCustom(req, "Loading", 15)
+	resp, err := common.SendRequestCustom(c, req, "Loading", 15)
 	if err != nil || resp.StatusCode != 200 {
 		message := resp.Status
 		if err != nil {
@@ -358,7 +359,7 @@ func EnsureSanboxSupportsProjectVersion(sBox *Sandbox, minDistroVersion *semver.
 	}
 }
 
-func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includeUnstable, force bool) (string, int) {
+func ensureVersionCorrect(c *cli.Context, versionStr, minDistroVer string, includeMinVer, includeUnstable, force bool) (string, int) {
 	var (
 		version       *semver.Version
 		versionErr    error
@@ -376,7 +377,7 @@ func ensureVersionCorrect(versionStr, minDistroVer string, includeMinVer, includ
 
 	currentOsWithArch := util.GetCurrentOsWithArch()
 	shouldIncludeUnstable := includeUnstable || version != nil && version.Prerelease() != ""
-	versions, latestVersion := getAllVersions(currentOsWithArch, minDistroVer, includeMinVer, shouldIncludeUnstable)
+	versions, latestVersion := getAllVersions(c, currentOsWithArch, minDistroVer, includeMinVer, shouldIncludeUnstable)
 	totalVersions := len(versions)
 
 	if totalVersions == 0 {
