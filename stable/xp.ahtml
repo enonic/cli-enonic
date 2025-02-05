@@ -1285,9 +1285,9 @@ OPTIONS:
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:</div>
+<div class="title">Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content-name' to 'myExport' dump:</div>
 <div class="content">
-<pre>$ enonic export --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/some-content</pre>
+<pre>$ enonic export --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/content/some-content-name</pre>
 </div>
 </div>
 </div>
@@ -2281,7 +2281,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-04 08:44:15 UTC
+Last updated 2025-02-05 12:57:07 UTC
 </div>
 </div>
 </body>
