@@ -2229,7 +2229,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--blob, -b</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code> and <code>NodeBlobVacuumTask</code> in addition to <code>SegmentVacuumTask</code>, <code>VersionTableVacuumTask</code> and <code>SnapshotsVacuumTask</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code>, <code>NodeBlobVacuumTask</code> and <code>SegmentVacuumTask</code> in addition to , <code>VersionTableVacuumTask</code> and <code>SnapshotsVacuumTask</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --threshold</code></p></td>
@@ -2281,7 +2281,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-02-05 12:57:07 UTC
+Last updated 2025-02-07 11:27:34 UTC
 </div>
 </div>
 </body>
