@@ -815,7 +815,7 @@ Options:
 |Description
 
 |`--blob, -b`
-|Triggers `BinaryBlobVacuumTask` and `NodeBlobVacuumTask` in addition to `SegmentVacuumTask`, `VersionTableVacuumTask` and `SnapshotsVacuumTask`
+|Triggers `BinaryBlobVacuumTask`, `NodeBlobVacuumTask` and `SegmentVacuumTask` in addition to , `VersionTableVacuumTask` and `SnapshotsVacuumTask`
 
 |`-t, --threshold`
 |Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
