@@ -24,7 +24,7 @@ require (
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
 
-require github.com/golang-jwt/jwt/v5 v5.2.1
+require github.com/golang-jwt/jwt/v5 v5.2.2
 
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
