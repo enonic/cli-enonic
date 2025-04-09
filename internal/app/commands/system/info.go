@@ -12,7 +12,7 @@ var Info = cli.Command{
 	Name:    "info",
 	Aliases: []string{"i"},
 	Usage:   "XP distribution info",
-	Flags:   []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG},
+	Flags:   []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG, common.CLIENT_KEY_FLAG, common.CLIENT_CERT_FLAG},
 	Action: func(c *cli.Context) error {
 
 		req := common.CreateRequest(c, "GET", "http://localhost:2609/server", nil)

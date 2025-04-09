@@ -48,7 +48,7 @@ var Import = cli.Command{
 			Name:  "dry",
 			Usage: "Show the result without making actual changes.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG, common.CLIENT_KEY_FLAG, common.CLIENT_CERT_FLAG),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)

@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
+	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -65,6 +66,16 @@ var CRED_FILE_FLAG = cli.StringFlag{
 var FORCE_FLAG = cli.BoolFlag{
 	Name:  "force, f",
 	Usage: "Accept default answers to all prompts and run non-interactively",
+}
+
+var CLIENT_KEY_FLAG = cli.StringFlag{
+	Name:  "client-key",
+	Usage: "Client key, required only for mTLS session",
+}
+
+var CLIENT_CERT_FLAG = cli.StringFlag{
+	Name:  "client-cert",
+	Usage: "Client certificate, required only for mTLS session",
 }
 
 func IsForceMode(c *cli.Context) bool {
@@ -330,18 +341,49 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 		isCredFileAbsent = resolveCredFilePath(c.String("cred-file")) == ""
 	}
 
-	activeRemote := remote.GetActiveRemote()
-	var client *http.Client
-	if activeRemote.Proxy != nil {
-		client = &http.Client{
-			Timeout:   timeoutMin * time.Minute,
-			Transport: &http.Transport{Proxy: http.ProxyURL(&activeRemote.Proxy.URL)},
+	tlsKey := c.String(CLIENT_KEY_FLAG.Name)
+	tlsCert := c.String(CLIENT_CERT_FLAG.Name)
+
+	var tlsConfig *tls.Config
+	if tlsKey != "" && tlsCert != "" {
+		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
+			os.Exit(1)
 		}
-	} else {
-		client = &http.Client{
-			Timeout: timeoutMin * time.Minute,
+
+		tlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{cert},
 		}
 	}
+
+	var transport *http.Transport
+
+	activeRemote := remote.GetActiveRemote()
+
+	client := &http.Client{
+		Timeout: timeoutMin * time.Minute,
+	}
+	if activeRemote.Proxy != nil {
+		transport = &http.Transport{
+			Proxy: http.ProxyURL(&activeRemote.Proxy.URL),
+		}
+		if tlsConfig != nil {
+			transport.TLSClientConfig = tlsConfig
+		}
+		client.Transport = transport
+	} else {
+		if tlsConfig != nil {
+			transport = &http.Transport{
+				TLSClientConfig: tlsConfig,
+			}
+		}
+	}
+
+	if transport != nil {
+		client.Transport = transport
+	}
+
 	if message != "" {
 		StartSpinner(message)
 	}
