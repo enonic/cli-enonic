@@ -26,7 +26,8 @@ var Reprocess = cli.Command{
 			Name:  "skip-children",
 			Usage: "Flag to skip processing of content children.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		var result ReprocessResponse

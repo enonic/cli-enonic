@@ -29,7 +29,8 @@ var Delete = cli.Command{
 			Name:  "snapshot, snap",
 			Usage: "The name of the snapshot to delete",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		snapshot, before := ensureSnapshotOrBeforeFlag(c)

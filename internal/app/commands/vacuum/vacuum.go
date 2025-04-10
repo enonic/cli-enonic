@@ -25,7 +25,8 @@ var Vacuum = cli.Command{
 			Usage: "Age of data to be removed in ISO-8601 duration format " +
 				"PnDTnHnMn.nS with days considered to be exactly 24 hours",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 		req := createVacuumRequest(c)
 

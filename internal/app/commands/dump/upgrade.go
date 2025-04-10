@@ -21,7 +21,8 @@ var Upgrade = cli.Command{
 			Name:  "d",
 			Usage: "Dump name.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		name := ensureNameFlag(c.String("d"), false, common.IsForceMode(c))

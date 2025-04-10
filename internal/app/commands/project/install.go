@@ -15,7 +15,7 @@ var Install = cli.Command{
 	Name:    "install",
 	Aliases: []string{"i"},
 	Usage:   "Build current project and install it to Enonic XP",
-	Flags:   append([]cli.Flag{}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		buildProject(c)
