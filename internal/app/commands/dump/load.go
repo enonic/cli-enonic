@@ -29,7 +29,8 @@ var Load = cli.Command{
 			Name:  "archive",
 			Usage: "Load dump from archive.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG, common.CLIENT_KEY_FLAG, common.CLIENT_CERT_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		force := common.IsForceMode(c)

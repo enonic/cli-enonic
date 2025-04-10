@@ -70,12 +70,19 @@ var FORCE_FLAG = cli.BoolFlag{
 
 var CLIENT_KEY_FLAG = cli.StringFlag{
 	Name:  "client-key",
-	Usage: "Client key, required only for mTLS session",
+	Usage: "Specifies the private key file for client certificate authentication. This option is used in conjunction with --client-cert to establish a mutual TLS (mTLS) session.",
 }
 
 var CLIENT_CERT_FLAG = cli.StringFlag{
 	Name:  "client-cert",
-	Usage: "Client certificate, required only for mTLS session",
+	Usage: "Specifies the client certificate file to use for authentication with the remote server. Requires --client-key to be specified as well when establishing a mutual TLS (mTLS) session.",
+}
+
+var AUTH_AND_TLS_FLAGS = []cli.Flag{
+	AUTH_FLAG,
+	CRED_FILE_FLAG,
+	CLIENT_KEY_FLAG,
+	CLIENT_CERT_FLAG,
 }
 
 func IsForceMode(c *cli.Context) bool {

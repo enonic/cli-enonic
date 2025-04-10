@@ -22,7 +22,8 @@ var ReadOnly = cli.Command{
 			Name:  "r",
 			Usage: "Single repository to toggle read-only mode for",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG, common.CLIENT_KEY_FLAG, common.CLIENT_CERT_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		readOnly := ensureReadOnlyArg(c)

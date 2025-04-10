@@ -12,7 +12,7 @@ import (
 var Latest = cli.Command{
 	Name:  "latest",
 	Usage: "Check for latest version",
-	Flags: []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG, common.CLIENT_KEY_FLAG, common.CLIENT_CERT_FLAG},
+	Flags: append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "")
 
