@@ -235,11 +235,15 @@ func EnsureAuth(authString string, force bool) (string, string) {
 	return splitAuth[0], splitAuth[1]
 }
 
-func resolveCredFilePath(path string) string {
+func getValueOrDefault(path string, defaultValue string) string {
 	if path == "" {
-		path = os.Getenv("ENONIC_CLI_CRED_FILE")
+		path = defaultValue
 	}
 	return path
+}
+
+func resolveCredFilePath(path string) string {
+	return getValueOrDefault(path, os.Getenv("ENONIC_CLI_CRED_FILE"))
 }
 
 func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Request {
@@ -348,8 +352,8 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 		isCredFileAbsent = resolveCredFilePath(c.String("cred-file")) == ""
 	}
 
-	tlsKey := c.String(CLIENT_KEY_FLAG.Name)
-	tlsCert := c.String(CLIENT_CERT_FLAG.Name)
+	tlsKey := getValueOrDefault(c.String(CLIENT_KEY_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_KEY"))
+	tlsCert := getValueOrDefault(c.String(CLIENT_CERT_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_CERT"))
 
 	var tlsConfig *tls.Config
 	if tlsKey != "" && tlsCert != "" {
