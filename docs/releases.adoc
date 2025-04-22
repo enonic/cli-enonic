@@ -1,5 +1,11 @@
 = Release notes
 
+== CLI v3.3.0
+
+=== Features
+
+* Support mTLS.
+
 == CLI v3.2.0
 
 === Features
