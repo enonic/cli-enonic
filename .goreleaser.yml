@@ -1,5 +1,6 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
+version: 2
 
 project_name: enonic
 
@@ -74,11 +75,11 @@ archives:
       {{- with .Arm }}_v{{ . }}{{ end }}
       {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
-    format: tar.gz  # set to binary to omit archiving
+    formats: tar.gz  # set to binary to omit archiving
 
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
 
     files:
       - LICENSE.txt
