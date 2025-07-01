@@ -19,7 +19,7 @@ require (
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/pkg/errors v0.9.1
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
-	github.com/urfave/cli v1.22.16
+	github.com/urfave/cli v1.22.17
 	golang.org/x/crypto v0.37.0
 	gopkg.in/AlecAivazis/survey.v1 v1.8.8
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
@@ -30,7 +30,7 @@ require github.com/golang-jwt/jwt/v5 v5.2.2
 
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
