@@ -40,8 +40,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: 22
 
       - run: npm publish
         env:
