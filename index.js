@@ -4,6 +4,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const { arch, platform, argv, env } = require('node:process');
 
 // Mapping from Node's `process.arch` to Golang's `$GOARCH`
 const ARCH_MAPPING = {
@@ -32,32 +33,53 @@ const validateConfiguration = (packageJson) => {
 const parsePackageJson = () => {
     const packageJsonPath = path.resolve(__dirname, 'package.json');
     if (!fs.existsSync(packageJsonPath)) {
-        throw new Error('Unable to find package.json. Please run this script at root of the package you want to be installed');
+        console.error('Unable to find package.json. Please run this script at root of the package you want to be installed');
+        process.exit(1);
     }
 
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
     const error = validateConfiguration(packageJson);
     if (error && error.length > 0) {
-        throw new Error(`Invalid package.json: ${error}`);
+        console.error(`Invalid package.json: ${error}`);
+        process.exit(1);
     }
 
-    if (!(process.platform in PLATFORM_MAPPING)) {
-        throw new Error(`Installation is not supported for platform "${process.platform}"`);
+    if (!(platform in PLATFORM_MAPPING)) {
+        console.error(`Installation is not supported for platform "${platform}"`);
+        process.exit(1);
     }
 
-    if (!(process.arch in ARCH_MAPPING)) {
-        throw new Error(`Installation is not supported for architecture "${process.arch}"`);
+    /*
+        This part is used for cross-platform verification of binaries during CI/CD.
+    */
+    let thisArch = arch;
+    if (env['NODE_ARCH']) {
+        if (platform === 'win32' && env['NODE_ARCH'] === 'arm64') {
+            console.log(`Skipping verification for ${platform} ${arch}`);
+            process.exit(0);
+        }
+        if (platform === 'linux' && env['NODE_ARCH'] === 'arm64') {
+            thisArch = 'arm';
+        } else {
+            thisArch = env['NODE_ARCH'];
+        }
+    }
+    /**/
+
+    if (!(thisArch in ARCH_MAPPING)) {
+        console.error(`Installation is not supported for architecture "${thisArch}"`);
+        process.exit(1);
     }
 
     const project = packageJson.goBinary;
     let binName = project;
 
     // Binary name on Windows has .exe suffix
-    if (process.platform === 'win32') {
+    if (platform === 'win32') {
         binName += '.exe';
     }
 
-    const binFolder = `${project}_${PLATFORM_MAPPING[process.platform]}_${ARCH_MAPPING[process.arch]}`;
+    const binFolder = `${project}_${PLATFORM_MAPPING[platform]}_${ARCH_MAPPING[thisArch]}`;
     const binPath = path.resolve(__dirname, 'dist', binFolder, binName);
 
     return {
@@ -66,13 +88,17 @@ const parsePackageJson = () => {
     };
 }
 
-const argv = process.argv;
 if (argv) {
     try {
         const opts = parsePackageJson();
         if (!opts) {
             console.error('Invalid package.json');
-            return;
+            process.exit(1);
+        }
+
+        if (!fs.existsSync(opts.binPath)) {
+            console.error(`Binary not found at ${opts.binPath}`);
+            process.exit(1);
         }
 
         const {spawn} = require('child_process');
