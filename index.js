@@ -49,25 +49,9 @@ const parsePackageJson = () => {
         process.exit(1);
     }
 
-    /*
-        This part is used for cross-platform verification of binaries during CI/CD.
-    */
-    let thisArch = arch;
-    if (env['NODE_ARCH']) {
-        if (platform === 'win32' && env['NODE_ARCH'] === 'arm64') {
-            console.log(`Skipping verification for ${platform} ${arch}`);
-            process.exit(0);
-        }
-        if (platform === 'linux' && env['NODE_ARCH'] === 'arm64') {
-            thisArch = 'arm';
-        } else {
-            thisArch = env['NODE_ARCH'];
-        }
-    }
-    /**/
 
-    if (!(thisArch in ARCH_MAPPING)) {
-        console.error(`Installation is not supported for architecture "${thisArch}"`);
+    if (!(arch in ARCH_MAPPING)) {
+        console.error(`Installation is not supported for architecture "${arch}"`);
         process.exit(1);
     }
 
@@ -79,7 +63,7 @@ const parsePackageJson = () => {
         binName += '.exe';
     }
 
-    const binFolder = `${project}_${PLATFORM_MAPPING[platform]}_${ARCH_MAPPING[thisArch]}`;
+    const binFolder = `${project}_${PLATFORM_MAPPING[platform]}_${ARCH_MAPPING[arch]}`;
     const binPath = path.resolve(__dirname, 'dist', binFolder, binName);
 
     return {
