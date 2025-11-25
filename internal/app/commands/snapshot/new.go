@@ -19,12 +19,13 @@ var Create = cli.Command{
 			Name:  "repo, r",
 			Usage: "The name of the repository to snapshot",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		req := createNewRequest(c)
 
-		resp := common.SendRequest(req, "Creating snapshot")
+		resp := common.SendRequest(c, req, "Creating snapshot")
 
 		var snap Snapshot
 		if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {

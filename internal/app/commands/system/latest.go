@@ -12,7 +12,7 @@ import (
 var Latest = cli.Command{
 	Name:  "latest",
 	Usage: "Check for latest version",
-	Flags: []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG},
+	Flags: append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "")
 
@@ -43,7 +43,7 @@ func FetchLatestVersion(c *cli.Context) *semver.Version {
 
 	} else {
 		req := common.CreateRequest(c, "GET", common.SCOOP_MANIFEST_URL, nil)
-		res := common.SendRequest(req, "Loading")
+		res := common.SendRequest(c, req, "Loading")
 
 		var result ScoopManifest
 		common.ParseResponse(res, &result)

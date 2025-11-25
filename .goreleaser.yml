@@ -1,5 +1,6 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
+version: 2
 
 project_name: enonic
 
@@ -45,17 +46,13 @@ builds:
       - arm64
       - arm
 
-    goarm:
-      - 6
-    # - 7
-
     # windows_arm64 builds fail: exit status 2: # golang.org/x/sys/windows
     #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:2833:38: undefined: WSAData
     #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:3106:51: undefined: Servent
     #../../../.go/pkg/mod/golang.org/x/sys@v0.0.0-20200223170610-d5e6a3e2c0ae/windows/zsyscall_windows.go:3120:50: undefined: Servent
     ignore:
       - goos: windows
-        goarch: arm64
+        goarch: arm
 
     hooks:
       post: ./script.sh
@@ -74,11 +71,11 @@ archives:
       {{- with .Arm }}_v{{ . }}{{ end }}
       {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
-    format: tar.gz  # set to binary to omit archiving
+    formats: tar.gz  # set to binary to omit archiving
 
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
 
     files:
       - LICENSE.txt
@@ -159,7 +156,7 @@ scoops:
 #  - "data"
 #  - "config.toml"
 
-brews:
+homebrew_casks:
 
   - skip_upload: false
 
@@ -171,8 +168,9 @@ brews:
 
     # Template for the url.
     # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
-
+    url:
+      template: "https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}"
+      verified: "https://repo.enonic.com"
     # Allows you to set a custom download strategy.
     # Default is empty.
     #  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
@@ -182,10 +180,6 @@ brews:
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
-
-    # Folder inside the repository to put the formula.
-    # Default is the root folder.
-    directory: Formula
 
     # Your app's homepage.
     # Default is empty.

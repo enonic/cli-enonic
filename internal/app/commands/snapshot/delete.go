@@ -29,14 +29,15 @@ var Delete = cli.Command{
 			Name:  "snapshot, snap",
 			Usage: "The name of the snapshot to delete",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		snapshot, before := ensureSnapshotOrBeforeFlag(c)
 
 		req := createDeleteRequest(c, snapshot, before)
 
-		resp := common.SendRequest(req, "Deleting snapshot(s)")
+		resp := common.SendRequest(c, req, "Deleting snapshot(s)")
 
 		var result DeleteResult
 		common.ParseResponse(resp, &result)

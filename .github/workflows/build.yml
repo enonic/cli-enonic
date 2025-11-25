@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 1.24.0
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: GoReleaser Action
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          args: --clean --snapshot --skip=snapcraft
+
+      - name: Upload the binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: Enonic CLI binaries
+          path: |
+            dist/enonic_darwin_amd64_v1/
+            dist/enonic_darwin_arm64_v8.0/
+            dist/enonic_linux_amd64_v1/
+            dist/enonic_linux_arm64_v8.0/
+            dist/enonic_windows_amd64_v1/
+          retention-days: 1
+
+      - name: Upload package.json and index.js
+        uses: actions/upload-artifact@v4
+        with:
+          name: Node files
+          path: |
+            package.json
+            index.js
+          retention-days: 1
+
+  verify:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel, windows-latest]
+
+    steps:
+      - name: Download Enonic CLI binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: Enonic CLI binaries
+          path: dist/
+
+      - name: Download Node files
+        uses: actions/download-artifact@v4
+        with:
+          name: Node files
+          path: ./
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Make the binaries executable
+        run: chmod +x dist/enonic_*/enonic
+
+      - name: Run node index.js
+        run: node index.js
+        env:
+          NODE_ARCH: ${{ matrix.arch }}

@@ -21,14 +21,15 @@ var Upgrade = cli.Command{
 			Name:  "d",
 			Usage: "Dump name.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		name := ensureNameFlag(c.String("d"), false, common.IsForceMode(c))
 
 		req := createUpgradeRequest(c, name)
 		var result UpgradeResult
-		status := common.RunTask(req, "Upgrading dump", &result)
+		status := common.RunTask(c, req, "Upgrading dump", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

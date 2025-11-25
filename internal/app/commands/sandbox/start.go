@@ -107,7 +107,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 		}
 	}
 
-	EnsureDistroExists(sandbox.Distro)
+	EnsureDistroExists(c, sandbox.Distro)
 
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode, debug)
 

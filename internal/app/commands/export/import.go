@@ -48,7 +48,8 @@ var Import = cli.Command{
 			Name:  "dry",
 			Usage: "Show the result without making actual changes.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)
@@ -58,7 +59,7 @@ var Import = cli.Command{
 		req := createLoadRequest(c)
 
 		var result LoadDumpResponse
-		status := common.RunTask(req, "Importing data", &result)
+		status := common.RunTask(c, req, "Importing data", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

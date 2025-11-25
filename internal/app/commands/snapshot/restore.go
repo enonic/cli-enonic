@@ -32,12 +32,13 @@ var Restore = cli.Command{
 			Name:  "clean",
 			Usage: "Delete indices before restoring",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		req := createRestoreRequest(c)
 
-		resp, err := common.SendRequestCustom(req, "Restoring snapshot", 5)
+		resp, err := common.SendRequestCustom(c, req, "Restoring snapshot", 5)
 		util.Fatal(err, "Request error")
 
 		var result RestoreResult

@@ -35,7 +35,8 @@ var Create = cli.Command{
 			Name:  "archive",
 			Usage: "Archive created dump.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		name := ensureNameFlag(c.String("d"), true, common.IsForceMode(c))
@@ -43,7 +44,7 @@ var Create = cli.Command{
 		req := createNewRequest(c, name)
 
 		var result NewDumpResponse
-		status := common.RunTask(req, "Creating dump", &result)
+		status := common.RunTask(c, req, "Creating dump", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

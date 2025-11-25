@@ -13,7 +13,7 @@ import (
 var Start = cli.Command{
 	Name:      "start",
 	Usage:     "Start an application",
-	Flags:     append([]cli.Flag{}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+	Flags:     append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	ArgsUsage: "<app key>",
 	Action: func(c *cli.Context) error {
 
@@ -28,7 +28,7 @@ var Start = cli.Command{
 func startApp(c *cli.Context, name string) {
 	req := createStartRequest(c, name)
 
-	res := common.SendRequest(req, fmt.Sprintf("Requesting start \"%s\"", name))
+	res := common.SendRequest(c, req, fmt.Sprintf("Requesting start \"%s\"", name))
 
 	var status string
 	if res.StatusCode >= 200 && res.StatusCode < 300 {

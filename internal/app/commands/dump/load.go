@@ -29,7 +29,8 @@ var Load = cli.Command{
 			Name:  "archive",
 			Usage: "Load dump from archive.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		force := common.IsForceMode(c)
@@ -40,7 +41,7 @@ var Load = cli.Command{
 			req := createLoadRequest(c, name)
 			var result LoadDumpResponse
 
-			status := common.RunTask(req, "Loading dump", &result)
+			status := common.RunTask(c, req, "Loading dump", &result)
 
 			switch status.State {
 			case common.TASK_FINISHED:

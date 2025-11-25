@@ -38,7 +38,8 @@ var Export = cli.Command{
 			Name:  "dry",
 			Usage: "Show the result without making actual changes.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		ensureNameFlag(c)
@@ -46,7 +47,7 @@ var Export = cli.Command{
 
 		req := createNewRequest(c)
 		var result NewExportResponse
-		status := common.RunTask(req, "Exporting data", &result)
+		status := common.RunTask(c, req, "Exporting data", &result)
 
 		switch status.State {
 		case common.TASK_FINISHED:

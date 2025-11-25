@@ -12,11 +12,11 @@ var Info = cli.Command{
 	Name:    "info",
 	Aliases: []string{"i"},
 	Usage:   "XP distribution info",
-	Flags:   []cli.Flag{common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG},
+	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		req := common.CreateRequest(c, "GET", "http://localhost:2609/server", nil)
-		res := common.SendRequest(req, "Loading")
+		res := common.SendRequest(c, req, "Loading")
 
 		var result InfoResponse
 		common.ParseResponse(res, &result)

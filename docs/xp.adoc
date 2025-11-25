@@ -28,7 +28,16 @@ Use the following environment variables in your terminal to simplify the communi
 |URL of proxy server to use
 
 |`ENONIC_CLI_HOME_PATH`
-|Path to use for the relative home directory for XP ( Default is `$HOME`, or the user directory of your user). For example, if you set this to `/tmp`, there will be placed a folder called `/tmp/.enonic` and your sandboxes and similar will live there.
+|Path to use for the relative home directory for XP ( Default is `$HOME`, or the user directory of your user). For example, by setting this to `/tmp` you'd have CLI create a folder called `/tmp/.enonic` and your sandboxes and similar will live there.
+
+|`ENONIC_CLI_CRED_FILE`
+|Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
+
+|`ENONIC_CLI_CLIENT_KEY`
+|Path to the private key file for client certificate authentication. This option is used in conjunction with `--client-cert` to establish a mutual TLS (mTLS) session.
+
+|`ENONIC_CLI_CLIENT_CERT`
+|Path to the client certificate file to use for authentication with the remote server. Requires `--client-key` to be specified as well when establishing a mutual TLS (mTLS) session.
 |===
 
 NOTE: Credentials passed via command line overrides the environment variables.
@@ -59,11 +68,11 @@ OPTIONS:
 
 === Create
 
-Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in `snapshots.dir` option in the https://developer.enonic.com/docs/xp/stable/deployment/config#repo[Repo Configuration] (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See https://developer.enonic.com/docs/xp/stable/deployment/backup-restore[Backup and Restore] for more information on snapshots.
 
 WARNING: For a clustered installation, the snapshot-location must be on a shared file-system.
 
- $ enonic snapshot create [-r <value>] [-a <value>]
+ $ enonic snapshot create [-r <value>] [-a <value>] [--cred-file <value>]
 
 Options:
 [cols="1,3", options="header"]
@@ -71,8 +80,7 @@ Options:
 |Option
 |Description
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-r, --repo`
 |the name of the repository to snapshot.
@@ -81,16 +89,16 @@ Options:
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example creating new snapshot from 'cms-repo':
 ----
-$ enonic snapshot create -a su:password -r cms-repo
+$ enonic snapshot create --cred-file path\to\cred-file.json -r cms-repo
 ----
 
 === List
 
-List all the snapshots for the installation. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+List all the snapshots for the installation. For more information on snapshots, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore[Backup and Restore].
 
  $ enonic snapshot ls
 
@@ -100,18 +108,17 @@ Options:
 |Option
 |Description
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 === Restore
 
-Restore a named snapshot. See https://xp.readthedocs.io/en/stable/operations/backup.html#backup[Backup and Restore] for more information on snapshots.
+Restore a named snapshot. See https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore[Backup and Restore] for more information on snapshots.
 
  $ enonic snapshot restore [--snap <value>] [--repo <value>] [-a <value>] [-f]
 
@@ -130,14 +137,13 @@ Options:
 |`--clean`
 |delete indices before restoring
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 === Delete
 
@@ -157,15 +163,13 @@ Options:
 |`--snap, --snapshot`
 |snapshot name to delete
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
-
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 == Dump
 
@@ -193,7 +197,7 @@ OPTIONS:
 
 Export data from every repository. The result will be stored in the `$XP_HOME/data/dump` directory.
 
- $ enonic dump create [-d <value>] [--skip-versions <value>] [--max-version-age <value>] [--max-versions <value>] [-a <value>] [-f]
+ $ enonic dump create [-d <value>] [--skip-versions <value>] [--max-version-age <value>] [--max-versions <value>] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -216,18 +220,17 @@ Options:
 |`--archive`
 |outputs dump output to an archive (%name%.zip) file (default is false)
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
-.Example creating new dump named 'myDump':
+.Example creating new dump named 'myDump' using `auth` param:
 ----
-$ enonic dump create -a su:password -d myDump
+$ enonic dump create --cred-file path\to\cred-file.json -d myDump
 ----
 
 === Upgrade
@@ -236,7 +239,7 @@ Upgrade a data dump from a previous version to the current version. The output o
 
 NOTE: The current version XP installation must be running with the upgraded app deployed.
 
- $ enonic dump upgrade [-d <value>] [-a <value>] [-f]
+ $ enonic dump upgrade [-d <value>] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -247,25 +250,24 @@ Options:
 |`-d`
 |dump name
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example upgrading dump named 'myDump' to current version:
 ----
-$ enonic dump upgrade -a su:password -d myDump
+$ enonic dump upgrade --cred-file path\to\cred-file.json -d myDump
 ----
 
 === List
 
 Lists all the dumps
 
- $ enonic dump ls [-a <value>] [-f]
+ $ enonic dump ls [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -273,22 +275,21 @@ Options:
 |Option
 |Description
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password).
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 === Load
 
-Load data from a named system dump into Enonic XP. The dump read has to be stored in the `$XP_HOME/data/dump` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on system dump/load.
+Load data from a named system dump into Enonic XP. The dump read has to be stored in the `$XP_HOME/data/dump` directory.  For more information on system dump/load, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import[Export and Import].
 
 WARNING: A load will delete all existing repositories before loading the repositories present in the system-dump
 
- $ enonic dump load [-d <value>] [--upgrade] [-a <value>] [-f]
+ $ enonic dump load [-d <value>] [--upgrade] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -305,24 +306,23 @@ Options:
 |`--archive`
 |loads dump form an archive (%name%.zip) file (default is false)
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
-.Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:
+.Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary using `auth` param:
 ----
-$ enonic dump load -a su:password -d newDump -f --upgrade
+$ enonic dump load --cred-file path\to\cred-file.json -d newDump -f --upgrade
 ----
 
 
 == Export
 
-Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+Extract data from a given repository, branch and content path. The result will be stored in the `$XP_HOME/data/export` directory. This is useful to move a part of a site from one installation to another.  For more information on content export/import, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import[Export and Import].
 
 WARNING: Exporting content will not include the version history of the content, just the current version.
 
@@ -343,20 +343,21 @@ OPTIONS:
    --skip-versions         Flag to skip versions in data when exporting.
    --dry                   Show the result without making actual changes.
    --auth value, -a value  Authentication token for basic authentication (user:password)
+   --cred-file value       The path to the service account key file (in JSON format). This is only available for XP version 7.15 and later. Key file can be generated by Users application for System ID Provider users (aka Service Accounts) . If specified, the flag "--auth" or "-a" will be ignored
    -f, --force             Accept default answers to all prompts and run non-interactively
 ----
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
-.Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:
+.Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content-name' to 'myExport' dump:
 ----
-$ enonic export -a su:password -t myExport --path cms-repo:draft:/some-content
+$ enonic export --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/content/some-content-name
 ----
 
 
 == Import
 
-Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the `$XP_HOME/data/export` directory. See https://xp.readthedocs.io/en/stable/operations/export.html#operations-export[Export and Import] for more information on content export/import.
+Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the `$XP_HOME/data/export` directory.  For more information on content export/import, see https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import[Export and Import].
 
 To list available configuration options, type:
 
@@ -377,14 +378,15 @@ $ enonic import -h
      --skip-permissions      Flag to skips permissions when importing
      --dry                   Show the result without making actual changes.
      -a value, --auth value  Authentication token for basic authentication (user:password)
+     --cred-file value       Absolute path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
      -f, --force             Accept default answers to all prompts and run non-interactively
 ----
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
-.Example:
+.Example using `auth` param:
 ----
-$ enonic import -a su:password -t myExport --path cms-repo:draft:/some-content
+$ enonic import --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/some-content
 ----
 
 [TIP]
@@ -418,7 +420,7 @@ OPTIONS:
 
 Installs an application on all nodes.
 
- $ enonic app install [--url <value>] [--file <value>] [-a <value>] [-f]
+ $ enonic app install [--url <value>] [--file <value>] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -432,29 +434,28 @@ Options:
 |`--file`
 |path to an application file (mutually exclusive with url, used if both are present)
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example installing app from a URL:
 ----
-$ enonic app install -a su:password --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
+$ enonic app install --cred-file path\to\cred-file.json --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar
 ----
 .Example installing app from a file:
 ----
-$ enonic app install -a su:password --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
+$ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
 ----
 
 === Start
 
 Start application on all nodes.
 
- $ enonic app start <app key> [-a <value>] [-f]
+ $ enonic app start <app key> [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -465,25 +466,24 @@ Options:
 |`<app key>`
 |application key
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example starting `com.enonic.app.superhero` app:
 ----
-$ enonic app start com.enonic.app.superhero -a su:password
+$ enonic app start com.enonic.app.superhero --cred-file path\to\cred-file.json
 ----
 
 === Stop
 
 Stop application on all nodes.
 
- $ enonic app stop <app key> [-a <value>] [-f]
+ $ enonic app stop <app key> [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -494,18 +494,17 @@ Options:
 |`<app key>`
 |application key
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example stopping `com.enonic.app.superhero` app:
 ----
-$ enonic app stop com.enonic.app.superhero -a su:password
+$ enonic app stop com.enonic.app.superhero --cred-file path\to\cred-file.json
 ----
 
 == Repo
@@ -533,7 +532,7 @@ OPTIONS:
 
 Reindex the content in the search indices for the given repository and branches. This is usually required after upgrades, and may be useful in many other situation.
 
- $ enonic repo reindex [--b <value, value...>] [-r <value>] [-i] [-a <value>] [-f]
+ $ enonic repo reindex [--b <value, value...>] [-r <value>] [-i] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -550,25 +549,24 @@ Options:
 |`-i`
 |if true, the indices will be deleted before recreated
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:
 ----
-$ enonic repo reindex -a su:password -b draft,master -i -r cms-repo
+$ enonic repo reindex --cred-file path\to\cred-file.json -b draft,master -i -r cms-repo
 ----
 
 === Readonly
 
 Toggle read-only mode. In read-only mode, no changes can be made on the server, or a single repo if specified
 
- $ enonic repo readonly [readOnly] [-r <value>] [-a <value>] [-f]
+ $ enonic repo readonly [readOnly] [-r <value>] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -582,25 +580,24 @@ Options:
 |`-r`
 |single repository to toggle read-only mode for
 
-|`--a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example setting 'cms-repo' repository to read-only mode:
 ----
-$ enonic repo readonly true -a su:password -r cms-repo
+$ enonic repo readonly true --cred-file path\to\cred-file.json -r cms-repo
 ----
 
 === Replicas
 
 Set the number of replicas in the cluster. For more information on how replicas work and recommended values, see: https://developer.enonic.com/docs/xp/stable/deployment/clustering#shard_replication[Replica setup].
 
- $ enonic repo replicas [replicasNum] [-a <value>] [-f]
+ $ enonic repo replicas [replicasNum] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -611,25 +608,24 @@ Options:
 |`replicasNum`
 |whole number between 1 and 99 to set
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example setting number of replicas to 3:
 ----
-$ enonic repo replicas 3 -a su:password
+$ enonic repo replicas 3 --cred-file path\to\cred-file.json
 ----
 
 === List
 
 List available repositories.
 
- $ enonic repo list [-a <value>] [-f]
+ $ enonic repo list [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -637,18 +633,17 @@ Options:
 |Option
 |Description
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example listing repositories:
 ----
-$ enonic repo list -a su:password
+$ enonic repo list --cred-file path\to\cred-file.json
 ----
 
 
@@ -680,7 +675,7 @@ Unless the `–skip-children` flag is specified, it processes all descendants of
 
 NOTE: This command should be used after migrating content from Enonic CMS using the cms2xp tool.
 
- $ enonic cms reprocess [--path <value>] [--skip-children] [-a <value>] [-f]
+ $ enonic cms reprocess [--path <value>] [--skip-children] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -694,18 +689,17 @@ Options:
 |`--skip-children`
 |flag to skip processing of content children
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example reprocessing media in branch 'draft' and content path '/some-content':
 ----
-$ enonic reprocess -a su:password -s draft:/some-content
+$ enonic reprocess --cred-file path\to\cred-file.json -s draft:/some-content
 ----
 
 
@@ -785,8 +779,7 @@ Options:
 |age of records to be removed. +
 _Format is based on the ISO-8601 duration format `PnDTnHnMn.nS` with days considered to be exactly 24 hours_.
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
@@ -794,7 +787,7 @@ _Format is based on the ISO-8601 duration format `PnDTnHnMn.nS` with days consid
 
 .Example cleaning up audit log repository for the past 30 days:
 ----
-$ enonic auditlog cleanup --age P30D
+$ enonic auditlog cleanup --age P30D --cred-file path\to\cred-file.json
 ----
 
 == Vacuum
@@ -819,6 +812,7 @@ $ enonic vacuum -h
      --blob, -b              Also removes unused blobs
      --threshold, -t         Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
      --auth value, -a value  Authentication token for basic authentication (user:password)
+     --cred-file value       Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
      --force, -f             Accept default answers to all prompts and run non-interactively
 ----
 
@@ -830,21 +824,20 @@ Options:
 |Description
 
 |`--blob, -b`
-|Triggers `BinaryBlobVacuumTask` and `NodeBlobVacuumTask` in addition to `SegmentVacuumTask`, `VersionTableVacuumTask` and `SnapshotsVacuumTask`
+|Triggers `BinaryBlobVacuumTask`, `NodeBlobVacuumTask` and `SegmentVacuumTask` in addition to , `VersionTableVacuumTask` and `SnapshotsVacuumTask`
 
 |`-t, --threshold`
 |Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
 
-|`-a, --auth`
-|authentication token for basic authentication (user:password)
+include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: if `auth` param is missing and there is no valid session CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<configuration, configuration section.>>
+include::.snippets.adoc[tag=credentials-flags-notes]
 
 .Example
 ----
-$ enonic vacuum -b
+$ enonic vacuum -b --cred-file path\to\cred-file.json
 ----

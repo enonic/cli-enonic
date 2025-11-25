@@ -14,7 +14,7 @@ var Stop = cli.Command{
 	Name:      "stop",
 	Usage:     "Stop an application",
 	ArgsUsage: "<app key>",
-	Flags:     append([]cli.Flag{}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+	Flags:     append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		key := ensureAppKeyArg(c)
@@ -28,7 +28,7 @@ var Stop = cli.Command{
 func stopApp(c *cli.Context, name string) {
 	req := createStopRequest(c, name)
 
-	res := common.SendRequest(req, fmt.Sprintf("Requesting stop \"%s\"", name))
+	res := common.SendRequest(c, req, fmt.Sprintf("Requesting stop \"%s\"", name))
 
 	var status string
 	if res.StatusCode >= 200 && res.StatusCode < 300 {

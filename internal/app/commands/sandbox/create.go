@@ -168,11 +168,11 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion stri
 	template := promptTemplate(c, force)
 
 	name = ensureUniqueNameArg(name, minDistroVersion, force)
-	version, _ := ensureVersionCorrect(versionStr, minDistroVersion, true, includeUnstable, force)
+	version, _ := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
 
 	box := createSandbox(name, version)
 
-	distroPath, _ := EnsureDistroExists(box.Distro)
+	distroPath, _ := EnsureDistroExists(c, box.Distro)
 	CopyHomeFolder(distroPath, box.Name)
 
 	if showSuccessMessage {
@@ -258,7 +258,7 @@ func fetchTemplates(c *cli.Context) []Template {
 	json.NewEncoder(body).Encode(params)
 
 	req := common.CreateRequest(c, "POST", common.MARKET_URL, body)
-	res, err := common.SendRequestCustom(req, "Loading templates from Enonic Market", 1)
+	res, err := common.SendRequestCustom(c, req, "Loading templates from Enonic Market", 1)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error, check your internet connection.")
 		return []Template{}

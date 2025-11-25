@@ -22,7 +22,8 @@ var ReadOnly = cli.Command{
 			Name:  "r",
 			Usage: "Single repository to toggle read-only mode for",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		readOnly := ensureReadOnlyArg(c)
@@ -34,7 +35,7 @@ var ReadOnly = cli.Command{
 		} else {
 			access = "read/write"
 		}
-		res := common.SendRequest(req, fmt.Sprintf("Setting access to %s", access))
+		res := common.SendRequest(c, req, fmt.Sprintf("Setting access to %s", access))
 
 		var result ReadOnlyResponse
 		common.ParseResponse(res, &result)

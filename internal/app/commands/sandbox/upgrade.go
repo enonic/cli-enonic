@@ -41,7 +41,7 @@ var Upgrade = cli.Command{
 			os.Exit(1)
 		}
 		minDistroVer := parseDistroVersion(sandbox.Distro, false)
-		version, total := ensureVersionCorrect(c.String("version"), minDistroVer, false, c.Bool("all"), common.IsForceMode(c))
+		version, total := ensureVersionCorrect(c, c.String("version"), minDistroVer, false, c.Bool("all"), common.IsForceMode(c))
 		if total == 0 {
 			fmt.Fprintf(os.Stdout, "Sandbox '%s' is using the latest release of Enonic XP\n", sandbox.Name)
 			os.Exit(0)

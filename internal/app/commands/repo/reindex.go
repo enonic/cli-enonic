@@ -31,7 +31,8 @@ var Reindex = cli.Command{
 			Name:  "i",
 			Usage: "If true, the indices will be deleted before recreated.",
 		},
-	}, common.AUTH_FLAG, common.CRED_FILE_FLAG, common.FORCE_FLAG),
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		var result ReindexResponse
@@ -41,7 +42,7 @@ var Reindex = cli.Command{
 		ensureBranchesFlag(c)
 
 		req := createReindexRequest(c, "repo/index/reindexTask")
-		res, err := common.SendRequestCustom(req, "", 3)
+		res, err := common.SendRequestCustom(c, req, "", 3)
 		util.Fatal(err, "Reindex request error")
 
 		var taskResult common.TaskResponse
@@ -58,7 +59,7 @@ var Reindex = cli.Command{
 			if enonicErr.Status == http.StatusNotFound {
 				// Async endpoint was not found, most likely XP version < 7.2 so trying synchronous endpoint
 				newReq := createReindexRequest(c, "repo/index/reindex")
-				resp := common.SendRequest(newReq, requestLabel)
+				resp := common.SendRequest(c, newReq, requestLabel)
 				common.ParseResponse(resp, &result)
 
 				fmt.Fprintf(os.Stderr, "Reindexed %d node(s)\n", result.NumberReindexed)
@@ -72,7 +73,7 @@ var Reindex = cli.Command{
 			os.Exit(1)
 
 		} else {
-			status := common.DisplayTaskProgress(taskResult.TaskId, requestLabel, &result)
+			status := common.DisplayTaskProgress(c, taskResult.TaskId, requestLabel, &result)
 
 			switch status.State {
 			case common.TASK_FINISHED:
