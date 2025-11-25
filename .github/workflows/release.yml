@@ -7,12 +7,15 @@ on:
 
 concurrency: release
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
 
-  build:
+  release:
     runs-on: ubuntu-latest
     env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
       ARTIFACTORY_REPO_USERNAME: ci
       ARTIFACTORY_REPO_SECRET: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
@@ -30,21 +33,18 @@ jobs:
       - name: Test
         run: go test -v ./...
 
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v3
-
       - name: GoReleaser Action
         uses: goreleaser/goreleaser-action@v6
         with:
-            args: release --clean --parallelism=1
+            args: build --clean --parallelism=1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v6
         with:
           node-version: 22
 
+      - run: npm install -g npm@latest
+      - run: npm ci
       - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
