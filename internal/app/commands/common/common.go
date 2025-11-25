@@ -118,7 +118,7 @@ func GetInEnonicDir(children ...string) string {
 		}
 	}
 	if joinArgs == nil {
-		joinArgs = []string{util.GetHomeDir(), ".enonic"}
+		joinArgs = []string{util.GetEnonicHome()}
 	}
 	if len(children) > 0 {
 		joinArgs = append(joinArgs, children...)
