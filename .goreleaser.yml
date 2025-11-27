@@ -55,7 +55,9 @@ builds:
         goarch: arm
 
     hooks:
-      post: ./script.sh
+      post:
+        - cmd: ./script.sh
+          output: true
 
 archives:
   -
