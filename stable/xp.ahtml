@@ -542,7 +542,7 @@ For these commands to work, the CLI must have access to the <a href="https://dev
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_HOME_PATH</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path to use for the relative home directory for XP ( Default is <code>$HOME</code>, or the user directory of your user). For example, by setting this to <code>/tmp</code> you&#8217;d have CLI create a folder called <code>/tmp/.enonic</code> and your sandboxes and similar will live there.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to use for the relative home directory for the CLI (instead of the default <code>$HOME</code>, or the root directory of your system user). For example, by setting this to <code>/tmp</code> you&#8217;d have CLI create a folder called <code>/tmp/.enonic</code>, where the sandboxes and distros will live.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_CRED_FILE</code></p></td>
@@ -2551,7 +2551,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-25 12:51:57 UTC
+Last updated 2025-11-27 14:16:39 UTC
 </div>
 </div>
 </body>
