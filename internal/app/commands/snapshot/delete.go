@@ -68,7 +68,7 @@ func ensureSnapshotOrBeforeFlag(c *cli.Context) (string, string) {
 		val := util.PromptString("Select by [N]ame or by [D]ate", "", "N", choiceValidator)
 		switch val {
 		case "N", "n":
-			snapshot = ensureSnapshotFlag(c)
+			snapshot = ensureSnapshotFlagWithMessage(c, "Select snapshot to delete")
 		case "D", "d":
 			before = ensureBeforeFlag(c)
 		}
