@@ -54,6 +54,10 @@ var Restore = cli.Command{
 }
 
 func ensureSnapshotFlag(c *cli.Context) string {
+	return ensureSnapshotFlagWithMessage(c, "Select snapshot to restore")
+}
+
+func ensureSnapshotFlagWithMessage(c *cli.Context, message string) string {
 	snapName := c.String("snapshot")
 	if strings.TrimSpace(snapName) != "" {
 		return snapName
@@ -71,7 +75,7 @@ func ensureSnapshotFlag(c *cli.Context) string {
 	}
 
 	name, _, err := util.PromptSelect(&util.SelectOptions{
-		Message: "Select snapshot to restore",
+		Message: message,
 		Options: getSnapshotNames(snapshotList),
 	})
 	util.Fatal(err, "Could not select snapshot: ")
