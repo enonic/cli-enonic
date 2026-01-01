@@ -28,7 +28,7 @@ jobs:
           args: --clean --snapshot --skip=snapcraft
 
       - name: Upload the binaries
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Enonic CLI binaries
           path: |
@@ -40,7 +40,7 @@ jobs:
           retention-days: 1
 
       - name: Upload package.json and index.js
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Node files
           path: |
