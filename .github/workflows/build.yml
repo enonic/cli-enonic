@@ -57,13 +57,13 @@ jobs:
 
     steps:
       - name: Download Enonic CLI binaries
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: Enonic CLI binaries
           path: dist/
 
       - name: Download Node files
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: Node files
           path: ./
