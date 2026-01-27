@@ -24,7 +24,13 @@ With Homebrew installed, run the following command in your terminal app to add e
 
 . Now you can install CLI by running:
 
- brew install enonic
+ brew install --no-quarantine enonic
+
+IMPORTANT: If you see a warning that Apple cannot verify the binary, run:                                                                                                                                    
+                                                                                                                                                                                                    
+ xattr -d com.apple.quarantine $(which enonic)                                                                                                                                                     
+                                                                                                                                                                                                    
+Alternatively, go to System Settings → Privacy & Security and click "Allow Anyway" next to the blocked message, then run enonic again.
 
 ==== Direct download
 
