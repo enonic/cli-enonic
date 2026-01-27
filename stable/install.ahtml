@@ -485,7 +485,7 @@ To install the CLI on your local device, visit our <a href="https://developer.en
 <ol class="arabic">
 <li>
 <p>Enonic CLI is available from the <a href="https://brew.sh/">Homebrew package service</a>.
-With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:</p>
+With Homebrew installed, run the following command in your terminal app to add enonic to repositories known by Homebrew:</p>
 <div class="literalblock">
 <div class="content">
 <pre>brew tap enonic/cli</pre>
@@ -502,25 +502,38 @@ With Homebrew installed, run the following command in your terminal app to add e
 </li>
 </ol>
 </div>
-<div class="admonitionblock important">
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-important" title="Important"></i>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-If you see a warning that Apple cannot verify the binary, run:
+When first running <code>enonic</code>, macOS may show a warning that it cannot verify the software.
 </td>
 </tr>
 </table>
 </div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Click <strong>"Done"</strong> (not "Move to Bin")</p>
+</li>
+<li>
+<p>Run this command to remove the quarantine:</p>
 <div class="literalblock">
 <div class="content">
 <pre>xattr -d com.apple.quarantine $(which enonic)</pre>
 </div>
 </div>
+</li>
+<li>
+<p>Run enonic again - it should work now</p>
+</li>
+</ol>
+</div>
 <div class="paragraph">
-<p>Alternatively, go to System Settings → Privacy &amp; Security and click "Allow Anyway" next to the blocked message, then run enonic again.</p>
+<p>Alternatively: System Settings → Privacy &amp; Security, scroll down and click "Allow Anyway" for the enonic app.</p>
 </div>
 </div>
 <div class="sect3">
@@ -689,7 +702,7 @@ This command will not work if you installed CLI via direct download or native Wi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-01-27 10:36:53 UTC
+Last updated 2026-01-27 15:57:04 UTC
 </div>
 </div>
 </body>
