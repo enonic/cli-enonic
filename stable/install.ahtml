@@ -496,11 +496,31 @@ With Homebrew installed, run the following command in your terminal app to add e
 <p>Now you can install CLI by running:</p>
 <div class="literalblock">
 <div class="content">
-<pre>brew install enonic</pre>
+<pre>brew install --no-quarantine enonic</pre>
 </div>
 </div>
 </li>
 </ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+If you see a warning that Apple cannot verify the binary, run:
+</td>
+</tr>
+</table>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>xattr -d com.apple.quarantine $(which enonic)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Alternatively, go to System Settings → Privacy &amp; Security and click "Allow Anyway" next to the blocked message, then run enonic again.</p>
 </div>
 </div>
 <div class="sect3">
@@ -669,7 +689,7 @@ This command will not work if you installed CLI via direct download or native Wi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-27 14:16:39 UTC
+Last updated 2026-01-27 10:36:53 UTC
 </div>
 </div>
 </body>
