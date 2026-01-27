@@ -18,7 +18,7 @@ If you have npm installed (on any OS), run the following command in your termina
 ==== Brew
 
 . Enonic CLI is available from the https://brew.sh/[Homebrew package service].
-With Homebrew installed, run the following command in your terminal app to add enonic to homebrew known repositories:
+With Homebrew installed, run the following command in your terminal app to add enonic to repositories known by Homebrew:
 
  brew tap enonic/cli
 
@@ -26,11 +26,17 @@ With Homebrew installed, run the following command in your terminal app to add e
 
  brew install --no-quarantine enonic
 
-IMPORTANT: If you see a warning that Apple cannot verify the binary, run:                                                                                                                                    
-                                                                                                                                                                                                    
- xattr -d com.apple.quarantine $(which enonic)                                                                                                                                                     
-                                                                                                                                                                                                    
-Alternatively, go to System Settings → Privacy & Security and click "Allow Anyway" next to the blocked message, then run enonic again.
+TIP: When first running `enonic`, macOS may show a warning that it cannot verify the software.                                                                                                     
+
+. Click **"Done"** (not "Move to Bin")                                                                                                                                                           
+. Run this command to remove the quarantine:                                                                                                                                                     
+
+ xattr -d com.apple.quarantine $(which enonic)                                                                                                                                                  
+
+. Run enonic again - it should work now                                                                                                                                                          
+                                                                                                                                                                                                   
+Alternatively: System Settings → Privacy & Security, scroll down and click "Allow Anyway" for the enonic app.
+
 
 ==== Direct download
 
