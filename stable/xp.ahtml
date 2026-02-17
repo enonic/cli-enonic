@@ -2485,7 +2485,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--blob, -b</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code>, <code>NodeBlobVacuumTask</code> and <code>SegmentVacuumTask</code> in addition to , <code>VersionTableVacuumTask</code> and <code>SnapshotsVacuumTask</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code>, <code>NodeBlobVacuumTask</code>, <code>SegmentVacuumTask</code> and <code>VersionTableVacuumTask</code>. Without this flag, XP will choose the default vacuum tasks.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --threshold</code></p></td>
@@ -2551,7 +2551,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-01-27 15:57:04 UTC
+Last updated 2026-02-17 09:09:48 UTC
 </div>
 </div>
 </body>
