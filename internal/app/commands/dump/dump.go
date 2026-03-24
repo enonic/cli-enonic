@@ -46,9 +46,9 @@ func ensureNameFlag(name string, mustNotExist, force bool) string {
 				}
 				return errors.Errorf("Dump name '%s' is not valid. Use letters, digits, dot (.) or underscore (_) only: ", str)
 			} else {
-				lowerVal := strings.ToLower(str)
+				lowerVal := strings.ToLower(strings.TrimSuffix(str, ".zip"))
 				for _, dumpName := range existingDumps {
-					if strings.ToLower(dumpName) == lowerVal {
+					if strings.ToLower(strings.TrimSuffix(dumpName, ".zip")) == lowerVal {
 						exists = true
 						break
 					}

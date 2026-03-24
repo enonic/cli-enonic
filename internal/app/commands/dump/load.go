@@ -25,10 +25,6 @@ var Load = cli.Command{
 			Name:  "upgrade",
 			Usage: "Upgrade the dump if necessary (default is false)",
 		},
-		cli.BoolFlag{
-			Name:  "archive",
-			Usage: "Load dump from archive.",
-		},
 		common.FORCE_FLAG,
 	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
@@ -58,14 +54,9 @@ var Load = cli.Command{
 
 func createLoadRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
-	normalizedName, isZip := normalizeName(name)
+	normalizedName := normalizeName(name)
 	params := map[string]interface{}{
 		"name": normalizedName,
-	}
-
-	if archive := c.Bool("archive") || isZip; archive {
-		// force archive param if zip is detected
-		params["archive"] = archive
 	}
 
 	if upgrade := c.Bool("upgrade"); upgrade {
@@ -76,7 +67,7 @@ func createLoadRequest(c *cli.Context, name string) *http.Request {
 	return common.CreateRequest(c, "POST", "system/load", body)
 }
 
-func normalizeName(name string) (string, bool) {
+func normalizeName(name string) (string) {
 	isZip := filepath.Ext(name) == ".zip"
 	var normalName string
 	if isZip {
@@ -85,7 +76,7 @@ func normalizeName(name string) (string, bool) {
 		normalName = name
 	}
 
-	return normalName, isZip
+	return normalName
 }
 
 type LoadDumpResponse struct {
