@@ -37,7 +37,7 @@ var Load = cli.Command{
 			req := createLoadRequest(c, name)
 			var result LoadDumpResponse
 
-			status := common.RunTask(c, req, "Loading dump", &result)
+			status := common.RunTaskWithSpinner(c, req, "Loading dump", &result)
 
 			switch status.State {
 			case common.TASK_FINISHED:
@@ -67,7 +67,7 @@ func createLoadRequest(c *cli.Context, name string) *http.Request {
 	return common.CreateRequest(c, "POST", "system/load", body)
 }
 
-func normalizeName(name string) (string) {
+func normalizeName(name string) string {
 	isZip := filepath.Ext(name) == ".zip"
 	var normalName string
 	if isZip {
