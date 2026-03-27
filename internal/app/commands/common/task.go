@@ -18,29 +18,36 @@ const TASK_WAITING = "WAITING"
 const TASK_RUNNING = "RUNNING"
 
 func RunTask(c *cli.Context, req *http.Request, msg string, target interface{}) *TaskStatus {
-	resp, err := SendRequestCustom(c, req, "", 3)
-	util.Fatal(err, "Request error")
-
-	var result TaskResponse
-	ParseResponse(resp, &result)
-
-	return DisplayTaskProgress(c, result.TaskId, msg, target)
+	return runTask(c, req, msg, target, doDisplayTaskProgress)
 }
 
 func RunTaskWithSpinner(c *cli.Context, req *http.Request, msg string, target interface{}) *TaskStatus {
+	return runTask(c, req, msg, target, doDisplayTaskSpinner)
+}
+
+func runTask(c *cli.Context, req *http.Request, msg string, target interface{}, displayFn func(*cli.Context, string, string, chan<- *TaskStatus)) *TaskStatus {
 	resp, err := SendRequestCustom(c, req, "", 3)
 	util.Fatal(err, "Request error")
 
 	var result TaskResponse
 	ParseResponse(resp, &result)
 
+	return waitForTask(c, result.TaskId, msg, target, displayFn)
+}
+
+func DisplayTaskProgress(c *cli.Context, taskId, msg string, target interface{}) *TaskStatus {
+	return waitForTask(c, taskId, msg, target, doDisplayTaskProgress)
+}
+
+func waitForTask(c *cli.Context, taskId, msg string, target interface{}, displayFn func(*cli.Context, string, string, chan<- *TaskStatus)) *TaskStatus {
 	doneCh := make(chan *TaskStatus)
-	go doDisplayTaskSpinner(c, result.TaskId, msg, doneCh)
+
+	go displayFn(c, taskId, msg, doneCh)
 
 	status := <-doneCh
 	close(doneCh)
 
-	if status.State == TASK_FINISHED && status.Progress.Info != "" {
+	if status != nil && status.State == TASK_FINISHED && status.Progress.Info != "" {
 		decoder := json.NewDecoder(strings.NewReader(status.Progress.Info))
 		if err := decoder.Decode(target); err != nil {
 			fmt.Fprint(os.Stderr, "Error parsing response ", err)
@@ -57,7 +64,7 @@ func doDisplayTaskSpinner(c *cli.Context, taskId, msg string, doneCh chan<- *Tas
 	var exitFlag bool
 	for {
 		time.Sleep(time.Second)
-		status, statusOk := fetchTaskStatus(c, taskId)
+		status, statusOk := fetchTaskStatusWithRetry(c, taskId)
 		if statusOk {
 			switch status.State {
 			case TASK_WAITING:
@@ -79,7 +86,7 @@ func doDisplayTaskSpinner(c *cli.Context, taskId, msg string, doneCh chan<- *Tas
 				fmt.Fprintf(os.Stderr, "\r%s%s%s", msg, dots, padding)
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "\n")
+			fmt.Fprintf(os.Stderr, "\nLost connection to the server\n")
 			exitFlag = true
 		}
 
@@ -88,25 +95,6 @@ func doDisplayTaskSpinner(c *cli.Context, taskId, msg string, doneCh chan<- *Tas
 			break
 		}
 	}
-}
-
-func DisplayTaskProgress(c *cli.Context, taskId, msg string, target interface{}) *TaskStatus {
-	doneCh := make(chan *TaskStatus)
-
-	go doDisplayTaskProgress(c, taskId, msg, doneCh)
-
-	status := <-doneCh
-	close(doneCh)
-
-	if status.State == TASK_FINISHED && status.Progress.Info != "" {
-		decoder := json.NewDecoder(strings.NewReader(status.Progress.Info))
-		if err := decoder.Decode(target); err != nil {
-			fmt.Fprint(os.Stderr, "Error parsing response ", err)
-			os.Exit(1)
-		}
-	}
-
-	return status
 }
 
 func doDisplayTaskProgress(c *cli.Context, taskId, msg string, doneCh chan<- *TaskStatus) {
@@ -156,25 +144,32 @@ func doDisplayTaskProgress(c *cli.Context, taskId, msg string, doneCh chan<- *Ta
 }
 
 func fetchTaskStatus(c *cli.Context, taskId string) (*TaskStatus, bool) {
-	maxRetries := 10
-	var resp *http.Response
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		req := CreateRequest(c, "GET", "/task/"+taskId, nil)
-		resp = SendRequest(c, req, "")
-		if resp.StatusCode != http.StatusUnauthorized {
-			break
-		}
-		resp.Body.Close()
-		if attempt < maxRetries-1 {
-			time.Sleep(time.Second)
-		} else {
-			fmt.Fprintln(os.Stderr, "\nLost connection to the server")
-			os.Exit(0)
-		}
-	}
+	req := CreateRequest(c, "GET", "/task/"+taskId, nil)
+	resp := SendRequest(c, req, "")
 	var taskStatus TaskStatus
 	ParseResponse(resp, &taskStatus)
 	return &taskStatus, resp.StatusCode == http.StatusOK
+}
+
+func fetchTaskStatusWithRetry(c *cli.Context, taskId string) (*TaskStatus, bool) {
+	maxRetries := 10
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		req := CreateRequest(c, "GET", "/task/"+taskId, nil)
+		resp := SendRequest(c, req, "")
+		if resp.StatusCode == http.StatusOK {
+			var taskStatus TaskStatus
+			ParseResponse(resp, &taskStatus)
+			return &taskStatus, true
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusUnauthorized {
+			return nil, false
+		}
+		if attempt < maxRetries-1 {
+			time.Sleep(time.Second)
+		}
+	}
+	return nil, false
 }
 
 type TaskResponse struct {

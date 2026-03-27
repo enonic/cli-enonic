@@ -39,6 +39,10 @@ var Load = cli.Command{
 
 			status := common.RunTaskWithSpinner(c, req, "Loading dump", &result)
 
+			if status == nil {
+				return nil
+			}
+
 			switch status.State {
 			case common.TASK_FINISHED:
 				fmt.Fprintf(os.Stderr, "Loaded %d repositories in %s:\n", len(result.Repositories), util.TimeFromNow(status.StartTime))
