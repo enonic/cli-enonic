@@ -571,7 +571,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 	if allowEmptyRemote && err != nil &&
 		(stdErrors.Is(err, plumbing.ErrReferenceNotFound) || strings.Contains(err.Error(), plumbing.ErrReferenceNotFound.Error())) {
 		if err = os.RemoveAll(dest); err != nil {
-			return nil, fmt.Errorf("failed to clean up partial clone at destination directory %s: %w", dest, err)
+			return nil, fmt.Errorf("empty remote repository detected; failed to clean up partial clone at destination directory %s: %w", dest, err)
 		}
 		return git.PlainInit(dest, false)
 	}
