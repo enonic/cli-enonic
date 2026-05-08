@@ -44,6 +44,7 @@ var Restore = cli.Command{
 		var result RestoreResult
 		if common.ParseResponse(resp, &result); !result.Failed {
 			fmt.Fprintln(os.Stderr, "Done")
+			fmt.Fprintln(os.Stderr, common.RESTART_ALL_RUNNING_INSTANCES_MSG)
 		} else {
 			fmt.Fprintln(os.Stderr, result.Message)
 		}
