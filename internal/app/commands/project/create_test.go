@@ -17,7 +17,13 @@ func TestGitClone_EmptyRepository(t *testing.T) {
 		t.Fatalf("failed to create empty remote repository: %v", err)
 	}
 
-	gitClone(remotePath, destPath, "", "", "", "")
+	repo, err := cloneRepository(remotePath, destPath, nil, true)
+	if err != nil {
+		t.Fatalf("expected empty repository clone to succeed: %v", err)
+	}
+	if repo == nil {
+		t.Fatal("expected repository instance, got nil")
+	}
 
 	if _, err := os.Stat(filepath.Join(destPath, ".git")); err != nil {
 		t.Fatalf("expected cloned repository metadata at %s: %v", destPath, err)
