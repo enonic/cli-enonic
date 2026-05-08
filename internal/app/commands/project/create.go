@@ -7,6 +7,7 @@ import (
 	"cli-enonic/internal/app/commands/sandbox"
 	"cli-enonic/internal/app/util"
 	"encoding/json"
+	stdErrors "errors"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/otiai10/copy"
@@ -567,9 +568,9 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 		Progress:   os.Stderr,
 		RemoteName: UPSTREAM_NAME,
 	})
-	if err == plumbing.ErrReferenceNotFound && allowEmptyRemote {
+	if stdErrors.Is(err, plumbing.ErrReferenceNotFound) && allowEmptyRemote {
 		if err = os.RemoveAll(dest); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to clean destination directory %s: %w", dest, err)
 		}
 		return git.PlainInit(dest, false)
 	}
