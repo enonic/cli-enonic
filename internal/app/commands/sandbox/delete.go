@@ -37,7 +37,7 @@ var Delete = cli.Command{
 		}
 
 		boxes := getSandboxesUsingDistro(sandbox.Distro)
-		if len(boxes) == 1 && boxes[0].Name == sandbox.Name && acceptToDeleteDistro(sandbox.Distro, force) {
+		if !IsDockerDistro(sandbox.Distro) && len(boxes) == 1 && boxes[0].Name == sandbox.Name && acceptToDeleteDistro(sandbox.Distro, force) {
 			deleteDistro(sandbox.Distro)
 		}
 

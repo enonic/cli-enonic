@@ -94,12 +94,13 @@ type ProjectData struct {
 }
 
 type RuntimeData struct {
-	Running       string    `toml:"running"`
-	Mode          string    `toml:"mode"`
-	PID           int       `toml:"PID"`
-	SessionID     string    `toml:sessionID`
-	LatestVersion string    `toml:latestVersion`
-	LatestCheck   time.Time `toml:latestCheck`
+	Running           string    `toml:"running"`
+	Mode              string    `toml:"mode"`
+	PID               int       `toml:"PID"`
+	DockerContainerID string    `toml:"dockerContainerID"`
+	SessionID         string    `toml:sessionID`
+	LatestVersion     string    `toml:latestVersion`
+	LatestCheck       time.Time `toml:latestCheck`
 }
 
 type MarketResponse[K any] struct {
@@ -179,6 +180,19 @@ func ReadRuntimeData() RuntimeData {
 }
 
 func VerifyRuntimeData(rData *RuntimeData) bool {
+	// Check docker container if one is tracked
+	if rData.DockerContainerID != "" {
+		if isDockerContainerRunning(rData.DockerContainerID) {
+			return true
+		}
+		// Container is no longer running, clear its info
+		rData.DockerContainerID = ""
+		rData.PID = 0
+		rData.Running = ""
+		WriteRuntimeData(*rData)
+		return false
+	}
+
 	if rData.PID == 0 {
 		if rData.Running != "" {
 			rData.Running = ""
@@ -200,6 +214,22 @@ func VerifyRuntimeData(rData *RuntimeData) bool {
 		WriteRuntimeData(*rData)
 		return false
 	}
+}
+
+// isDockerContainerRunning checks if a docker container with the given name is currently running.
+// This is a package-level helper to avoid circular imports between common and sandbox packages.
+func isDockerContainerRunning(containerName string) bool {
+	cmd := exec.Command("docker", "ps", "--filter", fmt.Sprintf("name=^/%s$", containerName), "--format", "{{.Names}}")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
+		if line == containerName {
+			return true
+		}
+	}
+	return false
 }
 
 func WriteRuntimeData(data RuntimeData) {

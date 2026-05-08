@@ -107,18 +107,22 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 		}
 	}
 
+	if IsDockerDistro(sandbox.Distro) {
+		return startDockerSandboxWithTracking(c, sandbox, detach, devMode, debug, httpPort)
+	}
+
 	EnsureDistroExists(c, sandbox.Distro)
 
 	cmd := startDistro(sandbox.Distro, sandbox.Name, detach, devMode, debug)
 
-	writeRunningSandbox(sandbox.Name, cmd.Process.Pid, devMode)
+	writeRunningSandbox(sandbox.Name, cmd.Process.Pid, "", devMode)
 
 	if !detach {
 		util.ListenForInterrupt(func() {
 			fmt.Fprintln(os.Stderr)
 			fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", sandbox.Name)
 			fmt.Fprintln(os.Stderr)
-			writeRunningSandbox("", 0, false)
+			writeRunningSandbox("", 0, "", false)
 		})
 		cmd.Wait()
 	} else {
@@ -127,10 +131,35 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 	return nil, false
 }
 
-func writeRunningSandbox(name string, pid int, dev bool) {
+func startDockerSandboxWithTracking(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) (error, bool) {
+	imageName := GetDockerImageName(sandbox.Distro)
+	EnsureDockerImageExists(imageName)
+
+	containerName := GetDockerContainerName(sandbox.Name)
+	cmd := startDockerSandbox(imageName, sandbox.Name, detach, devMode, debug, httpPort)
+
+	if detach {
+		writeRunningSandbox(sandbox.Name, 0, containerName, devMode)
+		fmt.Fprintf(os.Stdout, "Started sandbox '%s' in detached mode.\n", sandbox.Name)
+	} else {
+		writeRunningSandbox(sandbox.Name, cmd.Process.Pid, containerName, devMode)
+		util.ListenForInterrupt(func() {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintf(os.Stderr, "Got interrupt signal, stopping sandbox '%s'\n", sandbox.Name)
+			stopDockerContainer(containerName)
+			fmt.Fprintln(os.Stderr)
+			writeRunningSandbox("", 0, "", false)
+		})
+		cmd.Wait()
+	}
+	return nil, false
+}
+
+func writeRunningSandbox(name string, pid int, dockerContainerID string, dev bool) {
 	data := common.ReadRuntimeData()
 	data.Running = name
 	data.PID = pid
+	data.DockerContainerID = dockerContainerID
 	if dev {
 		data.Mode = common.MODE_DEV
 	} else {
