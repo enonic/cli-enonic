@@ -359,7 +359,7 @@ func processGradleProperties(propsFile, name, version string) {
 
 func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (string, *Starter) {
 	var (
-		customRepoOption = "Custom repo"
+		customRepoOption = "Custom repo (e.g. mycompany/myrepo)"
 		starterList      []string
 		starter          *Starter
 	)
@@ -411,7 +411,7 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 				}
 				return nil
 			}
-			repo = util.PromptString("Custom Git repository", "", "", repoValidator)
+			repo = util.PromptString("Custom Git repository (e.g. mycompany/myrepo)", "", "", repoValidator)
 		}
 		repo, _ = expandToAbsoluteURl(repo, true) // Safe to ignore error cuz it's either was validated or predefined starter
 	}
