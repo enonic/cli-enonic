@@ -539,16 +539,7 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		}
 	}
 
-	repo, err := git.PlainClone(dest, false, &git.CloneOptions{
-		Auth:       auth,
-		URL:        url,
-		Progress:   os.Stderr,
-		RemoteName: UPSTREAM_NAME,
-	})
-	if err == plumbing.ErrReferenceNotFound && branch == "" && hash == "" {
-		os.RemoveAll(dest)
-		repo, err = git.PlainInit(dest, false)
-	}
+	repo, err := cloneRepository(url, dest, auth, branch == "" && hash == "")
 	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s':", url))
 
 	if branch != "" || hash != "" {
@@ -567,6 +558,22 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		err3 := tree.Checkout(getCheckoutOpts(repo, hash, branch))
 		util.Fatal(err3, fmt.Sprintf("Could not checkout hash [%s] and branch [%s]:", hash, branch))
 	}
+}
+
+func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bool) (*git.Repository, error) {
+	repo, err := git.PlainClone(dest, false, &git.CloneOptions{
+		Auth:       auth,
+		URL:        url,
+		Progress:   os.Stderr,
+		RemoteName: UPSTREAM_NAME,
+	})
+	if err == plumbing.ErrReferenceNotFound && allowEmptyRemote {
+		if err = os.RemoveAll(dest); err != nil {
+			return nil, err
+		}
+		return git.PlainInit(dest, false)
+	}
+	return repo, err
 }
 
 func getCheckoutOpts(repo *git.Repository, hash, branch string) *git.CheckoutOptions {
