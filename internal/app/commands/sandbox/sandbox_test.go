@@ -45,7 +45,7 @@ func setupTestSandbox(t *testing.T, sandboxName, distroVersion string) (string, 
 	descriptorPath := filepath.Join(sandboxDir, ".enonic")
 	distroName := fmt.Sprintf("enonic-xp-linux-sdk-%s", distroVersion)
 	descriptorContent := fmt.Sprintf("distro = \"%s\"\n", distroName)
-	if err := os.WriteFile(descriptorPath, []byte(descriptorContent), 0640); err != nil {
+	if err := os.WriteFile(descriptorPath, []byte(descriptorContent), 0644); err != nil {
 		t.Fatalf("Failed to write sandbox descriptor: %v", err)
 	}
 
