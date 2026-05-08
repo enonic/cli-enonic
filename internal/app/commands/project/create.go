@@ -545,6 +545,10 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		Progress:   os.Stderr,
 		RemoteName: UPSTREAM_NAME,
 	})
+	if err == plumbing.ErrReferenceNotFound && branch == "" && hash == "" {
+		os.RemoveAll(dest)
+		repo, err = git.PlainInit(dest, false)
+	}
 	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s':", url))
 
 	if branch != "" || hash != "" {
