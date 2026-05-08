@@ -22,12 +22,13 @@ func TestExpandToAbsoluteURLWithShortGitHubRepo(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := expandToAbsoluteURl(tt.repo, true)
+			actual, err := expandToAbsoluteURL(tt.repo, true)
 			if err != nil {
-				t.Fatalf("expandToAbsoluteURl(%q, true) returned error: %v", tt.repo, err)
+				t.Errorf("expandToAbsoluteURL(%q, true) returned error: %v", tt.repo, err)
+				return
 			}
 			if actual != tt.expected {
-				t.Fatalf("expandToAbsoluteURl(%q, true) = %q, want %q", tt.repo, actual, tt.expected)
+				t.Errorf("expandToAbsoluteURL(%q, true) = %q, want %q", tt.repo, actual, tt.expected)
 			}
 		})
 	}
