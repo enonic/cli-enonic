@@ -33,3 +33,18 @@ func TestExpandToAbsoluteURLWithShortGitHubRepo(t *testing.T) {
 		})
 	}
 }
+
+func TestExpandToAbsoluteURLWithoutGuessingShortUrls(t *testing.T) {
+	_, err := expandToAbsoluteURL("mycompany/myrepo", false)
+	if err == nil {
+		t.Errorf("expandToAbsoluteURL(%q, false) expected error, got nil", "mycompany/myrepo")
+	}
+}
+
+func TestExpandToAbsoluteURLInvalidRepo(t *testing.T) {
+	repo := "too/many/slashes/here"
+	_, err := expandToAbsoluteURL(repo, true)
+	if err == nil {
+		t.Errorf("expandToAbsoluteURL(%q, true) expected error, got nil", repo)
+	}
+}
