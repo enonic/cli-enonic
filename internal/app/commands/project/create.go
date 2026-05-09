@@ -581,14 +581,22 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 			var openErr error
 			repo, openErr = git.PlainOpen(dest)
 			if openErr != nil {
-				return nil, fmt.Errorf("empty remote repository detected; failed to initialize local repository at %s: %v; failed to open repository: %w", dest, err, openErr)
+				return nil, fmt.Errorf("empty remote repository detected; failed to initialize/open local repository at %s (plain init: %v): %w", dest, err, openErr)
 			}
 		}
 		_, err = repo.CreateRemote(&config.RemoteConfig{
 			Name: UPSTREAM_NAME,
 			URLs: []string{url},
 		})
-		if err != nil && !stdErrors.Is(err, git.ErrRemoteExists) {
+		if stdErrors.Is(err, git.ErrRemoteExists) {
+			remote, remoteErr := repo.Remote(UPSTREAM_NAME)
+			if remoteErr != nil {
+				return nil, fmt.Errorf("empty remote repository detected; remote '%s' already exists but could not be read: %w", UPSTREAM_NAME, remoteErr)
+			}
+			if !containsURL(remote.Config().URLs, url) {
+				return nil, fmt.Errorf("empty remote repository detected; existing remote '%s' URL mismatch: expected %s, got %v", UPSTREAM_NAME, url, remote.Config().URLs)
+			}
+		} else if err != nil {
 			return nil, fmt.Errorf("empty remote repository detected; failed to configure remote '%s': %w", UPSTREAM_NAME, err)
 		}
 		return repo, nil
@@ -616,6 +624,15 @@ func destinationHadContent(dest string) bool {
 func isEmptyRemoteCloneError(err error) bool {
 	return err != nil &&
 		(stdErrors.Is(err, transport.ErrEmptyRemoteRepository) || stdErrors.Is(err, plumbing.ErrReferenceNotFound))
+}
+
+func containsURL(urls []string, target string) bool {
+	for _, url := range urls {
+		if url == target {
+			return true
+		}
+	}
+	return false
 }
 
 func getCheckoutOpts(repo *git.Repository, hash, branch string) *git.CheckoutOptions {
