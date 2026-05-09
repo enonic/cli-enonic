@@ -17,6 +17,7 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"net/url"
 	"os"
@@ -568,14 +569,30 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 		Progress:   os.Stderr,
 		RemoteName: UPSTREAM_NAME,
 	})
-	if allowEmptyRemote && err != nil &&
-		(stdErrors.Is(err, plumbing.ErrReferenceNotFound) || strings.Contains(err.Error(), plumbing.ErrReferenceNotFound.Error())) {
+	if allowEmptyRemote && isEmptyRemoteCloneError(err) {
 		if err = os.RemoveAll(dest); err != nil {
 			return nil, fmt.Errorf("empty remote repository detected; failed to clean up partial clone at destination directory %s: %w", dest, err)
 		}
-		return git.PlainInit(dest, false)
+
+		repo, err = git.PlainInit(dest, false)
+		if err != nil {
+			return nil, fmt.Errorf("empty remote repository detected; failed to initialize local repository at %s: %w", dest, err)
+		}
+		_, err = repo.CreateRemote(&config.RemoteConfig{
+			Name: UPSTREAM_NAME,
+			URLs: []string{url},
+		})
+		if err != nil {
+			return nil, fmt.Errorf("empty remote repository detected; failed to configure remote '%s': %w", UPSTREAM_NAME, err)
+		}
+		return repo, nil
 	}
 	return repo, err
+}
+
+func isEmptyRemoteCloneError(err error) bool {
+	return err != nil &&
+		(stdErrors.Is(err, transport.ErrEmptyRemoteRepository) || stdErrors.Is(err, plumbing.ErrReferenceNotFound))
 }
 
 func getCheckoutOpts(repo *git.Repository, hash, branch string) *git.CheckoutOptions {

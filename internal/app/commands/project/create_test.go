@@ -28,4 +28,12 @@ func TestGitClone_EmptyRepository(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(destPath, ".git")); err != nil {
 		t.Fatalf("expected cloned repository metadata at %s: %v", destPath, err)
 	}
+
+	remote, err := repo.Remote(UPSTREAM_NAME)
+	if err != nil {
+		t.Fatalf("expected remote '%s' to be configured: %v", UPSTREAM_NAME, err)
+	}
+	if got := remote.Config().URLs; len(got) != 1 || got[0] != remotePath {
+		t.Fatalf("expected remote URL %s, got %v", remotePath, got)
+	}
 }
