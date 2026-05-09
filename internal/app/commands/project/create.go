@@ -573,7 +573,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 	})
 	if allowEmptyRemote && isEmptyRemoteCloneError(err) {
 		if destHadContent {
-			return nil, err
+			return nil, fmt.Errorf("empty remote repository detected, but destination directory %s already contains content: %w", dest, err)
 		}
 
 		repo, err = git.PlainInit(dest, false)
@@ -581,7 +581,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 			var openErr error
 			repo, openErr = git.PlainOpen(dest)
 			if openErr != nil {
-				return nil, fmt.Errorf("empty remote repository detected; failed to initialize local repository at %s: %w", dest, err)
+				return nil, fmt.Errorf("empty remote repository detected; failed to initialize local repository at %s: %v; failed to open repository: %w", dest, err, openErr)
 			}
 		}
 		_, err = repo.CreateRemote(&config.RemoteConfig{
