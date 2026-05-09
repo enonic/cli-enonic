@@ -581,7 +581,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 			var openErr error
 			repo, openErr = git.PlainOpen(dest)
 			if openErr != nil {
-				return nil, fmt.Errorf("empty remote repository detected; failed to initialize/open local repository at %s (plain init: %v): %w", dest, err, openErr)
+				return nil, fmt.Errorf("empty remote repository detected; failed to initialize/open local repository at %s (plain init error: %v; plain open error: %w)", dest, err, openErr)
 			}
 		}
 		_, err = repo.CreateRemote(&config.RemoteConfig{
@@ -594,7 +594,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 				return nil, fmt.Errorf("empty remote repository detected; remote '%s' already exists but could not be read: %w", UPSTREAM_NAME, remoteErr)
 			}
 			if !containsURL(remote.Config().URLs, url) {
-				return nil, fmt.Errorf("empty remote repository detected; existing remote '%s' URL mismatch: expected %s, got %v", UPSTREAM_NAME, url, remote.Config().URLs)
+				return nil, fmt.Errorf("empty remote repository detected; existing remote '%s' URL mismatch: expected %s, got %s", UPSTREAM_NAME, url, strings.Join(remote.Config().URLs, ", "))
 			}
 		} else if err != nil {
 			return nil, fmt.Errorf("empty remote repository detected; failed to configure remote '%s': %w", UPSTREAM_NAME, err)
