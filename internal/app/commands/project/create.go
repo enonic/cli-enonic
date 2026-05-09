@@ -578,13 +578,17 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 
 		repo, err = git.PlainInit(dest, false)
 		if err != nil {
-			return nil, fmt.Errorf("empty remote repository detected; failed to initialize local repository at %s: %w", dest, err)
+			var openErr error
+			repo, openErr = git.PlainOpen(dest)
+			if openErr != nil {
+				return nil, fmt.Errorf("empty remote repository detected; failed to initialize local repository at %s: %w", dest, err)
+			}
 		}
 		_, err = repo.CreateRemote(&config.RemoteConfig{
 			Name: UPSTREAM_NAME,
 			URLs: []string{url},
 		})
-		if err != nil {
+		if err != nil && !stdErrors.Is(err, git.ErrRemoteExists) {
 			return nil, fmt.Errorf("empty remote repository detected; failed to configure remote '%s': %w", UPSTREAM_NAME, err)
 		}
 		return repo, nil
