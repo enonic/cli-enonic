@@ -572,7 +572,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 		RemoteName: UPSTREAM_NAME,
 	})
 	if allowEmptyRemote && isEmptyRemoteCloneError(err) {
-		if destHadContent {
+		if destHadContent || destinationHasUserContent(dest) {
 			return nil, err
 		}
 
@@ -611,6 +611,30 @@ func destinationHadContent(dest string) bool {
 		return false
 	}
 	return len(entries) > 0
+}
+
+func destinationHasUserContent(dest string) bool {
+	info, err := os.Stat(dest)
+	if err != nil {
+		return false
+	}
+
+	if !info.IsDir() {
+		return true
+	}
+
+	entries, err := os.ReadDir(dest)
+	if err != nil {
+		return false
+	}
+
+	for _, entry := range entries {
+		if entry.Name() != ".git" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isEmptyRemoteCloneError(err error) bool {
