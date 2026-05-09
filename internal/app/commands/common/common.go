@@ -45,7 +45,7 @@ const INFO_PORT = 2609
 const MGMT_PORT = 4848
 const MODE_DEV = "dev"
 const MODE_DEFAULT = "default"
-const RESTART_ALL_RUNNING_INSTANCES_MSG = "Please restart all running instances of XP."
+const RESTART_ALL_RUNNING_INSTANCES_MSG = "Please restart XP instance/cluster."
 
 var spin *spinner.Spinner
 
