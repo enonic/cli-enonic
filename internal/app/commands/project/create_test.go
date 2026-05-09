@@ -37,3 +37,32 @@ func TestGitClone_EmptyRepository(t *testing.T) {
 		t.Fatalf("expected remote URL %s, got %v", remotePath, got)
 	}
 }
+
+func TestGitClone_EmptyRepositoryIntoNonEmptyDestination(t *testing.T) {
+	tempDir := t.TempDir()
+	remotePath := filepath.Join(tempDir, "remote.git")
+	destPath := filepath.Join(tempDir, "dest")
+
+	if _, err := git.PlainInit(remotePath, true); err != nil {
+		t.Fatalf("failed to create empty remote repository: %v", err)
+	}
+
+	if err := os.MkdirAll(destPath, 0755); err != nil {
+		t.Fatalf("failed to create destination directory: %v", err)
+	}
+	sentinelPath := filepath.Join(destPath, "keep.txt")
+	if err := os.WriteFile(sentinelPath, []byte("keep"), 0644); err != nil {
+		t.Fatalf("failed to seed destination with sentinel file: %v", err)
+	}
+
+	repo, err := cloneRepository(remotePath, destPath, nil, true)
+	if err == nil {
+		t.Fatal("expected clone to fail for empty remote into non-empty destination")
+	}
+	if repo != nil {
+		t.Fatal("expected repository instance to be nil on clone failure")
+	}
+	if _, err := os.Stat(sentinelPath); err != nil {
+		t.Fatalf("expected destination contents to be preserved on clone failure: %v", err)
+	}
+}
