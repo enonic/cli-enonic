@@ -563,6 +563,8 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 }
 
 func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bool) (*git.Repository, error) {
+	destHadContent := destinationHadContent(dest)
+
 	repo, err := git.PlainClone(dest, false, &git.CloneOptions{
 		Auth:       auth,
 		URL:        url,
@@ -570,6 +572,10 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 		RemoteName: UPSTREAM_NAME,
 	})
 	if allowEmptyRemote && isEmptyRemoteCloneError(err) {
+		if destHadContent {
+			return nil, err
+		}
+
 		if err = os.RemoveAll(dest); err != nil {
 			return nil, fmt.Errorf("empty remote repository detected; failed to clean up partial clone at destination directory %s: %w", dest, err)
 		}
@@ -588,6 +594,20 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 		return repo, nil
 	}
 	return repo, err
+}
+
+func destinationHadContent(dest string) bool {
+	info, err := os.Stat(dest)
+	if err != nil {
+		return !os.IsNotExist(err)
+	}
+
+	if !info.IsDir() {
+		return true
+	}
+
+	entries, err := os.ReadDir(dest)
+	return err != nil || len(entries) > 0
 }
 
 func isEmptyRemoteCloneError(err error) bool {
