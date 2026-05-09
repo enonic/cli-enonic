@@ -599,7 +599,7 @@ func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bo
 func destinationHadContent(dest string) bool {
 	info, err := os.Stat(dest)
 	if err != nil {
-		return !os.IsNotExist(err)
+		return false
 	}
 
 	if !info.IsDir() {
@@ -607,7 +607,10 @@ func destinationHadContent(dest string) bool {
 	}
 
 	entries, err := os.ReadDir(dest)
-	return err != nil || len(entries) > 0
+	if err != nil {
+		return false
+	}
+	return len(entries) > 0
 }
 
 func isEmptyRemoteCloneError(err error) bool {
