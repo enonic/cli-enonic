@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -23,6 +24,21 @@ const DOCKER_XP_HOME = "/enonic-xp/home"
 // dockerNameInvalidChar matches any character that Docker rejects in a container name.
 // Docker requires names to match `[a-zA-Z0-9][a-zA-Z0-9_.-]*`.
 var dockerNameInvalidChar = regexp.MustCompile(`[^a-zA-Z0-9_.-]`)
+
+// ValidateDockerImageName rejects image names that are empty or that could be
+// interpreted as a flag by the docker CLI (anything starting with `-`).
+// Reference image format: [REGISTRY[:PORT]/]NAME[:TAG|@DIGEST] — none of those
+// legitimately start with a hyphen.
+func ValidateDockerImageName(imageName string) error {
+	trimmed := strings.TrimSpace(imageName)
+	if trimmed == "" {
+		return fmt.Errorf("docker image name can not be empty")
+	}
+	if strings.HasPrefix(trimmed, "-") {
+		return fmt.Errorf("invalid docker image name '%s': must not start with '-'", imageName)
+	}
+	return nil
+}
 
 // IsDockerDistro checks if a distro name represents a docker image
 func IsDockerDistro(distro string) bool {
@@ -95,6 +111,10 @@ func PullDockerImage(imageName string) error {
 
 // EnsureDockerImageExists ensures a docker image exists locally, pulling it if needed
 func EnsureDockerImageExists(imageName string) {
+	if err := ValidateDockerImageName(imageName); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
 	EnsureDockerAvailable()
 	if !IsDockerImagePulled(imageName) {
 		if err := PullDockerImage(imageName); err != nil {
@@ -102,21 +122,6 @@ func EnsureDockerImageExists(imageName string) {
 			os.Exit(1)
 		}
 	}
-}
-
-// IsDockerContainerRunning checks if a docker container with the given name is currently running
-func IsDockerContainerRunning(containerName string) bool {
-	cmd := exec.Command("docker", "ps", "--filter", fmt.Sprintf("name=^/%s$", containerName), "--format", "{{.Names}}")
-	output, err := cmd.Output()
-	if err != nil {
-		return false
-	}
-	for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
-		if line == containerName {
-			return true
-		}
-	}
-	return false
 }
 
 // startDockerSandbox starts a sandbox using docker and returns the exec.Cmd
@@ -154,13 +159,27 @@ func startDockerSandbox(imageName, sandboxName string, detach, devMode, debug bo
 		"-p", fmt.Sprintf("%d:%d", common.INFO_PORT, common.INFO_PORT),
 	)
 
-	// Mount home directory
-	args = append(args, "-v", fmt.Sprintf("%s:%s", homePath, DOCKER_XP_HOME))
+	// Mount home directory.
+	// `--mount` is preferred over `-v` because `-v` uses ':' as separator,
+	// which collides with Windows drive prefixes (e.g. `C:\Users\...`).
+	// `--mount` uses comma-separated key=value pairs, so the colon in the
+	// source path is unambiguous. Forward slashes are accepted by Docker
+	// Desktop on all supported hosts.
+	args = append(args, "--mount", fmt.Sprintf("type=bind,src=%s,dst=%s", filepath.ToSlash(homePath), DOCKER_XP_HOME))
 
-	// Image name
-	args = append(args, imageName)
+	// Image name. The `--` terminator stops the docker CLI from interpreting
+	// an image name that happens to start with '-' as another flag (defense
+	// in depth — ValidateDockerImageName already rejects such names).
+	args = append(args, "--", imageName)
 
-	// Pass mode arguments to the container entrypoint
+	// The official enonic/xp images use `docker-entrypoint.sh` as ENTRYPOINT
+	// and default CMD `server.sh` — `server.sh` is the *only* CMD the
+	// entrypoint treats as XP startup; anything else is exec'd directly and
+	// fails. We override the default CMD to forward dev/debug args, so we
+	// must re-supply `server.sh` here.
+	args = append(args, "server.sh")
+
+	// Pass mode arguments to server.sh
 	if debug {
 		// debug should go as 1st param
 		args = append(args, "debug")
@@ -269,11 +288,7 @@ func promptDockerImage(imageStr string, force bool) string {
 
 	if options[idx] == "Custom image" {
 		imageStr = util.PromptString("Enter docker image name", "", DOCKER_IMAGE_ENONIC_XP+":latest-sdk", func(val interface{}) error {
-			str := val.(string)
-			if len(strings.TrimSpace(str)) == 0 {
-				return fmt.Errorf("docker image name can not be empty")
-			}
-			return nil
+			return ValidateDockerImageName(val.(string))
 		})
 	} else {
 		imageStr = options[idx]

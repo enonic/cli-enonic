@@ -8,6 +8,34 @@ import (
 	"time"
 )
 
+// TestValidateDockerImageName covers the flag-injection guard: empty / whitespace /
+// leading-hyphen names are rejected; legitimate names are accepted.
+func TestValidateDockerImageName(t *testing.T) {
+	tests := []struct {
+		name      string
+		imageName string
+		wantErr   bool
+	}{
+		{"valid simple", "enonic/xp:7.13.4-sdk", false},
+		{"valid latest", "enonic/xp:latest", false},
+		{"valid registry with port", "my-registry.com:5000/enonic/xp:7.13.4", false},
+		{"empty", "", true},
+		{"whitespace only", "   ", true},
+		{"leading hyphen", "-privileged", true},
+		{"leading double hyphen flag", "--network=host", true},
+		{"leading hyphen after trim", "  --rm  ", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateDockerImageName(tt.imageName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateDockerImageName(%q) error = %v, wantErr %v", tt.imageName, err, tt.wantErr)
+			}
+		})
+	}
+}
+
 // TestIsDockerDistro verifies docker distro detection
 func TestIsDockerDistro(t *testing.T) {
 	tests := []struct {
