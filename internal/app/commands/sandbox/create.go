@@ -90,6 +90,10 @@ var Create = cli.Command{
 		if c.NArg() > 0 {
 			name = c.Args().First()
 		}
+		if c.String("image") != "" && c.String("version") != "" {
+			fmt.Fprintln(os.Stderr, "--image and --version are mutually exclusive. Use one or the other.")
+			os.Exit(1)
+		}
 		sbox := SandboxCreateWizard(c, name, c.String("version"), c.String("image"), "", c.Bool("all"), true, common.IsForceMode(c))
 
 		if !c.Bool("skip-start") {

@@ -2,7 +2,10 @@ package sandbox
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 // TestIsDockerDistro verifies docker distro detection
@@ -81,6 +84,14 @@ func TestGetDockerContainerName(t *testing.T) {
 		{"MySandbox", "enonic-sandbox-mysandbox"},
 		{"Sandbox1", "enonic-sandbox-sandbox1"},
 		{"my_sandbox", "enonic-sandbox-my_sandbox"},
+		// Defensive sanitization: characters docker disallows in container names
+		// must be replaced with `_` so the produced name always matches
+		// `[a-zA-Z0-9][a-zA-Z0-9_.-]*`.
+		{"My Sandbox", "enonic-sandbox-my_sandbox"},
+		{"my/sandbox", "enonic-sandbox-my_sandbox"},
+		{"my:sandbox", "enonic-sandbox-my_sandbox"},
+		{"my+sandbox!", "enonic-sandbox-my_sandbox_"},
+		{"box.1-test", "enonic-sandbox-box.1-test"},
 	}
 
 	for _, tt := range tests {
@@ -149,5 +160,65 @@ func TestDockerContainerPrefix(t *testing.T) {
 	expected := fmt.Sprintf("%stest", DOCKER_CONTAINER_PREFIX)
 	if name != expected {
 		t.Errorf("GetDockerContainerName(\"Test\") = %q, want %q", name, expected)
+	}
+}
+
+// TestFetchDockerTagsParsesAndPrefixes verifies the tag list is parsed from the
+// Docker Hub response shape and each entry is prefixed with the image name.
+func TestFetchDockerTagsParsesAndPrefixes(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"count":3,"results":[
+			{"name":"7.13.4-sdk"},
+			{"name":""},
+			{"name":"7.14.0-sdk"}
+		]}`)
+	}))
+	defer srv.Close()
+
+	tags, err := fetchDockerTagsFromURL(srv.URL, time.Second)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	want := []string{"enonic/xp:7.13.4-sdk", "enonic/xp:7.14.0-sdk"}
+	if len(tags) != len(want) {
+		t.Fatalf("got %d tags %v, want %d %v", len(tags), tags, len(want), want)
+	}
+	for i, tag := range tags {
+		if tag != want[i] {
+			t.Errorf("tag[%d] = %q, want %q", i, tag, want[i])
+		}
+	}
+}
+
+// TestFetchDockerTagsTimesOut verifies a stalled server is abandoned within the
+// supplied timeout instead of hanging the wizard.
+func TestFetchDockerTagsTimesOut(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Hold the response open until the client gives up.
+		time.Sleep(2 * time.Second)
+	}))
+	defer srv.Close()
+
+	start := time.Now()
+	_, err := fetchDockerTagsFromURL(srv.URL, 100*time.Millisecond)
+	elapsed := time.Since(start)
+	if err == nil {
+		t.Fatal("expected timeout error, got nil")
+	}
+	if elapsed > time.Second {
+		t.Errorf("fetch took %v, expected <1s with a 100ms timeout", elapsed)
+	}
+}
+
+// TestFetchDockerTagsBadJSON verifies parse failures surface as a clear error.
+func TestFetchDockerTagsBadJSON(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "not json")
+	}))
+	defer srv.Close()
+
+	if _, err := fetchDockerTagsFromURL(srv.URL, time.Second); err == nil {
+		t.Fatal("expected parse error, got nil")
 	}
 }

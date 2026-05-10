@@ -8,14 +8,21 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
+	"time"
 )
 
 const DOCKER_DISTRO_PREFIX = "docker:"
 const DOCKER_IMAGE_ENONIC_XP = "enonic/xp"
 const DOCKER_HUB_TAGS_URL = "https://hub.docker.com/v2/repositories/enonic/xp/tags/?page_size=100&ordering=last_updated"
+const DOCKER_HUB_TAGS_TIMEOUT = 10 * time.Second
 const DOCKER_CONTAINER_PREFIX = "enonic-sandbox-"
 const DOCKER_XP_HOME = "/enonic-xp/home"
+
+// dockerNameInvalidChar matches any character that Docker rejects in a container name.
+// Docker requires names to match `[a-zA-Z0-9][a-zA-Z0-9_.-]*`.
+var dockerNameInvalidChar = regexp.MustCompile(`[^a-zA-Z0-9_.-]`)
 
 // IsDockerDistro checks if a distro name represents a docker image
 func IsDockerDistro(distro string) bool {
@@ -32,9 +39,30 @@ func FormatDockerDistro(imageName string) string {
 	return DOCKER_DISTRO_PREFIX + imageName
 }
 
-// GetDockerContainerName returns the docker container name for a sandbox
+// GetDockerContainerName returns the docker container name for a sandbox.
+// The result always starts with DOCKER_CONTAINER_PREFIX (which begins with an
+// alphanumeric character) and the lowercased sandbox name has any character
+// outside `[a-z0-9_.-]` replaced with `_` so docker accepts the name even if
+// the sandbox-name validator is later relaxed.
 func GetDockerContainerName(sandboxName string) string {
-	return DOCKER_CONTAINER_PREFIX + strings.ToLower(sandboxName)
+	safe := dockerNameInvalidChar.ReplaceAllString(strings.ToLower(sandboxName), "_")
+	return DOCKER_CONTAINER_PREFIX + safe
+}
+
+// DockerContainerExists checks whether a container with the given name exists
+// (running or stopped).
+func DockerContainerExists(containerName string) bool {
+	cmd := exec.Command("docker", "ps", "-a", "--filter", fmt.Sprintf("name=^/%s$", containerName), "--format", "{{.Names}}")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
+		if line == containerName {
+			return true
+		}
+	}
+	return false
 }
 
 // IsDockerAvailable checks if docker is installed and available
@@ -95,6 +123,15 @@ func IsDockerContainerRunning(containerName string) bool {
 func startDockerSandbox(imageName, sandboxName string, detach, devMode, debug bool, httpPort uint16) *exec.Cmd {
 	homePath := GetSandboxHomePath(sandboxName)
 	containerName := GetDockerContainerName(sandboxName)
+
+	// Pre-check for an existing container with the same name so the user gets a
+	// clear message rather than the raw "docker: Error response from daemon:
+	// Conflict. The container name ... is already in use" stderr dump.
+	if DockerContainerExists(containerName) {
+		fmt.Fprintf(os.Stderr, "Docker container '%s' already exists. Run 'enonic sandbox stop' or 'docker rm %s' first.\n",
+			containerName, containerName)
+		os.Exit(1)
+	}
 
 	// Ensure home directory exists
 	if _, err := os.Stat(homePath); os.IsNotExist(err) {
@@ -168,9 +205,15 @@ type dockerHubTag struct {
 	Name string `json:"name"`
 }
 
-// FetchDockerTags fetches available tags for the enonic/xp image from Docker Hub
+// FetchDockerTags fetches available tags for the enonic/xp image from Docker Hub.
+// Uses a bounded HTTP timeout so a stalled network does not hang the wizard.
 func FetchDockerTags() ([]string, error) {
-	resp, err := http.Get(DOCKER_HUB_TAGS_URL)
+	return fetchDockerTagsFromURL(DOCKER_HUB_TAGS_URL, DOCKER_HUB_TAGS_TIMEOUT)
+}
+
+func fetchDockerTagsFromURL(url string, timeout time.Duration) ([]string, error) {
+	client := &http.Client{Timeout: timeout}
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch docker tags: %v", err)
 	}

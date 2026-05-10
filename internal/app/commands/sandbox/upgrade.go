@@ -46,6 +46,10 @@ var Upgrade = cli.Command{
 		}
 
 		if IsDockerDistro(sandbox.Distro) {
+			if c.String("version") != "" {
+				fmt.Fprintf(os.Stderr, "Sandbox '%s' is docker-based; --version does not apply. Use --image instead.\n", sandbox.Name)
+				os.Exit(1)
+			}
 			imageStr := c.String("image")
 			if imageStr == "" {
 				if common.IsForceMode(c) {
@@ -59,6 +63,11 @@ var Upgrade = cli.Command{
 			writeSandboxData(sandbox)
 			fmt.Fprintf(os.Stdout, "Sandbox '%s' docker image changed to '%s'.\n", sandbox.Name, imageStr)
 			return nil
+		}
+
+		if c.String("image") != "" {
+			fmt.Fprintf(os.Stderr, "Sandbox '%s' is distro-based; --image does not apply. Use --version instead.\n", sandbox.Name)
+			os.Exit(1)
 		}
 
 		minDistroVer := parseDistroVersion(sandbox.Distro, false)
