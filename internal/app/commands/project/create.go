@@ -361,13 +361,13 @@ func processGradleProperties(propsFile, name, version string) {
 
 func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (string, *Starter) {
 	var (
-		customRepoOption = "Custom repo"
+		customRepoOption = "Custom repo (e.g. mycompany/myrepo)"
 		starterList      []string
 		starter          *Starter
 	)
 	repo := c.String("repository")
 	if repo != "" {
-		if parsedRepo, err := expandToAbsoluteURl(repo, true); err != nil {
+		if parsedRepo, err := expandToAbsoluteURL(repo, true); err != nil {
 			repo = ""
 		} else {
 			repo = parsedRepo
@@ -408,20 +408,20 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 				str := val.(string)
 				if str == "" {
 					return errors.New("Repository name can not be empty")
-				} else if _, err := expandToAbsoluteURl(str, true); err != nil {
+				} else if _, err := expandToAbsoluteURL(str, true); err != nil {
 					return err
 				}
 				return nil
 			}
-			repo = util.PromptString("Custom Git repository", "", "", repoValidator)
+			repo = util.PromptString("Custom Git repository (e.g. mycompany/myrepo)", "", "", repoValidator)
 		}
-		repo, _ = expandToAbsoluteURl(repo, true) // Safe to ignore error cuz it's either was validated or predefined starter
+		repo, _ = expandToAbsoluteURL(repo, true) // Safe to ignore error cuz it's either was validated or predefined starter
 	}
 
 	return repo, starter
 }
 
-func expandToAbsoluteURl(repo string, guessShortUrls bool) (string, error) {
+func expandToAbsoluteURL(repo string, guessShortUrls bool) (string, error) {
 	if parsedUrl, err := url.ParseRequestURI(repo); err == nil {
 		return parsedUrl.String(), nil
 	} else if guessShortUrls {
@@ -433,7 +433,7 @@ func expandToAbsoluteURl(repo string, guessShortUrls bool) (string, error) {
 		case 1:
 			repo = fmt.Sprintf(GITHUB_REPO_TPL, "enonic", repo)
 		}
-		return expandToAbsoluteURl(repo, false)
+		return expandToAbsoluteURL(repo, false)
 	} else {
 		return "", errors.New("Not a valid repository")
 	}
