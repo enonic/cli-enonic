@@ -44,6 +44,7 @@ var Restore = cli.Command{
 		var result RestoreResult
 		if common.ParseResponse(resp, &result); !result.Failed {
 			fmt.Fprintln(os.Stderr, "Done")
+			fmt.Fprintln(os.Stderr, common.RESTART_ALL_RUNNING_INSTANCES_MSG)
 		} else {
 			fmt.Fprintln(os.Stderr, result.Message)
 		}
@@ -74,13 +75,13 @@ func ensureSnapshotFlagWithMessage(c *cli.Context, message string) string {
 		os.Exit(1)
 	}
 
-	name, _, err := util.PromptSelect(&util.SelectOptions{
+	_, pos, err := util.PromptSelect(&util.SelectOptions{
 		Message: message,
-		Options: getSnapshotNames(snapshotList),
+		Options: getSnapshotDisplayNames(snapshotList),
 	})
 	util.Fatal(err, "Could not select snapshot: ")
 
-	return name
+	return snapshotList.Results[pos].Name
 }
 
 func createRestoreRequest(c *cli.Context) *http.Request {
@@ -105,10 +106,14 @@ func createRestoreRequest(c *cli.Context) *http.Request {
 	return common.CreateRequest(c, "POST", "repo/snapshot/restore", body)
 }
 
-func getSnapshotNames(list *SnapshotList) []string {
+func getSnapshotDisplayNames(list *SnapshotList) []string {
 	var names []string
 	for _, s := range list.Results {
-		names = append(names, s.Name)
+		if s.Timestamp.IsZero() {
+			names = append(names, s.Name)
+		} else {
+			names = append(names, fmt.Sprintf("%s (%s)", s.Name, s.Timestamp.Local().Format("2006-01-02 15:04:05")))
+		}
 	}
 	return names
 }

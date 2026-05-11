@@ -7,6 +7,7 @@ import (
 	"cli-enonic/internal/app/commands/sandbox"
 	"cli-enonic/internal/app/util"
 	"encoding/json"
+	stdErrors "errors"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/otiai10/copy"
@@ -16,6 +17,7 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"net/url"
 	"os"
@@ -539,12 +541,7 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		}
 	}
 
-	repo, err := git.PlainClone(dest, false, &git.CloneOptions{
-		Auth:       auth,
-		URL:        url,
-		Progress:   os.Stderr,
-		RemoteName: UPSTREAM_NAME,
-	})
+	repo, err := cloneRepository(url, dest, auth, branch == "" && hash == "")
 	util.Fatal(err, fmt.Sprintf("Could not connect to a remote repository '%s':", url))
 
 	if branch != "" || hash != "" {
@@ -563,6 +560,79 @@ func gitClone(url, dest, user, pass, branch, hash string) {
 		err3 := tree.Checkout(getCheckoutOpts(repo, hash, branch))
 		util.Fatal(err3, fmt.Sprintf("Could not checkout hash [%s] and branch [%s]:", hash, branch))
 	}
+}
+
+func cloneRepository(url, dest string, auth *http.BasicAuth, allowEmptyRemote bool) (*git.Repository, error) {
+	destHadContent := destinationHadContent(dest)
+
+	repo, err := git.PlainClone(dest, false, &git.CloneOptions{
+		Auth:       auth,
+		URL:        url,
+		Progress:   os.Stderr,
+		RemoteName: UPSTREAM_NAME,
+	})
+	if allowEmptyRemote && isEmptyRemoteCloneError(err) {
+		if destHadContent {
+			return nil, fmt.Errorf("empty remote repository detected, but destination directory %s already contains content: %w", dest, err)
+		}
+
+		repo, err = git.PlainInit(dest, false)
+		if err != nil {
+			var openErr error
+			repo, openErr = git.PlainOpen(dest)
+			if openErr != nil {
+				return nil, fmt.Errorf("empty remote repository detected; failed to initialize/open local repository at %s (plain init error: %v; plain open error: %w)", dest, err, openErr)
+			}
+		}
+		_, err = repo.CreateRemote(&config.RemoteConfig{
+			Name: UPSTREAM_NAME,
+			URLs: []string{url},
+		})
+		if stdErrors.Is(err, git.ErrRemoteExists) {
+			remote, remoteErr := repo.Remote(UPSTREAM_NAME)
+			if remoteErr != nil {
+				return nil, fmt.Errorf("empty remote repository detected; remote '%s' already exists but could not be read: %w", UPSTREAM_NAME, remoteErr)
+			}
+			if !containsURL(remote.Config().URLs, url) {
+				return nil, fmt.Errorf("empty remote repository detected; existing remote '%s' URL mismatch: expected %s, got %s", UPSTREAM_NAME, url, strings.Join(remote.Config().URLs, ", "))
+			}
+		} else if err != nil {
+			return nil, fmt.Errorf("empty remote repository detected; failed to configure remote '%s': %w", UPSTREAM_NAME, err)
+		}
+		return repo, nil
+	}
+	return repo, err
+}
+
+func destinationHadContent(dest string) bool {
+	info, err := os.Stat(dest)
+	if err != nil {
+		return false
+	}
+
+	if !info.IsDir() {
+		return true
+	}
+
+	entries, err := os.ReadDir(dest)
+	if err != nil {
+		return false
+	}
+	return len(entries) > 0
+}
+
+func isEmptyRemoteCloneError(err error) bool {
+	return err != nil &&
+		(stdErrors.Is(err, transport.ErrEmptyRemoteRepository) || stdErrors.Is(err, plumbing.ErrReferenceNotFound))
+}
+
+func containsURL(urls []string, target string) bool {
+	for _, url := range urls {
+		if url == target {
+			return true
+		}
+	}
+	return false
 }
 
 func getCheckoutOpts(repo *git.Repository, hash, branch string) *git.CheckoutOptions {

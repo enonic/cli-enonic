@@ -46,6 +46,7 @@ var Load = cli.Command{
 			switch status.State {
 			case common.TASK_FINISHED:
 				fmt.Fprintf(os.Stderr, "Loaded %d repositories in %s:\n", len(result.Repositories), util.TimeFromNow(status.StartTime))
+				fmt.Fprintln(os.Stderr, common.RESTART_ALL_RUNNING_INSTANCES_MSG)
 			case common.TASK_FAILED:
 				fmt.Fprintf(os.Stderr, "Failed to load dump: %s\n", status.Progress.Info)
 			}
