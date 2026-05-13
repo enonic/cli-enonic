@@ -89,7 +89,7 @@ include::.snippets.adoc[tag=credentials-flags]
 |accept default answers to all prompts and run non-interactively
 
 |`--compat`
-|XP version compatibility mode. Set to `"7"` (or any value starting with `"7"`) to use the legacy XP 7 API format. Default uses the XP 8 API format.
+|target XP version for the API call. Value must be in the form `X` or `X.Y` (digits only, e.g. `7` or `7.16`). Use a value starting with `7` (such as `7` or `7.16`) to target XP 7. Default targets XP 8.
 |===
 
 include::.snippets.adoc[tag=credentials-flags-notes]
@@ -146,7 +146,7 @@ include::.snippets.adoc[tag=credentials-flags]
 |accept default answers to all prompts and run non-interactively
 
 |`--compat`
-|XP version compatibility mode. Set to `"7"` (or any value starting with `"7"`) to use the legacy XP 7 API format (synchronous response). Default uses the XP 8 API format (task-based, tracked via the `taskId` returned by the server).
+|target XP version for the API call. Value must be in the form `X` or `X.Y` (digits only, e.g. `7` or `7.16`). Use a value starting with `7` (such as `7` or `7.16`) to target XP 7. Default targets XP 8.
 |===
 
 include::.snippets.adoc[tag=credentials-flags-notes]
@@ -224,7 +224,7 @@ Options:
 |max number of versions to dump in addition to current version
 
 |`--archive`
-|outputs dump output to an archive (%name%.zip) file (default is false). Only effective in compat mode (XP 7); in XP 8 the dump is always created as an archive.
+|outputs dump output to an archive (%name%.zip) file (default is false). Only effective in compat mode (`--compat 7`).
 
 include::.snippets.adoc[tag=credentials-flags]
 
@@ -232,7 +232,7 @@ include::.snippets.adoc[tag=credentials-flags]
 |accept default answers to all prompts and run non-interactively
 
 |`--compat`
-|XP version compatibility mode. Set to `"7"` (or any value starting with `"7"`) to use the legacy XP 7 API format (sends the `archive` parameter and uses a progress bar). Default uses the XP 8 API format.
+|target XP version for the API call. Value must be in the form `X` or `X.Y` (digits only, e.g. `7` or `7.16`). Use a value starting with `7` (such as `7` or `7.16`) to target XP 7. Default targets XP 8.
 |===
 
 include::.snippets.adoc[tag=credentials-flags-notes]
@@ -313,7 +313,7 @@ Options:
 |upgrade the dump if necessary (default is false)
 
 |`--archive`
-|loads dump from an archive (%name%.zip) file (default is false). Only effective in compat mode (XP 7); in XP 8 the archive is auto-detected.
+|loads dump from an archive (%name%.zip) file (default is false). Only effective in compat mode (`--compat 7`).
 
 include::.snippets.adoc[tag=credentials-flags]
 
@@ -321,7 +321,7 @@ include::.snippets.adoc[tag=credentials-flags]
 |accept default answers to all prompts and run non-interactively
 
 |`--compat`
-|XP version compatibility mode. Set to `"7"` (or any value starting with `"7"`) to use the legacy XP 7 API format (sends the `archive` parameter when the dump name ends in `.zip` and uses a progress bar). Default uses the XP 8 API format.
+|target XP version for the API call. Value must be in the form `X` or `X.Y` (digits only, e.g. `7` or `7.16`). Use a value starting with `7` (such as `7` or `7.16`) to target XP 7. Default targets XP 8.
 |===
 
 include::.snippets.adoc[tag=credentials-flags-notes]

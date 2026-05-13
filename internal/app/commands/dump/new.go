@@ -39,6 +39,8 @@ var Create = cli.Command{
 	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
 
+		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
+
 		name := ensureNameFlag(c.String("d"), true, common.IsForceMode(c))
 
 		req := createNewRequest(c, name)
