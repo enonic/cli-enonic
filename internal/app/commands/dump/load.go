@@ -25,8 +25,12 @@ var Load = cli.Command{
 			Name:  "upgrade",
 			Usage: "Upgrade the dump if necessary (default is false)",
 		},
+		cli.BoolFlag{
+			Name:  "archive",
+			Usage: "Load dump from archive. Only effective in compat mode (XP 7).",
+		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
 
 		force := common.IsForceMode(c)
@@ -37,7 +41,12 @@ var Load = cli.Command{
 			req := createLoadRequest(c, name)
 			var result LoadDumpResponse
 
-			status := common.RunTaskWithSpinner(c, req, "Loading dump", &result)
+			var status *common.TaskStatus
+			if common.IsCompatMode(c) {
+				status = common.RunTask(c, req, "Loading dump", &result)
+			} else {
+				status = common.RunTaskWithSpinner(c, req, "Loading dump", &result)
+			}
 
 			if status == nil {
 				return nil
@@ -59,29 +68,34 @@ var Load = cli.Command{
 
 func createLoadRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
-	normalizedName := normalizeName(name)
+	json.NewEncoder(body).Encode(buildLoadParams(c, name))
+	return common.CreateRequest(c, "POST", "system/load", body)
+}
+
+func buildLoadParams(c *cli.Context, name string) map[string]interface{} {
+	normalizedName, isZip := normalizeName(name)
 	params := map[string]interface{}{
 		"name": normalizedName,
+	}
+
+	if common.IsCompatMode(c) {
+		if archive := c.Bool("archive") || isZip; archive {
+			params["archive"] = archive
+		}
 	}
 
 	if upgrade := c.Bool("upgrade"); upgrade {
 		params["upgrade"] = upgrade
 	}
-	json.NewEncoder(body).Encode(params)
-
-	return common.CreateRequest(c, "POST", "system/load", body)
+	return params
 }
 
-func normalizeName(name string) string {
+func normalizeName(name string) (string, bool) {
 	isZip := filepath.Ext(name) == ".zip"
-	var normalName string
 	if isZip {
-		normalName = strings.TrimSuffix(name, ".zip")
-	} else {
-		normalName = name
+		return strings.TrimSuffix(name, ".zip"), true
 	}
-
-	return normalName
+	return name, false
 }
 
 type LoadDumpResponse struct {

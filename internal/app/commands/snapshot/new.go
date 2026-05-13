@@ -20,17 +20,36 @@ var Create = cli.Command{
 			Usage: "The name of the repository to snapshot",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
 
 		req := createNewRequest(c)
-
-		resp := common.SendRequest(c, req, "Creating snapshot")
-
 		var snap Snapshot
-		if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {
-			fmt.Fprintln(os.Stderr, "Done")
+
+		if common.IsCompatMode(c) {
+			resp := common.SendRequest(c, req, "Creating snapshot")
+			if common.ParseResponse(resp, &snap); snap.State == "SUCCESS" {
+				fmt.Fprintln(os.Stderr, "Done")
+				fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(snap))
+			}
+			return nil
+		}
+
+		status := common.RunTaskWithSpinner(c, req, "Creating snapshot", &snap)
+		if status == nil {
+			return nil
+		}
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			if snap.State == "SUCCESS" {
+				fmt.Fprintln(os.Stderr, "Done")
+			} else {
+				fmt.Fprintf(os.Stderr, "Snapshot finished with state: %s\n", snap.State)
+			}
 			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(snap))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Failed to create snapshot: %s\n", status.Progress.Info)
 		}
 
 		return nil
