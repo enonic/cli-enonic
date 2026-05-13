@@ -48,7 +48,19 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
+          registry-url: 'https://registry.npmjs.org'
 
-      - run: npm install -g npm@latest
-      - run: npm ci
-      - run: npm publish
+      - name: Set npm tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=beta" >> $GITHUB_ENV
+          fi
+
+      - name: Publish
+        run: |
+          npm install -g npm@latest
+          npm ci
+          npm publish --tag $NPM_TAG
