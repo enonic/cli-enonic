@@ -35,7 +35,6 @@ var Sandbox = cli.Command{
 		}
 
 		sandbox, _ := sandbox.EnsureSandboxExists(c, sandbox.EnsureSandboxOptions{
-			MinDistroVersion:   common.ReadProjectDistroVersion("."),
 			Name:               sandboxName,
 			NoBoxMessage:       "No sandboxes found, do you want to create one",
 			SelectBoxMessage:   "Select sandbox to use as default for this project",

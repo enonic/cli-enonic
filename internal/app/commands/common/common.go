@@ -45,6 +45,7 @@ const INFO_PORT = 2609
 const MGMT_PORT = 4848
 const MODE_DEV = "dev"
 const MODE_DEFAULT = "default"
+const RESTART_ALL_RUNNING_INSTANCES_MSG = "Please restart all running instances of XP."
 
 var spin *spinner.Spinner
 
@@ -68,6 +69,11 @@ var FORCE_FLAG = cli.BoolFlag{
 	Usage: "Accept default answers to all prompts and run non-interactively",
 }
 
+var COMPAT_FLAG = cli.StringFlag{
+	Name:  "compat",
+	Usage: "XP version compatibility mode. Set to \"7\" (or any value starting with \"7\") to use the legacy XP 7 API format. Default uses the XP 8 API format.",
+}
+
 var CLIENT_KEY_FLAG = cli.StringFlag{
 	Name:  "client-key",
 	Usage: "Specifies the private key file for client certificate authentication. This option is used in conjunction with --client-cert to establish a mutual TLS (mTLS) session.",
@@ -87,6 +93,29 @@ var AUTH_AND_TLS_FLAGS = []cli.Flag{
 
 func IsForceMode(c *cli.Context) bool {
 	return c != nil && c.Bool("force")
+}
+
+func IsCompatMode(c *cli.Context) bool {
+	return c != nil && strings.HasPrefix(c.String("compat"), "7")
+}
+
+var compatValueRegex = regexp.MustCompile(`^\d+(\.\d+)?$`)
+
+// ValidateCompatFlag returns an error if --compat was passed with a value that
+// isn't either "X" or "X.Y" (X and Y digits, e.g. "7" or "7.16").
+// Returns nil when the flag is unset.
+func ValidateCompatFlag(c *cli.Context) error {
+	if c == nil {
+		return nil
+	}
+	val := c.String("compat")
+	if val == "" {
+		return nil
+	}
+	if !compatValueRegex.MatchString(val) {
+		return fmt.Errorf("invalid --compat value %q: expected format \"X\" or \"X.Y\" where X and Y are numbers (e.g. \"7\" or \"7.16\")", val)
+	}
+	return nil
 }
 
 type ProjectData struct {

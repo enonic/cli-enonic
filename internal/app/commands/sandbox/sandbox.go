@@ -234,6 +234,27 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 	existingBoxes := listSandboxes(options.MinDistroVersion)
 	force := common.IsForceMode(c)
 
+	if options.Name != "" {
+		lowerName := strings.ToLower(options.Name)
+		// First, search within the version-filtered list
+		for _, existingBox := range existingBoxes {
+			if strings.ToLower(existingBox.Name) == lowerName {
+				return existingBox, false
+			}
+		}
+		// Not found in version-filtered list; check all sandboxes in case it was
+		// filtered out by MinDistroVersion
+		for _, box := range listSandboxes("") {
+			if strings.ToLower(box.Name) == lowerName {
+				return box, false
+			}
+		}
+		if force {
+			fmt.Fprintf(os.Stderr, "Sandbox with name '%s' can not be found\n", options.Name)
+			os.Exit(1)
+		}
+	}
+
 	if len(existingBoxes) == 0 {
 		if force {
 			fmt.Fprintln(os.Stderr, "No sandboxes found. Create one using 'enonic sandbox create' first.")
@@ -246,18 +267,6 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 		return newBox, true
 	}
 
-	if options.Name != "" {
-		lowerName := strings.ToLower(options.Name)
-		for _, existingBox := range existingBoxes {
-			if strings.ToLower(existingBox.Name) == lowerName {
-				return existingBox, false
-			}
-		}
-		if force {
-			fmt.Fprintf(os.Stderr, "Sandbox with name '%s' can not be found\n", options.Name)
-			os.Exit(1)
-		}
-	}
 	if force {
 		fmt.Fprintln(os.Stderr, "Sandbox name can not be empty in non-interactive mode")
 		os.Exit(1)

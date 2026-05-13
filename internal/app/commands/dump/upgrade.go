@@ -49,8 +49,9 @@ var Upgrade = cli.Command{
 
 func createUpgradeRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
+	normalizedName, _ := normalizeName(name)
 	params := map[string]string{
-		"name": name,
+		"name": normalizedName,
 	}
 	json.NewEncoder(body).Encode(params)
 
