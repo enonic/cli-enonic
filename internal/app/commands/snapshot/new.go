@@ -23,6 +23,8 @@ var Create = cli.Command{
 	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
 
+		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
+
 		req := createNewRequest(c)
 		var snap Snapshot
 

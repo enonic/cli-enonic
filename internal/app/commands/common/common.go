@@ -99,6 +99,25 @@ func IsCompatMode(c *cli.Context) bool {
 	return c != nil && strings.HasPrefix(c.String("compat"), "7")
 }
 
+var compatValueRegex = regexp.MustCompile(`^\d+(\.\d+)?$`)
+
+// ValidateCompatFlag returns an error if --compat was passed with a value that
+// isn't either "X" or "X.Y" (X and Y digits, e.g. "7" or "7.16").
+// Returns nil when the flag is unset.
+func ValidateCompatFlag(c *cli.Context) error {
+	if c == nil {
+		return nil
+	}
+	val := c.String("compat")
+	if val == "" {
+		return nil
+	}
+	if !compatValueRegex.MatchString(val) {
+		return fmt.Errorf("invalid --compat value %q: expected format \"X\" or \"X.Y\" where X and Y are numbers (e.g. \"7\" or \"7.16\")", val)
+	}
+	return nil
+}
+
 type ProjectData struct {
 	Sandbox string `toml:"sandbox"`
 }
