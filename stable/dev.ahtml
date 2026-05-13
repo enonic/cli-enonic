@@ -1326,11 +1326,37 @@ Unlike <code>enonic project shell</code> command, this one will modify your <em>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Developers can use the CLI to work with one or several instances of XP locally. These instances are called sandboxes.
-Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.</p>
+Each sandbox will be associated with either a downloaded distribution (version) of Enonic XP or a Docker image, and will have its own Enonic XP home folder.</p>
 </div>
 <div class="paragraph">
-<p>The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.
-Sandbox commands list is available by running following command:</p>
+<p>The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.</p>
+</div>
+<div id="sandbox-docker" class="sidebarblock">
+<div class="content">
+<div class="title">Distribution or Docker image</div>
+<div class="paragraph">
+<p>A sandbox can run XP from either of two sources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An XP <strong>distribution</strong> archive (default) — the CLI downloads it from enonic.com and unpacks it into the sandbox folder.</p>
+</li>
+<li>
+<p>A <strong>Docker image</strong> (e.g. <code>enonic/xp:latest-sdk</code>) — the CLI runs <code>docker run</code> against the selected image and mounts the sandbox home folder into the container.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When creating a sandbox interactively, the CLI asks which source to use (Docker is offered only when <code>docker</code> is available on <code>$PATH</code>). In non-interactive mode (<code>-f</code>), the source is decided by the flags: <code>--version</code> selects a distribution, <code>--image</code> selects a Docker image. The two flags are mutually exclusive.</p>
+</div>
+<div class="paragraph">
+<p>Docker-backed sandboxes use a container named <code>enonic-sandbox-&lt;sandbox&gt;</code>, map the http/management/info ports to the host, and bind-mount the sandbox home folder at <code>/enonic-xp/home</code> inside the container.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Sandbox commands list is available by running following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1361,7 +1387,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic sandbox create [name] [-v &lt;value&gt;] [-a]</pre>
+<pre>$ enonic sandbox create [name] [-v &lt;value&gt; | -i &lt;value&gt;] [-a]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1393,7 +1419,11 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">use specific distro version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use specific distro version (mutually exclusive with <code>--image</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-i, --image</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use specific Docker image, e.g. <code>enonic/xp:7.13.4-sdk</code> (mutually exclusive with <code>--version</code>). See <a href="#sandbox-docker">Distribution or Docker image</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
@@ -1425,6 +1455,18 @@ If all params are present and correct, sandbox is created immediately without wi
 </tr>
 </table>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+When <code>--image</code> is used, the CLI will pull the image (if not already present locally) before creating the sandbox. Docker must be installed and reachable on the host.
+</td>
+</tr>
+</table>
+</div>
 <div class="listingblock">
 <div class="title">Example creating a sandbox called 'myBox' using the latest version of Enonic XP</div>
 <div class="content">
@@ -1449,6 +1491,12 @@ If all params are present and correct, sandbox is created immediately without wi
 <pre>$ enonic sandbox create myBox -v 7.2.1</pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">Example creating sandbox called 'myBox' backed by the <code>enonic/xp:latest-sdk</code> Docker image</div>
+<div class="content">
+<pre>$ enonic sandbox create myBox -i enonic/xp:latest-sdk -f</pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="list"><a class="link" href="#list">List</a></h3>
@@ -1468,7 +1516,7 @@ If all params are present and correct, sandbox is created immediately without wi
 * Sandbox1 ( windows-sdk-7.2.1 )
   Sandbox2 ( windows-sdk-7.2.0 )
   Sandbox3 ( windows-sdk-7.0.3 )
-  Sandbox4 ( windows-sdk-7.2.1 )</pre>
+  Sandbox4 ( docker:enonic/xp:latest-sdk )</pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1478,7 +1526,7 @@ If all params are present and correct, sandbox is created immediately without wi
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Asterisk marks currently running sandbox
+Asterisk marks currently running sandbox. Entries whose source is shown as <code>docker:&lt;image&gt;</code> are Docker-backed sandboxes.
 </td>
 </tr>
 </table>
@@ -1587,11 +1635,11 @@ only sandboxes started with CLI can be stopped using this command.
 <div class="sect2">
 <h3 id="upgrade"><a class="link" href="#upgrade">Upgrade</a></h3>
 <div class="paragraph">
-<p>Upgrades enonic distribution used for a sandbox:</p>
+<p>Upgrades the Enonic XP distribution (or switches the Docker image) used by a sandbox:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic sandbox upgrade [name] [-v &lt;value&gt;]</pre>
+<pre>$ enonic sandbox upgrade [name] [-v &lt;value&gt; | -i &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1615,7 +1663,11 @@ only sandboxes started with CLI can be stopped using this command.
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-v, --version</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">enonic distribution version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enonic distribution version. Only valid for distribution-backed sandboxes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-i, --image</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">new Docker image to use, e.g. <code>enonic/xp:7.13.4-sdk</code>. Only valid for Docker-backed sandboxes. See <a href="#sandbox-docker">Distribution or Docker image</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --all</code></p></td>
@@ -1634,7 +1686,7 @@ only sandboxes started with CLI can be stopped using this command.
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Downgrades are not permitted.
+Downgrades are not permitted for distribution-backed sandboxes. The flag that applies depends on how the sandbox was created: <code>--version</code> for distribution-backed sandboxes, <code>--image</code> for Docker-backed sandboxes. Using the wrong flag is an error.
 </td>
 </tr>
 </table>
@@ -1643,6 +1695,12 @@ Downgrades are not permitted.
 <div class="title">Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':</div>
 <div class="content">
 <pre>$ enonic sandbox upgrade myBox -v 7.2.1</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example switching Docker-backed sandbox 'myBox' to a different image:</div>
+<div class="content">
+<pre>$ enonic sandbox upgrade myBox -i enonic/xp:7.14.0-sdk</pre>
 </div>
 </div>
 </div>
@@ -1751,7 +1809,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-05-13 13:42:12 UTC
+Last updated 2026-05-13 14:11:59 UTC
 </div>
 </div>
 </body>
