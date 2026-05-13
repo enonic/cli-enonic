@@ -53,6 +53,10 @@ type Versioning struct {
 }
 
 func EnsureDistroExists(c *cli.Context, distroName string) (string, bool) {
+	if IsDockerDistro(distroName) {
+		// Docker distros are managed separately
+		return "", false
+	}
 	for _, distro := range listDistros() {
 		if distroName == distro {
 			return filepath.Join(getDistrosDir(), distro), false
@@ -347,11 +351,18 @@ func assessVersionStability(versionStr, latestVersion string, markStability bool
 }
 
 func GetDistroJdkPath(distroName string) string {
+	if IsDockerDistro(distroName) {
+		return ""
+	}
 	distroVersion := parseDistroVersion(distroName, false)
 	return filepath.Join(getDistrosDir(), formatDistroVersion(distroVersion), "jdk")
 }
 
 func EnsureSanboxSupportsProjectVersion(sBox *Sandbox, minDistroVersion *semver.Version) {
+	if IsDockerDistro(sBox.Distro) {
+		// Cannot verify version for docker-based sandboxes
+		return
+	}
 	sandboxDistroVer := semver.MustParse(parseDistroVersion(sBox.Distro, false))
 	if sandboxDistroVer.LessThan(minDistroVersion) {
 		fmt.Fprintf(os.Stderr, "The project requires XP %v or higher. Associated sandbox '%s' uses XP %v.\nUpgrade sandbox XP version with 'enonic sandbox upgrade'\nor set a different project sandbox with 'enonic project sandbox'.\n", minDistroVersion, sBox.Name, sandboxDistroVer)

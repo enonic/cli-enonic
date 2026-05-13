@@ -47,7 +47,13 @@ func createSandbox(name string, version string) *Sandbox {
 	file := util.OpenOrCreateDataFile(filepath.Join(dir, ".enonic"), false)
 	defer file.Close()
 
-	data := SandboxData{formatDistroVersion(version)}
+	var distro string
+	if IsDockerDistro(version) {
+		distro = version
+	} else {
+		distro = formatDistroVersion(version)
+	}
+	data := SandboxData{distro}
 	util.EncodeTomlFile(file, data)
 
 	return &Sandbox{name, data.Distro}
@@ -123,6 +129,11 @@ func filterSandboxes(vs []os.FileInfo, sandboxDir, minDistroVersion string) []*S
 		}
 		if isSandbox(v, sandboxDir) {
 			sandboxData := ReadSandboxData(v.Name())
+			// Docker-based sandboxes are always included regardless of min distro version
+			if IsDockerDistro(sandboxData.Distro) {
+				vsf = append(vsf, sandboxData)
+				continue
+			}
 			distroVer, _ := semver.NewVersion(parseDistroVersion(sandboxData.Distro, false))
 			if distroVer == nil || minDistroVer == nil || !distroVer.LessThan(minDistroVer) {
 				vsf = append(vsf, sandboxData)
@@ -132,6 +143,15 @@ func filterSandboxes(vs []os.FileInfo, sandboxDir, minDistroVersion string) []*S
 		}
 	}
 	return vsf
+}
+
+// formatSandboxDisplay returns a display string for a sandbox, handling both distro and docker variants
+func formatSandboxDisplay(box *Sandbox, osWithArch string) string {
+	if IsDockerDistro(box.Distro) {
+		return fmt.Sprintf("%s (%s)", box.Name, box.Distro)
+	}
+	version := parseDistroVersion(box.Distro, false)
+	return formatSandboxListItemName(box.Name, version, osWithArch)
 }
 
 func isSandbox(v os.FileInfo, sandboxDir string) bool {
@@ -243,7 +263,7 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 		if options.ShowCreateOption == false || !util.PromptBool(options.NoBoxMessage, true) {
 			return nil, false
 		}
-		newBox := SandboxCreateWizard(c, "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
+		newBox := SandboxCreateWizard(c, "", "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
 		return newBox, true
 	}
 
@@ -264,8 +284,7 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 		if util.IndexOf(box.Name, options.ExcludeSandboxes) >= 0 {
 			continue
 		}
-		version := parseDistroVersion(box.Distro, false)
-		boxName = formatSandboxListItemName(box.Name, version, osWithArch)
+		boxName = formatSandboxDisplay(box, osWithArch)
 		if i == 0 {
 			defaultBox = boxName
 		}
@@ -282,7 +301,7 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 	util.Fatal(err, "Could not select sandbox: ")
 
 	if name == CREATE_NEW_BOX {
-		newBox := SandboxCreateWizard(c, "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
+		newBox := SandboxCreateWizard(c, "", "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
 		return newBox, true
 	}
 
@@ -293,6 +312,12 @@ func CopyHomeFolder(distroPath, sandboxName string) {
 	targetHome := GetSandboxHomePath(sandboxName)
 	if _, err := os.Stat(targetHome); err == nil {
 		// it already exists
+		return
+	}
+	// For docker distros there is no local distro to copy from, just create the home dir
+	if distroPath == "" {
+		createFolderIfNotExist(targetHome)
+		updateXPConfig(sandboxName)
 		return
 	}
 	sourceHome := filepath.Join(distroPath, "home")

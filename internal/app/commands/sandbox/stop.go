@@ -26,9 +26,20 @@ var Stop = cli.Command{
 }
 
 func StopSandbox(rData common.RuntimeData) {
+	if rData.DockerContainerID != "" {
+		// Docker-based sandbox: stop the container
+		containerName := rData.DockerContainerID
+		common.StartSpinner(fmt.Sprintf("Stopping sandbox '%s'", rData.Running))
+		stopDockerContainer(containerName)
+		writeRunningSandbox("", 0, "", false)
+		common.StopSpinner()
+		fmt.Fprintln(os.Stderr, "Done")
+		return
+	}
+
 	pId := rData.PID
 	stopDistro(pId)
-	writeRunningSandbox("", 0, false)
+	writeRunningSandbox("", 0, "", false)
 
 	common.StartSpinner(fmt.Sprintf("Stopping sandbox '%s'", rData.Running))
 	if err := util.WaitUntilProcessStopped(pId, 30); err != nil {

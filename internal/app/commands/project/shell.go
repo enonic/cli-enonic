@@ -22,7 +22,9 @@ var Shell = cli.Command{
 
 		prjJavaHome := sandbox.GetDistroJdkPath(sBox.Distro)
 		prjXpHome := sandbox.GetSandboxHomePath(pData.Sandbox)
-		os.Setenv(common.ENV_JAVA_HOME, prjJavaHome)
+		if prjJavaHome != "" {
+			os.Setenv(common.ENV_JAVA_HOME, prjJavaHome)
+		}
 		os.Setenv(common.ENV_XP_HOME, prjXpHome)
 
 		cmd := createNewShellCommand()

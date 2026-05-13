@@ -65,6 +65,10 @@ var Create = cli.Command{
 			Name:  "all",
 			Usage: "List all distro versions.",
 		},
+		cli.StringFlag{
+			Name:  "image, i",
+			Usage: "Use specific Docker image (e.g. 'enonic/xp:7.13.4-sdk').",
+		},
 		cli.BoolFlag{
 			Name:   "dev",
 			Usage:  "Run Enonic XP distribution in development mode",
@@ -86,7 +90,11 @@ var Create = cli.Command{
 		if c.NArg() > 0 {
 			name = c.Args().First()
 		}
-		sbox := SandboxCreateWizard(c, name, c.String("version"), "", c.Bool("all"), true, common.IsForceMode(c))
+		if c.String("image") != "" && c.String("version") != "" {
+			fmt.Fprintln(os.Stderr, "--image and --version are mutually exclusive. Use one or the other.")
+			os.Exit(1)
+		}
+		sbox := SandboxCreateWizard(c, name, c.String("version"), c.String("image"), "", c.Bool("all"), true, common.IsForceMode(c))
 
 		if !c.Bool("skip-start") {
 			AskToStartSandbox(c, sbox.Name)
@@ -161,19 +169,43 @@ func addTemplateToSandbox(box *Sandbox, template *Template) {
 	}
 }
 
-func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion string, includeUnstable, showSuccessMessage,
+func SandboxCreateWizard(c *cli.Context, name, versionStr, imageStr, minDistroVersion string, includeUnstable, showSuccessMessage,
 	force bool) *Sandbox {
 	fmt.Fprint(os.Stderr, "\n")
 
 	template := promptTemplate(c, force)
 
 	name = ensureUniqueNameArg(name, minDistroVersion, force)
-	version, _ := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
 
-	box := createSandbox(name, version)
-
-	distroPath, _ := EnsureDistroExists(c, box.Distro)
-	CopyHomeFolder(distroPath, box.Name)
+	var box *Sandbox
+	if imageStr != "" {
+		// Docker image mode: image was specified via --image flag.
+		// Validate and pull before persisting any sandbox metadata so a bad
+		// image name does not leave a stub sandbox dir behind.
+		EnsureDockerImageExists(imageStr)
+		box = createSandbox(name, FormatDockerDistro(imageStr))
+		CopyHomeFolder("", box.Name)
+	} else if !force && versionStr == "" && IsDockerAvailable() {
+		// Interactive mode: ask whether to use distro or docker
+		useDocker := promptUseDocker(force)
+		if useDocker {
+			imageStr = promptDockerImage("", force)
+			EnsureDockerImageExists(imageStr)
+			box = createSandbox(name, FormatDockerDistro(imageStr))
+			CopyHomeFolder("", box.Name)
+		} else {
+			version, _ := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
+			box = createSandbox(name, version)
+			distroPath, _ := EnsureDistroExists(c, box.Distro)
+			CopyHomeFolder(distroPath, box.Name)
+		}
+	} else {
+		// Distro mode (force mode or --version specified)
+		version, _ := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
+		box = createSandbox(name, version)
+		distroPath, _ := EnsureDistroExists(c, box.Distro)
+		CopyHomeFolder(distroPath, box.Name)
+	}
 
 	if showSuccessMessage {
 		fmt.Fprintf(os.Stdout, "\nSandbox '%s' created with distro '%s'.\n\n", box.Name, box.Distro)
@@ -184,6 +216,21 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, minDistroVersion stri
 	}
 
 	return box
+}
+
+// promptUseDocker asks the user whether they want to use a Docker image or a distro
+func promptUseDocker(force bool) bool {
+	if force {
+		return false
+	}
+	_, idx, err := util.PromptSelect(&util.SelectOptions{
+		Message:  "Select sandbox type",
+		Options:  []string{"XP Distribution (download)", "Docker image"},
+		Default:  "XP Distribution (download)",
+		PageSize: 2,
+	})
+	util.Fatal(err, "Could not select sandbox type: ")
+	return idx == 1
 }
 
 func ensureUniqueNameArg(name, minDistroVersion string, force bool) string {
