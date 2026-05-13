@@ -1,5 +1,26 @@
 = Release notes
 
+== CLI v4.0.0
+
+=== Features
+
+* Compatibility with Enonic XP 8 for `dump create`, `dump load`, `snapshot create` and `snapshot restore`. These commands now use the new task-based APIs introduced in XP 8 and track progress via the returned `taskId`.
+* New `--compat` flag for the four commands above, taking a version value in the form `X` or `X.Y` (e.g. `7` or `7.16`). Use it to opt back into the legacy XP 7 API format when talking to an XP 7 server.
+* Docker image support for sandboxes. `sandbox create` and `sandbox upgrade` accept a new `--image` (`-i`) flag (e.g. `enonic/xp:latest-sdk`) to back a sandbox with a Docker image instead of a downloaded XP distribution. When `docker` is available on `$PATH`, the interactive create wizard offers Docker as an alternative source.
+
+=== Improvements
+
+* `snapshot restore` selection list now shows the snapshot timestamp next to each name.
+* `project create` shows clearer guidance for the custom repository prompt (now includes a `mycompany/myrepo` hint).
+* `dump load` and `snapshot restore` now print a clear instruction to restart all running XP instances after the operation completes.
+* `project create` handles cloning from an empty remote Git repository gracefully instead of erroring out.
+
+=== Bug fixes
+
+* Fix `dump upgrade` appending a second `.zip` extension when the dump name selected from the list already ended in `.zip`.
+* Fix `enonic project sandbox` linking issue where named sandboxes were not found because the lookup was not filtered by `MinDistroVersion`.
+* Fix incorrect prompt message shown by the `snapshot delete` command.
+
 == CLI v3.4.0
 
 === Features
@@ -74,5 +95,7 @@
 
 == Upgrade notes
 
+* In CLI 4.x, `dump create`, `dump load`, `snapshot create` and `snapshot restore` target the Enonic XP 8 task-based APIs by default. When running these commands against an XP 7 server, pass `--compat 7` (or any value starting with `7`, e.g. `--compat 7.16`) to fall back to the legacy XP 7 request/response format.
+* `vacuum` no longer runs `SnapshotsVacuumTask` (the task was removed in XP 8). Use `snapshot delete` to clean up snapshots instead.
 * In CLI 3.x, the `sandbox start` command will start the sandbox in dev mode by default. If you want to start the sandbox in prod mode, provide the `--prod` option.
 * All the commands that may potentially create a new sandbox (f.ex. `sandbox create` or `project create`) will now suggest starting the new sandbox after it's created. If such a command is used in combination with `-f` (`--force`) option, the sandbox will be started without prompt. This may potentially affect some scripts if the command is followed by another command which now won't be reached because script execution will be taken over by the running sandbox.

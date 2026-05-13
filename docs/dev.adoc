@@ -396,9 +396,23 @@ WARNING: Unlike `enonic project shell` command, this one will modify your _curre
 == Sandbox
 
 Developers can use the CLI to work with one or several instances of XP locally. These instances are called sandboxes.
-Each sandbox will be associated with a specific distribution (version) of Enonic XP and will have its own Enonic XP home folder.
+Each sandbox will be associated with either a downloaded distribution (version) of Enonic XP or a Docker image, and will have its own Enonic XP home folder.
 
 The CLI automates setting up, starting, stopping and upgrading sandboxes. When creating a new sandbox, user will be asked to select a template. Each template has a predefined list of applications serving a specific purpose, which will be automatically installed on the first sandbox launch, speeding up and simplifying the development startup process.
+
+[[sandbox-docker]]
+.Distribution or Docker image
+****
+A sandbox can run XP from either of two sources:
+
+* An XP **distribution** archive (default) — the CLI downloads it from enonic.com and unpacks it into the sandbox folder.
+* A **Docker image** (e.g. `enonic/xp:latest-sdk`) — the CLI runs `docker run` against the selected image and mounts the sandbox home folder into the container.
+
+When creating a sandbox interactively, the CLI asks which source to use (Docker is offered only when `docker` is available on `$PATH`). In non-interactive mode (`-f`), the source is decided by the flags: `--version` selects a distribution, `--image` selects a Docker image. The two flags are mutually exclusive.
+
+Docker-backed sandboxes use a container named `enonic-sandbox-<sandbox>`, map the http/management/info ports to the host, and bind-mount the sandbox home folder at `/enonic-xp/home` inside the container.
+****
+
 Sandbox commands list is available by running following command:
 ----
 $ enonic sandbox
@@ -425,7 +439,7 @@ OPTIONS:
 
 Starts a new sandbox wizard:
 
- $ enonic sandbox create [name] [-v <value>] [-a]
+ $ enonic sandbox create [name] [-v <value> | -i <value>] [-a]
 
 Options:
 [cols="1,3", options="header"]
@@ -443,7 +457,10 @@ Options:
 |skip template selection step
 
 |`-v, --version`
-|use specific distro version
+|use specific distro version (mutually exclusive with `--image`)
+
+|`-i, --image`
+|use specific Docker image, e.g. `enonic/xp:7.13.4-sdk` (mutually exclusive with `--version`). See <<sandbox-docker>>.
 
 |`-a, --all`
 |include pre-releases when selecting XP version for the new sandbox
@@ -459,6 +476,8 @@ Options:
 |===
 
 TIP: If all params are present and correct, sandbox is created immediately without wizard allowing usage in script files.
+
+NOTE: When `--image` is used, the CLI will pull the image (if not already present locally) before creating the sandbox. Docker must be installed and reachable on the host.
 
 .Example creating a sandbox called 'myBox' using the latest version of Enonic XP
 ----
@@ -480,6 +499,11 @@ $ enonic sandbox create myBox --skip-template -f
 $ enonic sandbox create myBox -v 7.2.1
 ----
 
+.Example creating sandbox called 'myBox' backed by the `enonic/xp:latest-sdk` Docker image
+----
+$ enonic sandbox create myBox -i enonic/xp:latest-sdk -f
+----
+
 === List
 
 Lists all sandboxes previously created by user:
@@ -493,9 +517,9 @@ $ enonic sandbox ls
 * Sandbox1 ( windows-sdk-7.2.1 )
   Sandbox2 ( windows-sdk-7.2.0 )
   Sandbox3 ( windows-sdk-7.0.3 )
-  Sandbox4 ( windows-sdk-7.2.1 )
+  Sandbox4 ( docker:enonic/xp:latest-sdk )
 ----
-NOTE: Asterisk marks currently running sandbox
+NOTE: Asterisk marks currently running sandbox. Entries whose source is shown as `docker:<image>` are Docker-backed sandboxes.
 
 === Start
 
@@ -551,9 +575,9 @@ $ enonic sandbox stop
 
 === Upgrade
 
-Upgrades enonic distribution used for a sandbox:
+Upgrades the Enonic XP distribution (or switches the Docker image) used by a sandbox:
 
- $ enonic sandbox upgrade [name] [-v <value>]
+ $ enonic sandbox upgrade [name] [-v <value> | -i <value>]
 
 Options:
 [cols="1,3", options="header"]
@@ -565,7 +589,10 @@ Options:
 |sandbox name
 
 |`-v, --version`
-|enonic distribution version
+|enonic distribution version. Only valid for distribution-backed sandboxes.
+
+|`-i, --image`
+|new Docker image to use, e.g. `enonic/xp:7.13.4-sdk`. Only valid for Docker-backed sandboxes. See <<sandbox-docker>>.
 
 |`-a, --all`
 |List all distro versions
@@ -574,11 +601,16 @@ Options:
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: Downgrades are not permitted.
+NOTE: Downgrades are not permitted for distribution-backed sandboxes. The flag that applies depends on how the sandbox was created: `--version` for distribution-backed sandboxes, `--image` for Docker-backed sandboxes. Using the wrong flag is an error.
 
 .Example upgrading enonic distribution for 'myBox' sandbox to 'windows-sdk-7.2.1':
 ----
 $ enonic sandbox upgrade myBox -v 7.2.1
+----
+
+.Example switching Docker-backed sandbox 'myBox' to a different image:
+----
+$ enonic sandbox upgrade myBox -i enonic/xp:7.14.0-sdk
 ----
 
 === Delete
