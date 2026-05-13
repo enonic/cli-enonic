@@ -33,10 +33,10 @@ var Create = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "archive",
-			Usage: "Archive created dump.",
+			Usage: "Archive created dump. Only effective in compat mode (XP 7).",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
 
 		name := ensureNameFlag(c.String("d"), true, common.IsForceMode(c))
@@ -44,7 +44,16 @@ var Create = cli.Command{
 		req := createNewRequest(c, name)
 
 		var result NewDumpResponse
-		status := common.RunTask(c, req, "Creating dump", &result)
+		var status *common.TaskStatus
+		if common.IsCompatMode(c) {
+			status = common.RunTask(c, req, "Creating dump", &result)
+		} else {
+			status = common.RunTaskWithSpinner(c, req, "Creating dump", &result)
+		}
+
+		if status == nil {
+			return nil
+		}
 
 		switch status.State {
 		case common.TASK_FINISHED:
@@ -60,14 +69,20 @@ var Create = cli.Command{
 
 func createNewRequest(c *cli.Context, name string) *http.Request {
 	body := new(bytes.Buffer)
+	json.NewEncoder(body).Encode(buildNewParams(c, name))
+	return common.CreateRequest(c, "POST", "system/dump", body)
+}
+
+func buildNewParams(c *cli.Context, name string) map[string]interface{} {
 	params := map[string]interface{}{
-		"name": name,
+		"name":            name,
+		"includeVersions": !c.Bool("skip-versions"),
 	}
 
-	params["includeVersions"] = !c.Bool("skip-versions")
-
-	if archive := c.Bool("archive"); archive {
-		params["archive"] = archive
+	if common.IsCompatMode(c) {
+		if archive := c.Bool("archive"); archive {
+			params["archive"] = archive
+		}
 	}
 	if maxAge := c.String("max-version-age"); maxAge != "" {
 		params["maxAge"] = maxAge
@@ -75,9 +90,7 @@ func createNewRequest(c *cli.Context, name string) *http.Request {
 	if maxVersions := c.String("max-versions"); maxVersions != "" {
 		params["maxVersions"] = maxVersions
 	}
-	json.NewEncoder(body).Encode(params)
-
-	return common.CreateRequest(c, "POST", "system/dump", body)
+	return params
 }
 
 type NewDumpResponse struct {

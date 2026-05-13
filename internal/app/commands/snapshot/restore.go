@@ -33,22 +33,43 @@ var Restore = cli.Command{
 			Usage: "Delete indices before restoring",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
 
 		req := createRestoreRequest(c)
-
-		resp, err := common.SendRequestCustom(c, req, "Restoring snapshot", 5)
-		util.Fatal(err, "Request error")
-
 		var result RestoreResult
-		if common.ParseResponse(resp, &result); !result.Failed {
-			fmt.Fprintln(os.Stderr, "Done")
-			fmt.Fprintln(os.Stderr, common.RESTART_ALL_RUNNING_INSTANCES_MSG)
-		} else {
-			fmt.Fprintln(os.Stderr, result.Message)
+
+		if common.IsCompatMode(c) {
+			resp, err := common.SendRequestCustom(c, req, "Restoring snapshot", 5)
+			util.Fatal(err, "Request error")
+
+			if common.ParseResponse(resp, &result); !result.Failed {
+				fmt.Fprintln(os.Stderr, "Done")
+				fmt.Fprintln(os.Stderr, common.RESTART_ALL_RUNNING_INSTANCES_MSG)
+			} else {
+				fmt.Fprintln(os.Stderr, result.Message)
+			}
+			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
+			return nil
 		}
-		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
+
+		status := common.RunTaskWithSpinner(c, req, "Restoring snapshot", &result)
+		if status == nil {
+			return nil
+		}
+
+		switch status.State {
+		case common.TASK_FINISHED:
+			if !result.Failed {
+				fmt.Fprintln(os.Stderr, "Done")
+				fmt.Fprintln(os.Stderr, common.RESTART_ALL_RUNNING_INSTANCES_MSG)
+			} else {
+				fmt.Fprintln(os.Stderr, result.Message)
+			}
+			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
+		case common.TASK_FAILED:
+			fmt.Fprintf(os.Stderr, "Failed to restore snapshot: %s\n", status.Progress.Info)
+		}
 
 		return nil
 	},

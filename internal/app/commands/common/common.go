@@ -69,6 +69,11 @@ var FORCE_FLAG = cli.BoolFlag{
 	Usage: "Accept default answers to all prompts and run non-interactively",
 }
 
+var COMPAT_FLAG = cli.StringFlag{
+	Name:  "compat",
+	Usage: "XP version compatibility mode. Set to \"7\" (or any value starting with \"7\") to use the legacy XP 7 API format. Default uses the XP 8 API format.",
+}
+
 var CLIENT_KEY_FLAG = cli.StringFlag{
 	Name:  "client-key",
 	Usage: "Specifies the private key file for client certificate authentication. This option is used in conjunction with --client-cert to establish a mutual TLS (mTLS) session.",
@@ -88,6 +93,10 @@ var AUTH_AND_TLS_FLAGS = []cli.Flag{
 
 func IsForceMode(c *cli.Context) bool {
 	return c != nil && c.Bool("force")
+}
+
+func IsCompatMode(c *cli.Context) bool {
+	return c != nil && strings.HasPrefix(c.String("compat"), "7")
 }
 
 type ProjectData struct {
