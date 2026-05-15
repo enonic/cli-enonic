@@ -38,7 +38,7 @@ var Load = cli.Command{
 		force := common.IsForceMode(c)
 		if force || util.PromptBool("WARNING: This will delete all existing repositories that also present in the system-dump. Continue", false) {
 
-			name := ensureNameFlag(c, c.String("d"), false, force)
+			name := ensureNameFlag(c, false, force)
 
 			req := createLoadRequest(c, name)
 			var result LoadDumpResponse

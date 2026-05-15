@@ -3,11 +3,12 @@ package dump
 import (
 	"cli-enonic/internal/app/util"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
 )
 
 func All() []cli.Command {
@@ -19,7 +20,7 @@ func All() []cli.Command {
 	}
 }
 
-func ensureNameFlag(c *cli.Context, name string, mustNotExist, force bool) string {
+func ensureNameFlag(c *cli.Context, mustNotExist, force bool) string {
 	existingDumps := listExistingDumpNames(c)
 	if len(existingDumps) == 0 && !mustNotExist {
 		fmt.Fprintln(os.Stderr, "No existing dumps found")
@@ -79,7 +80,7 @@ func ensureNameFlag(c *cli.Context, name string, mustNotExist, force bool) strin
 			return nil
 		}
 	}
-	validatedOption := util.PromptString("Dump name", name, "", dumpValidator)
+	validatedOption := util.PromptString("Dump name", c.String("d"), "", dumpValidator)
 
 	if selectedOption != "" {
 		return selectedOption

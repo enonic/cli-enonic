@@ -25,7 +25,7 @@ var Upgrade = cli.Command{
 	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		name := ensureNameFlag(c, c.String("d"), false, common.IsForceMode(c))
+		name := ensureNameFlag(c, false, common.IsForceMode(c))
 
 		req := createUpgradeRequest(c, name)
 		var result UpgradeResult
