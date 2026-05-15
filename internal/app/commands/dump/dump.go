@@ -19,8 +19,8 @@ func All() []cli.Command {
 	}
 }
 
-func ensureNameFlag(name string, mustNotExist, force bool) string {
-	existingDumps := listExistingDumpNames()
+func ensureNameFlag(c *cli.Context, name string, mustNotExist, force bool) string {
+	existingDumps := listExistingDumpNames(c)
 	if len(existingDumps) == 0 && !mustNotExist {
 		fmt.Fprintln(os.Stderr, "No existing dumps found")
 		os.Exit(1)

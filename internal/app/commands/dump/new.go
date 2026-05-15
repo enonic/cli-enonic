@@ -41,7 +41,7 @@ var Create = cli.Command{
 
 		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
 
-		name := ensureNameFlag(c.String("d"), true, common.IsForceMode(c))
+		name := ensureNameFlag(c, c.String("d"), true, common.IsForceMode(c))
 
 		req := createNewRequest(c, name)
 
