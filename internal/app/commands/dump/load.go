@@ -6,11 +6,12 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/urfave/cli"
 )
 
 var Load = cli.Command{
@@ -45,9 +46,9 @@ var Load = cli.Command{
 
 			var status *common.TaskStatus
 			if common.IsCompatMode(c) {
-				status = common.RunTask(c, req, "Loading dump", &result)
+				status = common.RunTask(c, req, "Loading dump. Check XP log for progress...", &result)
 			} else {
-				status = common.RunTaskWithSpinner(c, req, "Loading dump", &result)
+				status = common.RunTaskWithSpinner(c, req, "Loading dump. Check XP log for progress", &result)
 			}
 
 			if status == nil {
