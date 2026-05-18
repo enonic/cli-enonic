@@ -6,9 +6,10 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"net/http"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 var Create = cli.Command{
@@ -41,7 +42,7 @@ var Create = cli.Command{
 
 		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
 
-		name := ensureNameFlag(c.String("d"), true, common.IsForceMode(c))
+		name := ensureNameFlag(c, true, common.IsForceMode(c))
 
 		req := createNewRequest(c, name)
 

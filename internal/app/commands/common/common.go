@@ -479,7 +479,7 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 				}
 			}
 		}
-	} else if res.StatusCode == http.StatusForbidden {
+	} else if res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnauthorized {
 		if isCredFileAbsent {
 			if rData.SessionID != "" {
 				fmt.Fprint(os.Stderr, "User session is not valid.")

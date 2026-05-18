@@ -14,11 +14,7 @@ In order to build and develop the CLI, you need to have the Go environment avail
 
    `brew install goreleaser`
 
-1. Install Go dependency management tool:
-
-   `brew install dep`
-
-1. Install Snapcraft
+3. Install Snapcraft
 
    `brew install snapcraft`
 

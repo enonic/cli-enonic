@@ -2,12 +2,11 @@ package dump
 
 import (
 	"cli-enonic/internal/app/commands/common"
-	"cli-enonic/internal/app/commands/sandbox"
 	"cli-enonic/internal/app/util"
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
-	"path/filepath"
+	"time"
 )
 
 var List = cli.Command{
@@ -17,27 +16,40 @@ var List = cli.Command{
 	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		dumps := listExistingDumpNames()
-		for _, dump := range dumps {
-			fmt.Fprintln(os.Stdout, dump)
-		}
+		dumps := fetchDumpList(c)
+		fmt.Fprintln(os.Stderr, "Done")
+		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(dumps))
 
 		return nil
 	},
 }
 
-func listExistingDumpNames() []string {
-	homePath := sandbox.GetActiveHomePath()
-	dumpsDir := filepath.Join(homePath, "data", "dump")
-	dumps, err := util.ReadOrCreateDir(dumpsDir)
-	if err != nil {
-		util.Warn(err, "Error reading dumps folder:")
-		return []string{}
-	}
+func fetchDumpList(c *cli.Context) *DumpList {
+	req := common.CreateRequest(c, "GET", "system/dump", nil)
+	resp := common.SendRequest(c, req, "Loading dumps")
 
-	dumpNames := make([]string, len(dumps))
-	for i, dump := range dumps {
-		dumpNames[i] = dump.Name()
+	var list DumpList
+	common.ParseResponse(resp, &list)
+	return &list
+}
+
+func listExistingDumpNames(c *cli.Context) []string {
+	list := fetchDumpList(c)
+	names := make([]string, len(list.Dumps))
+	for i, d := range list.Dumps {
+		names[i] = d.Name
 	}
-	return dumpNames
+	return names
+}
+
+type DumpList struct {
+	Dumps []DumpEntry `json:"dumps"`
+}
+
+type DumpEntry struct {
+	Name         string    `json:"name"`
+	Timestamp    time.Time `json:"timestamp"`
+	XpVersion    string    `json:"xpVersion"`
+	ModelVersion string    `json:"modelVersion"`
+	Size         int64     `json:"size"`
 }
