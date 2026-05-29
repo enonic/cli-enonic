@@ -6,7 +6,7 @@
 
 * Compatibility with Enonic XP 8 for `dump create`, `dump load`, `snapshot create` and `snapshot restore`. These commands now use the new task-based APIs introduced in XP 8 and track progress via the returned `taskId`.
 * New `--compat` flag for the four commands above, taking a version value in the form `X` or `X.Y` (e.g. `7` or `7.16`). Use it to opt back into the legacy XP 7 API format when talking to an XP 7 server.
-* Docker image support for sandboxes. `sandbox create` and `sandbox upgrade` accept a new `--image` (`-i`) flag (e.g. `enonic/xp:latest-sdk`) to back a sandbox with a Docker image instead of a downloaded XP distribution. When `docker` is available on `$PATH`, the interactive create wizard offers Docker as an alternative source.
+* [EXPERIMENTAL] Docker image support for sandboxes. `sandbox create` and `sandbox upgrade` accept a new `--image` (`-i`) flag (e.g. `enonic/xp:latest-sdk`) to back a sandbox with a Docker image instead of a downloaded XP distribution. When `docker` is available on `$PATH`, the interactive create wizard offers Docker as an alternative source.
 
 === Improvements
 
