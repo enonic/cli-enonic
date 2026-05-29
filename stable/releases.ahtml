@@ -511,7 +511,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>New <code>--compat</code> flag for the four commands above, taking a version value in the form <code>X</code> or <code>X.Y</code> (e.g. <code>7</code> or <code>7.16</code>). Use it to opt back into the legacy XP 7 API format when talking to an XP 7 server.</p>
 </li>
 <li>
-<p>Docker image support for sandboxes. <code>sandbox create</code> and <code>sandbox upgrade</code> accept a new <code>--image</code> (<code>-i</code>) flag (e.g. <code>enonic/xp:latest-sdk</code>) to back a sandbox with a Docker image instead of a downloaded XP distribution. When <code>docker</code> is available on <code>$PATH</code>, the interactive create wizard offers Docker as an alternative source.</p>
+<p>[EXPERIMENTAL] Docker image support for sandboxes. <code>sandbox create</code> and <code>sandbox upgrade</code> accept a new <code>--image</code> (<code>-i</code>) flag (e.g. <code>enonic/xp:latest-sdk</code>) to back a sandbox with a Docker image instead of a downloaded XP distribution. When <code>docker</code> is available on <code>$PATH</code>, the interactive create wizard offers Docker as an alternative source.</p>
 </li>
 </ul>
 </div>
@@ -758,7 +758,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-05-13 14:37:02 UTC
+Last updated 2026-05-29 12:15:54 UTC
 </div>
 </div>
 </body>
