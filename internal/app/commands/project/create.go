@@ -9,6 +9,12 @@ import (
 	"encoding/json"
 	stdErrors "errors"
 	"fmt"
+	"net/url"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/Masterminds/semver"
 	"github.com/otiai10/copy"
 	"github.com/pkg/browser"
@@ -19,12 +25,6 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
-	"net/url"
-	"os"
-	"path/filepath"
-	"regexp"
-	"sort"
-	"strings"
 )
 
 var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
@@ -36,6 +36,7 @@ var MARKET_STARTERS_REQUEST = `{
   market {
     query(
       query: "type='com.enonic.app.market:starter' AND data.version.supportedVersions LIKE '7.*'"
+      sort: "_manualOrderValue desc"
     ) {
       displayName
       ... on com_enonic_app_market_Starter {
@@ -381,9 +382,6 @@ func ensureGitRepositoryUri(c *cli.Context, hash *string, branch *string) (strin
 		}
 
 		starters := fetchStarters(c)
-		sort.SliceStable(starters, func(i, j int) bool {
-			return starters[i].DisplayName < starters[j].DisplayName
-		})
 		for _, st := range starters {
 			starterList = append(starterList, fmt.Sprintf(STARTER_LIST_TPL, st.DisplayName, st.Data.ShortDescription))
 		}
