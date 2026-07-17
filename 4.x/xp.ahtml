@@ -540,6 +540,22 @@ For these commands to work, the CLI must have access to the <a href="https://dev
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_HTTP_PROXY</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL of proxy server to use</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_HOME_PATH</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to use for the relative home directory for the CLI (instead of the default <code>$HOME</code>, or the root directory of your system user). For example, by setting this to <code>/tmp</code> you&#8217;d have CLI create a folder called <code>/tmp/.enonic</code>, where the sandboxes and distros will live.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_CRED_FILE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_CLIENT_KEY</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_CLIENT_CERT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -584,7 +600,7 @@ OPTIONS:
 <div class="sect2">
 <h3 id="create"><a class="link" href="#create">Create</a></h3>
 <div class="paragraph">
-<p>Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in <code>snapshots.dir</code> option in the <a href="https://xp.readthedocs.io/en/stable/operations/configuration.html#repo-configuration">Repo Configuration</a> (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
+<p>Create a snapshot of all or a single repository while running. The snapshots will be stored in the directory given in <code>snapshots.dir</code> option in the <a href="https://developer.enonic.com/docs/xp/stable/deployment/config#repo">Repo Configuration</a> (default $xp_home/snapshots). Note that the first snapshot only stores markers in the repository for the current state. Subsequent snapshots stores the changes since the last snapshot. See <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore">Backup and Restore</a> for more information on snapshots.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -600,7 +616,7 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot create [-r &lt;value&gt;] [-a &lt;value&gt;]</pre>
+<pre>$ enonic snapshot create [-r &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -620,7 +636,19 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-r, --repo</code></p></td>
@@ -629,6 +657,10 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -639,7 +671,22 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -647,14 +694,14 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example creating new snapshot from 'cms-repo':</div>
 <div class="content">
-<pre>$ enonic snapshot create -a su:password -r cms-repo</pre>
+<pre>$ enonic snapshot create --cred-file path\to\cred-file.json -r cms-repo</pre>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="list"><a class="link" href="#list">List</a></h3>
 <div class="paragraph">
-<p>List all the snapshots for the installation. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
+<p>List all the snapshots for the installation. For more information on snapshots, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore">Backup and Restore</a>.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -678,7 +725,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -693,7 +752,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -702,11 +776,11 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="sect2">
 <h3 id="restore"><a class="link" href="#restore">Restore</a></h3>
 <div class="paragraph">
-<p>Restore a named snapshot. See <a href="https://xp.readthedocs.io/en/stable/operations/backup.html#backup">Backup and Restore</a> for more information on snapshots.</p>
+<p>Restore a named snapshot. See <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#snapshot-restore">Backup and Restore</a> for more information on snapshots.</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [-a &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -733,12 +807,32 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock">the name of the repository to restore</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--clean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">delete indices before restoring</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -749,7 +843,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -790,7 +899,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -805,7 +926,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -845,7 +981,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -881,15 +1017,31 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--archive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">outputs dump output to an archive (%name%.zip) file (default is false)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outputs dump output to an archive (%name%.zip) file (default is false). Only effective in compat mode (<code>--compat 7</code>).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -900,15 +1052,30 @@ OPTIONS:
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example creating new dump named 'myDump':</div>
+<div class="title">Example creating new dump named 'myDump' using <code>auth</code> param:</div>
 <div class="content">
-<pre>$ enonic dump create -a su:password -d myDump</pre>
+<pre>$ enonic dump create --cred-file path\to\cred-file.json -d myDump</pre>
 </div>
 </div>
 </div>
@@ -931,7 +1098,7 @@ The current version XP installation must be running with the upgraded app deploy
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump upgrade [-d &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump upgrade [-d &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -955,7 +1122,19 @@ The current version XP installation must be running with the upgraded app deploy
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -970,7 +1149,22 @@ The current version XP installation must be running with the upgraded app deploy
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -978,7 +1172,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example upgrading dump named 'myDump' to current version:</div>
 <div class="content">
-<pre>$ enonic dump upgrade -a su:password -d myDump</pre>
+<pre>$ enonic dump upgrade --cred-file path\to\cred-file.json -d myDump</pre>
 </div>
 </div>
 </div>
@@ -989,7 +1183,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump ls [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump ls [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1009,7 +1203,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1024,7 +1230,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1033,7 +1254,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="sect2">
 <h3 id="load"><a class="link" href="#load">Load</a></h3>
 <div class="paragraph">
-<p>Load data from a named system dump into Enonic XP. The dump read has to be stored in the <code>$XP_HOME/data/dump</code> directory. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on system dump/load.</p>
+<p>Load data from a named system dump into Enonic XP. The dump read has to be stored in the <code>$XP_HOME/data/dump</code> directory.  For more information on system dump/load, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import">Export and Import</a>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1049,7 +1270,7 @@ A load will delete all existing repositories before loading the repositories pre
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump load [-d &lt;value&gt;] [--upgrade] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump load [-d &lt;value&gt;] [--upgrade] [--archive] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1077,15 +1298,31 @@ A load will delete all existing repositories before loading the repositories pre
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--archive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">loads dump form an archive (%name%.zip) file (default is false)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loads dump from an archive (%name%.zip) file (default is false). Only effective in compat mode (<code>--compat 7</code>).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1096,15 +1333,30 @@ A load will delete all existing repositories before loading the repositories pre
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary:</div>
+<div class="title">Example loading dump 'newDump' in a non-interactive mode and upgrade if necessary using <code>auth</code> param:</div>
 <div class="content">
-<pre>$ enonic dump load -a su:password -d newDump -f --upgrade</pre>
+<pre>$ enonic dump load --cred-file path\to\cred-file.json -d newDump -f --upgrade</pre>
 </div>
 </div>
 </div>
@@ -1114,7 +1366,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <h2 id="export"><a class="link" href="#export">Export</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Extract data from a given repository, branch and content path. The result will be stored in the <code>$XP_HOME/data/export</code> directory. This is useful to move a part of a site from one installation to another. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on content export/import.</p>
+<p>Extract data from a given repository, branch and content path. The result will be stored in the <code>$XP_HOME/data/export</code> directory. This is useful to move a part of a site from one installation to another.  For more information on content export/import, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import">Export and Import</a>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1147,6 +1399,7 @@ OPTIONS:
    --skip-versions         Flag to skip versions in data when exporting.
    --dry                   Show the result without making actual changes.
    --auth value, -a value  Authentication token for basic authentication (user:password)
+   --cred-file value       The path to the service account key file (in JSON format). This is only available for XP version 7.15 and later. Key file can be generated by Users application for System ID Provider users (aka Service Accounts) . If specified, the flag "--auth" or "-a" will be ignored
    -f, --force             Accept default answers to all prompts and run non-interactively</pre>
 </div>
 </div>
@@ -1157,15 +1410,30 @@ OPTIONS:
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content' to 'myExport' dump:</div>
+<div class="title">Example exporting data from 'cms-repo' repo, branch 'draft' and path '/some-content-name' to 'myExport' dump:</div>
 <div class="content">
-<pre>$ enonic export -a su:password -t myExport --path cms-repo:draft:/some-content</pre>
+<pre>$ enonic export --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/content/some-content-name</pre>
 </div>
 </div>
 </div>
@@ -1174,7 +1442,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <h2 id="import"><a class="link" href="#import">Import</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the <code>$XP_HOME/data/export</code> directory. See <a href="https://xp.readthedocs.io/en/stable/operations/export.html#operations-export">Export and Import</a> for more information on content export/import.</p>
+<p>Import data from a named export into Enonic XP at the desired content path. The export has to be stored in the <code>$XP_HOME/data/export</code> directory.  For more information on content export/import, see <a href="https://developer.enonic.com/docs/xp/stable/deployment/backup-restore#export-import">Export and Import</a>.</p>
 </div>
 <div class="paragraph">
 <p>To list available configuration options, type:</p>
@@ -1197,6 +1465,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
      --skip-permissions      Flag to skips permissions when importing
      --dry                   Show the result without making actual changes.
      -a value, --auth value  Authentication token for basic authentication (user:password)
+     --cred-file value       Absolute path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
      -f, --force             Accept default answers to all prompts and run non-interactively</pre>
 </div>
 </div>
@@ -1207,15 +1476,30 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example:</div>
+<div class="title">Example using <code>auth</code> param:</div>
 <div class="content">
-<pre>$ enonic import -a su:password -t myExport --path cms-repo:draft:/some-content</pre>
+<pre>$ enonic import --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/some-content</pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -1266,7 +1550,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app install [--url &lt;value&gt;] [--file &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic app install [--url &lt;value&gt;] [--file &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1294,7 +1578,19 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1309,7 +1605,22 @@ OPTIONS:
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1317,13 +1628,13 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example installing app from a URL:</div>
 <div class="content">
-<pre>$ enonic app install -a su:password --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar</pre>
+<pre>$ enonic app install --cred-file path\to\cred-file.json --url https://repo.enonic.com/public/com/enonic/app/superhero/2.0.5/superhero-2.0.5.jar</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Example installing app from a file:</div>
 <div class="content">
-<pre>$ enonic app install -a su:password --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar</pre>
+<pre>$ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar</pre>
 </div>
 </div>
 </div>
@@ -1334,7 +1645,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app start &lt;app key&gt; [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic app start &lt;app key&gt; [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1358,7 +1669,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1373,7 +1696,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1381,7 +1719,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example starting <code>com.enonic.app.superhero</code> app:</div>
 <div class="content">
-<pre>$ enonic app start com.enonic.app.superhero -a su:password</pre>
+<pre>$ enonic app start com.enonic.app.superhero --cred-file path\to\cred-file.json</pre>
 </div>
 </div>
 </div>
@@ -1392,7 +1730,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic app stop &lt;app key&gt; [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic app stop &lt;app key&gt; [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1416,7 +1754,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1431,7 +1781,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1439,7 +1804,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example stopping <code>com.enonic.app.superhero</code> app:</div>
 <div class="content">
-<pre>$ enonic app stop com.enonic.app.superhero -a su:password</pre>
+<pre>$ enonic app stop com.enonic.app.superhero --cred-file path\to\cred-file.json</pre>
 </div>
 </div>
 </div>
@@ -1477,7 +1842,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo reindex [--b &lt;value, value...&gt;] [-r &lt;value&gt;] [-i] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo reindex [--b &lt;value, value...&gt;] [-r &lt;value&gt;] [-i] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1509,7 +1874,19 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1524,7 +1901,22 @@ OPTIONS:
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1532,7 +1924,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example reindexing content in branches 'draft' and 'master' of 'cms-repo' repository:</div>
 <div class="content">
-<pre>$ enonic repo reindex -a su:password -b draft,master -i -r cms-repo</pre>
+<pre>$ enonic repo reindex --cred-file path\to\cred-file.json -b draft,master -i -r cms-repo</pre>
 </div>
 </div>
 </div>
@@ -1543,7 +1935,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo readonly [readOnly] [-r &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo readonly [readOnly] [-r &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1570,8 +1962,20 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <td class="tableblock halign-left valign-top"><p class="tableblock">single repository to toggle read-only mode for</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1586,7 +1990,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1594,7 +2013,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example setting 'cms-repo' repository to read-only mode:</div>
 <div class="content">
-<pre>$ enonic repo readonly true -a su:password -r cms-repo</pre>
+<pre>$ enonic repo readonly true --cred-file path\to\cred-file.json -r cms-repo</pre>
 </div>
 </div>
 </div>
@@ -1605,7 +2024,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo replicas [replicasNum] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo replicas [replicasNum] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1629,7 +2048,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1644,7 +2075,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1652,7 +2098,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example setting number of replicas to 3:</div>
 <div class="content">
-<pre>$ enonic repo replicas 3 -a su:password</pre>
+<pre>$ enonic repo replicas 3 --cred-file path\to\cred-file.json</pre>
 </div>
 </div>
 </div>
@@ -1663,7 +2109,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic repo list [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic repo list [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1683,7 +2129,19 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1698,7 +2156,22 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1706,7 +2179,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example listing repositories:</div>
 <div class="content">
-<pre>$ enonic repo list -a su:password</pre>
+<pre>$ enonic repo list --cred-file path\to\cred-file.json</pre>
 </div>
 </div>
 </div>
@@ -1756,7 +2229,7 @@ This command should be used after migrating content from Enonic CMS using the cm
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic cms reprocess [--path &lt;value&gt;] [--skip-children] [-a &lt;value&gt;] [-f]</pre>
+<pre>$ enonic cms reprocess [--path &lt;value&gt;] [--skip-children] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1784,7 +2257,19 @@ This command should be used after migrating content from Enonic CMS using the cm
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1799,7 +2284,22 @@ This command should be used after migrating content from Enonic CMS using the cm
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1807,7 +2307,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example reprocessing media in branch 'draft' and content path '/some-content':</div>
 <div class="content">
-<pre>$ enonic reprocess -a su:password -s draft:/some-content</pre>
+<pre>$ enonic reprocess --cred-file path\to\cred-file.json -s draft:/some-content</pre>
 </div>
 </div>
 </div>
@@ -1914,7 +2414,19 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">authentication token for basic authentication (user:password)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
@@ -1925,7 +2437,7 @@ OPTIONS:
 <div class="listingblock">
 <div class="title">Example cleaning up audit log repository for the past 30 days:</div>
 <div class="content">
-<pre>$ enonic auditlog cleanup --age P30D</pre>
+<pre>$ enonic auditlog cleanup --age P30D --cred-file path\to\cred-file.json</pre>
 </div>
 </div>
 </div>
@@ -1966,10 +2478,57 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 
   OPTIONS:
      --blob, -b              Also removes unused blobs
+     --threshold, -t         Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours
      --auth value, -a value  Authentication token for basic authentication (user:password)
+     --cred-file value       Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
      --force, -f             Accept default answers to all prompts and run non-interactively</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--blob, -b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code>, <code>NodeBlobVacuumTask</code>, <code>SegmentVacuumTask</code> and <code>VersionTableVacuumTask</code>. Without this flag, XP will choose the default vacuum tasks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --threshold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Age of data to be removed in ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1977,7 +2536,22 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-if <code>auth</code> param is missing and there is no valid session CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#configuration">configuration section.</a>
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
 </td>
 </tr>
 </table>
@@ -1985,7 +2559,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
-<pre>$ enonic vacuum -b</pre>
+<pre>$ enonic vacuum -b --cred-file path\to\cred-file.json</pre>
 </div>
 </div>
 </div>
@@ -1993,7 +2567,7 @@ if <code>auth</code> param is missing and there is no valid session CLI will loo
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-07-17 08:00:23 UTC
+Last updated 2026-07-17 07:59:56 UTC
 </div>
 </div>
 </body>

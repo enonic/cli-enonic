@@ -441,81 +441,73 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#v1_5_1">v1.5.1</a>
-<ul class="sectlevel2">
-<li><a href="#bugs">Bugs</a></li>
-</ul>
-</li>
-<li><a href="#v1_5_0">v1.5.0</a>
+<li><a href="#cli_v3_3_0">CLI v3.3.0</a>
 <ul class="sectlevel2">
 <li><a href="#features">Features</a></li>
-<li><a href="#improvements">Improvements</a></li>
-<li><a href="#bugs_2">Bugs</a></li>
 </ul>
 </li>
-<li><a href="#v1_4_0">v1.4.0</a>
-<ul class="sectlevel2">
-<li><a href="#improvements_2">Improvements</a></li>
-<li><a href="#bugs_3">Bugs</a></li>
-</ul>
-</li>
-<li><a href="#v1_3_0">v1.3.0</a>
-<ul class="sectlevel2">
-<li><a href="#improvements_3">Improvements</a></li>
-<li><a href="#bugs_4">Bugs</a></li>
-</ul>
-</li>
-<li><a href="#v1_2_1">v1.2.1</a>
-<ul class="sectlevel2">
-<li><a href="#bugs_5">Bugs</a></li>
-</ul>
-</li>
-<li><a href="#v1_2_0">v1.2.0</a>
-<ul class="sectlevel2">
-<li><a href="#improvements_4">Improvements</a></li>
-</ul>
-</li>
-<li><a href="#v1_1_1">v1.1.1</a>
-<ul class="sectlevel2">
-<li><a href="#improvements_5">Improvements</a></li>
-<li><a href="#bugs_6">Bugs</a></li>
-</ul>
-</li>
-<li><a href="#v_1_1_0">v.1.1.0</a>
+<li><a href="#cli_v3_2_0">CLI v3.2.0</a>
 <ul class="sectlevel2">
 <li><a href="#features_2">Features</a></li>
-<li><a href="#improvements_6">Improvements</a></li>
-<li><a href="#bugs_7">Bugs</a></li>
+<li><a href="#improvements">Improvements</a></li>
 </ul>
 </li>
+<li><a href="#cli_v3_1_3">CLI v3.1.3</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#cli_v3_1_2">CLI v3.1.2</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_2">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#cli_v3_1_1">CLI v3.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_3">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#cli_v3_1">CLI v3.1</a>
+<ul class="sectlevel2">
+<li><a href="#improvements_2">Improvements</a></li>
+</ul>
+</li>
+<li><a href="#cli_v3_0">CLI v3.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_3">Features</a></li>
+<li><a href="#improvements_3">Improvements</a></li>
+<li><a href="#bug_fixes_4">Bug fixes</a></li>
+</ul>
+</li>
+<li><a href="#upgrade_notes">Upgrade notes</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="v1_5_1"><a class="link" href="#v1_5_1">v1.5.1</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="bugs"><a class="link" href="#bugs">Bugs</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Allow setting number of replicas to 0</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="v1_5_0"><a class="link" href="#v1_5_0">v1.5.0</a></h2>
+<h2 id="cli_v3_3_0"><a class="link" href="#cli_v3_3_0">CLI v3.3.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="features"><a class="link" href="#features">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Support <code>snapshot restore --latest</code></p>
+<p>Support mTLS.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v3_2_0"><a class="link" href="#cli_v3_2_0">CLI v3.2.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support service account keys in operations that require authentication.</p>
 </li>
 </ul>
 </div>
@@ -525,23 +517,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>Install apps from the project directory by default</p>
-</li>
-<li>
-<p>Show progress of <code>sandbox delete</code> command</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bugs_2"><a class="link" href="#bugs_2">Bugs</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Fixed permissions on <code>cloud</code> folder</p>
-</li>
-<li>
-<p>Command <code>enonic project ?</code> always returns exit code 0</p>
+<p>Execute <code>SnapshotsVacuumTask</code> when running <code>vacuum</code> command</p>
 </li>
 </ul>
 </div>
@@ -549,30 +525,59 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="v1_4_0"><a class="link" href="#v1_4_0">v1.4.0</a></h2>
+<h2 id="cli_v3_1_3"><a class="link" href="#cli_v3_1_3">CLI v3.1.3</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix location of the Brew tap formula</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v3_1_2"><a class="link" href="#cli_v3_1_2">CLI v3.1.2</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix SHA256 mismatch for the Brew tap</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v3_1_1"><a class="link" href="#cli_v3_1_1">CLI v3.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_3"><a class="link" href="#bug_fixes_3">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Don&#8217;t create an empty config file when selecting "Clean/Empty" template for a new sandbox</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v3_1"><a class="link" href="#cli_v3_1">CLI v3.1</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Filter the list of distributions based on XP version of the project</p>
-</li>
-<li>
-<p>Check compatibility with sandbox' XP version before deploying an app</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bugs_3"><a class="link" href="#bugs_3">Bugs</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p><code>latest</code> returns incorrect result when called the first time</p>
-</li>
-<li>
-<p>Command <code>enonic project ?</code> always returns exit code 0</p>
+<p>Support <code>--skip-start</code> option for <code>sandbox create</code>, <code>project create</code> and <code>project deploy</code> commands</p>
 </li>
 </ul>
 </div>
@@ -580,30 +585,55 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="v1_3_0"><a class="link" href="#v1_3_0">v1.3.0</a></h2>
+<h2 id="cli_v3_0"><a class="link" href="#cli_v3_0">CLI v3.0</a></h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="features_3"><a class="link" href="#features_3">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sandbox start</code> starts sandbox in dev mode by default</p>
+</li>
+<li>
+<p><code>project test</code> command to execute <code>gradle test</code> task for a project</p>
+</li>
+<li>
+<p><code>sandbox copy</code> command for copying an existing sandbox</p>
+</li>
+<li>
+<p><code>threshold</code> option for the <code>vacuum</code> command for specifying age of data to be removed</p>
+</li>
+<li>
+<p><code>clean</code> option for the <code>snapshot restore</code> command to delete indices before restoring</p>
+</li>
+</ul>
+</div>
+</div>
 <div class="sect2">
 <h3 id="improvements_3"><a class="link" href="#improvements_3">Improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Add <code>--archive</code> parameter to <code>dump create</code> command</p>
+<p>Suggest starting a new sandbox after it&#8217;s created</p>
 </li>
 <li>
-<p>Add <code>--archive</code> parameter to <code>dump load</code> command</p>
+<p>Support short <code>-s</code> flag for specifying a sandbox for project commands</p>
 </li>
 <li>
-<p>Show instructions on project deployment upon completing new project wizard</p>
+<p><code>sandbox upgrade</code> command will no longer ask which sandbox to upgrade when executed from inside a project&#8217;s folder</p>
+</li>
+<li>
+<p><code>project sandbox</code> command now outputs current project&#8217;s sandbox</p>
 </li>
 </ul>
 </div>
 </div>
 <div class="sect2">
-<h3 id="bugs_4"><a class="link" href="#bugs_4">Bugs</a></h3>
+<h3 id="bug_fixes_4"><a class="link" href="#bug_fixes_4">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p><code>enonic repo readonly</code> command unnecessarily closes indices</p>
+<p>Removed unsupported options for <code>upgrade</code> and <code>uninstall</code> commands</p>
 </li>
 </ul>
 </div>
@@ -611,156 +641,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="v1_2_1"><a class="link" href="#v1_2_1">v1.2.1</a></h2>
+<h2 id="upgrade_notes"><a class="link" href="#upgrade_notes">Upgrade notes</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="bugs_5"><a class="link" href="#bugs_5">Bugs</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Enonic sandbox does not start in detached mode on CentOS7/macOS</p>
+<p>In CLI 3.x, the <code>sandbox start</code> command will start the sandbox in dev mode by default. If you want to start the sandbox in prod mode, provide the <code>--prod</code> option.</p>
 </li>
 <li>
-<p><code>deploy</code> command erases runtime PID info when sandbox was started in detached mode</p>
-</li>
-<li>
-<p><code>install</code> command gives NPE when env variable is not defined and host is not provided</p>
+<p>All the commands that may potentially create a new sandbox (f.ex. <code>sandbox create</code> or <code>project create</code>) will now suggest starting the new sandbox after it&#8217;s created. If such a command is used in combination with <code>-f</code> (<code>--force</code>) option, the sandbox will be started without prompt. This may potentially affect some scripts if the command is followed by another command which now won&#8217;t be reached because script execution will be taken over by the running sandbox.</p>
 </li>
 </ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="v1_2_0"><a class="link" href="#v1_2_0">v1.2.0</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="improvements_4"><a class="link" href="#improvements_4">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Add support for proxy</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="v1_1_1"><a class="link" href="#v1_1_1">v1.1.1</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="improvements_5"><a class="link" href="#improvements_5">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Change update message when local version of CLI is the latest</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bugs_6"><a class="link" href="#bugs_6">Bugs</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>CLI asks to start the sandbox that is already running</p>
-</li>
-<li>
-<p>Remove <em>enonic-xp-</em> from distro name in the sandbox list</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="v_1_1_0"><a class="link" href="#v_1_1_0">v.1.1.0</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Allow passing flags to Gradle</p>
-</li>
-<li>
-<p>Enable <code>vacuum</code> command</p>
-</li>
-<li>
-<p>keep-alive in <code>cms reprocess</code></p>
-</li>
-<li>
-<p>keep-alive in <code>repo reindex</code></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="improvements_6"><a class="link" href="#improvements_6">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Add backwards compatibility for <code>reprocess</code> command</p>
-</li>
-<li>
-<p>Change update message when local version of CLI is the latest</p>
-</li>
-<li>
-<p>Flag to list B- and RC- versions of the distro on `create sandbox</p>
-</li>
-<li>
-<p>Hide password when dump upgrading</p>
-</li>
-<li>
-<p>Indicate latest, stable and unstable releases</p>
-</li>
-<li>
-<p>Make <code>import</code> top level command</p>
-</li>
-<li>
-<p>Show example of a custom repo path in project create wizard</p>
-</li>
-<li>
-<p><code>enonic app install --file</code> panics when file is not found</p>
-</li>
-<li>
-<p><code>enonic project create</code> project name cmdline parameter</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bugs_7"><a class="link" href="#bugs_7">Bugs</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>After restart of server - token is invalid but no revalidation is attempted</p>
-</li>
-<li>
-<p>CLI does not exit on SIGINT (Crtl + C) when creating new projects</p>
-</li>
-<li>
-<p>Change <code>update</code> to <code>upgrade</code> in the description of how to upgrade CLI with brew</p>
-</li>
-<li>
-<p><code>deploy</code> task is interrupted when processId of previously running sandbox cannot be not found</p>
-</li>
-<li>
-<p><code>enonic project create --help</code> parameters not documented</p>
-</li>
-<li>
-<p><code>enonic project create</code> doesn&#8217;t include <code>.gitignore</code></p>
-</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-07-17 08:00:24 UTC
+Last updated 2026-07-17 08:00:23 UTC
 </div>
 </div>
 </body>

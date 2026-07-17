@@ -542,7 +542,7 @@ For these commands to work, the CLI must have access to the <a href="https://dev
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_HOME_PATH</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path to use for the relative home directory for the CLI (instead of the default <code>$HOME</code>, or the root directory of your system user). For example, by setting this to <code>/tmp</code> you&#8217;d have CLI create a folder called <code>/tmp/.enonic</code>, where the sandboxes and distros will live.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to use for the relative home directory for XP ( Default is <code>$HOME</code>, or the user directory of your user). For example, by setting this to <code>/tmp</code> you&#8217;d have CLI create a folder called <code>/tmp/.enonic</code> and your sandboxes and similar will live there.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_CLI_CRED_FILE</code></p></td>
@@ -616,7 +616,7 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot create [-r &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
+<pre>$ enonic snapshot create [-r &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -657,10 +657,6 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -780,7 +776,7 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [-a &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
+<pre>$ enonic snapshot restore [--snap &lt;value&gt;] [--repo &lt;value&gt;] [-a &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -829,10 +825,6 @@ For a clustered installation, the snapshot-location must be on a shared file-sys
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -981,7 +973,7 @@ OPTIONS:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
+<pre>$ enonic dump create [-d &lt;value&gt;] [--skip-versions &lt;value&gt;] [--max-version-age &lt;value&gt;] [--max-versions &lt;value&gt;] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1017,7 +1009,7 @@ OPTIONS:
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--archive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">outputs dump output to an archive (%name%.zip) file (default is false). Only effective in compat mode (<code>--compat 7</code>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outputs dump output to an archive (%name%.zip) file (default is false)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
@@ -1038,10 +1030,6 @@ OPTIONS:
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1270,7 +1258,7 @@ A load will delete all existing repositories before loading the repositories pre
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump load [-d &lt;value&gt;] [--upgrade] [--archive] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
+<pre>$ enonic dump load [-d &lt;value&gt;] [--upgrade] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1298,7 +1286,7 @@ A load will delete all existing repositories before loading the repositories pre
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--archive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">loads dump from an archive (%name%.zip) file (default is false). Only effective in compat mode (<code>--compat 7</code>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">loads dump form an archive (%name%.zip) file (default is false)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
@@ -1319,10 +1307,6 @@ A load will delete all existing repositories before loading the repositories pre
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2501,7 +2485,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--blob, -b</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code>, <code>NodeBlobVacuumTask</code>, <code>SegmentVacuumTask</code> and <code>VersionTableVacuumTask</code>. Without this flag, XP will choose the default vacuum tasks.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggers <code>BinaryBlobVacuumTask</code>, <code>NodeBlobVacuumTask</code> and <code>SegmentVacuumTask</code> in addition to , <code>VersionTableVacuumTask</code> and <code>SnapshotsVacuumTask</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-t, --threshold</code></p></td>
@@ -2567,7 +2551,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-05-29 12:15:54 UTC
+Last updated 2026-07-17 08:00:23 UTC
 </div>
 </div>
 </body>
