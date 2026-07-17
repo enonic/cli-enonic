@@ -7,15 +7,15 @@
     },
     {
       "label": "3.x",
-      "checkout": "v3.4.0"
+      "checkout": "3.x"
     },
     {
       "label": "2.x",
-      "checkout": "v2.8.2"
+      "checkout": "2.x"
     },
     {
       "label": "1.x",
-      "checkout": "1.5.2"
+      "checkout": "1.x"
     }
   ]
 }
