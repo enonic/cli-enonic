@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Release notes</title>
+<title>Enonic CLI documentation</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,94 +437,44 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Release notes</h1>
+<h1>Enonic CLI documentation</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#cli_v4_0_0">CLI v4.0.0</a>
-<ul class="sectlevel2">
-<li><a href="#features">Features</a></li>
-<li><a href="#improvements">Improvements</a></li>
-<li><a href="#bug_fixes">Bug fixes</a></li>
-</ul>
-</li>
-<li><a href="#upgrade_notes">Upgrade notes</a></li>
+<li><a href="#overview">Overview</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="cli_v4_0_0"><a class="link" href="#cli_v4_0_0">CLI v4.0.0</a></h2>
+<div id="preamble">
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="features"><a class="link" href="#features">Features</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Compatibility with Enonic XP 8 for <code>dump create</code>, <code>dump load</code>, <code>snapshot create</code> and <code>snapshot restore</code>. These commands now use the new task-based APIs introduced in XP 8 and track progress via the returned <code>taskId</code>.</p>
-</li>
-<li>
-<p>New <code>--compat</code> flag for the four commands above, taking a version value in the form <code>X</code> or <code>X.Y</code> (e.g. <code>7</code> or <code>7.16</code>). Use it to opt back into the legacy XP 7 API format when talking to an XP 7 server.</p>
-</li>
-<li>
-<p>[EXPERIMENTAL] Docker image support for sandboxes. <code>sandbox create</code> and <code>sandbox upgrade</code> accept a new <code>--image</code> (<code>-i</code>) flag (e.g. <code>enonic/xp:latest-sdk</code>) to back a sandbox with a Docker image instead of a downloaded XP distribution. When <code>docker</code> is available on <code>$PATH</code>, the interactive create wizard offers Docker as an alternative source.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p><code>snapshot restore</code> selection list now shows the snapshot timestamp next to each name.</p>
-</li>
-<li>
-<p><code>project create</code> shows clearer guidance for the custom repository prompt (now includes a <code>mycompany/myrepo</code> hint).</p>
-</li>
-<li>
-<p><code>dump load</code> and <code>snapshot restore</code> now print a clear instruction to restart all running XP instances after the operation completes.</p>
-</li>
-<li>
-<p><code>project create</code> handles cloning from an empty remote Git repository gracefully instead of erroring out.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Fix <code>dump upgrade</code> appending a second <code>.zip</code> extension when the dump name selected from the list already ended in <code>.zip</code>.</p>
-</li>
-<li>
-<p>Fix <code>enonic project sandbox</code> linking issue where named sandboxes were not found because the lookup was not filtered by <code>MinDistroVersion</code>.</p>
-</li>
-<li>
-<p>Fix incorrect prompt message shown by the <code>snapshot delete</code> command.</p>
-</li>
-</ul>
-</div>
+<div class="paragraph">
+<p>The Enonic Command Line Interface (CLI) automates tasks related to software development tasks, as well as common management tasks for both local and remote instances of Enonic XP.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="upgrade_notes"><a class="link" href="#upgrade_notes">Upgrade notes</a></h2>
+<h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Check out the following sections of the documentation to get started:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>In CLI 4.x, <code>dump create</code>, <code>dump load</code>, <code>snapshot create</code> and <code>snapshot restore</code> target the Enonic XP 8 task-based APIs by default. When running these commands against an XP 7 server, pass <code>--compat 7</code> (or any value starting with <code>7</code>, e.g. <code>--compat 7.16</code>) to fall back to the legacy XP 7 request/response format.</p>
+<p><a href="install.ahtml">Installing or upgrading Enonic CLI</a></p>
 </li>
 <li>
-<p><code>vacuum</code> no longer runs <code>SnapshotsVacuumTask</code> (the task was removed in XP 8). Use <code>snapshot delete</code> to clean up snapshots instead.</p>
+<p><a href="usage.ahtml">Get familiar with the CLI basics</a></p>
 </li>
 <li>
-<p>In CLI 3.x, the <code>sandbox start</code> command will start the sandbox in dev mode by default. If you want to start the sandbox in prod mode, provide the <code>--prod</code> option.</p>
+<p><a href="dev.ahtml">Commands for software developers</a></p>
 </li>
 <li>
-<p>All the commands that may potentially create a new sandbox (f.ex. <code>sandbox create</code> or <code>project create</code>) will now suggest starting the new sandbox after it&#8217;s created. If such a command is used in combination with <code>-f</code> (<code>--force</code>) option, the sandbox will be started without prompt. This may potentially affect some scripts if the command is followed by another command which now won&#8217;t be reached because script execution will be taken over by the running sandbox.</p>
+<p><a href="xp.ahtml">Managing XP instances</a></p>
+</li>
+<li>
+<p><a href="cloud.ahtml">Cloud management commands</a></p>
 </li>
 </ul>
 </div>
@@ -533,7 +483,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-07-17 08:36:23 UTC
+Last updated 2026-07-24 08:50:52 UTC
 </div>
 </div>
 </body>

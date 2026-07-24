@@ -1,9 +1,10 @@
 {
   "versions": [
     {
-      "label": "4.x",
+      "label": "stable",
       "checkout": "master",
-      "latest": true
+      "latest": true,
+      "displayName": "4.x"
     },
     {
       "label": "3.x",
