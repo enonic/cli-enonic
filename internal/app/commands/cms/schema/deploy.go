@@ -20,16 +20,14 @@ var Deploy = cli.Command{
 	Usage:     "Create or update a schema from a file",
 	ArgsUsage: "<file>",
 	Flags: append([]cli.Flag{
-		KEY_FLAG,
 		cli.StringFlag{
 			Name:  "namespace",
-			Usage: "Namespace to deploy the schema to (alternative to --key)",
+			Usage: "Namespace to deploy the schema to",
 		},
 		cli.StringFlag{
 			Name:  "name",
 			Usage: "Schema name (defaults to the file name without extension)",
 		},
-		KIND_FLAG,
 		common.FORCE_FLAG,
 	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
@@ -42,7 +40,7 @@ var Deploy = cli.Command{
 			os.Exit(1)
 		}
 
-		k := resolveKind(c, file, content)
+		k := resolveKind(file, content)
 		namespace, name := resolveTarget(c, k, file)
 		target := k.target(namespace, name)
 
@@ -102,41 +100,22 @@ func ensureFileArg(c *cli.Context) string {
 	return strings.TrimSpace(util.PromptString("Enter path to a schema file", file, "", fileValidator))
 }
 
-// resolveKind detects the kind from the file and validates it against
-// an explicitly provided --kind flag if any
-func resolveKind(c *cli.Context, file string, content []byte) *kind {
+// resolveKind detects the kind from the file contents ('kind:' field of a YAML
+// descriptor) or the .properties extension used by phrases bundles
+func resolveKind(file string, content []byte) *kind {
 	detected := detectKind(filepath.Base(file), content)
-	explicit := strings.TrimSpace(c.String("kind"))
-
-	if explicit != "" {
-		k := findKind(explicit)
-		if k == nil {
-			fmt.Fprintf(os.Stderr, "Unknown schema kind '%s'. Must be one of: %s.\n", explicit, strings.Join(kindNames(), ", "))
-			os.Exit(1)
-		}
-		if detected != nil && detected != k {
-			fmt.Fprintf(os.Stderr, "Kind flag '%s' does not match kind '%s' defined in '%s'.\n", k.name, detected.name, file)
-			os.Exit(1)
-		}
-		return k
-	}
-
 	if detected == nil {
-		return ensureKindFlag(c)
+		fmt.Fprintf(os.Stderr, "Could not detect schema kind of '%s': the file must have a 'kind:' field or a '.properties' extension.\n", file)
+		os.Exit(1)
 	}
 	return detected
 }
 
-// resolveTarget resolves namespace and name: --key wins over --namespace/--name,
-// the file name is the fallback for the name of named kinds
+// resolveTarget resolves namespace and name, the file name is the fallback
+// for the name of named kinds
 func resolveTarget(c *cli.Context, k *kind, file string) (string, string) {
-	namespace, name := parseKey(strings.TrimSpace(c.String("key")))
-	if namespace == "" {
-		namespace = strings.TrimSpace(c.String("namespace"))
-	}
-	if name == "" {
-		name = strings.TrimSpace(c.String("name"))
-	}
+	namespace := strings.TrimSpace(c.String("namespace"))
+	name := strings.TrimSpace(c.String("name"))
 
 	if !k.named && name != "" {
 		fmt.Fprintf(os.Stderr, "'%s' is a single resource per namespace and can not have a name '%s'.\n", k.name, name)

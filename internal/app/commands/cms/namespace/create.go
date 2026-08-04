@@ -17,7 +17,7 @@ var Create = cli.Command{
 	ArgsUsage: "<key>",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "desc",
+			Name:  "description",
 			Usage: "Namespace description",
 		},
 		common.FORCE_FLAG,
@@ -30,7 +30,7 @@ var Create = cli.Command{
 		params := map[string]interface{}{
 			"key": key,
 		}
-		if desc := c.String("desc"); desc != "" {
+		if desc := c.String("description"); desc != "" {
 			params["description"] = desc
 		}
 		json.NewEncoder(body).Encode(params)

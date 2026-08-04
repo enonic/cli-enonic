@@ -19,7 +19,7 @@ var Update = cli.Command{
 	ArgsUsage: "<key>",
 	Flags: append([]cli.Flag{
 		cli.StringFlag{
-			Name:  "desc",
+			Name:  "description",
 			Usage: "Namespace description",
 		},
 		common.FORCE_FLAG,
@@ -63,5 +63,5 @@ func ensureDescFlag(c *cli.Context) string {
 		return nil
 	}
 
-	return util.PromptString("Enter namespace description", c.String("desc"), "", descValidator)
+	return util.PromptString("Enter namespace description", c.String("description"), "", descValidator)
 }

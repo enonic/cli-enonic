@@ -41,7 +41,7 @@ var kinds = []kind{
 	{"layout", "Layout", "components", true, true},
 	{"page", "Page", "components", true, true},
 	{"macro", "Macro", "macros", false, true},
-	{"styles", "Styles", "styles", false, false},
+	{"styles", "Style", "styles", false, false},
 	{"cms", "CMS", "cms", false, false},
 	{"phrases", "", "phrases", false, true},
 }
