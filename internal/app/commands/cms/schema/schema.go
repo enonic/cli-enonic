@@ -41,14 +41,14 @@ var kinds = []kind{
 	{"layout", "Layout", "components", true, true},
 	{"page", "Page", "components", true, true},
 	{"macro", "Macro", "macros", false, true},
-	{"styles", "Style", "styles", false, false},
+	{"style", "Style", "styles", false, false},
 	{"cms", "CMS", "cms", false, false},
 	{"phrases", "", "phrases", false, true},
 }
 
 var KEY_FLAG = cli.StringFlag{
 	Name:  "key",
-	Usage: "Schema key '<namespace>:<name>' ('<namespace>' for styles and cms)",
+	Usage: "Schema key '<namespace>:<name>' ('<namespace>' for style and cms)",
 }
 
 var KIND_FLAG = cli.StringFlag{
@@ -91,6 +91,12 @@ func (k kind) url(namespace, name string) string {
 		segments = append(segments, url.PathEscape(name))
 	}
 	return strings.Join(segments, "/")
+}
+
+// fixedName is the only accepted name of unnamed kinds (single resource per
+// namespace): 'style' and 'cms'. The name is informational and not part of the key
+func (k kind) fixedName() string {
+	return strings.ToLower(k.yamlKind)
 }
 
 // target is the human readable id of a schema used in messages
@@ -170,23 +176,30 @@ func ensureKeyFlag(c *cli.Context, k *kind) (string, string) {
 	return parseKey(strings.TrimSpace(key))
 }
 
-// parseResponse accepts any 2xx status as success, unlike common.ParseResponse
+// parseResponseErr accepts any 2xx status as success, unlike common.ParseResponse
 // which requires 200. A body-less success (e.g. 204 No Content) leaves target unset.
-func parseResponse(resp *http.Response, target interface{}) {
+// Failures are returned instead of exiting, for callers that must continue after
+// a failed request (multi-descriptor deploy).
+func parseResponseErr(resp *http.Response, target interface{}) error {
 	defer resp.Body.Close()
 	decoder := json.NewDecoder(resp.Body)
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		if err := decoder.Decode(target); err != nil && err != io.EOF {
-			fmt.Fprint(os.Stderr, "Error parsing response ", err)
-			os.Exit(1)
+			return errors.Errorf("Error parsing response %v", err)
 		}
-	} else {
-		var enonicError common.EnonicError
-		if err := decoder.Decode(&enonicError); err == nil && enonicError.Message != "" {
-			fmt.Fprintf(os.Stderr, "Failure: %s\n", enonicError.Message)
-		} else {
-			fmt.Fprintln(os.Stderr, resp.Status)
-		}
+		return nil
+	}
+	var enonicError common.EnonicError
+	if err := decoder.Decode(&enonicError); err == nil && enonicError.Message != "" {
+		return errors.New(enonicError.Message)
+	}
+	return errors.New(resp.Status)
+}
+
+// parseResponse is the exiting variant of parseResponseErr used by single-request commands
+func parseResponse(resp *http.Response, target interface{}) {
+	if err := parseResponseErr(resp, target); err != nil {
+		fmt.Fprintf(os.Stderr, "Failure: %s\n", err)
 		os.Exit(1)
 	}
 }
