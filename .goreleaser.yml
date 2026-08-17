@@ -133,7 +133,7 @@ scoops:
   repository:
     owner: enonic
     name: cli-scoop
-    token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    token: "{{ .Env.CLI_TOKEN }}"
 
   # Git author used to commit to the repository.
   # Defaults are shown.
@@ -166,7 +166,7 @@ homebrew_casks:
     repository:
       owner: enonic
       name: homebrew-cli
-      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.CLI_TOKEN }}"
 
     # Template for the url.
     # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"

@@ -43,7 +43,7 @@ jobs:
           args: release --clean --parallelism=1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+          CLI_TOKEN: ${{ secrets.CLI_TOKEN }}
 
       - uses: actions/setup-node@v6
         with:
