@@ -463,6 +463,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#app">App</a>
 <ul class="sectlevel2">
 <li><a href="#install">Install</a></li>
+<li><a href="#list_3">List</a></li>
 <li><a href="#start">Start</a></li>
 <li><a href="#stop">Stop</a></li>
 </ul>
@@ -472,7 +473,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#reindex">Reindex</a></li>
 <li><a href="#readonly">Readonly</a></li>
 <li><a href="#replicas">Replicas</a></li>
-<li><a href="#list_3">List</a></li>
+<li><a href="#list_4">List</a></li>
 </ul>
 </li>
 <li><a href="#cms">Cms</a>
@@ -1525,19 +1526,22 @@ OPTIONS:
 <h2 id="app"><a class="link" href="#app">App</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Commands to install applications to the running enonic XP instance. Currently only one command is available here:</p>
+<p>Commands to manage applications on the running Enonic XP instance:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre>$ enonic app
 
-Install, stop and start applications
+Install, list, stop and start applications
 
 USAGE:
    Enonic CLI app command [command options] [arguments...]
 
 COMMANDS:
      install, i  Install an application from URL or file
+     list, ls    List installed applications
+     start       Start an application
+     stop        Stop an application
 
 OPTIONS:
    --help, -h  show help</pre>
@@ -1635,6 +1639,146 @@ OPTIONS:
 <div class="title">Example installing app from a file:</div>
 <div class="content">
 <pre>$ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="list_3"><a class="link" href="#list_3">List</a></h3>
+<div class="paragraph">
+<p>List the applications installed on the instance, sorted by application key.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ enonic app list [--json] [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Options:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--json</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print the full details of every application as JSON instead of a table</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-a, --auth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A token for basic authentication in the following format &lt;user:password&gt;. Starting from XP 7.15, the <code>--auth</code> flag is <strong>deprecated</strong>. Use service account keys with <code>--cred-file</code> flag instead</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--cred-file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the <code>--auth</code> (or <code>-a</code>) flag will be ignored.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the private key file for client certificate authentication. This option is used in conjunction with <code>--client-cert</code> to establish a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--client-cert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client certificate file to use for authentication with the remote server. Requires <code>--client-key</code> to be specified as well when establishing a mutual TLS (mTLS) session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>if the <code>auth</code> param is missing and there is no valid session, CLI will look for <code>ENONIC_CLI_REMOTE_USER</code> and <code>ENONIC_CLI_REMOTE_PASS</code> environment variables. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>cred-file</code> param is missing, CLI will look for the <code>ENONIC_CLI_CRED_FILE</code> environment variable. If this environment variable is also missing, then CLI will fall back to the <code>auth</code> param. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-key</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_KEY</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+<li>
+<p>if the <code>client-cert</code> param is missing, CLI will look for the <code>ENONIC_CLI_CLIENT_CERT</code> environment variable. See <a href="#environment_variables">configuration section.</a></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This command requires XP 7.6 or later.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example listing installed apps:</div>
+<div class="content">
+<pre>$ enonic app list --cred-file path\to\cred-file.json
+
+KEY                            NAME             VERSION          STATE     LOCAL
+com.enonic.app.contentstudio   Content Studio   5.4.1            started
+com.enonic.app.mytestapp                        1.0.0-SNAPSHOT   stopped   yes
+com.enonic.app.superhero       Superhero        2.0.5            started</pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The table is written to standard output and the progress messages to standard error, so <code>enonic app list 2&gt;/dev/null</code> gives you a clean list to pipe into other tools.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>--json</code> flag prints every field XP reports, which is useful for scripting:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ enonic app list --json --cred-file path\to\cred-file.json
+
+{
+    "applications": [
+        {
+            "key": "com.enonic.app.superhero",
+            "displayName": "Superhero",
+            "version": "2.0.5",
+            "state": "started",
+            "local": false,
+            "modifiedTime": "2026-08-17T10:00:00Z",
+            "minSystemVersion": "7.7.0",
+            "maxSystemVersion": "8",
+            "url": "https://market.enonic.com/",
+            "vendorName": "Enonic AS",
+            "vendorUrl": "https://enonic.com"
+        }
+    ]
+}</pre>
 </div>
 </div>
 </div>
@@ -2103,7 +2247,7 @@ OPTIONS:
 </div>
 </div>
 <div class="sect2">
-<h3 id="list_3"><a class="link" href="#list_3">List</a></h3>
+<h3 id="list_4"><a class="link" href="#list_4">List</a></h3>
 <div class="paragraph">
 <p>List available repositories.</p>
 </div>
@@ -2567,7 +2711,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-07-24 08:50:52 UTC
+Last updated 2026-08-17 11:28:42 UTC
 </div>
 </div>
 </body>
