@@ -411,18 +411,21 @@ This option could for example be used for renaming types or fields. The .xsl fil
 
 == App
 
-Commands to install applications to the running enonic XP instance. Currently only one command is available here:
+Commands to manage applications on the running Enonic XP instance:
 
 ----
 $ enonic app
 
-Install, stop and start applications
+Install, list, stop and start applications
 
 USAGE:
    Enonic CLI app command [command options] [arguments...]
 
 COMMANDS:
      install, i  Install an application from URL or file
+     list, ls    List installed applications
+     start       Start an application
+     stop        Stop an application
 
 OPTIONS:
    --help, -h  show help
@@ -461,6 +464,67 @@ $ enonic app install --cred-file path\to\cred-file.json --url https://repo.enoni
 .Example installing app from a file:
 ----
 $ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
+----
+
+=== List
+
+List the applications installed on the instance, sorted by application key.
+
+ $ enonic app list [--json] [-a <value>] [--cred-file <value>] [-f]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+|`--json`
+|print the full details of every application as JSON instead of a table
+
+include::.snippets.adoc[tag=credentials-flags]
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+include::.snippets.adoc[tag=credentials-flags-notes]
+
+NOTE: This command requires XP 7.6 or later.
+
+.Example listing installed apps:
+----
+$ enonic app list --cred-file path\to\cred-file.json
+
+KEY                            NAME             VERSION          STATE     LOCAL
+com.enonic.app.contentstudio   Content Studio   5.4.1            started
+com.enonic.app.mytestapp                        1.0.0-SNAPSHOT   stopped   yes
+com.enonic.app.superhero       Superhero        2.0.5            started
+----
+
+TIP: The table is written to standard output and the progress messages to standard error, so `enonic app list 2>/dev/null` gives you a clean list to pipe into other tools.
+
+The `--json` flag prints every field XP reports, which is useful for scripting:
+
+----
+$ enonic app list --json --cred-file path\to\cred-file.json
+
+{
+    "applications": [
+        {
+            "key": "com.enonic.app.superhero",
+            "displayName": "Superhero",
+            "version": "2.0.5",
+            "state": "started",
+            "local": false,
+            "modifiedTime": "2026-08-17T10:00:00Z",
+            "minSystemVersion": "7.7.0",
+            "maxSystemVersion": "8",
+            "url": "https://market.enonic.com/",
+            "vendorName": "Enonic AS",
+            "vendorUrl": "https://enonic.com"
+        }
+    ]
+}
 ----
 
 === Start
