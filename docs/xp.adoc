@@ -486,7 +486,7 @@ include::.snippets.adoc[tag=credentials-flags]
 
 include::.snippets.adoc[tag=credentials-flags-notes]
 
-NOTE: This command requires XP 8.0 or later.
+NOTE: This command requires XP 7.6 or later.
 
 .Example listing installed apps:
 ----

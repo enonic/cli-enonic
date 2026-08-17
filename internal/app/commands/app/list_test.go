@@ -91,3 +91,22 @@ func TestReadApplicationListInvalidJson(t *testing.T) {
 		t.Fatal("expected an error")
 	}
 }
+
+// XP 7 may send explicit nulls where XP 8 omits the field
+func TestReadApplicationListWithNullFields(t *testing.T) {
+	stream := `event: list
+data: {"applications":[{"key":"com.enonic.app.local","version":"1.0.0","state":"stopped","local":true,"displayName":null,"url":null,"vendorName":null,"vendorUrl":null,"minSystemVersion":null,"maxSystemVersion":null,"modifiedTime":null}]}
+
+`
+	result, err := readApplicationList(strings.NewReader(stream))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result.Applications) != 1 {
+		t.Fatalf("expected 1 application, got %d", len(result.Applications))
+	}
+	app := result.Applications[0]
+	if app.Key != "com.enonic.app.local" || app.DisplayName != "" || !app.ModifiedTime.IsZero() {
+		t.Errorf("unexpected application: %+v", app)
+	}
+}
