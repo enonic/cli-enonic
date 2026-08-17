@@ -441,9 +441,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#cli_v4_0_0">CLI v4.0.0</a>
+<li><a href="#cli_v4_1_0">CLI v4.1.0</a>
 <ul class="sectlevel2">
 <li><a href="#features">Features</a></li>
+</ul>
+</li>
+<li><a href="#cli_v4_0_0">CLI v4.0.0</a>
+<ul class="sectlevel2">
+<li><a href="#features_2">Features</a></li>
 <li><a href="#improvements">Improvements</a></li>
 <li><a href="#bug_fixes">Bug fixes</a></li>
 </ul>
@@ -454,10 +459,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="cli_v4_0_0"><a class="link" href="#cli_v4_0_0">CLI v4.0.0</a></h2>
+<h2 id="cli_v4_1_0"><a class="link" href="#cli_v4_1_0">CLI v4.1.0</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="features"><a class="link" href="#features">Features</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>New <code>app list</code> command listing the applications installed on the running XP instance, sorted by application key. Use <code>--json</code> to print the full details of every application for scripting. Requires XP 7.6 or later.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v4_0_0"><a class="link" href="#cli_v4_0_0">CLI v4.0.0</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features_2"><a class="link" href="#features_2">Features</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -533,7 +553,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-17 11:28:42 UTC
+Last updated 2026-08-17 11:36:04 UTC
 </div>
 </div>
 </body>
