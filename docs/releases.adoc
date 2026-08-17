@@ -1,5 +1,11 @@
 = Release notes
 
+== CLI v4.1.0
+
+=== Features
+
+* New `app list` command listing the applications installed on the running XP instance, sorted by application key. Use `--json` to print the full details of every application for scripting. Requires XP 7.6 or later.
+
 == CLI v4.0.0
 
 === Features
