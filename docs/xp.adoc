@@ -411,18 +411,21 @@ This option could for example be used for renaming types or fields. The .xsl fil
 
 == App
 
-Commands to install applications to the running enonic XP instance. Currently only one command is available here:
+Commands to manage applications on the running Enonic XP instance:
 
 ----
 $ enonic app
 
-Install, stop and start applications
+Install, list, stop and start applications
 
 USAGE:
    Enonic CLI app command [command options] [arguments...]
 
 COMMANDS:
      install, i  Install an application from URL or file
+     list, ls    List installed applications
+     start       Start an application
+     stop        Stop an application
 
 OPTIONS:
    --help, -h  show help
@@ -461,6 +464,54 @@ $ enonic app install --cred-file path\to\cred-file.json --url https://repo.enoni
 .Example installing app from a file:
 ----
 $ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/apps/coolapp/build/libs/coolapp-1.0.0-SNAPSHOT.jar
+----
+
+=== List
+
+List the applications installed on the instance, with their state and version.
+
+ $ enonic app list [-a <value>] [--cred-file <value>] [-f]
+
+Options:
+[cols="1,3", options="header"]
+|===
+|Option
+|Description
+
+include::.snippets.adoc[tag=credentials-flags]
+
+|`-f, --force`
+|accept default answers to all prompts and run non-interactively
+|===
+
+include::.snippets.adoc[tag=credentials-flags-notes]
+
+NOTE: This command requires XP 8.0 or later.
+
+.Example listing installed apps:
+----
+$ enonic app list --cred-file path\to\cred-file.json
+----
+
+.Example output:
+----
+{
+    "applications": [
+        {
+            "key": "com.enonic.app.superhero",
+            "displayName": "Superhero",
+            "version": "2.0.5",
+            "state": "started",
+            "local": false,
+            "modifiedTime": "2026-08-17T10:00:00Z",
+            "minSystemVersion": "7.7.0",
+            "maxSystemVersion": "8",
+            "url": "https://market.enonic.com/",
+            "vendorName": "Enonic AS",
+            "vendorUrl": "https://enonic.com"
+        }
+    ]
+}
 ----
 
 === Start

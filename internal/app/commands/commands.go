@@ -36,7 +36,7 @@ func All() []cli.Command {
 		export.Import,
 		{
 			Name:        "app",
-			Usage:       "Install, stop and start applications",
+			Usage:       "Install, list, stop and start applications",
 			HelpName:    "Application",
 			Subcommands: app.All(),
 		},

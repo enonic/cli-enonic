@@ -13,6 +13,7 @@ import (
 func All() []cli.Command {
 	return []cli.Command{
 		Install,
+		List,
 		Start,
 		Stop,
 	}
