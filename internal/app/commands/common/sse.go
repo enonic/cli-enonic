@@ -19,6 +19,8 @@ type SseEvent struct {
 // bufio.Reader and not Scanner: a data line can exceed Scanner's 64KB token limit
 type SseReader struct {
 	reader *bufio.Reader
+	// the spec keeps the last event id across events, only the server can change it
+	lastEventId string
 }
 
 func NewSseReader(stream io.Reader) *SseReader {
@@ -27,8 +29,8 @@ func NewSseReader(stream io.Reader) *SseReader {
 
 func (r *SseReader) Next() (*SseEvent, error) {
 	var (
-		id, event string
-		data      []string
+		event string
+		data  []string
 	)
 
 	for {
@@ -44,13 +46,13 @@ func (r *SseReader) Next() (*SseEvent, error) {
 				if event == "" {
 					event = SSE_DEFAULT_EVENT
 				}
-				return &SseEvent{Id: id, Event: event, Data: strings.Join(data, "\n")}, nil
+				return &SseEvent{Id: r.lastEventId, Event: event, Data: strings.Join(data, "\n")}, nil
 			}
-			id, event, data = "", "", nil
+			event, data = "", nil
 		case !strings.HasPrefix(line, ":"):
 			switch name, value := splitSseField(line); name {
 			case "id":
-				id = value
+				r.lastEventId = value
 			case "event":
 				event = value
 			case "data":

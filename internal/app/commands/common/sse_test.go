@@ -105,3 +105,22 @@ func TestSseReaderReadsDataLongerThanScannerLimit(t *testing.T) {
 		t.Errorf("expected %d bytes of data, got %d", len(payload), len(event.Data))
 	}
 }
+
+func TestSseReaderKeepsLastEventIdAcrossEvents(t *testing.T) {
+	stream := "id: 1\nevent: list\ndata: a\n\n" + // id set
+		"event: state\ndata: b\n\n" + // no id, keeps 1
+		"id: 2\nevent: state\ndata: c\n\n" + // id updated
+		"id\nevent: state\ndata: d\n\n" // empty id resets it
+
+	reader := NewSseReader(strings.NewReader(stream))
+
+	for _, expected := range []string{"1", "1", "2", ""} {
+		event, err := reader.Next()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if event.Id != expected {
+			t.Errorf("data %q: expected id %q, got %q", event.Data, expected, event.Id)
+		}
+	}
+}
