@@ -110,3 +110,30 @@ data: {"applications":[{"key":"com.enonic.app.local","version":"1.0.0","state":"
 		t.Errorf("unexpected application: %+v", app)
 	}
 }
+
+func TestPrintApplications(t *testing.T) {
+	result, err := readApplicationList(strings.NewReader(listEventStream))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var out strings.Builder
+	printApplications(&out, result.Applications)
+
+	expected := "KEY                        NAME        VERSION          STATE     LOCAL\n" +
+		"com.enonic.app.superhero   Superhero   2.0.5            started   \n" +
+		"com.enonic.app.local                   1.0.0-SNAPSHOT   stopped   yes\n"
+
+	if out.String() != expected {
+		t.Errorf("unexpected table:\n%s\nwant:\n%s", out.String(), expected)
+	}
+}
+
+func TestPrintApplicationsEmpty(t *testing.T) {
+	var out strings.Builder
+	printApplications(&out, nil)
+
+	if out.String() != "" {
+		t.Errorf("expected nothing on stdout, got %q", out.String())
+	}
+}

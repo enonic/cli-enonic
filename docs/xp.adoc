@@ -468,15 +468,18 @@ $ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/a
 
 === List
 
-List the applications installed on the instance, with their state and version.
+List the applications installed on the instance, sorted by application key.
 
- $ enonic app list [-a <value>] [--cred-file <value>] [-f]
+ $ enonic app list [--json] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
 |===
 |Option
 |Description
+
+|`--json`
+|print the full details of every application as JSON instead of a table
 
 include::.snippets.adoc[tag=credentials-flags]
 
@@ -491,10 +494,20 @@ NOTE: This command requires XP 7.6 or later.
 .Example listing installed apps:
 ----
 $ enonic app list --cred-file path\to\cred-file.json
+
+KEY                            NAME             VERSION          STATE     LOCAL
+com.enonic.app.contentstudio   Content Studio   5.4.1            started
+com.enonic.app.mytestapp                        1.0.0-SNAPSHOT   stopped   yes
+com.enonic.app.superhero       Superhero        2.0.5            started
 ----
 
-.Example output:
+TIP: The table is written to standard output and the progress messages to standard error, so `enonic app list 2>/dev/null` gives you a clean list to pipe into other tools.
+
+The `--json` flag prints every field XP reports, which is useful for scripting:
+
 ----
+$ enonic app list --json --cred-file path\to\cred-file.json
+
 {
     "applications": [
         {

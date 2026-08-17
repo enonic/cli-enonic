@@ -10,6 +10,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
+	"strings"
+	"text/tabwriter"
 	"time"
 )
 
@@ -20,15 +23,49 @@ var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "List installed applications",
-	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
+	Flags: append([]cli.Flag{
+		cli.BoolFlag{
+			Name:  "json",
+			Usage: "Print the full application details as JSON",
+		},
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		apps := listApps(c)
 
-		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(apps))
+		sort.Slice(apps.Applications, func(i, j int) bool {
+			return apps.Applications[i].Key < apps.Applications[j].Key
+		})
+
+		if c.Bool("json") {
+			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(apps))
+		} else {
+			printApplications(os.Stdout, apps.Applications)
+		}
 
 		return nil
 	},
+}
+
+// printApplications writes the applications as an aligned table, leaving the
+// details that only scripts care about to the --json flag.
+func printApplications(out io.Writer, apps []Application) {
+	if len(apps) == 0 {
+		fmt.Fprintln(os.Stderr, "No applications installed")
+		return
+	}
+
+	writer := tabwriter.NewWriter(out, 0, 0, 3, ' ', 0)
+	fmt.Fprintln(writer, strings.Join([]string{"KEY", "NAME", "VERSION", "STATE", "LOCAL"}, "\t"))
+	for _, app := range apps {
+		local := ""
+		if app.Local {
+			local = "yes"
+		}
+		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\n", app.Key, app.DisplayName, app.Version, app.State, local)
+	}
+	writer.Flush()
 }
 
 func listApps(c *cli.Context) *ApplicationsResult {
