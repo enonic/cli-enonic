@@ -16,7 +16,6 @@ import (
 	"time"
 )
 
-// XP publishes the installed applications as the first event on the app events stream
 const LIST_EVENT = "list"
 
 var List = cli.Command{
@@ -48,8 +47,6 @@ var List = cli.Command{
 	},
 }
 
-// printApplications writes the applications as an aligned table, leaving the
-// details that only scripts care about to the --json flag.
 func printApplications(out io.Writer, apps []Application) {
 	if len(apps) == 0 {
 		fmt.Fprintln(os.Stderr, "No applications installed")
@@ -69,6 +66,7 @@ func printApplications(out io.Writer, apps []Application) {
 }
 
 func listApps(c *cli.Context) *ApplicationsResult {
+	// XP has no endpoint that returns the applications, they only arrive as the first event on this stream
 	req := common.CreateRequest(c, "GET", "app/events", nil)
 	req.Header.Set("Accept", common.SSE_CONTENT_TYPE)
 
@@ -76,11 +74,9 @@ func listApps(c *cli.Context) *ApplicationsResult {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		// not an event stream, so report it the way the other commands do.
-		// ParseResponse exits on a failure response, anything else is unusable here
 		var body interface{}
 		common.ParseResponse(res, &body)
-		os.Exit(1)
+		os.Exit(1) // ParseResponse already exits on a failure response, a 2xx without a stream is unusable too
 	}
 
 	result, err := readApplicationList(res.Body)
@@ -94,8 +90,6 @@ func listApps(c *cli.Context) *ApplicationsResult {
 	return result
 }
 
-// readApplicationList returns the applications carried by the first "list" event
-// on an app events stream, ignoring any other event that may arrive before it.
 func readApplicationList(stream io.Reader) (*ApplicationsResult, error) {
 	reader := common.NewSseReader(stream)
 

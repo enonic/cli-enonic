@@ -47,7 +47,6 @@ func TestReadApplicationList(t *testing.T) {
 		t.Error("expected modified time to be parsed")
 	}
 
-	// XP omits fields that have no value, they must not break parsing
 	local := result.Applications[1]
 	if !local.Local || local.State != "stopped" || local.DisplayName != "" {
 		t.Errorf("unexpected local application: %+v", local)

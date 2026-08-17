@@ -10,14 +10,13 @@ const SSE_CONTENT_TYPE = "text/event-stream"
 
 const SSE_DEFAULT_EVENT = "message"
 
-// SseEvent is a single event dispatched by a Server-Sent Events stream.
 type SseEvent struct {
 	Id    string
 	Event string
 	Data  string
 }
 
-// SseReader parses a Server-Sent Events stream one event at a time.
+// bufio.Reader and not Scanner: a data line can exceed Scanner's 64KB token limit
 type SseReader struct {
 	reader *bufio.Reader
 }
@@ -26,9 +25,6 @@ func NewSseReader(stream io.Reader) *SseReader {
 	return &SseReader{reader: bufio.NewReader(stream)}
 }
 
-// Next reads the stream until the next event is dispatched. Comments, unknown
-// fields and events without data are skipped, as is an incomplete event at the
-// end of the stream. Returns io.EOF once the stream has no more events.
 func (r *SseReader) Next() (*SseEvent, error) {
 	var (
 		id, event string
@@ -44,7 +40,6 @@ func (r *SseReader) Next() (*SseEvent, error) {
 
 		switch {
 		case line == "":
-			// a blank line dispatches the event, unless there is nothing to dispatch
 			if len(data) > 0 {
 				if event == "" {
 					event = SSE_DEFAULT_EVENT
@@ -52,10 +47,7 @@ func (r *SseReader) Next() (*SseEvent, error) {
 				return &SseEvent{Id: id, Event: event, Data: strings.Join(data, "\n")}, nil
 			}
 			id, event, data = "", "", nil
-		case strings.HasPrefix(line, ":"):
-			// comment
-		default:
-			// "retry" and unknown fields are ignored
+		case !strings.HasPrefix(line, ":"):
 			switch name, value := splitSseField(line); name {
 			case "id":
 				id = value
