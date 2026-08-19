@@ -35,7 +35,7 @@ var UPSTREAM_NAME = "origin"
 var MARKET_STARTERS_REQUEST = `{
   market {
     query(
-      query: "type='com.enonic.app.market:starter' AND data.version.supportedVersions LIKE '7.*'"
+      query: "type='com.enonic.app.market:starter'"
       sort: "_manualOrderValue desc"
     ) {
       displayName
@@ -56,7 +56,7 @@ var MARKET_STARTERS_REQUEST = `{
     }
   }
 }`
-var MARKET_DOCS_QUERY_TPL = "data.gitUrl='%s' AND data.version.supportedVersions LIKE '7.*'"
+var MARKET_DOCS_QUERY_TPL = "data.gitUrl='%s'"
 var MARKET_DOCS_REQUEST = `query($query: String!){
   market {
     query(
