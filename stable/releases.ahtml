@@ -441,6 +441,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#cli_v4_1_1">CLI v4.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes">Bug fixes</a></li>
+</ul>
+</li>
 <li><a href="#cli_v4_1_0">CLI v4.1.0</a>
 <ul class="sectlevel2">
 <li><a href="#features">Features</a></li>
@@ -450,7 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#features_2">Features</a></li>
 <li><a href="#improvements">Improvements</a></li>
-<li><a href="#bug_fixes">Bug fixes</a></li>
+<li><a href="#bug_fixes_2">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#upgrade_notes">Upgrade notes</a></li>
@@ -458,6 +463,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
+<div class="sect1">
+<h2 id="cli_v4_1_1"><a class="link" href="#cli_v4_1_1">CLI v4.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The list of starters is empty.</p>
+</li>
+<li>
+<p><code>create</code> command does not support <code>branch</code> and <code>checkout</code> arguments.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="cli_v4_1_0"><a class="link" href="#cli_v4_1_0">CLI v4.1.0</a></h2>
 <div class="sectionbody">
@@ -512,7 +535,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -553,7 +576,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-17 11:36:04 UTC
+Last updated 2026-08-20 14:42:29 UTC
 </div>
 </div>
 </body>
