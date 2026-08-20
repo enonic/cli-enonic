@@ -1,5 +1,12 @@
 = Release notes
 
+== CLI v4.1.1
+
+=== Bug fixes
+
+* The list of starters is empty.
+* `create` command does not support `branch` and `checkout` arguments.
+
 == CLI v4.1.0
 
 === Features
