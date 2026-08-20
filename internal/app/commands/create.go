@@ -14,7 +14,7 @@ var Create = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "branch, b",
-			Usage: "Branch to checkout.",
+			Usage: "Branch to checkout (ignored if --checkout is set).",
 		},
 		cli.StringFlag{
 			Name:  "checkout, c",
