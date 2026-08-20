@@ -13,6 +13,14 @@ var Create = cli.Command{
 	ArgsUsage: "<project name>",
 	Flags: []cli.Flag{
 		cli.StringFlag{
+			Name:  "branch, b",
+			Usage: "Branch to checkout (ignored if --checkout is set).",
+		},
+		cli.StringFlag{
+			Name:  "checkout, c",
+			Usage: "Commit hash to checkout.",
+		},
+		cli.StringFlag{
 			Name:  "repository, repo, r",
 			Usage: "Repository path. Format: <enonic repo> or <organisation>/<repo> or <full repo url>",
 		},
