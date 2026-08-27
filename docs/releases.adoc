@@ -1,5 +1,12 @@
 = Release notes
 
+== CLI v4.2.0
+
+=== Features
+
+* Support for Static applications (projects with an `enonic/enonic.yaml` descriptor declaring `type: "Static"`). `project deploy` and `project install` now build the application jar without Gradle (contents of `enonic/` plus a generated OSGi manifest) and install it over HTTP into the project sandbox, starting the sandbox in detached mode and waiting for it to become ready when needed. When run in a Static application folder, `project deploy` additionally accepts the credentials flags (`--auth`, `--cred-file`, `--client-key`, `--client-cert`).
+* `project create` recognises Static application starters: the application name is stored in the `.enonic` project file (`name`) instead of `gradle.properties`.
+
 == CLI v4.1.1
 
 === Bug fixes

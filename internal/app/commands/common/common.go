@@ -120,6 +120,8 @@ func ValidateCompatFlag(c *cli.Context) error {
 
 type ProjectData struct {
 	Sandbox string `toml:"sandbox"`
+	// Name is the application name (Bundle-SymbolicName) of a Static application; empty for gradle projects
+	Name string `toml:"name,omitempty"`
 }
 
 type RuntimeData struct {
@@ -177,6 +179,9 @@ func ReadGradlePropertiesFile(path string) (*properties.Properties, error) {
 }
 
 func ReadProjectDistroVersion(prjPath string) string {
+	if IsStaticProject(prjPath) {
+		return STATIC_APP_XP_VERSION
+	}
 	if props, _ := ReadGradlePropertiesFile(prjPath); props != nil {
 		return props.GetString("xpVersion", MIN_XP_VERSION)
 	} else {
@@ -186,9 +191,12 @@ func ReadProjectDistroVersion(prjPath string) string {
 
 func ReadProjectName(prjPath string) string {
 	if props, _ := ReadGradlePropertiesFile(prjPath); props != nil {
-		return props.GetString("projectName", "")
+		if name := props.GetString("projectName", ""); name != "" {
+			return name
+		}
 	}
-	return ""
+	// Static applications keep their name in the .enonic project file
+	return ReadProjectData(prjPath).Name
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {
@@ -405,54 +413,20 @@ func SendRequest(c *cli.Context, req *http.Request, message string) *http.Respon
 	return res
 }
 
+// SendRequestRaw sends the request using the configured TLS/proxy settings without any
+// session handling or re-authentication on 401/403. Useful for polling, where an
+// unauthorized response must not trigger an interactive prompt.
+func SendRequestRaw(c *cli.Context, req *http.Request, timeoutMin time.Duration) (*http.Response, error) {
+	return createHttpClient(c, timeoutMin).Do(req)
+}
+
 func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeoutMin time.Duration) (*http.Response, error) {
 	var isCredFileAbsent bool
 	if c != nil {
 		isCredFileAbsent = resolveCredFilePath(c.String("cred-file")) == ""
 	}
 
-	tlsKey := getValueOrDefault(c.String(CLIENT_KEY_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_KEY"))
-	tlsCert := getValueOrDefault(c.String(CLIENT_CERT_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_CERT"))
-
-	var tlsConfig *tls.Config
-	if tlsKey != "" && tlsCert != "" {
-		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
-			os.Exit(1)
-		}
-
-		tlsConfig = &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-	}
-
-	var transport *http.Transport
-
-	activeRemote := remote.GetActiveRemote()
-
-	client := &http.Client{
-		Timeout: timeoutMin * time.Minute,
-	}
-	if activeRemote.Proxy != nil {
-		transport = &http.Transport{
-			Proxy: http.ProxyURL(&activeRemote.Proxy.URL),
-		}
-		if tlsConfig != nil {
-			transport.TLSClientConfig = tlsConfig
-		}
-		client.Transport = transport
-	} else {
-		if tlsConfig != nil {
-			transport = &http.Transport{
-				TLSClientConfig: tlsConfig,
-			}
-		}
-	}
-
-	if transport != nil {
-		client.Transport = transport
-	}
+	client := createHttpClient(c, timeoutMin)
 
 	if message != "" {
 		StartSpinner(message)
@@ -526,6 +500,53 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 	}
 
 	return res, err
+}
+
+func createHttpClient(c *cli.Context, timeoutMin time.Duration) *http.Client {
+	tlsKey := getValueOrDefault(c.String(CLIENT_KEY_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_KEY"))
+	tlsCert := getValueOrDefault(c.String(CLIENT_CERT_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_CERT"))
+
+	var tlsConfig *tls.Config
+	if tlsKey != "" && tlsCert != "" {
+		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
+			os.Exit(1)
+		}
+
+		tlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+	}
+
+	var transport *http.Transport
+
+	activeRemote := remote.GetActiveRemote()
+
+	client := &http.Client{
+		Timeout: timeoutMin * time.Minute,
+	}
+	if activeRemote.Proxy != nil {
+		transport = &http.Transport{
+			Proxy: http.ProxyURL(&activeRemote.Proxy.URL),
+		}
+		if tlsConfig != nil {
+			transport.TLSClientConfig = tlsConfig
+		}
+		client.Transport = transport
+	} else {
+		if tlsConfig != nil {
+			transport = &http.Transport{
+				TLSClientConfig: tlsConfig,
+			}
+		}
+	}
+
+	if transport != nil {
+		client.Transport = transport
+	}
+
+	return client
 }
 
 func StartSpinner(message string) {

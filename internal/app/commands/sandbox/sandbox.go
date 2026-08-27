@@ -179,35 +179,49 @@ func Exists(name string) bool {
 	}
 }
 
-func AskToStartSandbox(c *cli.Context, sandbox string) {
+// AskToStartSandbox offers to start the sandbox. It is started in detached mode only when the
+// --continuous flag is set (to release the terminal window). Returns true if the sandbox is running afterwards.
+func AskToStartSandbox(c *cli.Context, sandbox string) bool {
+	return askToStartSandbox(c, sandbox, c.Bool("continuous"))
+}
+
+// AskToStartSandboxDetached offers to start the sandbox in detached mode regardless of flags.
+// Returns true if the sandbox is running afterwards (was already running or has just been started).
+func AskToStartSandboxDetached(c *cli.Context, sandbox string) bool {
+	return askToStartSandbox(c, sandbox, true)
+}
+
+func askToStartSandbox(c *cli.Context, sandbox string, detach bool) bool {
 	rData := common.ReadRuntimeData()
 	processRunning := common.VerifyRuntimeData(&rData)
 	force := common.IsForceMode(c)
 	devMode := !c.Bool("prod")
 	debug := c.Bool("debug")
-	continuous := c.Bool("continuous")
 
 	sandboxData := ReadSandboxData(sandbox)
 	if !processRunning {
 		if force || util.PromptBool(fmt.Sprintf("Do you want to start sandbox '%s'", sandbox), true) {
-			// detach in continuous mode to release terminal window
-			err, _ := StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			err, _ := StartSandbox(c, sandboxData, detach, devMode, debug, common.HTTP_PORT)
 			util.Fatal(err, "")
+			return true
 		}
+		return false
 
 	} else if rData.Running != sandbox {
 		// Ask to stop running box if it differs from project selected only
 		if force || util.PromptBool(fmt.Sprintf("Do you want to stop running sandbox '%s' and start '%s' instead", rData.Running, sandbox),
 			true) {
 			StopSandbox(rData)
-			// detach in continuous mode to release terminal window
-			err, _ := StartSandbox(c, sandboxData, continuous, devMode, debug, common.HTTP_PORT)
+			err, _ := StartSandbox(c, sandboxData, detach, devMode, debug, common.HTTP_PORT)
 			util.Fatal(err, "")
+			return true
 		}
+		return false
 
 	} else {
 		// Desired sandbox is already running, just give a heads up about  --prod and --debug params
 		color.New(color.FgCyan).Fprintf(os.Stderr, "Sandbox '%s' is already running. --prod and --debug parameters ignored\n\n", sandbox)
+		return true
 	}
 }
 

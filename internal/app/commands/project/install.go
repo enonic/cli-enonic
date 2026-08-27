@@ -18,6 +18,11 @@ var Install = cli.Command{
 	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
+		if common.IsStaticProject(".") {
+			installStatic(c)
+			return nil
+		}
+
 		buildProject(c)
 		jarPath := findJarPath()
 		app.InstallFromFile(c, jarPath)

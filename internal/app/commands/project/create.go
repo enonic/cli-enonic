@@ -30,6 +30,7 @@ import (
 var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
 var STARTER_LIST_TPL = "%s (%s)"
 var DEFAULT_NAME = "com.example.myproject"
+var appNameRegex = regexp.MustCompile("^[a-zA-Z0-9.]{3,}$")
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 var UPSTREAM_NAME = "origin"
 var MARKET_STARTERS_REQUEST = `{
@@ -168,8 +169,15 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
 	fmt.Fprint(os.Stderr, "\n")
 
-	propsFile := filepath.Join(dest, "gradle.properties")
-	processGradleProperties(propsFile, strings.ToLower(name), version)
+	isStatic := common.IsStaticProject(dest)
+	if isStatic {
+		pData := common.ReadProjectData(dest)
+		pData.Name = strings.ToLower(name)
+		common.WriteProjectData(pData, dest)
+	} else {
+		propsFile := filepath.Join(dest, "gradle.properties")
+		processGradleProperties(propsFile, strings.ToLower(name), version)
+	}
 
 	absDest, err := filepath.Abs(dest)
 	util.Fatal(err, "Error creating project")
@@ -200,7 +208,11 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 
 	fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
 
-	fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic dev\n\n"), dest)
+	if isStatic {
+		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project deploy\n\n"), dest)
+	} else {
+		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic dev\n\n"), dest)
+	}
 
 	return pData, newBox
 }
@@ -302,7 +314,6 @@ func ensureNameArg(c *cli.Context, name string) string {
 		// flag overrides the argument
 		name = flagName
 	}
-	appNameRegex, _ := regexp.Compile("^[a-zA-Z0-9.]{3,}$")
 	var useDefault bool
 
 	var nameValidator = func(val interface{}) error {

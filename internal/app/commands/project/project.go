@@ -6,10 +6,11 @@ import (
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/urfave/cli"
 	"os"
 	"path"
+
+	"github.com/Masterminds/semver"
+	"github.com/urfave/cli"
 )
 
 func All() []cli.Command {
@@ -47,8 +48,13 @@ func getOsGradlewFile() string {
 	return gradlewFile
 }
 
+func hasGradleWrapper(prjPath string) bool {
+	_, err := os.Stat(path.Join(prjPath, getOsGradlewFile()))
+	return !os.IsNotExist(err)
+}
+
 func ensureValidProjectFolder(prjPath string) {
-	if _, err := os.Stat(path.Join(prjPath, getOsGradlewFile())); os.IsNotExist(err) {
+	if !hasGradleWrapper(prjPath) && !common.IsStaticProject(prjPath) {
 		fmt.Fprintln(os.Stderr, "Not a valid project folder")
 		os.Exit(1)
 	}
@@ -111,6 +117,15 @@ func ensureProjectDataExists(c *cli.Context, prjPath, sandboxName, noBoxMessage 
 }
 
 func runGradleTask(projectData *common.ProjectData, message string, tasks ...string) {
+	if !hasGradleWrapper(".") {
+		if common.IsStaticProject(".") {
+			fmt.Fprintln(os.Stderr, "Gradle tasks are not supported for Static applications. Use 'enonic project deploy' to build and install the application.")
+		} else {
+			fmt.Fprintln(os.Stderr, "Not a valid project folder")
+		}
+		os.Exit(1)
+	}
+
 	fmt.Fprintln(os.Stderr, message)
 	args := tasks
 	env := os.Environ()

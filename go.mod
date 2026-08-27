@@ -22,6 +22,7 @@ require (
 	gopkg.in/AlecAivazis/survey.v1 v1.8.8
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/src-d/go-git.v4 v4.13.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require github.com/golang-jwt/jwt/v5 v5.3.1

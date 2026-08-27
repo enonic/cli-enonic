@@ -45,7 +45,8 @@ var Sandbox = cli.Command{
 		if sandbox == nil {
 			os.Exit(1)
 		}
-		common.WriteProjectData(&common.ProjectData{sandbox.Name}, ".")
+		pData.Sandbox = sandbox.Name
+		common.WriteProjectData(pData, ".")
 
 		fmt.Fprintf(os.Stdout, "\nSandbox '%s' set as default.\n", sandbox.Name)
 
