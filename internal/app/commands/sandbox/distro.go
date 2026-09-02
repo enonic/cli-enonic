@@ -246,7 +246,7 @@ func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.
 
 func appendRunModeArgs(args []string, devMode, debug bool) []string {
 	if debug {
-		// should go as 1st param !
+		// must be the first run-mode argument (e.g. immediately after server.sh when starting via Docker)
 		args = append(args, "debug")
 	}
 	if devMode {
