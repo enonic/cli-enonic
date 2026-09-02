@@ -441,9 +441,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#cli_v4_1_1">CLI v4.1.1</a>
+<li><a href="#cli_v4_1_2">CLI v4.1.2</a>
 <ul class="sectlevel2">
 <li><a href="#bug_fixes">Bug fixes</a></li>
+<li><a href="#improvements">Improvements</a></li>
+</ul>
+</li>
+<li><a href="#cli_v4_1_1">CLI v4.1.1</a>
+<ul class="sectlevel2">
+<li><a href="#bug_fixes_2">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#cli_v4_1_0">CLI v4.1.0</a>
@@ -454,8 +460,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#cli_v4_0_0">CLI v4.0.0</a>
 <ul class="sectlevel2">
 <li><a href="#features_2">Features</a></li>
-<li><a href="#improvements">Improvements</a></li>
-<li><a href="#bug_fixes_2">Bug fixes</a></li>
+<li><a href="#improvements_2">Improvements</a></li>
+<li><a href="#bug_fixes_3">Bug fixes</a></li>
 </ul>
 </li>
 <li><a href="#upgrade_notes">Upgrade notes</a></li>
@@ -464,10 +470,35 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="cli_v4_1_1"><a class="link" href="#cli_v4_1_1">CLI v4.1.1</a></h2>
+<h2 id="cli_v4_1_2"><a class="link" href="#cli_v4_1_2">CLI v4.1.2</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sandbox start --prod</code> starts the sandbox in dev mode on XP 8.1 and later. The run mode is now passed explicitly to the XP launcher.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The obsolete hidden <code>--dev</code> flag has been removed from <code>create</code>, <code>project create</code>, <code>project deploy</code>, <code>sandbox create</code> and <code>sandbox start</code>. Sandboxes start in dev mode by default; use <code>--prod</code> for non-development mode.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cli_v4_1_1"><a class="link" href="#cli_v4_1_1">CLI v4.1.1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -516,7 +547,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
+<h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -535,7 +566,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="bug_fixes_2"><a class="link" href="#bug_fixes_2">Bug fixes</a></h3>
+<h3 id="bug_fixes_3"><a class="link" href="#bug_fixes_3">Bug fixes</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -576,7 +607,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-20 14:42:29 UTC
+Last updated 2026-09-02 13:06:04 UTC
 </div>
 </div>
 </body>

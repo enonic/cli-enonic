@@ -1590,7 +1590,7 @@ Asterisk marks currently running sandbox. Entries whose source is shown as <code
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Sandox is started in development mode by default.
+Sandbox is started in development mode by default.
 Use <code>--prod</code> flag to start it in non-development mode.
 </td>
 </tr>
@@ -1809,7 +1809,7 @@ All data that may have been created in this sandbox will be deleted.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-20 14:42:29 UTC
+Last updated 2026-09-02 13:06:04 UTC
 </div>
 </div>
 </body>
