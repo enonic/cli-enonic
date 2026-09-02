@@ -5,7 +5,7 @@
 === Bug fixes
 
 * `export` and `import` commands fail against XP 8.
-* `sandbox start` command ignores `--prod` flag
+* `sandbox start` command ignores `--prod` flag.
 * The obsolete hidden `--dev` flag was not removed.
 
 == CLI v4.1.1
