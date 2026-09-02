@@ -229,14 +229,7 @@ func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.
 	version := parseDistroVersion(distroName, false)
 	appPath := filepath.Join(getDistrosDir(), formatDistroVersion(version), "bin", executable)
 	homePath := GetSandboxHomePath(sandbox)
-	var args []string
-	if debug {
-		// should go as 1st param !
-		args = append(args, "debug")
-	}
-	if devMode {
-		args = append(args, "dev")
-	}
+	args := appendRunModeArgs(nil, devMode, debug)
 	args = append(args, fmt.Sprintf(homeTemplate, homePath))
 
 	if proxy := remote.GetActiveRemote().Proxy; proxy != nil {
@@ -249,6 +242,19 @@ func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.
 	}
 
 	return system.Start(appPath, args, detach)
+}
+
+func appendRunModeArgs(args []string, devMode, debug bool) []string {
+	if debug {
+		// must be the first run-mode argument (e.g. immediately after server.sh when starting via Docker)
+		args = append(args, "debug")
+	}
+	if devMode {
+		args = append(args, "dev")
+	} else {
+		args = append(args, "-Dxp.runMode=prod")
+	}
+	return args
 }
 
 func stopDistro(pid int) {

@@ -70,11 +70,6 @@ var Create = cli.Command{
 			Usage: "Use specific Docker image (e.g. 'enonic/xp:7.13.4-sdk').",
 		},
 		cli.BoolFlag{
-			Name:   "dev",
-			Usage:  "Run Enonic XP distribution in development mode",
-			Hidden: true,
-		},
-		cli.BoolFlag{
 			Name:  "prod",
 			Usage: "Run Enonic XP distribution in non-development mode",
 		},

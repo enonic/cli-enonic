@@ -180,13 +180,7 @@ func startDockerSandbox(imageName, sandboxName string, detach, devMode, debug bo
 	args = append(args, "server.sh")
 
 	// Pass mode arguments to server.sh
-	if debug {
-		// debug should go as 1st param
-		args = append(args, "debug")
-	}
-	if devMode {
-		args = append(args, "dev")
-	}
+	args = appendRunModeArgs(args, devMode, debug)
 
 	cmd := exec.Command("docker", args...)
 	if !detach {
