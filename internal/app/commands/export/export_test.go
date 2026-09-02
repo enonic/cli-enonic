@@ -35,7 +35,6 @@ func newCtx(t *testing.T, compat string, bools map[string]bool) *cli.Context {
 	fs.String("compat", "", "")
 	fs.String("t", "", "")
 	fs.String("path", "", "")
-	fs.String("xsl-source", "", "")
 	for _, name := range []string{"skip-ids", "skip-versions", "skip-permissions", "dry"} {
 		fs.Bool(name, false, "")
 	}
@@ -107,11 +106,10 @@ func TestCreateNewRequest_CompatFlags(t *testing.T) {
 	}
 }
 
-// XP 8 ImportNodesRequestJson dropped dryRun but kept importWithIds,
-// importWithPermissions, xslSource and xslParams.
+// XP 8 ImportNodesRequestJson dropped dryRun but kept importWithIds and
+// importWithPermissions.
 func TestCreateLoadRequest_XP8OmitsDryRun(t *testing.T) {
 	isolateEnonicHome(t)
-	xslParams = nil
 	c := newCtx(t, "", map[string]bool{"skip-ids": true, "dry": true})
 	params := decodeJSONBody(t, createLoadRequest(c).Body)
 
@@ -123,7 +121,6 @@ func TestCreateLoadRequest_XP8OmitsDryRun(t *testing.T) {
 
 func TestCreateLoadRequest_CompatIncludesDryRun(t *testing.T) {
 	isolateEnonicHome(t)
-	xslParams = nil
 	c := newCtx(t, "7", map[string]bool{"dry": true})
 	params := decodeJSONBody(t, createLoadRequest(c).Body)
 

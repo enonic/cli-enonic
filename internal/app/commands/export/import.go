@@ -8,13 +8,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
-
-var xslParams map[string]string
 
 var Import = cli.Command{
 	Name:  "import",
@@ -27,14 +23,6 @@ var Import = cli.Command{
 		cli.StringFlag{
 			Name:  "path",
 			Usage: "Target path for import. Format: <repo-name>:<branch-name>:<node-path> e.g. 'cms-repo:draft:/'",
-		},
-		cli.StringFlag{
-			Name:  "xsl-source",
-			Usage: "Path to xsl file (relative to <XP_HOME>/data/export) for applying transformations to node.xml before importing.",
-		},
-		cli.StringSliceFlag{
-			Name:  "xsl-param",
-			Usage: "Parameters to pass to the XSL transformations before importing nodes. Format: <parameter-name>=<parameter-value> e.g. 'applicationId=com.enonic.myapp'",
 		},
 		cli.BoolFlag{
 			Name:  "skip-ids",
@@ -56,7 +44,6 @@ var Import = cli.Command{
 
 		ensureNameFlag(c)
 		ensurePathFlag(c)
-		ensureXSLParamsFlagFormat(c)
 
 		req := createLoadRequest(c)
 
@@ -75,31 +62,6 @@ var Import = cli.Command{
 	},
 }
 
-func ensureXSLParamsFlagFormat(c *cli.Context) {
-	params := c.StringSlice("xsl-param")
-	force := common.IsForceMode(c)
-	xslParams = make(map[string]string)
-
-	var splitParam []string
-	validator := func(val interface{}) error {
-		str := val.(string)
-		splitParam = strings.Split(str, "=")
-		if len(strings.TrimSpace(str)) != 0 && len(splitParam) != 2 {
-			if force {
-				fmt.Fprintf(os.Stderr, "Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>\n", str)
-				os.Exit(1)
-			}
-			return errors.Errorf("Xsl parameter '%s' must have the following format <parameter-name>=<parameter-value>: ", str)
-		}
-		return nil
-	}
-
-	for _, param := range params {
-		param = util.PromptString(fmt.Sprintf("Xsl parameter '%s'", param), param, "", validator)
-		xslParams[splitParam[0]] = splitParam[1]
-	}
-}
-
 func createLoadRequest(c *cli.Context) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
@@ -107,12 +69,6 @@ func createLoadRequest(c *cli.Context) *http.Request {
 		"targetRepoPath": c.String("path"),
 	}
 
-	if xslSource := c.String("xsl-source"); xslSource != "" {
-		params["xslSource"] = xslSource
-	}
-	if len(xslParams) > 0 {
-		params["xslParams"] = xslParams
-	}
 	params["importWithIds"] = !c.Bool("skip-ids")
 
 	params["importWithPermissions"] = !c.Bool("skip-permissions")
