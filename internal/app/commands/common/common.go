@@ -71,7 +71,7 @@ var FORCE_FLAG = cli.BoolFlag{
 
 var COMPAT_FLAG = cli.StringFlag{
 	Name:  "compat",
-	Usage: "XP version compatibility mode. Set to \"7\" (or any value starting with \"7\") to use the legacy XP 7 API format. Default uses the XP 8 API format.",
+	Usage: "XP version compatibility mode. Value must be in the form \"X\" or \"X.Y\" (e.g. \"7\" or \"7.16\"). Use a value starting with \"7\" to use the legacy XP 7 API format. Default uses the XP 8 API format.",
 }
 
 var CLIENT_KEY_FLAG = cli.StringFlag{
