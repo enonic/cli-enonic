@@ -28,19 +28,21 @@ var Export = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "skip-ids",
-			Usage: "Flag to skip ids in data when exporting.",
+			Usage: "Flag to skip ids in data when exporting. Only effective in compat mode (XP 7).",
 		},
 		cli.BoolFlag{
 			Name:  "skip-versions",
-			Usage: "Flag to skip versions in data when exporting.",
+			Usage: "Flag to skip versions in data when exporting. Only effective in compat mode (XP 7).",
 		},
 		cli.BoolFlag{
 			Name:  "dry",
-			Usage: "Show the result without making actual changes.",
+			Usage: "Show the result without making actual changes. Only effective in compat mode (XP 7).",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
+
+		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
 
 		ensureNameFlag(c)
 		ensurePathFlag(c)
@@ -68,11 +70,13 @@ func createNewRequest(c *cli.Context) *http.Request {
 		"sourceRepoPath": c.String("path"),
 	}
 
-	params["exportWithIds"] = !c.Bool("skip-ids")
+	if common.IsCompatMode(c) {
+		params["exportWithIds"] = !c.Bool("skip-ids")
 
-	params["includeVersions"] = !c.Bool("skip-versions")
+		params["includeVersions"] = !c.Bool("skip-versions")
 
-	params["dryRun"] = c.Bool("dry")
+		params["dryRun"] = c.Bool("dry")
+	}
 
 	json.NewEncoder(body).Encode(params)
 
@@ -83,9 +87,7 @@ type NewExportResponse struct {
 	DryRun           bool     `json:"dryRun"`
 	ExportedBinaries []string `json:"exportedBinaries"`
 	ExportedNodes    []string `json:"exportedNodes"`
-	Errors           []struct {
-		Message string `json:"message"`
-	} `json:"exportErrors"`
+	Errors           []string `json:"exportErrors"`
 }
 
 func ensureNameFlag(c *cli.Context) {

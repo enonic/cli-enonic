@@ -4,11 +4,9 @@
 
 === Bug fixes
 
-* `sandbox start --prod` starts the sandbox in dev mode on XP 8.1 and later. The run mode is now passed explicitly to the XP launcher.
-
-=== Improvements
-
-* The obsolete hidden `--dev` flag has been removed from `create`, `project create`, `project deploy`, `sandbox create` and `sandbox start`. Sandboxes start in dev mode by default; use `--prod` for non-development mode.
+* `export` and `import` commands fail against XP 8.
+* `sandbox start` command ignores `--prod` flag
+* The obsolete hidden `--dev` flag was not removed.
 
 == CLI v4.1.1
 

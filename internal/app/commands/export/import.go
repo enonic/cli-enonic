@@ -46,11 +46,13 @@ var Import = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "dry",
-			Usage: "Show the result without making actual changes.",
+			Usage: "Show the result without making actual changes. Only effective in compat mode (XP 7).",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
+
+		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
 
 		ensureNameFlag(c)
 		ensurePathFlag(c)
@@ -115,7 +117,9 @@ func createLoadRequest(c *cli.Context) *http.Request {
 
 	params["importWithPermissions"] = !c.Bool("skip-permissions")
 
-	params["dryRun"] = c.Bool("dry")
+	if common.IsCompatMode(c) {
+		params["dryRun"] = c.Bool("dry")
+	}
 
 	json.NewEncoder(body).Encode(params)
 
