@@ -17,11 +17,6 @@ var Start = cli.Command{
 			Usage: "Run in the background even after console is closed",
 		},
 		cli.BoolFlag{
-			Name:   "dev",
-			Usage:  "Run enonic XP distribution in development mode",
-			Hidden: true,
-		},
-		cli.BoolFlag{
 			Name:  "prod",
 			Usage: "Run Enonic XP distribution in non-development mode",
 		},

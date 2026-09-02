@@ -552,7 +552,7 @@ Options:
 |accept default answers to all prompts and run non-interactively
 |===
 
-NOTE: Sandox is started in development mode by default.
+NOTE: Sandbox is started in development mode by default.
 Use `--prod` flag to start it in non-development mode.
 
 .Example starting 'myBox' sandbox in a prod mode:
