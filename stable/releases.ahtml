@@ -479,7 +479,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>export</code> and <code>import</code> commands fail against XP 8.</p>
 </li>
 <li>
-<p><code>sandbox start</code> command ignores <code>--prod</code> flag</p>
+<p><code>sandbox start</code> command ignores <code>--prod</code> flag.</p>
 </li>
 <li>
 <p>The obsolete hidden <code>--dev</code> flag was not removed.</p>
@@ -602,7 +602,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-02 13:56:04 UTC
+Last updated 2026-09-02 14:08:13 UTC
 </div>
 </div>
 </body>
