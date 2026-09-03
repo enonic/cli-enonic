@@ -1473,8 +1473,6 @@ The <code>--skip-ids</code>, <code>--skip-versions</code> and <code>--dry</code>
   OPTIONS:
      -t value                A named export to import.
      --path value            Target path for import. Format: &lt;repo-name&gt;:&lt;branch-name&gt;:&lt;node-path&gt; e.g. 'cms-repo:draft:/'
-     --xsl-source value      Path to xsl file (relative to &lt;XP_HOME&gt;/data/export) for applying transformations to node.xml before importing.
-     --xsl-param value       Parameters to pass to the XSL transformations before importing nodes. Format: &lt;parameter-name&gt;=&lt;parameter-value&gt; e.g. 'applicationId=com.enonic.myapp'
      --skip-ids              Flag to skips ids when importing
      --skip-permissions      Flag to skips permissions when importing
      --dry                   Show the result without making actual changes. Only effective in compat mode (XP 7).
@@ -1528,23 +1526,6 @@ The <code>--dry</code> option is not supported by the XP 8 import API and is onl
 <div class="content">
 <pre>$ enonic import --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/some-content</pre>
 </div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>An XSL file and a set of name=value parameters can be optionally passed for applying transformations to each node.xml file, before importing it.</p>
-</div>
-<div class="paragraph">
-<p>This option could for example be used for renaming types or fields. The .xsl file must be located in the <code>$XP_HOME/data/export</code> directory.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 </div>
@@ -2737,7 +2718,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-02 14:08:13 UTC
+Last updated 2026-09-03 04:28:15 UTC
 </div>
 </div>
 </body>
