@@ -387,8 +387,6 @@ $ enonic import -h
   OPTIONS:
      -t value                A named export to import.
      --path value            Target path for import. Format: <repo-name>:<branch-name>:<node-path> e.g. 'cms-repo:draft:/'
-     --xsl-source value      Path to xsl file (relative to <XP_HOME>/data/export) for applying transformations to node.xml before importing.
-     --xsl-param value       Parameters to pass to the XSL transformations before importing nodes. Format: <parameter-name>=<parameter-value> e.g. 'applicationId=com.enonic.myapp'
      --skip-ids              Flag to skips ids when importing
      --skip-permissions      Flag to skips permissions when importing
      --dry                   Show the result without making actual changes. Only effective in compat mode (XP 7).
@@ -406,13 +404,6 @@ include::.snippets.adoc[tag=credentials-flags-notes]
 ----
 $ enonic import --cred-file path\to\cred-file.json -t myExport --path cms-repo:draft:/some-content
 ----
-
-[TIP]
-====
-An XSL file and a set of name=value parameters can be optionally passed for applying transformations to each node.xml file, before importing it.
-
-This option could for example be used for renaming types or fields. The .xsl file must be located in the `$XP_HOME/data/export` directory.
-====
 
 
 == App
