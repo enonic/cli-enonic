@@ -29,6 +29,7 @@ import (
 
 var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
 var STARTER_LIST_TPL = "%s (%s)"
+var STATIC_STARTER_REPO_NAME = "starter-static-app"
 var DEFAULT_NAME = "com.example.myproject"
 var appNameRegex = regexp.MustCompile("^[a-zA-Z0-9.]{3,}$")
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
@@ -158,7 +159,9 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
 	name = ensureNameArg(c, name)
 	dest = ensureDestination(c, name, simplified)
-	version = ensureVersion(c, version)
+	if starter != nil && !isStaticStarterRepo(gitUrl) {
+		version = ensureVersion(c, version)
+	}
 
 	var user, pass string
 	if authString := c.String("auth"); authString != "" {
@@ -175,6 +178,7 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 		pData.Name = strings.ToLower(name)
 		common.WriteProjectData(pData, dest)
 	} else {
+		version = ensureVersion(c, version)
 		propsFile := filepath.Join(dest, "gradle.properties")
 		processGradleProperties(propsFile, strings.ToLower(name), version)
 	}
@@ -183,7 +187,11 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	util.Fatal(err, "Error creating project")
 
 	sandboxName := c.String("sandbox")
-	pData, newBox := ensureProjectDataExists(c, dest, sandboxName, "A sandbox is required for your project, create one")
+	noBoxMessage := "A sandbox is required for your project, create one"
+	if isStatic {
+		noBoxMessage = "Do you want to create a sandbox for your project"
+	}
+	pData, newBox := ensureProjectData(c, dest, sandboxName, noBoxMessage, isStatic)
 
 	if pData == nil || pData.Sandbox == "" {
 		fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
@@ -215,6 +223,11 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	}
 
 	return pData, newBox
+}
+
+func isStaticStarterRepo(gitUrl string) bool {
+	repoName := strings.TrimSuffix(gitUrl[strings.LastIndex(gitUrl, "/")+1:], ".git")
+	return strings.EqualFold(repoName, STATIC_STARTER_REPO_NAME)
 }
 
 func ensureVersion(c *cli.Context, version string) string {

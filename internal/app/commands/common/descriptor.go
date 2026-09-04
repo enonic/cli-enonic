@@ -12,9 +12,6 @@ import (
 const APP_DIR_NAME = "enonic"
 
 const APP_TYPE_STATIC = "Static"
-const APP_TYPE_BUNDLE = "Bundle"
-
-const STATIC_APP_VERSION = "0.0.0"
 
 const STATIC_APP_XP_VERSION = "8.1.0-SNAPSHOT"
 

@@ -66,11 +66,12 @@ func buildStaticManifest(appName string, descriptor *common.AppDescriptor) (Mani
 		return nil, err
 	}
 
+	// Bundle-Version is omitted: Static applications have no version, and both OSGi and XP
+	// default to 0.0.0 when the header is absent
 	manifest := Manifest{
 		{"Manifest-Version", "1.0"},
 		{"Bundle-ManifestVersion", "2"},
 		{"Bundle-SymbolicName", appName},
-		{"Bundle-Version", common.STATIC_APP_VERSION},
 	}
 	if descriptor != nil && descriptor.Title.Text != "" {
 		manifest = append(manifest, ManifestAttr{"Bundle-Name", descriptor.Title.Text})

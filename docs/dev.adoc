@@ -331,12 +331,14 @@ vendorUrl: "https://enonic.com"
 
 Static applications have no Gradle build. Instead, `enonic project deploy`:
 
-. Packs the contents of the `enonic/` folder into the root of `build/libs/<name>-0.0.0.jar` (`enonic/enonic.yaml` becomes `/enonic.yaml`, `enonic/cms/...` becomes `/cms/...`). Files outside `enonic/` are not included.
-. Generates `META-INF/MANIFEST.MF` with `Bundle-SymbolicName` set to the application name, `Bundle-Version: 0.0.0`, `X-System-Version: [8.1,9)` and `Bundle-Name`/`X-Vendor-Name`/`X-Vendor-Url`/`X-Application-Url` taken from the descriptor.
+. Packs the contents of the `enonic/` folder into the root of `build/libs/<short name>.jar`, where the short name is the last segment of the application name (e.g. `myapp.jar` for `com.example.myapp`). `enonic/enonic.yaml` becomes `/enonic.yaml`, `enonic/cms/...` becomes `/cms/...`; files outside `enonic/` are not included.
+. Generates `META-INF/MANIFEST.MF` with `Bundle-SymbolicName` set to the application name, `X-System-Version: [8.1,9)` and `Bundle-Name`/`X-Vendor-Name`/`X-Vendor-Url`/`X-Application-Url` taken from the descriptor. Static applications have no version, so `Bundle-Version` is not written (OSGi and XP default to `0.0.0`).
 . Installs the jar over HTTP, exactly like `enonic project install`. If a sandbox is linked to the project (or given as the `name` argument), it is started in detached mode first (unless `--skip-start` is given or it is already running) and CLI waits for XP to become ready. Without a linked sandbox the application is installed to the active remote (see `enonic remote`; by default `http://localhost:4848`), so any running XP instance can be used — a sandbox is not required for Static applications. Use `enonic project sandbox <name>` to link one.
 
 The application name is the one given to `enonic project create` and is stored in the `.enonic` file of the project (`name = "com.example.myapp"`).
 If it is missing, `deploy` asks for it and saves it (with `--force` the command fails instead).
+
+`enonic project create` adjusts its wizard for Static applications: the project version prompt is skipped (Static applications are always installed with version `0.0.0`, the `--version` parameter is ignored), and the sandbox selection offers a `Don't use a sandbox` option, so the project can be created without one. Since the project type is only known after the repository is cloned, the version prompt for custom (non-Market) repositories is shown after the `Initializing project...` step.
 
 Since the application is installed over HTTP, `deploy` additionally accepts the credentials flags when run in a Static application folder:
 

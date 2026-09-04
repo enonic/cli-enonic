@@ -31,6 +31,7 @@ func All() []cli.Command {
 }
 
 var CREATE_NEW_BOX = "Create new sandbox"
+var SKIP_BOX = "Don't use a sandbox"
 
 type SandboxData struct {
 	Distro string `toml:"distro"`
@@ -241,7 +242,9 @@ type EnsureSandboxOptions struct {
 	SelectBoxMessage   string
 	ShowSuccessMessage bool
 	ShowCreateOption   bool
-	ExcludeSandboxes   []string
+	// ShowSkipOption adds a "Don't use a sandbox" item to the select; choosing it returns nil without error
+	ShowSkipOption   bool
+	ExcludeSandboxes []string
 }
 
 func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox, bool) {
@@ -292,6 +295,10 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 		selectOptions = append(selectOptions, CREATE_NEW_BOX)
 		selectSandboxes = append(selectSandboxes, nil)
 	}
+	if options.ShowSkipOption {
+		selectOptions = append(selectOptions, SKIP_BOX)
+		selectSandboxes = append(selectSandboxes, nil)
+	}
 	var boxName, defaultBox string
 	osWithArch := util.GetCurrentOsWithArch()
 	for i, box := range existingBoxes {
@@ -317,6 +324,9 @@ func EnsureSandboxExists(c *cli.Context, options EnsureSandboxOptions) (*Sandbox
 	if name == CREATE_NEW_BOX {
 		newBox := SandboxCreateWizard(c, "", "", "", options.MinDistroVersion, false, options.ShowSuccessMessage, force)
 		return newBox, true
+	}
+	if name == SKIP_BOX {
+		return nil, false
 	}
 
 	return selectSandboxes[selectIndex], false

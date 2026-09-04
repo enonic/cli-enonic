@@ -26,9 +26,11 @@ var osgiSymbolicNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+
 
 const XP_READY_TIMEOUT = 3 * time.Minute
 
-// staticJarPath mirrors the gradle layout: build/libs/<name>-<version>.jar
+// staticJarPath returns build/libs/<short name>.jar, where the short name is the last segment
+// of the application name (e.g. "myapp" for "com.example.myapp"). Static applications have no
+// version, so the file name carries none either.
 func staticJarPath(prjPath, appName string) string {
-	return filepath.Join(prjPath, "build", "libs", fmt.Sprintf("%s-%s.jar", appName, common.STATIC_APP_VERSION))
+	return filepath.Join(prjPath, "build", "libs", destFromName(appName)+".jar")
 }
 
 // writeStaticJar packs the contents of appDir into the root of a jar with the given manifest as the first entry.
