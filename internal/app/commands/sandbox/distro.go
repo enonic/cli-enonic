@@ -32,7 +32,9 @@ const SANDBOX_LIST_NAME_TPL = "%s (%s-sdk-%s)"
 const DISTRO_LIST_NAME_TPL = "%s-sdk-%s %s"
 
 const REMOTE_DISTRO_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/%s/%s"
-const REMOTE_VERSION_URL = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/maven-metadata.xml"
+
+// var instead of const so tests can point it at a local server
+var remoteVersionUrl = "https://repo.enonic.com/public/com/enonic/xp/enonic-xp-%s-sdk/maven-metadata.xml"
 
 const TGZ_SUPPORTED_FROM_VERSION = "7.6.0"
 const TGZ_MAC_SUPPORTED_FROM_VERSION = "7.10.0"
@@ -75,31 +77,40 @@ func EnsureDistroExists(c *cli.Context, distroName string) (string, bool) {
 }
 
 func getAllVersions(c *cli.Context, osName, minDistro string, includeMinVer, includeUnstable bool) ([]string, string) {
+	return filterVersions(fetchRemoteVersions(c, osName), minDistro, includeMinVer, includeUnstable)
+}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf(REMOTE_VERSION_URL, osName), nil)
+func fetchRemoteVersions(c *cli.Context, osName string) []string {
+	req, err := http.NewRequest("GET", fmt.Sprintf(remoteVersionUrl, osName), nil)
 	resp := common.SendRequest(c, req, "Loading")
 	util.Fatal(err, "Could not load latest version for os: "+osName)
 	fmt.Fprintln(os.Stderr, "Done")
 
-	var minDistroVer *semver.Version
-	if minDistro != "" {
-		minDistroVer, err = semver.NewVersion(minDistro)
-	}
-
 	var metadata Metadata
 	common.ParseResponseXml(resp, &metadata)
+
+	return metadata.Versioning.Versions
+}
+
+func filterVersions(versions []string, minDistro string, includeMinVer, includeUnstable bool) ([]string, string) {
+	var minDistroVer *semver.Version
+	if minDistro != "" {
+		minDistroVer, _ = semver.NewVersion(minDistro)
+	}
 
 	var filteredVersions []string
 	var latestVersionResult string
 	var latestVersion *semver.Version
-	for _, version := range metadata.Versioning.Versions {
+	for _, version := range versions {
 		tempVersion, tempErr := semver.NewVersion(version)
-		util.Warn(tempErr, "Could not parse distro version: "+version)
+		if tempErr != nil {
+			util.Warn(tempErr, "Could not parse distro version: "+version)
+			continue
+		}
 
 		minVersionPasses := minDistroVer == nil ||
 			tempVersion.GreaterThan(minDistroVer) ||
 			includeMinVer && tempVersion.Equal(minDistroVer)
-		// excluding only SNAPSHOTS
 		if minVersionPasses &&
 			strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" &&
 			(includeUnstable || tempVersion.Prerelease() == "") {
