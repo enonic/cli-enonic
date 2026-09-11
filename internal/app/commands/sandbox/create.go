@@ -189,14 +189,14 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, imageStr, minDistroVe
 			box = createSandbox(name, FormatDockerDistro(imageStr))
 			CopyHomeFolder("", box.Name)
 		} else {
-			version, _ := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
+			version := resolveCreateVersion(c, versionStr, minDistroVersion, includeUnstable, force)
 			box = createSandbox(name, version)
 			distroPath, _ := EnsureDistroExists(c, box.Distro)
 			CopyHomeFolder(distroPath, box.Name)
 		}
 	} else {
 		// Distro mode (force mode or --version specified)
-		version, _ := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
+		version := resolveCreateVersion(c, versionStr, minDistroVersion, includeUnstable, force)
 		box = createSandbox(name, version)
 		distroPath, _ := EnsureDistroExists(c, box.Distro)
 		CopyHomeFolder(distroPath, box.Name)
@@ -211,6 +211,23 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, imageStr, minDistroVe
 	}
 
 	return box
+}
+
+func resolveCreateVersion(c *cli.Context, versionStr, minDistroVersion string, includeUnstable, force bool) string {
+	version, total := ensureVersionCorrect(c, versionStr, minDistroVersion, true, includeUnstable, force)
+	if total == 0 && !includeUnstable && versionStr == "" {
+		fmt.Fprintf(os.Stderr, "No stable Enonic XP release matching '%s' or higher was found, looking for pre-releases.\n", minDistroVersion)
+		version, total = ensureVersionCorrect(c, versionStr, minDistroVersion, true, true, force)
+	}
+	if total == 0 {
+		if versionStr != "" {
+			fmt.Fprintf(os.Stderr, "Enonic XP distribution '%s' is not available for %s.\n", versionStr, util.GetCurrentOsWithArch())
+		} else {
+			fmt.Fprintf(os.Stderr, "No Enonic XP distribution matching '%s' or higher is available for %s.\n", minDistroVersion, util.GetCurrentOsWithArch())
+		}
+		os.Exit(1)
+	}
+	return version
 }
 
 // promptUseDocker asks the user whether they want to use a Docker image or a distro
