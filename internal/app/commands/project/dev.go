@@ -22,10 +22,7 @@ var Dev = cli.Command{
 }
 
 func StartDevMode(c *cli.Context) {
-	if common.IsStaticProject(".") {
-		fmt.Fprintln(os.Stderr, "Dev mode is not supported for Static applications. Use 'enonic project deploy' to build and install the application.")
-		os.Exit(1)
-	}
+	ensureGradleProject("Dev mode")
 
 	if projectData, _ := ensureProjectDataExists(c, ".", "", "A sandbox is required to run the project in dev mode, "+
 		"do you want to create one"); projectData != nil {

@@ -12,6 +12,8 @@ var Clean = cli.Command{
 	Usage: "Clean current project",
 	Flags: []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
+		ensureGradleProject("Clean")
+
 		if projectData, _ := ensureProjectDataExists(c, ".", "", "A sandbox is required to clean the project, "+
 			"do you want to create one"); projectData != nil {
 			var cleanMessage string

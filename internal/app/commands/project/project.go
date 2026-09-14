@@ -54,8 +54,17 @@ func hasGradleWrapper(prjPath string) bool {
 }
 
 func ensureValidProjectFolder(prjPath string) {
-	if !hasGradleWrapper(prjPath) && !common.IsStaticProject(prjPath) {
+	if !hasGradleWrapper(prjPath) && !common.IsSchemaProject(prjPath) {
 		fmt.Fprintln(os.Stderr, "Not a valid project folder")
+		os.Exit(1)
+	}
+}
+
+// ensureGradleProject exits when the current folder is a schema application, which has no gradle build.
+// The subject names the refused action, e.g. "Build" or "Dev mode".
+func ensureGradleProject(subject string) {
+	if common.IsSchemaProject(".") {
+		fmt.Fprintf(os.Stderr, "%s is not supported for schema applications. Use 'enonic project install' to build and install the application.\n", subject)
 		os.Exit(1)
 	}
 }
@@ -130,8 +139,8 @@ func ensureProjectData(c *cli.Context, prjPath, sandboxName, noBoxMessage string
 
 func runGradleTask(projectData *common.ProjectData, message string, tasks ...string) {
 	if !hasGradleWrapper(".") {
-		if common.IsStaticProject(".") {
-			fmt.Fprintln(os.Stderr, "Gradle tasks are not supported for Static applications. Use 'enonic project deploy' to build and install the application.")
+		if common.IsSchemaProject(".") {
+			fmt.Fprintln(os.Stderr, "Gradle tasks are not supported for schema applications. Use 'enonic project install' to build and install the application.")
 		} else {
 			fmt.Fprintln(os.Stderr, "Not a valid project folder")
 		}

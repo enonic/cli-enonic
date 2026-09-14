@@ -21,6 +21,7 @@ var Gradle = cli.Command{
 	SkipFlagParsing: true,
 	Usage:           "Run arbitrary gradle task in current project",
 	Action: func(c *cli.Context) error {
+		ensureGradleProject("Running gradle tasks")
 
 		tasks := make([]string, 0, c.NArg())
 		for i := 0; i < c.NArg(); i++ {

@@ -1,21 +1,36 @@
 package common
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/Masterminds/semver"
 	"gopkg.in/yaml.v3"
 )
 
-const APP_DIR_NAME = "enonic"
+// SCHEMA_APP_XP_VERSION is the minimal XP version supporting schema applications
+const SCHEMA_APP_XP_VERSION = "8.1.0-SNAPSHOT"
 
-const APP_TYPE_STATIC = "Static"
+// APP_ICON_FILE is the application icon, read by XP from the jar root
+const APP_ICON_FILE = "enonic.svg"
 
-const STATIC_APP_XP_VERSION = "8.1.0-SNAPSHOT"
+// CMS_DIR_NAME is the folder holding the schema resources; XP treats an application shipping cms/cms.yaml as the owner of its schema
+const CMS_DIR_NAME = "cms"
 
+const MAX_APP_NAME_LENGTH = 63
+
+// APP_DESCRIPTOR_FILES lists the application descriptor file names in order of preference, all at the project root
 var APP_DESCRIPTOR_FILES = []string{"enonic.yaml", "enonic.yml"}
+
+var CMS_DESCRIPTOR_FILES = []string{"cms.yaml", "cms.yml"}
+
+var GRADLE_WRAPPER_FILES = []string{"gradlew", "gradlew.bat"}
+
+// AppNameRegex is the XP rule for application names (ApplicationKey), which is also the OSGi Bundle-SymbolicName of the jar
+var AppNameRegex = regexp.MustCompile(`^\w+(?:\.\w+)*$`)
 
 type LocalizedText struct {
 	Text string `yaml:"text"`
@@ -41,35 +56,50 @@ func (t *LocalizedText) UnmarshalYAML(node *yaml.Node) error {
 	}
 }
 
+// AppDescriptor mirrors the fields accepted by XP in enonic.yaml. Unknown fields are rejected, like XP does.
 type AppDescriptor struct {
 	Kind        string        `yaml:"kind"`
-	Type        string        `yaml:"type"`
+	Name        string        `yaml:"name"`
 	Title       LocalizedText `yaml:"title"`
 	Description LocalizedText `yaml:"description"`
 	VendorName  string        `yaml:"vendorName"`
 	VendorUrl   string        `yaml:"vendorUrl"`
 	Url         string        `yaml:"url"`
+	Config      any           `yaml:"config"`
 }
 
-func (d *AppDescriptor) IsStatic() bool {
-	return d != nil && d.Type == APP_TYPE_STATIC
-}
-
-func GetAppDir(prjPath string) string {
-	return filepath.Join(prjPath, APP_DIR_NAME)
-}
-
-func FindAppDescriptorFile(prjPath string) string {
-	appDir := GetAppDir(prjPath)
-	for _, name := range APP_DESCRIPTOR_FILES {
-		file := filepath.Join(appDir, name)
-		if stat, err := os.Stat(file); err == nil && !stat.IsDir() {
+func findRegularFile(dir string, names []string) string {
+	for _, name := range names {
+		file := filepath.Join(dir, name)
+		if stat, err := os.Stat(file); err == nil && stat.Mode().IsRegular() {
 			return file
 		}
 	}
 	return ""
 }
 
+// FindAppDescriptorFile returns the path of enonic.yaml (or enonic.yml) in the project root, or "" when absent
+func FindAppDescriptorFile(prjPath string) string {
+	return findRegularFile(prjPath, APP_DESCRIPTOR_FILES)
+}
+
+// FindCmsDescriptorFile returns the path of cms/cms.yaml (or cms/cms.yml) in the project, or "" when absent
+func FindCmsDescriptorFile(prjPath string) string {
+	return findRegularFile(filepath.Join(prjPath, CMS_DIR_NAME), CMS_DESCRIPTOR_FILES)
+}
+
+// HasGradleWrapper reports whether the project contains a gradle wrapper script for any OS
+func HasGradleWrapper(prjPath string) bool {
+	return findRegularFile(prjPath, GRADLE_WRAPPER_FILES) != ""
+}
+
+// IsSchemaProject reports whether the folder is a schema application: an application descriptor at the project root
+// and no gradle build. Schema applications are packaged and installed by CLI itself.
+func IsSchemaProject(prjPath string) bool {
+	return FindAppDescriptorFile(prjPath) != "" && !HasGradleWrapper(prjPath)
+}
+
+// ReadAppDescriptor parses the application descriptor of the project. Returns nil without error when there is none.
 func ReadAppDescriptor(prjPath string) (*AppDescriptor, error) {
 	file := FindAppDescriptorFile(prjPath)
 	if file == "" {
@@ -81,19 +111,28 @@ func ReadAppDescriptor(prjPath string) (*AppDescriptor, error) {
 		return nil, fmt.Errorf("could not read '%s': %w", file, err)
 	}
 
+	decoder := yaml.NewDecoder(bytes.NewReader(data))
+	decoder.KnownFields(true)
+
 	var descriptor AppDescriptor
-	if err := yaml.Unmarshal(data, &descriptor); err != nil {
+	if err := decoder.Decode(&descriptor); err != nil {
 		return nil, fmt.Errorf("could not parse '%s': %w", file, err)
 	}
 	return &descriptor, nil
 }
 
-func IsStaticProject(prjPath string) bool {
-	descriptor, err := ReadAppDescriptor(prjPath)
-	if err != nil {
-		return false
+// ValidateAppName checks the application name against the XP rule for application keys
+func ValidateAppName(name string) error {
+	if name == "" {
+		return fmt.Errorf("application name is missing: add 'name: \"com.example.myapp\"' to %s", APP_DESCRIPTOR_FILES[0])
 	}
-	return descriptor.IsStatic()
+	if len(name) > MAX_APP_NAME_LENGTH {
+		return fmt.Errorf("application name '%s' is too long (%d characters, max %d)", name, len(name), MAX_APP_NAME_LENGTH)
+	}
+	if !AppNameRegex.MatchString(name) {
+		return fmt.Errorf("application name '%s' is not valid: it must consist of [a-zA-Z0-9_] segments separated by periods, e.g. com.example.myapp", name)
+	}
+	return nil
 }
 
 func SystemVersionRange(xpVersion string) (string, error) {

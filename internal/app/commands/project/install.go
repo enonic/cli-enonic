@@ -15,12 +15,18 @@ var Install = cli.Command{
 	Name:    "install",
 	Aliases: []string{"i"},
 	Usage:   "Build current project and install it to Enonic XP",
-	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
+	Flags: append([]cli.Flag{
+		cli.BoolFlag{
+			Name:  "skip-start",
+			Usage: "Don't ask to start the sandbox linked to a schema application before installing",
+		},
+		common.FORCE_FLAG,
+	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		if common.IsStaticProject(".") {
-			installStatic(c)
-			return nil
+		if common.IsSchemaProject(".") {
+			// schema applications have no gradle build: CLI builds the jar and installs it over HTTP
+			return installSchema(c)
 		}
 
 		buildProject(c)

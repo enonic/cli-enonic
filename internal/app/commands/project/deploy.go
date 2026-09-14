@@ -8,10 +8,11 @@ import (
 	"os"
 )
 
-// deployFlags returns the deploy command flags. Credentials/TLS flags are only exposed when the current
-// folder is a Static application, because only that deployment path talks to XP over HTTP.
-func deployFlags() []cli.Flag {
-	flags := []cli.Flag{
+var Deploy = cli.Command{
+	Name:      "deploy",
+	Usage:     "Deploy current project to a sandbox",
+	ArgsUsage: "<sandbox name>",
+	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:   "dev",
 			Usage:  "Run Enonic XP distribution in development mode",
@@ -34,29 +35,15 @@ func deployFlags() []cli.Flag {
 			Usage: "Don't ask to start sandbox after deploying the project",
 		},
 		common.FORCE_FLAG,
-	}
-	if common.IsStaticProject(".") {
-		flags = append(flags, common.AUTH_AND_TLS_FLAGS...)
-	}
-	return flags
-}
-
-var Deploy = cli.Command{
-	Name:      "deploy",
-	Usage:     "Deploy current project to a sandbox",
-	ArgsUsage: "<sandbox name>",
-	Flags:     deployFlags(),
+	},
 	Action: func(c *cli.Context) error {
+		ensureGradleProject("Deploy")
+
 		force := common.IsForceMode(c)
 		continuous := c.Bool("continuous")
 		var sandboxName string
 		if c.NArg() > 0 {
 			sandboxName = c.Args().First()
-		}
-
-		if common.IsStaticProject(".") {
-			// Static applications have no gradle build: CLI builds the jar and installs it over HTTP
-			return deployStatic(c, sandboxName)
 		}
 
 		if projectData, _ := ensureProjectDataExists(c, ".", sandboxName, "A sandbox is required to deploy the project, "+

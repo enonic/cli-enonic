@@ -120,8 +120,6 @@ func ValidateCompatFlag(c *cli.Context) error {
 
 type ProjectData struct {
 	Sandbox string `toml:"sandbox"`
-	// Name is the application name (Bundle-SymbolicName) of a Static application; empty for gradle projects
-	Name string `toml:"name,omitempty"`
 }
 
 type RuntimeData struct {
@@ -179,8 +177,8 @@ func ReadGradlePropertiesFile(path string) (*properties.Properties, error) {
 }
 
 func ReadProjectDistroVersion(prjPath string) string {
-	if IsStaticProject(prjPath) {
-		return STATIC_APP_XP_VERSION
+	if IsSchemaProject(prjPath) {
+		return SCHEMA_APP_XP_VERSION
 	}
 	if props, _ := ReadGradlePropertiesFile(prjPath); props != nil {
 		return props.GetString("xpVersion", MIN_XP_VERSION)
@@ -195,8 +193,11 @@ func ReadProjectName(prjPath string) string {
 			return name
 		}
 	}
-	// Static applications keep their name in the .enonic project file
-	return ReadProjectData(prjPath).Name
+	// schema applications keep their name in the application descriptor
+	if descriptor, err := ReadAppDescriptor(prjPath); err == nil && descriptor != nil {
+		return descriptor.Name
+	}
+	return ""
 }
 
 func WriteProjectData(data *ProjectData, prjPath string) {

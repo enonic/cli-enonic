@@ -12,6 +12,7 @@ var Build = cli.Command{
 	Usage: "Build current project",
 	Flags: []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
+		ensureGradleProject("Build")
 
 		buildProject(c)
 

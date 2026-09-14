@@ -29,9 +29,15 @@ import (
 
 var GITHUB_REPO_TPL = "https://github.com/%s/%s.git"
 var STARTER_LIST_TPL = "%s (%s)"
-var STATIC_STARTER_REPO_NAME = "starter-static-app"
 var DEFAULT_NAME = "com.example.myproject"
-var appNameRegex = regexp.MustCompile("^[a-zA-Z0-9.]{3,}$")
+
+// application name: [a-zA-Z0-9_] segments separated by periods (the XP and gradle plugin rule), min 3 characters
+var appNameRegex = regexp.MustCompile("^[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)*$")
+
+const MIN_APP_NAME_LENGTH = 3
+
+var descriptorNameLineRegex = regexp.MustCompile(`^name\s*:`)
+var descriptorKindLineRegex = regexp.MustCompile(`^kind\s*:`)
 var DEFAULT_VERSION = "1.0.0-SNAPSHOT"
 var UPSTREAM_NAME = "origin"
 var MARKET_STARTERS_REQUEST = `{
@@ -159,9 +165,6 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	gitUrl, starter := ensureGitRepositoryUri(c, &hash, &branch)
 	name = ensureNameArg(c, name)
 	dest = ensureDestination(c, name, simplified)
-	if starter != nil && !isStaticStarterRepo(gitUrl) {
-		version = ensureVersion(c, version)
-	}
 
 	var user, pass string
 	if authString := c.String("auth"); authString != "" {
@@ -172,11 +175,12 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	cloneAndProcessRepo(gitUrl, dest, user, pass, branch, hash)
 	fmt.Fprint(os.Stderr, "\n")
 
-	isStatic := common.IsStaticProject(dest)
-	if isStatic {
-		pData := common.ReadProjectData(dest)
-		pData.Name = strings.ToLower(name)
-		common.WriteProjectData(pData, dest)
+	// the project kind is only known once the starter is cloned
+	isSchema := common.IsSchemaProject(dest)
+	if isSchema {
+		// schema applications have no version, the name goes to the application descriptor
+		err := setAppDescriptorName(common.FindAppDescriptorFile(dest), strings.ToLower(name))
+		util.Fatal(err, "Could not set application name in "+common.APP_DESCRIPTOR_FILES[0]+": ")
 	} else {
 		version = ensureVersion(c, version)
 		propsFile := filepath.Join(dest, "gradle.properties")
@@ -188,10 +192,10 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 
 	sandboxName := c.String("sandbox")
 	noBoxMessage := "A sandbox is required for your project, create one"
-	if isStatic {
+	if isSchema {
 		noBoxMessage = "Do you want to create a sandbox for your project"
 	}
-	pData, newBox := ensureProjectData(c, dest, sandboxName, noBoxMessage, isStatic)
+	pData, newBox := ensureProjectData(c, dest, sandboxName, noBoxMessage, isSchema)
 
 	if pData == nil || pData.Sandbox == "" {
 		fmt.Fprintf(os.Stdout, "\nProject created in '%s'\n", absDest)
@@ -216,8 +220,8 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 
 	fmt.Print("\nYour new Enonic application has been successfully bootstrapped. Deploy it by running:\n\n")
 
-	if isStatic {
-		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project deploy\n\n"), dest)
+	if isSchema {
+		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic project install\n\n"), dest)
 	} else {
 		fmt.Fprintf(os.Stderr, util.FormatImportant("cd %s\nenonic dev\n\n"), dest)
 	}
@@ -225,9 +229,61 @@ func ProjectCreateWizard(c *cli.Context, simplified bool) (*common.ProjectData, 
 	return pData, newBox
 }
 
-func isStaticStarterRepo(gitUrl string) bool {
-	repoName := strings.TrimSuffix(gitUrl[strings.LastIndex(gitUrl, "/")+1:], ".git")
-	return strings.EqualFold(repoName, STATIC_STARTER_REPO_NAME)
+// setAppDescriptorName sets the top-level `name` in the application descriptor, keeping the rest of the file
+// (comments, quoting, line endings) untouched. An existing `name` line is replaced, otherwise the line is
+// inserted right after `kind`, or at the top of the document when there is no `kind`.
+func setAppDescriptorName(file, name string) error {
+	if file == "" {
+		return fmt.Errorf("application descriptor not found")
+	}
+	info, err := os.Stat(file)
+	if err != nil {
+		return err
+	}
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	prefix := ""
+	if bytes.HasPrefix(data, []byte("\xEF\xBB\xBF")) {
+		prefix = "\xEF\xBB\xBF"
+		data = data[3:]
+	}
+	eol := "\n"
+	if bytes.Contains(data, []byte("\r\n")) {
+		eol = "\r\n"
+	}
+
+	lines := strings.Split(string(data), eol)
+	if len(lines) > 0 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+
+	nameLine := fmt.Sprintf("name: %q", name)
+	replaced := false
+	for i, line := range lines {
+		if descriptorNameLineRegex.MatchString(line) {
+			lines[i] = nameLine
+			replaced = true
+			break
+		}
+	}
+	if !replaced {
+		insertAt := 0
+		if len(lines) > 0 && strings.TrimRight(lines[0], " \t") == "---" {
+			insertAt = 1
+		}
+		for i, line := range lines {
+			if descriptorKindLineRegex.MatchString(line) {
+				insertAt = i + 1
+				break
+			}
+		}
+		lines = append(lines[:insertAt], append([]string{nameLine}, lines[insertAt:]...)...)
+	}
+
+	return os.WriteFile(file, []byte(prefix+strings.Join(lines, eol)+eol), info.Mode())
 }
 
 func ensureVersion(c *cli.Context, version string) string {
@@ -331,7 +387,7 @@ func ensureNameArg(c *cli.Context, name string) string {
 
 	var nameValidator = func(val interface{}) error {
 		str := val.(string)
-		if !appNameRegex.MatchString(str) {
+		if len(str) < MIN_APP_NAME_LENGTH || !appNameRegex.MatchString(str) {
 			if force {
 				if str == "" {
 					fmt.Fprintf(os.Stderr, "Name was not supplied. Using default: %s\n", DEFAULT_NAME)
@@ -341,7 +397,7 @@ func ensureNameArg(c *cli.Context, name string) string {
 				useDefault = true
 				return nil
 			}
-			return errors.Errorf("Name '%s' is not valid. It must be min 3 characters long and only contain lowercase letters, digits, and periods [a-z0-9.]", val)
+			return errors.Errorf("Name '%s' is not valid. It must be min %d characters long and consist of letters, digits and underscores [a-zA-Z0-9_] separated by periods, e.g. %s", val, MIN_APP_NAME_LENGTH, DEFAULT_NAME)
 		}
 		return nil
 	}

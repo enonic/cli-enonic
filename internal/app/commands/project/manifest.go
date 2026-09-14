@@ -58,38 +58,40 @@ func writeManifestAttr(w io.Writer, name, value string) error {
 	return err
 }
 
-// buildStaticManifest creates the OSGi manifest for a Static application, mirroring the headers
-// written by the com.enonic.xp.app gradle plugin.
-func buildStaticManifest(appName string, descriptor *common.AppDescriptor) (Manifest, error) {
-	systemVersion, err := common.SystemVersionRange(common.STATIC_APP_XP_VERSION)
+// buildSchemaManifest creates the OSGi manifest for a schema application, mirroring the headers
+// written by the com.enonic.xp.app gradle plugin. Bundle-SymbolicName is the application name from
+// the descriptor, so XP's check that the descriptor name matches the bundle always passes.
+func buildSchemaManifest(descriptor *common.AppDescriptor) (Manifest, error) {
+	if descriptor == nil {
+		return nil, fmt.Errorf("application descriptor is required")
+	}
+	systemVersion, err := common.SystemVersionRange(common.SCHEMA_APP_XP_VERSION)
 	if err != nil {
 		return nil, err
 	}
 
-	// Bundle-Version is omitted: Static applications have no version, and both OSGi and XP
+	// Bundle-Version is omitted: schema applications have no version, and both OSGi and XP
 	// default to 0.0.0 when the header is absent
 	manifest := Manifest{
 		{"Manifest-Version", "1.0"},
 		{"Bundle-ManifestVersion", "2"},
-		{"Bundle-SymbolicName", appName},
+		{"Bundle-SymbolicName", descriptor.Name},
 	}
-	if descriptor != nil && descriptor.Title.Text != "" {
+	if descriptor.Title.Text != "" {
 		manifest = append(manifest, ManifestAttr{"Bundle-Name", descriptor.Title.Text})
 	}
 	manifest = append(manifest,
 		ManifestAttr{"X-Bundle-Type", "application"},
 		ManifestAttr{"X-System-Version", systemVersion},
 	)
-	if descriptor != nil {
-		optional := []ManifestAttr{
-			{"X-Vendor-Name", descriptor.VendorName},
-			{"X-Vendor-Url", descriptor.VendorUrl},
-			{"X-Application-Url", descriptor.Url},
-		}
-		for _, attr := range optional {
-			if attr.Value != "" {
-				manifest = append(manifest, attr)
-			}
+	optional := []ManifestAttr{
+		{"X-Vendor-Name", descriptor.VendorName},
+		{"X-Vendor-Url", descriptor.VendorUrl},
+		{"X-Application-Url", descriptor.Url},
+	}
+	for _, attr := range optional {
+		if attr.Value != "" {
+			manifest = append(manifest, attr)
 		}
 	}
 	manifest = append(manifest, ManifestAttr{"Created-By", "Enonic CLI"})

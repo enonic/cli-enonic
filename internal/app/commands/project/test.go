@@ -12,6 +12,8 @@ var Test = cli.Command{
 	Usage: "Run tests in the current project",
 	Flags: []cli.Flag{common.FORCE_FLAG},
 	Action: func(c *cli.Context) error {
+		ensureGradleProject("Test")
+
 		if projectData, _ := ensureProjectDataExists(c, ".", "", "A sandbox is required to test the project, "+
 			"do you want to create one"); projectData != nil {
 			var cleanMessage string
