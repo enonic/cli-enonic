@@ -120,7 +120,7 @@ func TestWriteSchemaJar_NestedCmsTree(t *testing.T) {
 		"cms/cms.yaml":                           minimalCms,
 		"cms/content-types/article/article.yaml": "kind: \"ContentType\"\n",
 		"cms/content-types/article/article.svg":  "<svg/>",
-		"cms/x-data/":                            "",
+		"cms/mixins/":                            "",
 	})
 	names, _ := packProject(t, prjPath)
 
@@ -128,11 +128,62 @@ func TestWriteSchemaJar_NestedCmsTree(t *testing.T) {
 		MANIFEST_PATH, "enonic.yaml", "cms/", "cms/cms.yaml",
 		"cms/content-types/", "cms/content-types/article/",
 		"cms/content-types/article/article.svg", "cms/content-types/article/article.yaml",
-		"cms/x-data/",
+		"cms/mixins/",
 	})
 	for _, name := range names {
 		if strings.Contains(name, "\\") {
 			t.Errorf("entry '%s' must use forward slashes", name)
+		}
+	}
+}
+
+func TestWriteSchemaJar_PacksOnlySchemaFiles(t *testing.T) {
+	prjPath := writeProject(t, map[string]string{
+		"enonic.yaml":                                minimalDescriptor,
+		"enonic.svg":                                 "<svg/>",
+		"cms/cms.yaml":                               minimalCms,
+		"cms/content-types/article/article.yaml":     "kind: \"ContentType\"\n",
+		"cms/content-types/article/article.svg":      "<svg/>",
+		"cms/mixins/address.yml":                     "kind: \"Mixin\"\n",
+		"cms/.gitkeep":                               "",
+		"cms/parts/.gitkeep":                         "",
+		"cms/README.md":                              "# readme",
+		"cms/site.json":                              "{}",
+		"cms/content-types/article/icon.png":         "png",
+		"cms/content-types/article/notes.txt":        "notes",
+		"cms/content-types/article/article.yaml.bak": "backup",
+	})
+	names, _ := packProject(t, prjPath)
+
+	assertNames(t, names, []string{
+		MANIFEST_PATH, "enonic.yaml", "enonic.svg", "cms/", "cms/cms.yaml",
+		"cms/content-types/", "cms/content-types/article/",
+		"cms/content-types/article/article.svg", "cms/content-types/article/article.yaml",
+		"cms/mixins/", "cms/mixins/address.yml",
+		"cms/parts/",
+	})
+}
+
+func TestIsSchemaAppFile(t *testing.T) {
+	cases := map[string]bool{
+		"a.yaml":                  true,
+		"a.yml":                   true,
+		"a.svg":                   true,
+		"A.YAML":                  true,
+		"a.SVG":                   true,
+		"cms/cms.yaml":            true,
+		"cms/parts/hero/hero.svg": true,
+		".gitkeep":                false,
+		"a.png":                   false,
+		"a.json":                  false,
+		"a.txt":                   false,
+		"a.yaml.bak":              false,
+		"yaml":                    false,
+		"a.jpg":                   false,
+	}
+	for name, want := range cases {
+		if got := isSchemaAppFile(name); got != want {
+			t.Errorf("isSchemaAppFile(%q) = %v, want %v", name, got, want)
 		}
 	}
 }
@@ -147,6 +198,8 @@ func TestWriteSchemaJar_ExcludesProjectFiles(t *testing.T) {
 		"build/libs/old.jar":   "old",
 		"gradle.properties":    "version = 1.0.0",
 		"src/main/js/index.js": "",
+		"other.yaml":           "kind: \"Other\"\n",
+		"icon.svg":             "<svg/>",
 		MANIFEST_PATH:          "Manifest-Version: 1.0\r\nBundle-SymbolicName: other\r\n\r\n",
 	})
 	names, entries := packProject(t, prjPath)

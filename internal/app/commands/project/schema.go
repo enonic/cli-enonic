@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli"
@@ -85,8 +86,33 @@ func addZipFile(zw *zip.Writer, name, path string, info fs.FileInfo) error {
 	return err
 }
 
+func isSchemaAppFile(name string) bool {
+	ext := filepath.Ext(name)
+	for _, allowed := range common.SCHEMA_APP_FILE_EXTENSIONS {
+		if strings.EqualFold(ext, allowed) {
+			return true
+		}
+	}
+	return false
+}
+
+func addSchemaFile(zw *zip.Writer, name, path string, info fs.FileInfo) (bool, error) {
+	if !info.Mode().IsRegular() {
+		fmt.Fprintf(os.Stderr, "Skipping '%s': not a regular file\n", path)
+		return false, nil
+	}
+	if !isSchemaAppFile(name) {
+		return false, nil
+	}
+	if err := addZipFile(zw, name, path, info); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // writeSchemaJar packs a schema application into a jar: the manifest as the first entry, followed by the
 // application descriptor, the application icon (when present) and the cms folder, all at the jar root.
+// Only yaml, yml and svg files are packaged (see isSchemaAppFile); folder structure of cms is kept.
 // Nothing else from the project folder is included.
 func writeSchemaJar(prjPath, jarPath string, manifest Manifest) error {
 	descriptorFile := common.FindAppDescriptorFile(prjPath)
@@ -130,18 +156,14 @@ func writeSchemaJar(prjPath, jarPath string, manifest Manifest) error {
 	if err != nil {
 		return err
 	}
-	if err := addZipFile(zw, filepath.Base(descriptorFile), descriptorFile, info); err != nil {
+	if _, err := addSchemaFile(zw, filepath.Base(descriptorFile), descriptorFile, info); err != nil {
 		return err
 	}
 
 	iconFile := filepath.Join(prjPath, common.APP_ICON_FILE)
 	if info, err := os.Stat(iconFile); err == nil {
-		if info.Mode().IsRegular() {
-			if err := addZipFile(zw, common.APP_ICON_FILE, iconFile, info); err != nil {
-				return err
-			}
-		} else {
-			fmt.Fprintf(os.Stderr, "Skipping '%s': not a regular file\n", iconFile)
+		if _, err := addSchemaFile(zw, common.APP_ICON_FILE, iconFile, info); err != nil {
+			return err
 		}
 	}
 
@@ -164,14 +186,14 @@ func writeSchemaJar(prjPath, jarPath string, manifest Manifest) error {
 		if entry.IsDir() {
 			return addZipDir(zw, name+"/", info)
 		}
-		if !info.Mode().IsRegular() {
-			fmt.Fprintf(os.Stderr, "Skipping '%s': not a regular file\n", path)
-			return nil
+		added, err := addSchemaFile(zw, name, path, info)
+		if err != nil {
+			return err
 		}
-		if isCmsDescriptorEntry(name) {
+		if added && isCmsDescriptorEntry(name) {
 			hasCmsDescriptor = true
 		}
-		return addZipFile(zw, name, path, info)
+		return nil
 	})
 	if err != nil {
 		return err

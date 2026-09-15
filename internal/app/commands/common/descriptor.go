@@ -20,6 +20,8 @@ const APP_ICON_FILE = "enonic.svg"
 // CMS_DIR_NAME is the folder holding the schema resources; XP treats an application shipping cms/cms.yaml as the owner of its schema
 const CMS_DIR_NAME = "cms"
 
+var SCHEMA_APP_FILE_EXTENSIONS = []string{".yaml", ".yml", ".svg"}
+
 const MAX_APP_NAME_LENGTH = 63
 
 // APP_DESCRIPTOR_FILES lists the application descriptor file names in order of preference, all at the project root
