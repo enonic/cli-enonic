@@ -318,6 +318,8 @@ func CopyHomeFolder(distroPath, sandboxName string) {
 	if distroPath == "" {
 		createFolderIfNotExist(targetHome)
 		updateXPConfig(sandboxName)
+		configFolder := createFolderIfNotExist(targetHome, "config")
+		util.Warn(writeDockerJettyConfig(configFolder), "Could not write jetty config to sandbox: ")
 		return
 	}
 	sourceHome := filepath.Join(distroPath, "home")

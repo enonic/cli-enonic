@@ -20,6 +20,13 @@ const DOCKER_HUB_TAGS_URL = "https://hub.docker.com/v2/repositories/enonic/xp/ta
 const DOCKER_HUB_TAGS_TIMEOUT = 10 * time.Second
 const DOCKER_CONTAINER_PREFIX = "enonic-sandbox-"
 const DOCKER_XP_HOME = "/enonic-xp/home"
+const DOCKER_DEBUG_PORT = 5005
+const DOCKER_JETTY_CONFIG_FILE = "com.enonic.xp.web.jetty.cfg"
+
+// DOCKER_JAVA_DEBUG_OPTS mirrors the image's own DEFAULT_JAVA_DEBUG_OPTS but binds
+// the JDWP socket to all interfaces. JDK 9+ reads a bare `address=5005` as
+// localhost-only, which no published container port can reach.
+const DOCKER_JAVA_DEBUG_OPTS = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 
 // dockerNameInvalidChar matches any character that Docker rejects in a container name.
 // Docker requires names to match `[a-zA-Z0-9][a-zA-Z0-9_.-]*`.
@@ -153,11 +160,7 @@ func startDockerSandbox(imageName, sandboxName string, detach, devMode, debug bo
 	}
 
 	// Port mappings
-	args = append(args,
-		"-p", fmt.Sprintf("%d:8080", httpPort),
-		"-p", fmt.Sprintf("%d:%d", common.MGMT_PORT, common.MGMT_PORT),
-		"-p", fmt.Sprintf("%d:%d", common.INFO_PORT, common.INFO_PORT),
-	)
+	args = appendPortArgs(args, httpPort, debug)
 
 	// Mount home directory.
 	// `--mount` is preferred over `-v` because `-v` uses ':' as separator,
@@ -166,6 +169,10 @@ func startDockerSandbox(imageName, sandboxName string, detach, devMode, debug bo
 	// source path is unambiguous. Forward slashes are accepted by Docker
 	// Desktop on all supported hosts.
 	args = append(args, "--mount", fmt.Sprintf("type=bind,src=%s,dst=%s", filepath.ToSlash(homePath), DOCKER_XP_HOME))
+
+	if debug {
+		args = append(args, "-e", "JAVA_DEBUG_OPTS="+DOCKER_JAVA_DEBUG_OPTS)
+	}
 
 	// Image name. The `--` terminator stops the docker CLI from interpreting
 	// an image name that happens to start with '-' as another flag (defense
@@ -195,6 +202,26 @@ func startDockerSandbox(imageName, sandboxName string, detach, devMode, debug bo
 	}
 
 	return cmd
+}
+
+func appendPortArgs(args []string, httpPort uint16, debug bool) []string {
+	args = append(args,
+		"-p", fmt.Sprintf("127.0.0.1:%d:%d", httpPort, common.HTTP_PORT),
+		"-p", fmt.Sprintf("127.0.0.1:%d:%d", common.MGMT_PORT, common.MGMT_PORT),
+		"-p", fmt.Sprintf("127.0.0.1:%d:%d", common.INFO_PORT, common.INFO_PORT),
+	)
+	if debug {
+		args = append(args, "-p", fmt.Sprintf("127.0.0.1:%d:%d", DOCKER_DEBUG_PORT, DOCKER_DEBUG_PORT))
+	}
+	return args
+}
+
+func writeDockerJettyConfig(configFolder string) error {
+	configPath := filepath.Join(configFolder, DOCKER_JETTY_CONFIG_FILE)
+	if _, err := os.Stat(configPath); err == nil {
+		return nil
+	}
+	return os.WriteFile(configPath, []byte("host = 0.0.0.0\n"), 0644)
 }
 
 // stopDockerContainer stops a running docker container by name

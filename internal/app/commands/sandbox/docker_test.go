@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -248,5 +252,95 @@ func TestFetchDockerTagsBadJSON(t *testing.T) {
 
 	if _, err := fetchDockerTagsFromURL(srv.URL, time.Second); err == nil {
 		t.Fatal("expected parse error, got nil")
+	}
+}
+
+// TestAppendPortArgs verifies the sandbox ports are published on the host
+// loopback interface only. Docker's default `-p 8080:8080` binds 0.0.0.0 on the
+// host, which puts the sandbox on the LAN; a distro sandbox is reachable only
+// locally, so a Docker-backed one should behave the same.
+func TestAppendPortArgs(t *testing.T) {
+	got := appendPortArgs(nil, 8080, false)
+	want := []string{
+		"-p", "127.0.0.1:8080:8080",
+		"-p", "127.0.0.1:4848:4848",
+		"-p", "127.0.0.1:2609:2609",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("appendPortArgs(nil, 8080, false) = %v, want %v", got, want)
+	}
+}
+
+// TestAppendPortArgsCustomHttpPort verifies a custom --http.port maps to the
+// container's fixed 8080 while staying loopback-bound on the host.
+func TestAppendPortArgsCustomHttpPort(t *testing.T) {
+	got := appendPortArgs([]string{"run"}, 9090, false)
+	want := []string{
+		"run",
+		"-p", "127.0.0.1:9090:8080",
+		"-p", "127.0.0.1:4848:4848",
+		"-p", "127.0.0.1:2609:2609",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("appendPortArgs() = %v, want %v", got, want)
+	}
+}
+
+// TestWriteDockerJettyConfig verifies the jetty host override is written for
+// Docker-backed sandboxes. XP 8 defaults to `host = _auto_`, which resolves to
+// 127.0.0.1 inside the container and is therefore unreachable through a
+// published port regardless of run mode (#696).
+func TestWriteDockerJettyConfig(t *testing.T) {
+	configFolder := t.TempDir()
+
+	if err := writeDockerJettyConfig(configFolder); err != nil {
+		t.Fatalf("writeDockerJettyConfig() error = %v", err)
+	}
+
+	content, err := os.ReadFile(filepath.Join(configFolder, DOCKER_JETTY_CONFIG_FILE))
+	if err != nil {
+		t.Fatalf("could not read written config: %v", err)
+	}
+	if !strings.Contains(string(content), "host = 0.0.0.0") {
+		t.Errorf("config = %q, want it to contain %q", string(content), "host = 0.0.0.0")
+	}
+}
+
+// TestWriteDockerJettyConfigPreservesExisting verifies an existing file is left
+// alone, so a value set by hand is not overwritten on a later run.
+func TestWriteDockerJettyConfigPreservesExisting(t *testing.T) {
+	configFolder := t.TempDir()
+	configPath := filepath.Join(configFolder, DOCKER_JETTY_CONFIG_FILE)
+	existing := "host = 10.0.0.5\n"
+	if err := os.WriteFile(configPath, []byte(existing), 0644); err != nil {
+		t.Fatalf("setup failed: %v", err)
+	}
+
+	if err := writeDockerJettyConfig(configFolder); err != nil {
+		t.Fatalf("writeDockerJettyConfig() error = %v", err)
+	}
+
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("could not read config: %v", err)
+	}
+	if string(content) != existing {
+		t.Errorf("config = %q, want it left untouched as %q", string(content), existing)
+	}
+}
+
+// TestAppendPortArgsDebug verifies the JDWP port is published only when --debug
+// is requested. Without it `enonic sandbox start --debug` on a Docker sandbox
+// starts a debugger that nothing on the host can attach to (#696).
+func TestAppendPortArgsDebug(t *testing.T) {
+	got := appendPortArgs(nil, 8080, true)
+	want := []string{
+		"-p", "127.0.0.1:8080:8080",
+		"-p", "127.0.0.1:4848:4848",
+		"-p", "127.0.0.1:2609:2609",
+		"-p", "127.0.0.1:5005:5005",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("appendPortArgs(nil, 8080, true) = %v, want %v", got, want)
 	}
 }

@@ -172,7 +172,6 @@ homebrew_casks:
     # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     url:
       template: "https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}"
-      verified: "https://repo.enonic.com"
     # Allows you to set a custom download strategy.
     # Default is empty.
     #  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy

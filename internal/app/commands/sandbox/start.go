@@ -90,7 +90,7 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 			return errors.New(fmt.Sprintf("Sandbox '%s' is already running in %s mode", rData.Running, rData.Mode)), true
 		}
 	} else {
-		ports := []uint16{httpPort, common.MGMT_PORT, common.INFO_PORT}
+		ports := requiredPorts(httpPort, IsDockerDistro(sandbox.Distro), debug)
 		var unavailablePorts []uint16
 		for _, port := range ports {
 			if !util.IsPortAvailable(port) {
@@ -124,6 +124,14 @@ func StartSandbox(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool,
 		fmt.Fprintf(os.Stdout, "Started sandbox '%s' in detached mode.\n", sandbox.Name)
 	}
 	return nil, false
+}
+
+func requiredPorts(httpPort uint16, isDocker, debug bool) []uint16 {
+	ports := []uint16{httpPort, common.MGMT_PORT, common.INFO_PORT}
+	if isDocker && debug {
+		ports = append(ports, DOCKER_DEBUG_PORT)
+	}
+	return ports
 }
 
 func startDockerSandboxWithTracking(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) (error, bool) {
