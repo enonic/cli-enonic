@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/briandowns/spinner v1.23.2
 	github.com/fatih/color v1.19.0
-	github.com/magiconair/properties v1.18.11
+	github.com/magiconair/properties v1.18.12
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	//github.com/mitchellh/go-homedir v1.0.0
