@@ -63,7 +63,7 @@ func loadSchemaApp(prjPath string) (*common.AppDescriptor, error) {
 }
 
 func addZipDir(zw *zip.Writer, name string, info fs.FileInfo) error {
-	// directory entries let OSGi find resources by folder (Bundle.findEntries) and keep empty folders
+	// directory entries let OSGi find resources by folder (Bundle.findEntries)
 	header := &zip.FileHeader{Name: name, Method: zip.Store, Modified: info.ModTime()}
 	header.SetMode(info.Mode())
 	_, err := zw.CreateHeader(header)
@@ -96,12 +96,18 @@ func isSchemaAppFile(name string) bool {
 	return false
 }
 
-func addSchemaFile(zw *zip.Writer, name, path string, info fs.FileInfo) (bool, error) {
+// isPackableFile reports whether a file is packaged into the jar: it must be a regular file with
+// one of the schema application extensions (see isSchemaAppFile).
+func isPackableFile(name, path string, info fs.FileInfo) bool {
 	if !info.Mode().IsRegular() {
 		fmt.Fprintf(os.Stderr, "Skipping '%s': not a regular file\n", path)
-		return false, nil
+		return false
 	}
-	if !isSchemaAppFile(name) {
+	return isSchemaAppFile(name)
+}
+
+func addSchemaFile(zw *zip.Writer, name, path string, info fs.FileInfo) (bool, error) {
+	if !isPackableFile(name, path, info) {
 		return false, nil
 	}
 	if err := addZipFile(zw, name, path, info); err != nil {
@@ -110,10 +116,60 @@ func addSchemaFile(zw *zip.Writer, name, path string, info fs.FileInfo) (bool, e
 	return true, nil
 }
 
+// cmsEntry is a folder or a packable file found while walking the cms folder, in walk order.
+type cmsEntry struct {
+	name  string // zip entry name, with a trailing slash for folders
+	path  string
+	info  fs.FileInfo
+	isDir bool
+}
+
+// collectCmsEntries walks cmsDir and returns its folders and packable files in walk order, with names
+// relative to prjPath. Files that are not packaged (see isPackableFile) are left out.
+func collectCmsEntries(prjPath, cmsDir string) ([]cmsEntry, error) {
+	var entries []cmsEntry
+	err := filepath.WalkDir(cmsDir, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		rel, err := filepath.Rel(prjPath, path)
+		if err != nil {
+			return err
+		}
+		// zip entries always use forward slashes
+		name := filepath.ToSlash(rel)
+
+		info, err := entry.Info()
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			entries = append(entries, cmsEntry{name: name + "/", path: path, info: info, isDir: true})
+			return nil
+		}
+		if isPackableFile(name, path, info) {
+			entries = append(entries, cmsEntry{name: name, path: path, info: info})
+		}
+		return nil
+	})
+	return entries, err
+}
+
+// parentDirs returns the zip names of all folders containing the entry, e.g. "cms/" and "cms/parts/"
+// for "cms/parts/hero.yaml".
+func parentDirs(name string) []string {
+	var dirs []string
+	for i := strings.LastIndex(name, "/"); i >= 0; i = strings.LastIndex(name[:i], "/") {
+		dirs = append(dirs, name[:i+1])
+	}
+	return dirs
+}
+
 // writeSchemaJar packs a schema application into a jar: the manifest as the first entry, followed by the
 // application descriptor, the application icon (when present) and the cms folder, all at the jar root.
-// Only yaml, yml and svg files are packaged (see isSchemaAppFile); folder structure of cms is kept.
-// Nothing else from the project folder is included.
+// Only yaml, yml and svg files are packaged (see isSchemaAppFile); folders of cms are kept only when
+// they contain (directly or in a subfolder) at least one packaged file, so no empty folders end up in
+// the jar. Nothing else from the project folder is included.
 func writeSchemaJar(prjPath, jarPath string, manifest Manifest) error {
 	descriptorFile := common.FindAppDescriptorFile(prjPath)
 	if descriptorFile == "" {
@@ -167,39 +223,41 @@ func writeSchemaJar(prjPath, jarPath string, manifest Manifest) error {
 		}
 	}
 
-	hasCmsDescriptor := false
-	err = filepath.WalkDir(cmsDir, func(path string, entry fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		rel, err := filepath.Rel(prjPath, path)
-		if err != nil {
-			return err
-		}
-		// zip entries always use forward slashes
-		name := filepath.ToSlash(rel)
-
-		info, err := entry.Info()
-		if err != nil {
-			return err
-		}
-		if entry.IsDir() {
-			return addZipDir(zw, name+"/", info)
-		}
-		added, err := addSchemaFile(zw, name, path, info)
-		if err != nil {
-			return err
-		}
-		if added && isCmsDescriptorEntry(name) {
-			hasCmsDescriptor = true
-		}
-		return nil
-	})
+	entries, err := collectCmsEntries(prjPath, cmsDir)
 	if err != nil {
 		return err
 	}
+
+	// only folders that contain a packaged file are written, so the jar has no empty folders
+	usedDirs := make(map[string]bool)
+	hasCmsDescriptor := false
+	for _, entry := range entries {
+		if entry.isDir {
+			continue
+		}
+		for _, dir := range parentDirs(entry.name) {
+			usedDirs[dir] = true
+		}
+		if isCmsDescriptorEntry(entry.name) {
+			hasCmsDescriptor = true
+		}
+	}
 	if !hasCmsDescriptor {
 		return cmsDescriptorRequiredError(prjPath)
+	}
+
+	for _, entry := range entries {
+		if entry.isDir {
+			if usedDirs[entry.name] {
+				if err := addZipDir(zw, entry.name, entry.info); err != nil {
+					return err
+				}
+			}
+			continue
+		}
+		if err := addZipFile(zw, entry.name, entry.path, entry.info); err != nil {
+			return err
+		}
 	}
 
 	if err := zw.Close(); err != nil {

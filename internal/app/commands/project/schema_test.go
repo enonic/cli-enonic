@@ -128,7 +128,6 @@ func TestWriteSchemaJar_NestedCmsTree(t *testing.T) {
 		MANIFEST_PATH, "enonic.yaml", "cms/", "cms/cms.yaml",
 		"cms/content-types/", "cms/content-types/article/",
 		"cms/content-types/article/article.svg", "cms/content-types/article/article.yaml",
-		"cms/mixins/",
 	})
 	for _, name := range names {
 		if strings.Contains(name, "\\") {
@@ -160,8 +159,39 @@ func TestWriteSchemaJar_PacksOnlySchemaFiles(t *testing.T) {
 		"cms/content-types/", "cms/content-types/article/",
 		"cms/content-types/article/article.svg", "cms/content-types/article/article.yaml",
 		"cms/mixins/", "cms/mixins/address.yml",
-		"cms/parts/",
 	})
+}
+
+func TestWriteSchemaJar_SkipsEmptyFolders(t *testing.T) {
+	prjPath := writeProject(t, map[string]string{
+		"enonic.yaml":                            minimalDescriptor,
+		"cms/cms.yaml":                           minimalCms,
+		"cms/a/":                                 "", // empty folder lexically before a file of the same level
+		"cms/b.yaml":                             "kind: \"Mixin\"\n",
+		"cms/content-types/article/article.yaml": "kind: \"ContentType\"\n", // packaged file only in a subfolder
+		"cms/empty/":                             "",
+		"cms/x-data/deep/.gitkeep":               "", // nested folders with no packaged file
+		"cms/x-data/README.md":                   "# readme",
+	})
+	names, _ := packProject(t, prjPath)
+
+	assertNames(t, names, []string{
+		MANIFEST_PATH, "enonic.yaml", "cms/", "cms/b.yaml", "cms/cms.yaml",
+		"cms/content-types/", "cms/content-types/article/", "cms/content-types/article/article.yaml",
+	})
+}
+
+func TestParentDirs(t *testing.T) {
+	cases := map[string][]string{
+		"cms/cms.yaml":             {"cms/"},
+		"cms/parts/hero/hero.yaml": {"cms/parts/hero/", "cms/parts/", "cms/"},
+		"enonic.yaml":              nil,
+	}
+	for name, want := range cases {
+		if got := parentDirs(name); strings.Join(got, ",") != strings.Join(want, ",") {
+			t.Errorf("parentDirs(%q) = %v, want %v", name, got, want)
+		}
+	}
 }
 
 func TestIsSchemaAppFile(t *testing.T) {
