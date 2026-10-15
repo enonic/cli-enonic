@@ -1182,9 +1182,21 @@ The current version XP installation must be running with the upgraded app deploy
 <div class="paragraph">
 <p>Lists all the dumps</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Listing dumps requires XP 8. It is not supported in compat mode (<code>--compat 7</code>).
+</td>
+</tr>
+</table>
+</div>
 <div class="literalblock">
 <div class="content">
-<pre>$ enonic dump ls [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f]</pre>
+<pre>$ enonic dump ls [-a &lt;value&gt;] [--cred-file &lt;value&gt;] [-f] [--compat &lt;value&gt;]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1221,6 +1233,10 @@ The current version XP installation must be running with the upgraded app deploy
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f, --force</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">accept default answers to all prompts and run non-interactively</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--compat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">target XP version for the API call. Value must be in the form <code>X</code> or <code>X.Y</code> (digits only, e.g. <code>7</code> or <code>7.16</code>). Use a value starting with <code>7</code> (such as <code>7</code> or <code>7.16</code>) to target XP 7. Default targets XP 8.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2718,7 +2734,7 @@ Using the <code>-b</code> option will remove the underlying blobs, meaning resto
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 13:44:39 UTC
+Last updated 2026-10-15 06:43:37 UTC
 </div>
 </div>
 </body>
