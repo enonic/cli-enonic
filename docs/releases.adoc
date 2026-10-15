@@ -1,5 +1,12 @@
 = Release notes
 
+== CLI v4.1.4
+
+=== Bug fixes
+
+* `dump create` and `dump load` fail against XP 7 with `--compat 7`.
+* `dump list` fails against XP 7. It now accepts `--compat` and reports that listing dumps is not supported in XP 7.
+
 == CLI v4.1.3
 
 === Bug fixes
