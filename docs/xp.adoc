@@ -276,7 +276,9 @@ $ enonic dump upgrade --cred-file path\to\cred-file.json -d myDump
 
 Lists all the dumps
 
- $ enonic dump ls [-a <value>] [--cred-file <value>] [-f]
+NOTE: Listing dumps requires XP 8. It is not supported in compat mode (`--compat 7`).
+
+ $ enonic dump ls [-a <value>] [--cred-file <value>] [-f] [--compat <value>]
 
 Options:
 [cols="1,3", options="header"]
@@ -288,6 +290,9 @@ include::.snippets.adoc[tag=credentials-flags]
 
 |`-f, --force`
 |accept default answers to all prompts and run non-interactively
+
+|`--compat`
+|target XP version for the API call. Value must be in the form `X` or `X.Y` (digits only, e.g. `7` or `7.16`). Use a value starting with `7` (such as `7` or `7.16`) to target XP 7. Default targets XP 8.
 |===
 
 include::.snippets.adoc[tag=credentials-flags-notes]

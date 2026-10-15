@@ -13,8 +13,15 @@ var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "List available dumps",
-	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
+	Flags:   append([]cli.Flag{common.FORCE_FLAG}, append(common.AUTH_AND_TLS_FLAGS, common.COMPAT_FLAG)...),
 	Action: func(c *cli.Context) error {
+
+		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
+
+		if common.IsCompatMode(c) {
+			fmt.Fprintln(os.Stderr, "Listing dumps is not supported in XP 7")
+			os.Exit(1)
+		}
 
 		dumps := fetchDumpList(c)
 		fmt.Fprintln(os.Stderr, "Done")
