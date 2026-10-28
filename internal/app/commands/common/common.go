@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
@@ -48,6 +49,9 @@ const MODE_DEFAULT = "default"
 const RESTART_ALL_RUNNING_INSTANCES_MSG = "Please restart all running instances of XP."
 
 var spin *spinner.Spinner
+
+// marks a request retried with a refreshed access token, so a refused one is not refreshed again
+type tokenRefreshedKey struct{}
 
 func init() {
 	spin = spinner.New(spinner.CharSets[26], 300*time.Millisecond)
@@ -487,7 +491,17 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 		}
 	} else if res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnauthorized {
 		if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
-			if res.StatusCode == http.StatusUnauthorized {
+			if res.StatusCode == http.StatusUnauthorized && res.Request.Context().Value(tokenRefreshedKey{}) == nil {
+				// a refused token may still have a good refresh token, e.g. after XP restarted; try once
+				if accessToken := forceRefreshAccessToken(&remote.GetActiveRemote().Url.URL); accessToken != "" {
+					res.Body.Close()
+					newReq := doCreateRequestBearerAuthRequest(req.Method, req.URL.String(), accessToken, bodyCopy)
+					newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
+					newReq = newReq.WithContext(context.WithValue(newReq.Context(), tokenRefreshedKey{}, true))
+					return SendRequestCustom(c, newReq, message, timeoutMin)
+				}
+				os.Exit(1)
+			} else if res.StatusCode == http.StatusUnauthorized {
 				fmt.Fprintln(os.Stderr, "Access token was not accepted. Run 'enonic login' to log in again, or 'enonic logout' to use password authentication.")
 			} else {
 				fmt.Fprintln(os.Stderr, "Logged in user has no access. Run 'enonic logout' to use password authentication.")

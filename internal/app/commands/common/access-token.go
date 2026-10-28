@@ -222,18 +222,35 @@ func getAccessToken(mgmtUrl *url.URL) string {
 		return ""
 	}
 	if token.isExpired() {
-		refreshed, err := refreshAccessToken(token)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Login to %s has expired (%v). Run 'enonic login' to log in again.\n", key, err)
-			delete(tokens, key)
-			writeTokens(tokens)
-			return ""
-		}
-		tokens[key] = refreshed
-		if err := writeTokens(tokens); err != nil {
-			fmt.Fprintf(os.Stderr, "Could not save refreshed access token: %v\n", err)
-		}
-		token = refreshed
+		return renewAccessToken(tokens, key, token)
 	}
 	return token.AccessToken
+}
+
+// forceRefreshAccessToken refreshes the access token even if it has not expired, for one that was refused,
+// e.g. because XP restarted with a new in-memory signing key. Returns empty string if there is no login or
+// the refresh fails
+func forceRefreshAccessToken(mgmtUrl *url.URL) string {
+	tokens := readTokens()
+	key := mgmtKey(mgmtUrl)
+	token, ok := tokens[key]
+	if !ok {
+		return ""
+	}
+	return renewAccessToken(tokens, key, token)
+}
+
+func renewAccessToken(tokens map[string]*AccessToken, key string, token *AccessToken) string {
+	refreshed, err := refreshAccessToken(token)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Login to %s has expired (%v). Run 'enonic login' to log in again.\n", key, err)
+		delete(tokens, key)
+		writeTokens(tokens)
+		return ""
+	}
+	tokens[key] = refreshed
+	if err := writeTokens(tokens); err != nil {
+		fmt.Fprintf(os.Stderr, "Could not save refreshed access token: %v\n", err)
+	}
+	return refreshed.AccessToken
 }
