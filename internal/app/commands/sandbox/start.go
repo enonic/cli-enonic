@@ -136,7 +136,7 @@ func requiredPorts(httpPort uint16, isDocker, debug bool) []uint16 {
 
 func startDockerSandboxWithTracking(c *cli.Context, sandbox *Sandbox, detach, devMode, debug bool, httpPort uint16) (error, bool) {
 	imageName := GetDockerImageName(sandbox.Distro)
-	EnsureDockerImageExists(imageName)
+	EnsureDockerImageExists(imageName, false)
 
 	containerName := GetDockerContainerName(sandbox.Name)
 	cmd := startDockerSandbox(imageName, sandbox.Name, detach, devMode, debug, httpPort)

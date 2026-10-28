@@ -177,7 +177,7 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, imageStr, minDistroVe
 		// Docker image mode: image was specified via --image flag.
 		// Validate and pull before persisting any sandbox metadata so a bad
 		// image name does not leave a stub sandbox dir behind.
-		EnsureDockerImageExists(imageStr)
+		EnsureDockerImageExists(imageStr, true)
 		box = createSandbox(name, FormatDockerDistro(imageStr))
 		CopyHomeFolder("", box.Name)
 	} else if !force && versionStr == "" && IsDockerAvailable() {
@@ -185,7 +185,7 @@ func SandboxCreateWizard(c *cli.Context, name, versionStr, imageStr, minDistroVe
 		useDocker := promptUseDocker(force)
 		if useDocker {
 			imageStr = promptDockerImage("", force)
-			EnsureDockerImageExists(imageStr)
+			EnsureDockerImageExists(imageStr, true)
 			box = createSandbox(name, FormatDockerDistro(imageStr))
 			CopyHomeFolder("", box.Name)
 		} else {
