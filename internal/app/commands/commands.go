@@ -85,6 +85,8 @@ func All() []cli.Command {
 			HelpName:    "Cloud",
 			Category:    "CLOUD COMMANDS",
 		},
+		Login,
+		Logout,
 		system.Latest,
 		system.Upgrade,
 		system.Uninstall,
