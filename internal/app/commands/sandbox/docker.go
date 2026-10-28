@@ -116,14 +116,34 @@ func PullDockerImage(imageName string) error {
 	return cmd.Run()
 }
 
-// EnsureDockerImageExists ensures a docker image exists locally, pulling it if needed
-func EnsureDockerImageExists(imageName string) {
+// IsFloatingDockerTag reports whether the image tag moves over time (latest, nightly, nightly-*),
+// so a locally pulled copy may be stale. An image without a tag is latest; a digest never moves.
+func IsFloatingDockerTag(imageName string) bool {
+	if strings.Contains(imageName, "@") {
+		return false
+	}
+	tag := "latest"
+	name := imageName[strings.LastIndex(imageName, "/")+1:]
+	if i := strings.LastIndex(name, ":"); i != -1 {
+		tag = name[i+1:]
+	}
+	return tag == "latest" || tag == "nightly" || strings.HasPrefix(tag, "nightly-")
+}
+
+// EnsureDockerImageExists ensures a docker image exists locally, pulling it if needed.
+// With refresh, floating tags are pulled even when present, to pick up the latest build.
+func EnsureDockerImageExists(imageName string, refresh bool) {
 	if err := ValidateDockerImageName(imageName); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 	EnsureDockerAvailable()
-	if !IsDockerImagePulled(imageName) {
+	pulled := IsDockerImagePulled(imageName)
+	if pulled && refresh && IsFloatingDockerTag(imageName) {
+		if err := PullDockerImage(imageName); err != nil {
+			fmt.Fprintf(os.Stderr, "Could not pull docker image '%s', using local copy: %v\n", imageName, err)
+		}
+	} else if !pulled {
 		if err := PullDockerImage(imageName); err != nil {
 			fmt.Fprintf(os.Stderr, "Could not pull docker image '%s': %v\n", imageName, err)
 			os.Exit(1)

@@ -58,7 +58,7 @@ var Upgrade = cli.Command{
 				}
 				imageStr = promptDockerImage("", false)
 			}
-			EnsureDockerImageExists(imageStr)
+			EnsureDockerImageExists(imageStr, true)
 			sandbox.Distro = FormatDockerDistro(imageStr)
 			writeSandboxData(sandbox)
 			fmt.Fprintf(os.Stdout, "Sandbox '%s' docker image changed to '%s'.\n", sandbox.Name, imageStr)
