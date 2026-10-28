@@ -3,10 +3,10 @@ package commands
 import (
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/commands/remote"
+	"cli-enonic/internal/app/util"
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
@@ -25,6 +25,8 @@ var Login = cli.Command{
 			Value: "system",
 			Usage: "ID provider to log in with",
 		},
+		common.CLIENT_KEY_FLAG,
+		common.CLIENT_CERT_FLAG,
 	},
 	Action: func(c *cli.Context) error {
 		mgmtUrl := remote.GetActiveRemote().Url.URL
@@ -33,20 +35,21 @@ var Login = cli.Command{
 			webUrl = common.DefaultWebUrl(&mgmtUrl)
 		}
 		idProvider := c.String("id-provider")
+		client := common.OAuthClient(c)
 
-		code, err := common.StartDeviceLogin(webUrl, idProvider)
+		code, err := common.StartDeviceLogin(client, webUrl, idProvider)
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Could not start login at %s: %v", webUrl, err), 1)
 		}
 
-		fmt.Fprintf(os.Stderr, "Your login code is %s\n", code.UserCode)
-		fmt.Fprintf(os.Stderr, "Go to %s to approve\n\n", code.VerificationUriComplete)
+		fmt.Fprintf(os.Stderr, "To log in, open the URL below in a browser and confirm the code %s\n\n", util.FormatImportant(code.UserCode))
+		fmt.Fprintf(os.Stderr, "    %s\n\n", code.VerificationUriComplete)
 		browser.Stdout = io.Discard
 		browser.Stderr = io.Discard
 		browser.OpenURL(code.VerificationUriComplete)
 
 		common.StartSpinner("Waiting for approval")
-		token, err := common.PollDeviceLogin(webUrl, idProvider, code)
+		token, err := common.PollDeviceLogin(client, webUrl, idProvider, code)
 		common.StopSpinner()
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("\nLogin failed: %v", err), 1)
@@ -55,7 +58,12 @@ var Login = cli.Command{
 		if err := common.SaveAccessToken(&mgmtUrl, token); err != nil {
 			return cli.NewExitError(fmt.Sprintf("\nCould not save access token: %v", err), 1)
 		}
-		fmt.Fprintf(os.Stderr, "\nLogged in to %s. Access token expires at %s\n", mgmtUrl.String(), time.Unix(token.ExpiresAt, 0).Format(time.RFC1123))
+		fmt.Fprintln(os.Stderr, "Done")
+		if user := token.UserLogin(); user != "" {
+			fmt.Fprintf(os.Stderr, "Logged in to %s as %s\n", mgmtUrl.String(), user)
+		} else {
+			fmt.Fprintf(os.Stderr, "Logged in to %s\n", mgmtUrl.String())
+		}
 		return nil
 	},
 }
