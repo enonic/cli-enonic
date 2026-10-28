@@ -312,6 +312,12 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		credFilePath = resolveCredFilePath(c.String("cred-file"))
 	}
 
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && auth == "" && credFilePath == "" {
+		if accessToken := getAccessToken(&remote.GetActiveRemote().Url.URL); accessToken != "" {
+			return doCreateRequestBearerAuthRequest(method, url, accessToken, body)
+		}
+	}
+
 	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
@@ -480,7 +486,14 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 			}
 		}
 	} else if res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnauthorized {
-		if isCredFileAbsent {
+		if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
+			if res.StatusCode == http.StatusUnauthorized {
+				fmt.Fprintln(os.Stderr, "Access token was not accepted. Run 'enonic login' to log in again, or 'enonic logout' to use password authentication.")
+			} else {
+				fmt.Fprintln(os.Stderr, "Logged in user has no access. Run 'enonic logout' to use password authentication.")
+			}
+			os.Exit(1)
+		} else if isCredFileAbsent {
 			if rData.SessionID != "" {
 				fmt.Fprint(os.Stderr, "User session is not valid.")
 				rData.SessionID = ""
