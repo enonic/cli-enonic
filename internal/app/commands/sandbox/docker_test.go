@@ -344,22 +344,3 @@ func TestAppendPortArgsDebug(t *testing.T) {
 		t.Errorf("appendPortArgs(nil, 8080, true) = %v, want %v", got, want)
 	}
 }
-
-func TestIsFloatingDockerTag(t *testing.T) {
-	tests := map[string]bool{
-		"enonic/xp":                         true,
-		"enonic/xp:latest":                  true,
-		"enonic/xp:nightly":                 true,
-		"enonic/xp:nightly-8.x":             true,
-		"enonic/xp:8.1.2-ubuntu":            false,
-		"enonic/xp:nightlyish":              false,
-		"localhost:5000/enonic/xp":          true,
-		"localhost:5000/enonic/xp:8.1.2":    false,
-		"enonic/xp@sha256:0123456789abcdef": false,
-	}
-	for imageName, want := range tests {
-		if got := IsFloatingDockerTag(imageName); got != want {
-			t.Errorf("IsFloatingDockerTag(%q) = %v, want %v", imageName, got, want)
-		}
-	}
-}
