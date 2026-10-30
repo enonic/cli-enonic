@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
@@ -48,6 +49,9 @@ const MODE_DEFAULT = "default"
 const RESTART_ALL_RUNNING_INSTANCES_MSG = "Please restart all running instances of XP."
 
 var spin *spinner.Spinner
+
+// marks a request retried with a refreshed access token, so a refused one is not refreshed again
+type tokenRefreshedKey struct{}
 
 func init() {
 	spin = spinner.New(spinner.CharSets[26], 300*time.Millisecond)
@@ -312,6 +316,12 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		credFilePath = resolveCredFilePath(c.String("cred-file"))
 	}
 
+	if auth == "" && credFilePath == "" && isActiveRemoteUrl(url) {
+		if accessToken := getAccessToken(c, &remote.GetActiveRemote().Url.URL); accessToken != "" {
+			return doCreateRequestBearerAuthRequest(method, url, accessToken, body)
+		}
+	}
+
 	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
@@ -328,6 +338,31 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	}
 
 	return doCreateBasicAuthRequest(method, url, user, pass, body, IsForceMode(c))
+}
+
+// isActiveRemoteUrl reports whether a request url goes to the active management endpoint: a path relative
+// to it, or an absolute url with its scheme, host and port
+func isActiveRemoteUrl(reqUrl string) bool {
+	parsedUrl, err := url.Parse(reqUrl)
+	if err != nil {
+		return false
+	}
+	if !parsedUrl.IsAbs() {
+		return true
+	}
+	remoteUrl := remote.GetActiveRemote().Url.URL
+	return strings.EqualFold(parsedUrl.Scheme, remoteUrl.Scheme) && strings.EqualFold(parsedUrl.Hostname(), remoteUrl.Hostname()) &&
+		effectivePort(parsedUrl) == effectivePort(&remoteUrl)
+}
+
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	if strings.EqualFold(u.Scheme, "https") {
+		return "443"
+	}
+	return "80"
 }
 
 func doCreateSimpleRequest(method, reqUrl string, body io.Reader) *http.Request {
@@ -411,46 +446,10 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 		isCredFileAbsent = resolveCredFilePath(c.String("cred-file")) == ""
 	}
 
-	tlsKey := getValueOrDefault(c.String(CLIENT_KEY_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_KEY"))
-	tlsCert := getValueOrDefault(c.String(CLIENT_CERT_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_CERT"))
-
-	var tlsConfig *tls.Config
-	if tlsKey != "" && tlsCert != "" {
-		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
-			os.Exit(1)
-		}
-
-		tlsConfig = &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-	}
-
-	var transport *http.Transport
-
-	activeRemote := remote.GetActiveRemote()
-
 	client := &http.Client{
 		Timeout: timeoutMin * time.Minute,
 	}
-	if activeRemote.Proxy != nil {
-		transport = &http.Transport{
-			Proxy: http.ProxyURL(&activeRemote.Proxy.URL),
-		}
-		if tlsConfig != nil {
-			transport.TLSClientConfig = tlsConfig
-		}
-		client.Transport = transport
-	} else {
-		if tlsConfig != nil {
-			transport = &http.Transport{
-				TLSClientConfig: tlsConfig,
-			}
-		}
-	}
-
-	if transport != nil {
+	if transport := newHttpTransport(c); transport != nil {
 		client.Transport = transport
 	}
 
@@ -480,7 +479,24 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 			}
 		}
 	} else if res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnauthorized {
-		if isCredFileAbsent {
+		if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
+			if res.StatusCode == http.StatusUnauthorized && res.Request.Context().Value(tokenRefreshedKey{}) == nil {
+				// a refused token may still have a good refresh token, e.g. after XP restarted; try once
+				if accessToken := forceRefreshAccessToken(c, &remote.GetActiveRemote().Url.URL); accessToken != "" {
+					res.Body.Close()
+					newReq := doCreateRequestBearerAuthRequest(req.Method, req.URL.String(), accessToken, bodyCopy)
+					newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
+					newReq = newReq.WithContext(context.WithValue(newReq.Context(), tokenRefreshedKey{}, true))
+					return SendRequestCustom(c, newReq, message, timeoutMin)
+				}
+				os.Exit(1)
+			} else if res.StatusCode == http.StatusUnauthorized {
+				fmt.Fprintln(os.Stderr, "Access token was not accepted. Run 'enonic login' to log in again, or 'enonic logout' to use password authentication.")
+			} else {
+				fmt.Fprintln(os.Stderr, "Logged in user has no access. Run 'enonic logout' to use password authentication.")
+			}
+			os.Exit(1)
+		} else if isCredFileAbsent {
 			if rData.SessionID != "" {
 				fmt.Fprint(os.Stderr, "User session is not valid.")
 				rData.SessionID = ""
@@ -526,6 +542,40 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 	}
 
 	return res, err
+}
+
+// newHttpTransport returns a transport with the remote's proxy and the client certificate from flags or
+// environment, or nil if neither is configured
+func newHttpTransport(c *cli.Context) *http.Transport {
+	var keyFlag, certFlag string
+	if c != nil {
+		keyFlag, certFlag = c.String(CLIENT_KEY_FLAG.Name), c.String(CLIENT_CERT_FLAG.Name)
+	}
+	tlsKey := getValueOrDefault(keyFlag, os.Getenv("ENONIC_CLI_CLIENT_KEY"))
+	tlsCert := getValueOrDefault(certFlag, os.Getenv("ENONIC_CLI_CLIENT_CERT"))
+
+	var tlsConfig *tls.Config
+	if tlsKey != "" && tlsCert != "" {
+		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
+			os.Exit(1)
+		}
+
+		tlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+	}
+
+	activeRemote := remote.GetActiveRemote()
+	if activeRemote.Proxy == nil && tlsConfig == nil {
+		return nil
+	}
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	if activeRemote.Proxy != nil {
+		transport.Proxy = http.ProxyURL(&activeRemote.Proxy.URL)
+	}
+	return transport
 }
 
 func StartSpinner(message string) {
