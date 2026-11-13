@@ -79,7 +79,7 @@ var Add = cli.Command{
 		}
 		name, rawUrl := c.Args().Get(0), c.Args().Get(1)
 		if !remote.ValidEnvName(name) {
-			return exitErrorf("Invalid environment name '%s'. Use lowercase letters, digits, '-' and '_'.", name)
+			return exitErrorf("Invalid environment name '%s'. Use lowercase letters, digits, '-' and '_', not starting with '%s'.", name, remote.ONE_OFF_TOKEN_PREFIX)
 		}
 		if rawUrl == "" {
 			var err error

@@ -5,7 +5,9 @@ import (
 	"cli-enonic/internal/app/util"
 	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,6 +16,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/urfave/cli"
 )
 
 func jsonResponse(w http.ResponseWriter, status int, body interface{}) {
@@ -298,5 +302,63 @@ func TestBetaOffSendsNoToken(t *testing.T) {
 	t.Setenv(util.BETA_ENV_VAR, "")
 	if got := CreateRequest(nil, "GET", "repo/list", nil).Header.Get("Authorization"); strings.HasPrefix(got, "Bearer") {
 		t.Fatalf("beta off sent %q", got)
+	}
+}
+
+func TestTransientRefreshFailureKeepsLogin(t *testing.T) {
+	setupTokenTest(t, true)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		jsonResponse(w, 503, map[string]string{"message": "Service Unavailable"})
+	}))
+	defer server.Close()
+	exitCode := -1
+	exit = func(code int) { exitCode = code }
+	t.Cleanup(func() { exit = os.Exit })
+
+	target := envTarget(t, "local", "http://localhost:4848")
+	SaveAccessToken(target, &AccessToken{TokenEndpoint: server.URL + "/token", AccessToken: "at", RefreshToken: "rt"})
+	getAccessToken(nil, target)
+	if exitCode != 1 {
+		t.Fatalf("expected exit 1, got %d", exitCode)
+	}
+	if !HasAccessToken(target) {
+		t.Fatal("login lost on a transient refresh failure")
+	}
+}
+
+func TestRetryWithRefreshedTokenKeepsHeaders(t *testing.T) {
+	setupTokenTest(t, true)
+	var seen []string
+	var server *httptest.Server
+	server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/token" {
+			jsonResponse(w, 200, map[string]interface{}{"access_token": "fresh", "expires_in": 3600})
+			return
+		}
+		body, _ := io.ReadAll(r.Body)
+		seen = append(seen, r.Header.Get("Authorization")+"|"+r.Header.Get("Accept")+"|"+string(body))
+		if r.Header.Get("Authorization") != "Bearer fresh" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	t.Setenv(remote.CLI_REMOTE_URL, server.URL)
+	target := remote.GetActiveRemote()
+	SaveAccessToken(target, &AccessToken{TokenEndpoint: server.URL + "/token", AccessToken: "stale", RefreshToken: "rt", ExpiresAt: time.Now().Add(time.Hour).Unix()})
+
+	set := flag.NewFlagSet("test", flag.ContinueOnError)
+	set.String("cred-file", "", "")
+	c := cli.NewContext(cli.NewApp(), set, nil)
+	req := CreateRequest(c, "POST", "app/list", strings.NewReader("payload"))
+	req.Header.Set("Accept", "text/event-stream")
+	res, err := SendRequestCustom(c, req, "", 1)
+	if err != nil || res.StatusCode != 200 {
+		t.Fatalf("got %v %v", res, err)
+	}
+	want := []string{"Bearer stale|text/event-stream|payload", "Bearer fresh|text/event-stream|payload"}
+	if strings.Join(seen, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("requests:\n%s", strings.Join(seen, "\n"))
 	}
 }

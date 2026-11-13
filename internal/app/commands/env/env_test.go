@@ -82,13 +82,14 @@ func TestEnvAddRejects(t *testing.T) {
 		t.Fatal(err)
 	}
 	cases := map[string][]string{
-		"Invalid environment name 'Prod'. Use lowercase letters, digits, '-' and '_'.": {"add", "Prod", "https://x.example"},
-		"Environment 'local' already exists.":                                          {"add", "local", "https://x.example"},
-		"Environment 'prod' already exists.":                                           {"add", "prod", "https://x.example"},
-		"Invalid url 'ftp://x'.":                                                       {"add", "x", "ftp://x"},
-		"Invalid url 'nohost'.":                                                        {"add", "x", "https://x.example", "--proxy", "nohost"},
-		"The local environment cannot be removed.":                                     {"remove", "local"},
-		"Unknown environment 'nope'. Run 'enonic env list'.":                           {"use", "nope"},
+		"Invalid environment name 'Prod'. Use lowercase letters, digits, '-' and '_', not starting with 'url-'.":               {"add", "Prod", "https://x.example"},
+		"Invalid environment name 'url-localhost-4848'. Use lowercase letters, digits, '-' and '_', not starting with 'url-'.": {"add", "url-localhost-4848", "https://x.example"},
+		"Environment 'local' already exists.":                {"add", "local", "https://x.example"},
+		"Environment 'prod' already exists.":                 {"add", "prod", "https://x.example"},
+		"Invalid url 'ftp://x'.":                             {"add", "x", "ftp://x"},
+		"Invalid url 'nohost'.":                              {"add", "x", "https://x.example", "--proxy", "nohost"},
+		"The local environment cannot be removed.":           {"remove", "local"},
+		"Unknown environment 'nope'. Run 'enonic env list'.": {"use", "nope"},
 	}
 	for want, args := range cases {
 		if err := run(t, args...); err == nil || err.Error() != want {

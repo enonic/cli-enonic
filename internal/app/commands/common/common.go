@@ -318,7 +318,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		}
 	}
 
-	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (activeSessionId(ReadRuntimeData()) == "" || auth != "" || credFilePath != "") {
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (activeSessionId(ReadRuntimeData(), url) == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
 			return doCreateRequestBearerAuthRequest(method, url, jwtToken, body)
@@ -336,9 +336,13 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	return doCreateBasicAuthRequest(method, url, user, pass, body, IsForceMode(c))
 }
 
-// activeSessionId is the saved session id. With beta it is only used for the instance it was issued by
-func activeSessionId(rData RuntimeData) string {
-	if !util.IsBeta() || rData.SessionUrl == mgmtKey(&remote.GetActiveRemote().Url.URL) {
+// activeSessionId is the saved session id to send with a request to reqUrl. With beta it is only sent to
+// the active instance, and only if it was issued by it
+func activeSessionId(rData RuntimeData, reqUrl string) string {
+	if !util.IsBeta() {
+		return rData.SessionID
+	}
+	if isActiveRemoteUrl(reqUrl) && rData.SessionUrl == mgmtKey(&remote.GetActiveRemote().Url.URL) {
 		return rData.SessionID
 	}
 	return ""
@@ -418,7 +422,7 @@ func doCreateBasicAuthRequest(method, reqUrl, user, pass string, body io.Reader,
 	req.AddCookie(&http.Cookie{Name: FORCE_COOKIE, Value: strconv.FormatBool(force)})
 
 	rData := ReadRuntimeData()
-	sessionId := activeSessionId(rData)
+	sessionId := activeSessionId(rData, reqUrl)
 	if user != "" {
 		req.SetBasicAuth(user, pass)
 
@@ -492,9 +496,10 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 				// a refused token may still have a good refresh token, e.g. after XP restarted; try once
 				if accessToken := forceRefreshAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
 					res.Body.Close()
-					newReq := doCreateRequestBearerAuthRequest(req.Method, req.URL.String(), accessToken, bodyCopy)
-					newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))
-					newReq = newReq.WithContext(context.WithValue(newReq.Context(), tokenRefreshedKey{}, true))
+					// keep every header, e.g. Accept: text/event-stream, and only replace the token
+					newReq := req.Clone(context.WithValue(req.Context(), tokenRefreshedKey{}, true))
+					newReq.Body = bodyCopy
+					newReq.Header.Set("Authorization", "Bearer "+accessToken)
 					return SendRequestCustom(c, newReq, message, timeoutMin)
 				}
 				os.Exit(1)
@@ -505,7 +510,7 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 			}
 			os.Exit(1)
 		} else if isCredFileAbsent {
-			if activeSessionId(rData) != "" {
+			if activeSessionId(rData, res.Request.URL.String()) != "" {
 				fmt.Fprint(os.Stderr, "User session is not valid.")
 				rData.SessionID = ""
 				rData.SessionUrl = ""

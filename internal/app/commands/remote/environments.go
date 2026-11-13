@@ -48,8 +48,12 @@ func EnvironmentsFile() string {
 	return util.GetInEnonicDir("environments.toml")
 }
 
+// ONE_OFF_TOKEN_PREFIX starts the token file names of one-off ENONIC_CLI_REMOTE_URL logins, so no
+// environment name may start with it
+const ONE_OFF_TOKEN_PREFIX = "url-"
+
 func ValidEnvName(name string) bool {
-	return envNamePattern.MatchString(name)
+	return envNamePattern.MatchString(name) && !strings.HasPrefix(name, ONE_OFF_TOKEN_PREFIX)
 }
 
 // ValidEnvUrl reports whether the url is an http(s) url with a host
@@ -84,6 +88,9 @@ func ReadEnvironments() (*EnvironmentsData, error) {
 		}
 		if !ValidEnvUrl(env.Url) {
 			return nil, fmt.Errorf("Invalid url for environment '%s' in %s", name, path)
+		}
+		if env.Proxy != nil && !ValidEnvUrl(env.Proxy) {
+			return nil, fmt.Errorf("Invalid proxy for environment '%s' in %s", name, path)
 		}
 	}
 	if data.Active != "" && data.Active != LOCAL_ENV && !ValidEnvName(data.Active) {

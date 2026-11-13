@@ -190,9 +190,26 @@ func PollDeviceLogin(client *http.Client, endpoints *OAuthEndpoints, code *Devic
 	return nil, errors.New("device code expired")
 }
 
+// loginRejectedError is a refresh the authorization server refused, so the login cannot be used any more,
+// unlike a failure to reach it
+type loginRejectedError struct {
+	err error
+}
+
+func (e *loginRejectedError) Error() string {
+	return e.err.Error()
+}
+
+func (e *loginRejectedError) Unwrap() error {
+	return e.err
+}
+
+// exit ends the command, swapped in tests
+var exit = os.Exit
+
 func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, error) {
 	if token.RefreshToken == "" {
-		return nil, errors.New("access token expired")
+		return nil, &loginRejectedError{errors.New("access token expired")}
 	}
 	form := url.Values{
 		"grant_type":    {"refresh_token"},
@@ -207,7 +224,7 @@ func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, 
 		return nil, err
 	}
 	if res.Error != "" {
-		return nil, res.asError()
+		return nil, &loginRejectedError{res.asError()}
 	}
 	refreshed, err := newAccessToken(&OAuthEndpoints{Token: token.TokenEndpoint, Resource: token.Resource}, &res)
 	if err != nil {
@@ -246,7 +263,7 @@ func tokenFile(target *remote.RemoteData) (string, error) {
 		return util.GetInEnonicDir("tokens", target.Name+".json"), nil
 	}
 	host := unsafeHostChars.ReplaceAllString(strings.ToLower(target.Url.Hostname()), "_")
-	return util.GetInEnonicDir("tokens", fmt.Sprintf("url-%s-%s.json", host, effectivePort(&target.Url.URL))), nil
+	return util.GetInEnonicDir("tokens", fmt.Sprintf("%s%s-%s.json", remote.ONE_OFF_TOKEN_PREFIX, host, effectivePort(&target.Url.URL))), nil
 }
 
 // readToken returns the token stored in the file, or nil if there is none or it cannot be read
@@ -366,11 +383,18 @@ func renewAccessToken(c *cli.Context, path string, token *AccessToken) string {
 
 	current := readToken(path)
 	unchanged := current != nil && current.RefreshToken == token.RefreshToken
-	if err != nil {
+	var rejected *loginRejectedError
+	if errors.As(err, &rejected) {
 		fmt.Fprintf(os.Stderr, "Login to %s has expired (%v). Run 'enonic login' to log in again.\n", token.Resource, err)
 		if unchanged {
 			os.Remove(path)
 		}
+		return ""
+	} else if err != nil {
+		// the login may still be good once the authorization server is reachable, so keep it, and don't fall
+		// back to password authentication
+		fmt.Fprintf(os.Stderr, "Could not refresh the login to %s: %v\n", token.Resource, err)
+		exit(1)
 		return ""
 	}
 	if unchanged {

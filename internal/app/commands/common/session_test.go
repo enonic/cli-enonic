@@ -29,6 +29,12 @@ func TestSessionOnlySentToItsUrl(t *testing.T) {
 		t.Fatalf("local: expected session cookie, got %q", got)
 	}
 
+	for _, other := range []string{MARKET_URL, SCOOP_MANIFEST_URL, "http://localhost:2609/server"} {
+		if cookie, err := CreateRequest(nil, "GET", other, nil).Cookie(JSESSIONID); err == nil {
+			t.Fatalf("session sent to %s: %v", other, cookie)
+		}
+	}
+
 	remote.SelectEnv("prod")
 	if got := sessionCookie(t); got != "" {
 		t.Fatalf("prod: session sent to another instance: %q", got)
