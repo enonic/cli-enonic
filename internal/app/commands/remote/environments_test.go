@@ -135,6 +135,8 @@ func TestReadEnvironmentsRejectsCorruptFile(t *testing.T) {
 		"bad url":    "[environments.prod]\nurl = \"::\"\n",
 		"no host":    "[environments.prod]\nurl = \"ftp:x\"\n",
 		"bad name":   "[environments.\"Bad/Name\"]\nurl = \"https://x.example\"\n",
+		"bad proxy":  "[environments.prod]\nurl = \"https://x.example\"\nproxy = \"not-a-url\"\n",
+		"url prefix": "[environments.url-x]\nurl = \"https://x.example\"\n",
 		"local":      "[environments.local]\nurl = \"https://x.example\"\n",
 		"bad active": "active = \"../x\"\n",
 	}

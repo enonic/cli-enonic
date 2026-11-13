@@ -152,6 +152,9 @@ func TestBearerChallengeParams(t *testing.T) {
 		`Basic realm="a, b", Bearer error="invalid_token", resource_metadata="https://x/m", scope="a b"`: "https://x/m",
 		`bearer resource_metadata=https://x/m, Basic realm="xp"`:                                         "https://x/m",
 		`Bearer realm="x\"y", resource_metadata="https://x/m"`:                                           "https://x/m",
+		`Negotiate YQ==, Bearer resource_metadata="https://x/m"`:                                         "https://x/m",
+		`Negotiate YQ=, Bearer resource_metadata="https://x/m"`:                                          "https://x/m",
+		`Negotiate YQ==` + "," + ` Bearer resource_metadata=https://x/m`:                                 "https://x/m",
 	}
 	for header, want := range cases {
 		params, ok := bearerChallengeParams(header)

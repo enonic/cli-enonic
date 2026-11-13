@@ -50,11 +50,19 @@ var Login = cli.Command{
 			return cli.NewExitError(fmt.Sprintf("Could not start login at %s: %v", endpoints.DeviceAuthorization, err), 1)
 		}
 
+		// verification_uri_complete is optional; without it the user types the code at verification_uri
+		verificationUri := code.VerificationUriComplete
+		if verificationUri == "" {
+			verificationUri = code.VerificationUri
+		}
+		if verificationUri == "" {
+			return cli.NewExitError(fmt.Sprintf("No verification url in the response from %s", endpoints.DeviceAuthorization), 1)
+		}
 		fmt.Fprintf(os.Stderr, "To log in, open the URL below in a browser and confirm the code %s\n\n", util.FormatImportant(code.UserCode))
-		fmt.Fprintf(os.Stderr, "    %s\n\n", code.VerificationUriComplete)
+		fmt.Fprintf(os.Stderr, "    %s\n\n", verificationUri)
 		browser.Stdout = io.Discard
 		browser.Stderr = io.Discard
-		browser.OpenURL(code.VerificationUriComplete)
+		browser.OpenURL(verificationUri)
 
 		common.StartSpinner("Waiting for approval")
 		token, err := common.PollDeviceLogin(client, endpoints, code)

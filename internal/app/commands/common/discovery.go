@@ -149,7 +149,15 @@ func nextAuthItem(s string) (name, value, rest string, isParam bool) {
 	}
 	name = s[:i]
 	afterName := strings.TrimLeft(s[i:], " ")
-	if !strings.HasPrefix(afterName, "=") || strings.HasPrefix(afterName, "==") {
+	if strings.HasPrefix(afterName, "=") {
+		// a token68 ends with "=" padding, an auth-param has a single "=" followed by its value
+		padding := len(afterName) - len(strings.TrimLeft(afterName, "="))
+		afterPadding := afterName[padding:]
+		if padding > 1 || afterPadding == "" || strings.HasPrefix(afterPadding, ",") {
+			return name, "", afterPadding, false
+		}
+	}
+	if !strings.HasPrefix(afterName, "=") {
 		return name, "", afterName, false
 	}
 	v := strings.TrimLeft(afterName[1:], " ")
