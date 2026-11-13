@@ -400,19 +400,10 @@ func activeSessionId(rData RuntimeData) string {
 	return rData.SessionID
 }
 
-// isActiveRemoteUrl reports whether a request url goes to the active management endpoint: a path relative
-// to it, or an absolute url with its scheme, host and port
+// isActiveRemoteUrl reports whether a request url, once resolved, goes to the active management endpoint
 func isActiveRemoteUrl(reqUrl string) bool {
-	parsedUrl, err := url.Parse(reqUrl)
-	if err != nil {
-		return false
-	}
-	if !parsedUrl.IsAbs() {
-		return true
-	}
-	remoteUrl := remote.GetActiveRemote().Url.URL
-	return strings.EqualFold(parsedUrl.Scheme, remoteUrl.Scheme) && strings.EqualFold(parsedUrl.Hostname(), remoteUrl.Hostname()) &&
-		effectivePort(parsedUrl) == effectivePort(&remoteUrl)
+	resolved, err := resolveRequestUrl(reqUrl)
+	return err == nil && withinManagement(resolved)
 }
 
 func effectivePort(u *url.URL) string {
@@ -426,38 +417,49 @@ func effectivePort(u *url.URL) string {
 }
 
 func doCreateSimpleRequest(method, reqUrl string, body io.Reader) *http.Request {
-	var (
-		host, scheme, port, restPath string
-	)
-
-	parsedUrl, err := url.Parse(reqUrl)
+	resolved, err := resolveRequestUrl(reqUrl)
 	util.Fatal(err, fmt.Sprintf("Not a valid url: %s", reqUrl))
 
-	if parsedUrl.IsAbs() {
-		host = parsedUrl.Hostname()
-		port = parsedUrl.Port()
-		scheme = parsedUrl.Scheme
-		restPath = parsedUrl.Path
-	} else {
-		activeRemote := remote.GetActiveRemote()
-		host = activeRemote.Url.Hostname()
-		port = activeRemote.Url.Port()
-		scheme = activeRemote.Url.Scheme
-
-		runeUrl := []rune(reqUrl)
-		if runeUrl[0] == '/' {
-			// absolute path
-			restPath = reqUrl
-		} else {
-			// relative path
-			restPath = activeRemote.Url.Path + "/" + reqUrl
-		}
-	}
-
-	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s%s", scheme, host, port, restPath), body)
+	req, err := http.NewRequest(method, resolved.String(), body)
 	util.Fatal(err, "Params error: ")
 
 	return req
+}
+
+// resolveRequestUrl resolves a request url: an absolute one as it is, a path, with or without a leading slash,
+// under the management endpoint's path, joined with a single slash
+func resolveRequestUrl(reqUrl string) (*url.URL, error) {
+	parsedUrl, err := url.Parse(reqUrl)
+	if err != nil {
+		return nil, err
+	}
+	if parsedUrl.IsAbs() {
+		return parsedUrl, nil
+	}
+	resolved := remote.GetActiveRemote().Url.URL
+	resolved.User = nil
+	resolved.Path = strings.TrimRight(resolved.Path, "/") + "/" + strings.TrimLeft(parsedUrl.Path, "/")
+	resolved.RawPath = ""
+	resolved.RawQuery = parsedUrl.RawQuery
+	resolved.Fragment = ""
+	return &resolved, nil
+}
+
+// withinManagement reports whether the url is the active management endpoint or under it: its scheme, host
+// and port, and a path at or below the endpoint's path
+func withinManagement(u *url.URL) bool {
+	mgmtUrl := remote.GetActiveRemote().Url.URL
+	if !strings.EqualFold(u.Scheme, mgmtUrl.Scheme) || !strings.EqualFold(u.Hostname(), mgmtUrl.Hostname()) ||
+		effectivePort(u) != effectivePort(&mgmtUrl) {
+		return false
+	}
+	for _, segment := range strings.Split(u.Path, "/") {
+		if segment == ".." {
+			return false
+		}
+	}
+	base := strings.TrimRight(mgmtUrl.Path, "/")
+	return base == "" || u.Path == base || strings.HasPrefix(u.Path, base+"/")
 }
 
 func doCreateRequestBearerAuthRequest(method, url, jwtToken string, body io.Reader) *http.Request {
@@ -508,7 +510,8 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 	}
 
 	client := &http.Client{
-		Timeout: timeoutMin * time.Minute,
+		Timeout:       timeoutMin * time.Minute,
+		CheckRedirect: checkRedirect,
 	}
 	if transport := newHttpTransport(c); transport != nil {
 		client.Transport = transport
@@ -617,6 +620,20 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 	}
 
 	return res, err
+}
+
+// checkRedirect follows redirects as http.Client does by default, but with beta, credentials meant for the
+// management endpoint are not taken outside it: such a redirect, e.g. to another port of the same host or to a
+// subdomain, which the default would follow with the Authorization header, is refused
+func checkRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) >= 10 {
+		return errors.New("stopped after 10 redirects")
+	}
+	first := via[0]
+	if util.IsBeta() && first.Header.Get("Authorization") != "" && withinManagement(first.URL) && !withinManagement(req.URL) {
+		return fmt.Errorf("refusing to follow a redirect from %s to %s, which is outside the management endpoint", first.URL.Redacted(), req.URL.Redacted())
+	}
+	return nil
 }
 
 // newHttpTransport returns a transport with the remote's proxy and the client certificate from flags or
