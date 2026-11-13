@@ -170,3 +170,28 @@ func TestWellKnownUrl(t *testing.T) {
 		t.Fatalf("unexpected url %q", got)
 	}
 }
+
+func TestDiscoverIssuerEndpoints(t *testing.T) {
+	server := discoveryServer(t, discoveryOptions{})
+	mgmtUrl, _ := url.Parse(server.URL + "/")
+	issuer := server.URL + "/_/idprovider/enonic-cloud"
+
+	endpoints, err := DiscoverIssuerEndpoints(http.DefaultClient, issuer, mgmtUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if endpoints.DeviceAuthorization != issuer+"/device/code" || endpoints.Token != issuer+"/token" || endpoints.Resource != server.URL {
+		t.Fatalf("unexpected endpoints %+v", endpoints)
+	}
+}
+
+func TestDiscoverIssuerEndpointsRejectsOtherIssuer(t *testing.T) {
+	server := discoveryServer(t, discoveryOptions{})
+	mgmtUrl, _ := url.Parse(server.URL)
+
+	// the metadata names the issuer without the trailing slash
+	_, err := DiscoverIssuerEndpoints(http.DefaultClient, server.URL+"/_/idprovider/enonic-cloud/", mgmtUrl)
+	if err == nil || !strings.Contains(err.Error(), "not") {
+		t.Fatalf("expected issuer mismatch, got %v", err)
+	}
+}

@@ -52,7 +52,12 @@ func DiscoverEndpoints(client *http.Client, mgmtUrl *url.URL) (*OAuthEndpoints, 
 		return nil, ErrNoDiscovery
 	}
 
-	issuer := prm.AuthorizationServers[0]
+	return DiscoverIssuerEndpoints(client, prm.AuthorizationServers[0], mgmtUrl)
+}
+
+// DiscoverIssuerEndpoints reads the device authorization and token endpoints from the authorization
+// server's metadata, for a token asked for the management endpoint
+func DiscoverIssuerEndpoints(client *http.Client, issuer string, mgmtUrl *url.URL) (*OAuthEndpoints, error) {
 	issuerUrl, err := url.Parse(issuer)
 	if err != nil || issuerUrl.Host == "" {
 		return nil, fmt.Errorf("invalid authorization server %q", issuer)
@@ -70,7 +75,7 @@ func DiscoverEndpoints(client *http.Client, mgmtUrl *url.URL) (*OAuthEndpoints, 
 	return &OAuthEndpoints{
 		DeviceAuthorization: asm.DeviceAuthorizationEndpoint,
 		Token:               asm.TokenEndpoint,
-		Resource:            resource,
+		Resource:            mgmtKey(mgmtUrl),
 	}, nil
 }
 
