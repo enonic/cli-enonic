@@ -288,8 +288,15 @@ func writeToken(path string, token *AccessToken) error {
 	return util.WriteFileAtomic(path, data, 0600)
 }
 
+// mgmtKey is the management endpoint's resource identifier the way XP builds it: the origin without a default
+// port, and the path without a trailing slash, empty for the root
 func mgmtKey(mgmtUrl *url.URL) string {
-	return fmt.Sprintf("%s://%s%s", mgmtUrl.Scheme, mgmtUrl.Host, strings.TrimRight(mgmtUrl.Path, "/"))
+	scheme := strings.ToLower(mgmtUrl.Scheme)
+	host := mgmtUrl.Host
+	if port := mgmtUrl.Port(); (scheme == "https" && port == "443") || (scheme == "http" && port == "80") {
+		host = strings.TrimSuffix(host, ":"+port)
+	}
+	return fmt.Sprintf("%s://%s%s", scheme, host, strings.TrimRight(mgmtUrl.Path, "/"))
 }
 
 // TargetLabel names the target in messages: "<name> (<url>)", or the url for a one-off url

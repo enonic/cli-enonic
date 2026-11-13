@@ -328,11 +328,46 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 					auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
 				}
 			}
-			user, pass = EnsureAuth(auth, IsForceMode(c))
+			prompted := auth == ""
+			if prompted {
+				auth = rememberedAuth(url)
+			}
+			user, pass = promptAuth(auth, IsForceMode(c))
+			if prompted {
+				rememberAuth(url, user, pass)
+			}
 		}
 	}
 
 	return doCreateBasicAuthRequest(method, url, user, pass, body, IsForceMode(c))
+}
+
+// promptAuth asks for the user and password unless auth has them, swapped in tests
+var promptAuth = EnsureAuth
+
+// promptedAuth keeps the user and password typed at the prompt for the rest of the command, by management
+// endpoint, because with beta there is no session to carry the login from one request to the next, e.g.
+// while polling a task
+var promptedAuth = map[string]string{}
+
+// rememberedAuth is the user:password typed earlier in this command for the target of the request, or empty
+func rememberedAuth(reqUrl string) string {
+	if !util.IsBeta() || !isActiveRemoteUrl(reqUrl) {
+		return ""
+	}
+	return promptedAuth[mgmtKey(&remote.GetActiveRemote().Url.URL)]
+}
+
+func rememberAuth(reqUrl, user, pass string) {
+	if util.IsBeta() && isActiveRemoteUrl(reqUrl) && user != "" {
+		promptedAuth[mgmtKey(&remote.GetActiveRemote().Url.URL)] = fmt.Sprintf("%s:%s", user, pass)
+	}
+}
+
+func forgetAuth(reqUrl string) {
+	if util.IsBeta() && isActiveRemoteUrl(reqUrl) {
+		delete(promptedAuth, mgmtKey(&remote.GetActiveRemote().Url.URL))
+	}
 }
 
 // activeSessionId is the saved session id to send. Sessions are not used with beta: a session cookie
@@ -537,7 +572,10 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 				os.Exit(1)
 			}
 
-			user, pass = EnsureAuth(auth, forceBool)
+			// the remembered password was refused; with beta, the one typed now is used for the retry and after
+			forgetAuth(req.URL.String())
+			user, pass = promptAuth(auth, forceBool)
+			rememberAuth(req.URL.String(), user, pass)
 			fmt.Fprintln(os.Stderr, "")
 
 			newReq := CreateRequest(c, req.Method, req.URL.String(), bodyCopy)

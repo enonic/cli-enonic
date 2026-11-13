@@ -1,7 +1,9 @@
 package common
 
 import (
+	"context"
 	"errors"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -196,5 +198,100 @@ func TestDiscoverIssuerEndpointsRejectsOtherIssuer(t *testing.T) {
 	_, err := DiscoverIssuerEndpoints(http.DefaultClient, server.URL+"/_/idprovider/enonic-cloud/", mgmtUrl)
 	if err == nil || !strings.Contains(err.Error(), "not") {
 		t.Fatalf("expected issuer mismatch, got %v", err)
+	}
+}
+
+// xpServer answers the way XP builds the resource identifier: the origin without a default port, and the path
+// as requested, the root as the bare origin
+func xpServer(t *testing.T) *httptest.Server {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		host := strings.TrimSuffix(r.Host, ":80")
+		origin := "http://" + host
+		pathOf := func(p string) string {
+			if p == "/" {
+				return ""
+			}
+			return p
+		}
+		const prm = "/.well-known/oauth-protected-resource"
+		const asm = "/.well-known/oauth-authorization-server/_/idprovider/system"
+		issuer := origin + "/_/idprovider/system"
+		switch {
+		case strings.HasPrefix(r.URL.Path, prm):
+			jsonResponse(w, 200, map[string]interface{}{
+				"resource":              origin + strings.TrimPrefix(r.URL.Path, prm),
+				"authorization_servers": []string{issuer},
+			})
+		case r.URL.Path == asm:
+			jsonResponse(w, 200, map[string]interface{}{
+				"issuer":                        issuer,
+				"device_authorization_endpoint": issuer + "/device/code",
+				"token_endpoint":                issuer + "/token",
+			})
+		case strings.HasPrefix(r.URL.Path, "/.well-known/"):
+			http.NotFound(w, r)
+		default:
+			w.Header().Add("WWW-Authenticate", `Bearer resource_metadata="`+origin+prm+pathOf(r.URL.Path)+`"`)
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+	}))
+	t.Cleanup(server.Close)
+	return server
+}
+
+func TestDiscoverEndpointsLikeXp(t *testing.T) {
+	server := xpServer(t)
+	cases := map[string]string{
+		server.URL:             server.URL,
+		server.URL + "/":       server.URL,
+		server.URL + "/admin":  server.URL + "/admin",
+		server.URL + "/admin/": server.URL + "/admin",
+	}
+	for mgmt, want := range cases {
+		mgmtUrl, _ := url.Parse(mgmt)
+		endpoints, err := DiscoverEndpoints(http.DefaultClient, mgmtUrl)
+		if err != nil {
+			t.Errorf("%s: %v", mgmt, err)
+		} else if endpoints.Resource != want {
+			t.Errorf("%s: resource %q, want %q", mgmt, endpoints.Resource, want)
+		}
+	}
+}
+
+func TestDiscoverEndpointsWithDefaultPort(t *testing.T) {
+	server := xpServer(t)
+	addr := strings.TrimPrefix(server.URL, "http://")
+	dialer := &net.Dialer{}
+	client := &http.Client{Transport: &http.Transport{
+		DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
+			return dialer.DialContext(ctx, network, addr)
+		},
+	}}
+	for _, mgmt := range []string{"http://xp.example:80", "http://xp.example:80/admin/"} {
+		mgmtUrl, _ := url.Parse(mgmt)
+		endpoints, err := DiscoverEndpoints(client, mgmtUrl)
+		if err != nil {
+			t.Errorf("%s: %v", mgmt, err)
+			continue
+		}
+		if want := strings.TrimSuffix(strings.Replace(mgmt, ":80", "", 1), "/"); endpoints.Resource != want {
+			t.Errorf("%s: resource %q, want %q", mgmt, endpoints.Resource, want)
+		}
+	}
+}
+
+func TestMgmtKey(t *testing.T) {
+	cases := map[string]string{
+		"https://host:443":        "https://host",
+		"http://host:80/admin/":   "http://host/admin",
+		"HTTPS://host:8443/admin": "https://host:8443/admin",
+		"http://host:443":         "http://host:443",
+		"https://host/":           "https://host",
+	}
+	for in, want := range cases {
+		u, _ := url.Parse(in)
+		if got := mgmtKey(u); got != want {
+			t.Errorf("mgmtKey(%s) = %q, want %q", in, got, want)
+		}
 	}
 }

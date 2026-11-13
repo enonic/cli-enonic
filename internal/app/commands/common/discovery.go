@@ -102,7 +102,12 @@ func authorizationServerMetadataOf(client *http.Client, issuer *url.URL) (*autho
 // resourceMetadataFromChallenge is the protected resource metadata URL in the Bearer challenge of an
 // unauthenticated request to the resource (RFC 9728 section 5.1), or empty string if there is none
 func resourceMetadataFromChallenge(client *http.Client, resource string) string {
-	res, err := client.Get(resource + "/")
+	// XP names the resource after the path requested, so request the resource itself; the root as "/"
+	probe := resource
+	if u, err := url.Parse(resource); err == nil && u.Path == "" {
+		probe += "/"
+	}
+	res, err := client.Get(probe)
 	if err != nil {
 		return ""
 	}
