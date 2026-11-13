@@ -19,7 +19,7 @@
 
 * if the `cred-file` param is missing, CLI will look for the `ENONIC_CLI_CRED_FILE` environment variable. If this environment variable is also missing, then CLI will fall back to the `auth` param. See <<environment_variables, configuration section.>>
 
-* if neither `cred-file` (nor `ENONIC_CLI_CRED_FILE`) nor `auth` is given and `ENONIC_CLI_TOKEN` is set, CLI sends that token to the management endpoint as a bearer token. See <<environment_variables, configuration section.>>
+* if neither `cred-file` (nor `ENONIC_CLI_CRED_FILE`) nor `auth` is given and `ENONIC_CLI_TOKEN` is set (beta, with `ENONIC_CLI_BETA=true`), CLI sends that token to the management endpoint as a bearer token. See <<environment_variables, configuration section.>>
 
 * if the `client-key` param is missing, CLI will look for the `ENONIC_CLI_CLIENT_KEY` environment variable. See <<environment_variables, configuration section.>>
 

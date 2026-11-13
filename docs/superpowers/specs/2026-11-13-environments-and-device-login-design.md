@@ -127,7 +127,7 @@ An alternative to device login, for when the browser runs on the same machine as
 
 These parts are unchanged from #711. Only the token's location changes, to the selected target's token file:
 
-- Order of precedence: `--cred-file`, then `-a`, then `ENONIC_CLI_TOKEN` (a bearer token issued elsewhere, such as a GitHub Actions OIDC token; sent only to the management endpoint, with or without beta, and a refused one ends the command), then the stored login, then `ENONIC_CLI_REMOTE_USER/PASS` or the password prompt (no session with beta).
+- Order of precedence: `--cred-file`, then `-a`, then `ENONIC_CLI_TOKEN` (a bearer token issued elsewhere, such as a GitHub Actions OIDC token; sent only to the management endpoint, beta only (set without beta it is refused with the beta message), and a refused one ends the command), then the stored login, then `ENONIC_CLI_REMOTE_USER/PASS` or the password prompt (no session with beta).
 - Refresh when the token is near expiry.
 - One forced refresh and retry on a 401.
 - Hints on 401/403.

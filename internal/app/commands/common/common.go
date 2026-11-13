@@ -57,7 +57,7 @@ type tokenRefreshedKey struct{}
 type envTokenKey struct{}
 
 // CLI_TOKEN_ENV_VAR holds a bearer token issued elsewhere, e.g. a GitHub Actions OIDC token, that the
-// management endpoint's id provider accepts
+// management endpoint's id provider accepts. Beta: without ENONIC_CLI_BETA=true it is refused
 const CLI_TOKEN_ENV_VAR = "ENONIC_CLI_TOKEN"
 
 func envToken() string {
@@ -324,6 +324,12 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 
 	if auth == "" && credFilePath == "" && isActiveRemoteUrl(url) {
 		if token := envToken(); token != "" {
+			if !util.IsBeta() {
+				// refused rather than ignored, so a job that sets it does not fall back to a password prompt
+				fmt.Fprintln(os.Stderr, CLI_TOKEN_ENV_VAR+": "+util.BETA_MESSAGE)
+				exit(1)
+				return nil
+			}
 			req := doCreateRequestBearerAuthRequest(method, url, token, body)
 			return req.WithContext(context.WithValue(req.Context(), envTokenKey{}, true))
 		}

@@ -34,7 +34,7 @@ Use the following environment variables in your terminal to simplify the communi
 |Path to a service account key file (in JSON format). This flag will only work with XP 7.15 or later. A key file can be generated in the Users application for System ID Provider users (aka Service Accounts). If specified, the `--auth` (or `-a`) flag will be ignored.
 
 |`ENONIC_CLI_TOKEN`
-|A bearer token issued elsewhere that the management endpoint's ID provider accepts, such as a GitHub Actions OIDC token (see <<github_actions>>). It is sent only to the management endpoint, as `Authorization: Bearer`. `--cred-file` (or `ENONIC_CLI_CRED_FILE`) and `--auth` take precedence over it. A refused token ends the command with an error; the CLI does not prompt for a password.
+|Beta: needs `ENONIC_CLI_BETA=true`, and is refused without it. A bearer token issued elsewhere that the management endpoint's ID provider accepts, such as a GitHub Actions OIDC token (see <<github_actions>>). It is sent only to the management endpoint, as `Authorization: Bearer`. `--cred-file` (or `ENONIC_CLI_CRED_FILE`) and `--auth` take precedence over it. A refused token ends the command with an error; the CLI does not prompt for a password.
 
 |`ENONIC_CLI_CLIENT_KEY`
 |Path to the private key file for client certificate authentication. This option is used in conjunction with `--client-cert` to establish a mutual TLS (mTLS) session.
@@ -74,12 +74,13 @@ steps:
       script: core.setOutput('token', await core.getIDToken('https://myinstance-mgmt.enonic.cloud'))
   - name: Install the app
     env:
+      ENONIC_CLI_BETA: "true"
       ENONIC_CLI_REMOTE_URL: https://myinstance-mgmt.enonic.cloud
       ENONIC_CLI_TOKEN: ${{ steps.oidc.outputs.token }}
     run: enonic app install --file build/libs/myapp.jar
 ----
 
-GitHub's tokens are short-lived, so get one right before the commands that use it.
+GitHub's tokens are short-lived, so get one right before the commands that use it. `ENONIC_CLI_TOKEN` is a beta feature: it needs XP 8.2 and an ID provider that accepts the token, and `ENONIC_CLI_BETA=true`.
 
 
 

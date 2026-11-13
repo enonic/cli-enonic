@@ -22,29 +22,42 @@ func contextWithAuth(t *testing.T, auth string) *cli.Context {
 	return cli.NewContext(cli.NewApp(), set, nil)
 }
 
-func TestEnvTokenSentToTheManagementEndpointOnly(t *testing.T) {
-	for _, beta := range []bool{false, true} {
-		setupTokenTest(t, beta)
-		t.Setenv(CLI_TOKEN_ENV_VAR, " gh-oidc \n")
-		t.Setenv(remote.CLI_REMOTE_USER, "su")
-		t.Setenv(remote.CLI_REMOTE_PASS, "pw")
-		if beta {
-			// a stored login is not used while the variable is set
-			SaveAccessToken(remote.LocalTarget(""), validToken("stored"))
-		}
+func TestEnvTokenRequiresBeta(t *testing.T) {
+	setupTokenTest(t, false)
+	t.Setenv(CLI_TOKEN_ENV_VAR, "gh-oidc")
+	exitCode := -1
+	exit = func(code int) { exitCode = code }
+	t.Cleanup(func() { exit = os.Exit })
 
-		if got := CreateRequest(nil, "GET", "repo/list", nil).Header.Get("Authorization"); got != "Bearer gh-oidc" {
-			t.Fatalf("beta %v: got %q", beta, got)
+	if req := CreateRequest(nil, "GET", "repo/list", nil); req != nil || exitCode != 1 {
+		t.Fatalf("beta off: got %v, exit %d", req, exitCode)
+	}
+	// requests that would not carry it are not affected
+	exitCode = -1
+	if req := CreateRequest(nil, "GET", MARKET_URL, nil); req == nil || exitCode != -1 {
+		t.Fatalf("beta off, market: got %v, exit %d", req, exitCode)
+	}
+}
+
+func TestEnvTokenSentToTheManagementEndpointOnly(t *testing.T) {
+	setupTokenTest(t, true)
+	t.Setenv(CLI_TOKEN_ENV_VAR, " gh-oidc \n")
+	t.Setenv(remote.CLI_REMOTE_USER, "su")
+	t.Setenv(remote.CLI_REMOTE_PASS, "pw")
+	// a stored login is not used while the variable is set
+	SaveAccessToken(remote.LocalTarget(""), validToken("stored"))
+
+	if got := CreateRequest(nil, "GET", "repo/list", nil).Header.Get("Authorization"); got != "Bearer gh-oidc" {
+		t.Fatalf("got %q", got)
+	}
+	for _, other := range []string{MARKET_URL, SCOOP_MANIFEST_URL, "http://localhost:2609/server"} {
+		if got := CreateRequest(nil, "GET", other, nil).Header.Get("Authorization"); got == "Bearer gh-oidc" {
+			t.Fatalf("token sent to %s", other)
 		}
-		for _, other := range []string{MARKET_URL, SCOOP_MANIFEST_URL, "http://localhost:2609/server"} {
-			if got := CreateRequest(nil, "GET", other, nil).Header.Get("Authorization"); got == "Bearer gh-oidc" {
-				t.Fatalf("beta %v: token sent to %s", beta, other)
-			}
-		}
-		// -a is more specific than the environment
-		if _, pass, ok := CreateRequest(contextWithAuth(t, "me:secret"), "GET", "repo/list", nil).BasicAuth(); !ok || pass != "secret" {
-			t.Fatalf("beta %v: -a did not win", beta)
-		}
+	}
+	// -a is more specific than the environment
+	if _, pass, ok := CreateRequest(contextWithAuth(t, "me:secret"), "GET", "repo/list", nil).BasicAuth(); !ok || pass != "secret" {
+		t.Fatal("-a did not win")
 	}
 }
 
