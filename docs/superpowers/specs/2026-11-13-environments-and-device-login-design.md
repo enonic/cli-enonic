@@ -117,7 +117,7 @@ Verified on 2026-11-13 against `https://sry-kk-test-mgmt.enonic-dev.cloud`:
 
 These parts are unchanged from #711. Only the token's location changes, to the selected target's token file:
 
-- Order of precedence: `--cred-file`, then `-a`, then the stored login, then the legacy session/env/prompt.
+- Order of precedence: `--cred-file`, then `-a`, then the stored login, then `ENONIC_CLI_REMOTE_USER/PASS` or the password prompt (no session with beta).
 - Refresh when the token is near expiry.
 - One forced refresh and retry on a 401.
 - Hints on 401/403.
@@ -132,7 +132,7 @@ These parts are unchanged from #711. Only the token's location changes, to the s
 
 ## Legacy credentials with environments
 
-- The saved session ID (`JSESSIONID` in the runtime data) is stored together with the management URL it was issued for. It is sent only to that URL, so a session made for `local` never reaches another environment. (My call.)
+- Session authentication (`JSESSIONID` in the runtime data) is not used at all with beta: no session is sent, saved or cleared. Password authentication sends the credentials with every request. A session saved without beta is left as it is. (Decided by the user.)
 - `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` apply to whichever target is selected, as today. The user sets them explicitly. (My call.)
 - Environments store no mTLS settings. `--client-cert` and `--client-key` stay per command. (My call.)
 

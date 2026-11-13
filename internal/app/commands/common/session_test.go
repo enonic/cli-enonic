@@ -3,50 +3,56 @@ package common
 import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-func sessionCookie(t *testing.T) string {
+func sessionCookie(t *testing.T, reqUrl string) string {
 	t.Helper()
-	cookie, err := CreateRequest(nil, "GET", "repo/list", nil).Cookie(JSESSIONID)
+	cookie, err := CreateRequest(nil, "GET", reqUrl, nil).Cookie(JSESSIONID)
 	if err != nil {
 		return ""
 	}
 	return cookie.Value
 }
 
-func TestSessionOnlySentToItsUrl(t *testing.T) {
+func TestNoSessionWithBeta(t *testing.T) {
 	setupTokenTest(t, true)
 	t.Setenv(remote.CLI_REMOTE_USER, "su")
 	t.Setenv(remote.CLI_REMOTE_PASS, "pw")
-	WriteRuntimeData(RuntimeData{SessionID: "s1", SessionUrl: "http://localhost:4848"})
-	prodUrl, _ := remote.ParseMarshalledUrl("https://prod.example")
-	if err := remote.WriteEnvironments(&remote.EnvironmentsData{Environments: map[string]remote.Environment{"prod": {Url: prodUrl}}}); err != nil {
-		t.Fatal(err)
-	}
+	WriteRuntimeData(RuntimeData{SessionID: "s1"})
 
-	if got := sessionCookie(t); got != "s1" {
-		t.Fatalf("local: expected session cookie, got %q", got)
-	}
-
-	for _, other := range []string{MARKET_URL, SCOOP_MANIFEST_URL, "http://localhost:2609/server"} {
-		if cookie, err := CreateRequest(nil, "GET", other, nil).Cookie(JSESSIONID); err == nil {
-			t.Fatalf("session sent to %s: %v", other, cookie)
+	for _, reqUrl := range []string{"repo/list", MARKET_URL, SCOOP_MANIFEST_URL} {
+		if got := sessionCookie(t, reqUrl); got != "" {
+			t.Fatalf("beta on: session sent to %s: %q", reqUrl, got)
 		}
 	}
-
-	remote.SelectEnv("prod")
-	if got := sessionCookie(t); got != "" {
-		t.Fatalf("prod: session sent to another instance: %q", got)
+	req := CreateRequest(nil, "GET", "repo/list", nil)
+	if user, pass, ok := req.BasicAuth(); !ok || user != "su" || pass != "pw" {
+		t.Fatalf("beta on: expected password authentication, got %q", req.Header.Get("Authorization"))
 	}
 	if rData := ReadRuntimeData(); rData.SessionID != "s1" {
-		t.Fatalf("session of local was cleared by a password login to prod: %+v", rData)
+		t.Fatalf("beta on: the session saved without beta was cleared: %+v", rData)
 	}
 
-	remote.SelectEnv("")
+	// a session cookie in a response is not saved
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{Name: JSESSIONID, Value: "s2"})
+	}))
+	defer server.Close()
+	t.Setenv(remote.CLI_REMOTE_URL, server.URL)
+	res, err := SendRequestCustom(nil, CreateRequest(nil, "GET", "repo/list", nil), "", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if rData := ReadRuntimeData(); rData.SessionID != "s1" {
+		t.Fatalf("beta on: session from the response was saved: %+v", rData)
+	}
+
 	t.Setenv(util.BETA_ENV_VAR, "")
-	t.Setenv(remote.CLI_REMOTE_URL, "https://prod.example")
-	if got := sessionCookie(t); got != "s1" {
+	if got := sessionCookie(t, "repo/list"); got != "s1" {
 		t.Fatalf("beta off: expected session cookie as on master, got %q", got)
 	}
 }

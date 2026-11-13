@@ -182,6 +182,8 @@ Tests set `ENONIC_CLI_HOME_PATH` to `t.TempDir()`, and clear `ENONIC_CLI_ENV`, `
 
 ### Task 4: Legacy session tied to its URL
 
+> **Superseded:** session authentication is not used at all with beta (no session is sent, saved or cleared), so `SessionUrl` was removed. See the spec's "Legacy credentials with environments".
+
 **Files:**
 - Modify: `internal/app/commands/common/common.go`:
   - `RuntimeData` (around line 129)
