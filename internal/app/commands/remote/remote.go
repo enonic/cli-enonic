@@ -3,6 +3,7 @@ package remote
 import (
 	"bytes"
 	"cli-enonic/internal/app/util"
+	"fmt"
 	"github.com/urfave/cli"
 	"net/url"
 	"os"
@@ -49,9 +50,11 @@ func (r *MarshalledUrl) UnmarshalText(text []byte) error {
 		err       error
 		parsedUrl *url.URL
 	)
-	parsedUrl, err = url.Parse(string(text))
+	if parsedUrl, err = url.Parse(string(text)); err != nil {
+		return err
+	}
 	r.URL = *parsedUrl
-	return err
+	return nil
 }
 
 func (r *MarshalledUrl) MarshalText() ([]byte, error) {
@@ -69,6 +72,11 @@ type RemoteData struct {
 	User  string
 	Pass  string
 	Proxy *MarshalledUrl
+	// Name is the environment name, empty without beta or for a one-off ENONIC_CLI_REMOTE_URL
+	Name string
+	// Source is what selected the target with beta: "--env", "ENONIC_CLI_ENV", "ENONIC_CLI_REMOTE_URL",
+	// "enonic env use" or "default"
+	Source string
 }
 
 type RemotesData struct {
@@ -109,11 +117,23 @@ func getRemoteByName(name string, remotes map[string]RemoteData) (*RemoteData, b
 Env vars remote implementation
 */
 func GetActiveRemote() *RemoteData {
+	if util.IsBeta() {
+		target, err := ResolveTarget()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return target
+	}
+	return masterRemote()
+}
+
+func masterRemote() *RemoteData {
 	remoteUrl := parseUrl(os.Getenv(CLI_REMOTE_URL), DEFAULT_REMOTE_URL)
 	user := os.Getenv(CLI_REMOTE_USER)
 	pass := os.Getenv(CLI_REMOTE_PASS)
 	proxyUrl := parseUrl(os.Getenv(CLI_REMOTE_PROXY), "")
-	return &RemoteData{remoteUrl, user, pass, proxyUrl}
+	return &RemoteData{Url: remoteUrl, User: user, Pass: pass, Proxy: proxyUrl}
 }
 
 func parseUrl(urlString string, defaultUrl string) *MarshalledUrl {
@@ -148,7 +168,7 @@ func ensureDefaultRemoteExists() {
 	defaultUrl, _ := ParseMarshalledUrl(DEFAULT_REMOTE_URL)
 	if remote, exists := getRemoteByName(DEFAULT_REMOTE_NAME, data.Remotes); !exists || remote.Url != defaultUrl || data.Active == "" {
 		if !exists || remote.Url != defaultUrl {
-			data.Remotes[DEFAULT_REMOTE_NAME] = RemoteData{defaultUrl, "", "", nil}
+			data.Remotes[DEFAULT_REMOTE_NAME] = RemoteData{Url: defaultUrl}
 		}
 		if data.Active == "" {
 			data.Active = DEFAULT_REMOTE_NAME
