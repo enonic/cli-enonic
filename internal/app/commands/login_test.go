@@ -11,7 +11,9 @@ import (
 	"net/url"
 	"os"
 	"runtime"
+	"strings"
 	"testing"
+	"time"
 )
 
 // fakeAuthorizationServer redirects an authorization request to its redirect URI with a code, and gives a
@@ -84,5 +86,58 @@ func TestBrowserAvailable(t *testing.T) {
 	t.Setenv("SSH_CONNECTION", "10.0.0.1 22 10.0.0.2 22")
 	if detectBrowser() {
 		t.Fatal("over SSH: a browser")
+	}
+}
+
+// An opener that runs the browser in the foreground must not hold up the login: the callback is taken and the
+// code exchanged while the browser is still running.
+func TestBrowserLoginWhileTheBrowserRuns(t *testing.T) {
+	server := fakeAuthorizationServer(t)
+	stop := make(chan struct{})
+	defer close(stop)
+	browserAvailable = func() bool { return true }
+	browserStartWait = 10 * time.Millisecond
+	openBrowser = func(u string) error {
+		go http.Get(u) // the browser goes through authorization and back to the CLI
+		<-stop         // and keeps running
+		return nil
+	}
+	pasteInput = strings.NewReader("")
+	t.Cleanup(func() {
+		browserAvailable, openBrowser, pasteInput, browserStartWait = detectBrowser, openDefaultBrowser, os.Stdin, time.Second
+	})
+
+	done := make(chan error, 1)
+	go func() {
+		token, err := browserLogin(http.DefaultClient, &common.OAuthEndpoints{Authorization: server.URL + "/authorize", Token: server.URL + "/token"})
+		if err == nil && token.AccessToken != "at" {
+			err = io.ErrUnexpectedEOF
+		}
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("login waited for the browser to exit")
+	}
+}
+
+func TestStartBrowser(t *testing.T) {
+	browserStartWait = 50 * time.Millisecond
+	t.Cleanup(func() { openBrowser, browserStartWait = openDefaultBrowser, time.Second })
+
+	openBrowser = func(string) error { return io.EOF }
+	if startBrowser("http://x") {
+		t.Fatal("an opener that fails at once counts as opened")
+	}
+	block := make(chan struct{})
+	defer close(block)
+	openBrowser = func(string) error { <-block; return nil }
+	start := time.Now()
+	if !startBrowser("http://x") || time.Since(start) > time.Second {
+		t.Fatal("waited for a running browser")
 	}
 }

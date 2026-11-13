@@ -12,6 +12,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
@@ -123,7 +124,7 @@ func deviceLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*common
 	fmt.Fprintf(os.Stderr, "To log in, open the URL below in a browser and confirm the code %s\n\n", util.FormatImportant(code.UserCode))
 	fmt.Fprintf(os.Stderr, "    %s\n\n", verificationUri)
 	if browserAvailable() {
-		openBrowser(verificationUri)
+		startBrowser(verificationUri)
 	}
 
 	common.StartSpinner("Waiting for approval")
@@ -146,10 +147,7 @@ func browserLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*commo
 		return nil, cli.NewExitError(fmt.Sprintf("Could not start login: %v", err), 1)
 	}
 
-	opened := false
-	if browserAvailable() {
-		opened = openBrowser(login.AuthorizationUrl) == nil
-	}
+	opened := browserAvailable() && startBrowser(login.AuthorizationUrl)
 	if opened {
 		fmt.Fprintf(os.Stderr, "Log in in the browser that opened. If it did not, open this URL:\n\n")
 	} else {
@@ -210,6 +208,23 @@ func detectBrowser() bool {
 		return os.Getenv("DISPLAY") != "" || os.Getenv("WAYLAND_DISPLAY") != ""
 	}
 }
+
+// startBrowser opens the URL in the default browser without waiting for it: the opener can run the browser in
+// the foreground (xdg-open with BROWSER, for one), and the login must not wait for it to exit. It waits a moment
+// for an opener that fails at once, e.g. none installed, and reports false then
+func startBrowser(u string) bool {
+	failed := make(chan error, 1)
+	go func() { failed <- openBrowser(u) }()
+	select {
+	case err := <-failed:
+		return err == nil
+	case <-time.After(browserStartWait):
+		return true
+	}
+}
+
+// how long startBrowser waits for an opener to fail
+var browserStartWait = time.Second
 
 // openBrowser opens the URL in the default browser, quietly; swapped in tests
 var openBrowser = openDefaultBrowser
