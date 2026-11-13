@@ -2,6 +2,8 @@ package common
 
 import (
 	"bytes"
+	"cli-enonic/internal/app/commands/remote"
+	"cli-enonic/internal/app/util"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -10,7 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -248,78 +250,114 @@ func newAccessToken(endpoints *OAuthEndpoints, res *tokenResponse) (*AccessToken
 	}, nil
 }
 
-// Tokens file maps management endpoint url to its access token
+// Each login is kept in its own file under tokens/: <environment>.json, or url-<host>-<port>.json for a
+// one-off ENONIC_CLI_REMOTE_URL
 
-func tokensFile() string {
-	return GetInEnonicDir("tokens.json")
-}
+var unsafeHostChars = regexp.MustCompile(`[^a-z0-9.-]`)
 
-func readTokens() map[string]*AccessToken {
-	tokens := make(map[string]*AccessToken)
-	if data, err := os.ReadFile(tokensFile()); err == nil {
-		if err := json.Unmarshal(data, &tokens); err != nil {
-			fmt.Fprintf(os.Stderr, "Ignoring unreadable %s: %v\n", tokensFile(), err)
+func tokenFile(target *remote.RemoteData) (string, error) {
+	if target.Name != "" {
+		if !remote.ValidEnvName(target.Name) {
+			return "", fmt.Errorf("invalid environment name '%s'", target.Name)
 		}
+		return util.GetInEnonicDir("tokens", target.Name+".json"), nil
 	}
-	return tokens
+	host := unsafeHostChars.ReplaceAllString(strings.ToLower(target.Url.Hostname()), "_")
+	return util.GetInEnonicDir("tokens", fmt.Sprintf("url-%s-%s.json", host, effectivePort(&target.Url.URL))), nil
 }
 
-func writeTokens(tokens map[string]*AccessToken) error {
-	data, err := json.MarshalIndent(tokens, "", "  ")
+// readToken returns the token stored in the file, or nil if there is none or it cannot be read
+func readToken(path string) *AccessToken {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var token AccessToken
+	if err := json.Unmarshal(data, &token); err != nil {
+		fmt.Fprintf(os.Stderr, "Ignoring unreadable %s: %v\n", path, err)
+		return nil
+	}
+	return &token
+}
+
+func writeToken(path string, token *AccessToken) error {
+	data, err := json.MarshalIndent(token, "", "  ")
 	if err != nil {
 		return err
 	}
-	dir := filepath.Dir(tokensFile())
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return err
-	}
-	// replace the file atomically so a concurrent reader never sees partial JSON
-	tmp, err := os.CreateTemp(dir, "tokens-*.json")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(tmp.Name())
-	if _, err := tmp.Write(data); err != nil {
-		tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	return os.Rename(tmp.Name(), tokensFile())
+	return util.WriteFileAtomic(path, data, 0600)
 }
 
 func mgmtKey(mgmtUrl *url.URL) string {
 	return fmt.Sprintf("%s://%s%s", mgmtUrl.Scheme, mgmtUrl.Host, strings.TrimRight(mgmtUrl.Path, "/"))
 }
 
-func SaveAccessToken(mgmtUrl *url.URL, token *AccessToken) error {
-	tokens := readTokens()
-	tokens[mgmtKey(mgmtUrl)] = token
-	return writeTokens(tokens)
-}
-
-// RemoveAccessToken returns false if there was no token for the management endpoint
-func RemoveAccessToken(mgmtUrl *url.URL) (bool, error) {
-	tokens := readTokens()
-	key := mgmtKey(mgmtUrl)
-	if _, ok := tokens[key]; !ok {
-		return false, nil
+// TargetLabel names the target in messages: "<name> (<url>)", or the url for a one-off url
+func TargetLabel(target *remote.RemoteData) string {
+	if target.Name == "" {
+		return target.Url.String()
 	}
-	delete(tokens, key)
-	return true, writeTokens(tokens)
+	return fmt.Sprintf("%s (%s)", target.Name, target.Url.String())
 }
 
-// getAccessToken returns a valid access token for the management endpoint, refreshing it if needed,
-// or empty string if there is no login
-func getAccessToken(c *cli.Context, mgmtUrl *url.URL) string {
-	key := mgmtKey(mgmtUrl)
-	token, ok := readTokens()[key]
-	if !ok {
+func SaveAccessToken(target *remote.RemoteData, token *AccessToken) error {
+	path, err := tokenFile(target)
+	if err != nil {
+		return err
+	}
+	if token.Resource == "" {
+		token.Resource = mgmtKey(&target.Url.URL)
+	}
+	return writeToken(path, token)
+}
+
+// RemoveAccessToken returns false if there was no login for the target
+func RemoveAccessToken(target *remote.RemoteData) (bool, error) {
+	path, err := tokenFile(target)
+	if err != nil {
+		return false, err
+	}
+	if err := os.Remove(path); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+// HasAccessToken reports whether a login is stored for the target and its current url
+func HasAccessToken(target *remote.RemoteData) bool {
+	_, token := storedToken(target)
+	return token != nil
+}
+
+// storedToken is the login stored for the target, or nil if there is none or it was made for another url,
+// e.g. after the environment's url was changed
+func storedToken(target *remote.RemoteData) (string, *AccessToken) {
+	path, err := tokenFile(target)
+	if err != nil {
+		return "", nil
+	}
+	token := readToken(path)
+	if token == nil || token.Resource != mgmtKey(&target.Url.URL) {
+		return path, nil
+	}
+	return path, token
+}
+
+// getAccessToken returns a valid access token for the target, refreshing it if needed, or empty string if
+// there is no login or beta is off
+func getAccessToken(c *cli.Context, target *remote.RemoteData) string {
+	if !util.IsBeta() {
+		return ""
+	}
+	path, token := storedToken(target)
+	if token == nil {
 		return ""
 	}
 	if token.isExpired() {
-		return renewAccessToken(c, key, token)
+		return renewAccessToken(c, path, token)
 	}
 	return token.AccessToken
 }
@@ -327,34 +365,33 @@ func getAccessToken(c *cli.Context, mgmtUrl *url.URL) string {
 // forceRefreshAccessToken refreshes the access token even if it has not expired, for one that was refused,
 // e.g. because XP restarted with a new in-memory signing key. Returns empty string if there is no login or
 // the refresh fails
-func forceRefreshAccessToken(c *cli.Context, mgmtUrl *url.URL) string {
-	key := mgmtKey(mgmtUrl)
-	token, ok := readTokens()[key]
-	if !ok {
+func forceRefreshAccessToken(c *cli.Context, target *remote.RemoteData) string {
+	if !util.IsBeta() {
 		return ""
 	}
-	return renewAccessToken(c, key, token)
+	path, token := storedToken(target)
+	if token == nil {
+		return ""
+	}
+	return renewAccessToken(c, path, token)
 }
 
-// renewAccessToken refreshes the token and stores the result. The file is read again before writing, so
-// only this endpoint's entry changes, and a login removed or replaced meanwhile by another command is kept
-func renewAccessToken(c *cli.Context, key string, token *AccessToken) string {
+// renewAccessToken refreshes the token and stores the result. The file is read again before writing, so a
+// login removed or replaced meanwhile by another command is kept
+func renewAccessToken(c *cli.Context, path string, token *AccessToken) string {
 	refreshed, err := refreshAccessToken(OAuthClient(c), token)
 
-	tokens := readTokens()
-	current, ok := tokens[key]
-	unchanged := ok && current.RefreshToken == token.RefreshToken
+	current := readToken(path)
+	unchanged := current != nil && current.RefreshToken == token.RefreshToken
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Login to %s has expired (%v). Run 'enonic login' to log in again.\n", key, err)
+		fmt.Fprintf(os.Stderr, "Login to %s has expired (%v). Run 'enonic login' to log in again.\n", token.Resource, err)
 		if unchanged {
-			delete(tokens, key)
-			writeTokens(tokens)
+			os.Remove(path)
 		}
 		return ""
 	}
 	if unchanged {
-		tokens[key] = refreshed
-		if err := writeTokens(tokens); err != nil {
+		if err := writeToken(path, refreshed); err != nil {
 			fmt.Fprintf(os.Stderr, "Could not save refreshed access token: %v\n", err)
 		}
 	}
