@@ -113,6 +113,16 @@ Verified on 2026-11-13 against `https://sry-kk-test-mgmt.enonic-dev.cloud`:
 - RFC 8414 metadata is served at `/.well-known/oauth-authorization-server/_/idprovider/enonic-cloud`.
 - `device/code` accepts `enonic-cli` both with and without `resource`.
 
+## Browser login (`enonic login --browser`)
+
+An alternative to device login, for when the browser runs on the same machine as the CLI.
+
+- It uses the authorization code flow with PKCE (RFC 6749, RFC 7636) and a loopback redirect (RFC 8252). The CLI listens on `http://127.0.0.1:<free port>/callback`, opens `authorization_endpoint` with `client_id=enonic-cli`, `code_challenge` (S256), `state` and `resource=<management URL>`, then exchanges the code with the verifier.
+- There is no code to confirm. A redirect with another `state` is ignored, and after 5 minutes the CLI gives up.
+- The `authorization_endpoint` comes from the same discovery as device login. If it is missing, `--browser` fails, and without the flag a server that offers only browser login points to `--browser`.
+- XP serves this when the vhost's ID provider has the `code` flow, but the client has to be allowed the `authorization_code` grant. XP registers `enonic-cli` with the `device_code` and `refresh_token` grants only, so XP answers `unauthorized_client` until the grant is added. The CLI then suggests device login.
+- There is no paste-the-code variant for an SSH or headless machine, because XP has no page that shows the code. Device login covers that case.
+
 ## Using the login
 
 These parts are unchanged from #711. Only the token's location changes, to the selected target's token file:

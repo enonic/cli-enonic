@@ -21,6 +21,7 @@ type protectedResourceMetadata struct {
 
 type authorizationServerMetadata struct {
 	Issuer                      string `json:"issuer"`
+	AuthorizationEndpoint       string `json:"authorization_endpoint"`
 	DeviceAuthorizationEndpoint string `json:"device_authorization_endpoint"`
 	TokenEndpoint               string `json:"token_endpoint"`
 }
@@ -69,10 +70,11 @@ func DiscoverIssuerEndpoints(client *http.Client, issuer string, mgmtUrl *url.UR
 	if asm.Issuer != issuer {
 		return nil, fmt.Errorf("authorization server metadata is for %q, not %q", asm.Issuer, issuer)
 	}
-	if asm.DeviceAuthorizationEndpoint == "" || asm.TokenEndpoint == "" {
-		return nil, fmt.Errorf("authorization server %s does not offer device login", issuer)
+	if (asm.DeviceAuthorizationEndpoint == "" && asm.AuthorizationEndpoint == "") || asm.TokenEndpoint == "" {
+		return nil, fmt.Errorf("authorization server %s does not offer device or browser login", issuer)
 	}
 	return &OAuthEndpoints{
+		Authorization:       asm.AuthorizationEndpoint,
 		DeviceAuthorization: asm.DeviceAuthorizationEndpoint,
 		Token:               asm.TokenEndpoint,
 		Resource:            mgmtKey(mgmtUrl),

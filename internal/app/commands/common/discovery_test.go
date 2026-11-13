@@ -46,6 +46,7 @@ func discoveryServer(t *testing.T, opts discoveryOptions) *httptest.Server {
 		case opts.asMetadataUrl:
 			jsonResponse(w, 200, map[string]interface{}{
 				"issuer":                        issuer,
+				"authorization_endpoint":        issuer + "/authorize",
 				"device_authorization_endpoint": issuer + "/device/code",
 				"token_endpoint":                issuer + "/token",
 			})

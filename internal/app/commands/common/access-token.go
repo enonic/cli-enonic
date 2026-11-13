@@ -25,6 +25,11 @@ const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
 
 // OAuthEndpoints are where device login runs and where its token is refreshed
 type OAuthEndpoints struct {
+	// Authorization is the authorization endpoint for browser login (authorization code with PKCE), empty if
+	// the server does not offer it
+	Authorization string
+	// DeviceAuthorization is the device authorization endpoint for device login, empty if the server does not
+	// offer it
 	DeviceAuthorization string
 	Token               string
 	// Resource is the management endpoint the token is asked for (RFC 8707), empty for the ID provider's
