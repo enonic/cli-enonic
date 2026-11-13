@@ -95,8 +95,10 @@ func TestEnvAddRejects(t *testing.T) {
 			t.Errorf("%v: got %v, want %q", args, err, want)
 		}
 	}
-	if err := run(t, "add", "only-name"); err == nil {
-		t.Error("expected error for missing url")
+	for _, args := range [][]string{{"add"}, {"add", "a", "https://a.example", "extra"}} {
+		if err := run(t, args...); err == nil {
+			t.Errorf("%v: expected usage error", args)
+		}
 	}
 }
 
@@ -108,5 +110,32 @@ func TestEnvListWithUnknownActive(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(util.GetInEnonicDir(), "environments.toml")); !os.IsNotExist(err) {
 		t.Fatalf("list created the environments file: %v", err)
+	}
+}
+
+func TestEnvAddCloudShortcut(t *testing.T) {
+	buf := setup(t)
+	t.Setenv(CLOUD_DOMAIN_VAR, "")
+	if err := run(t, "add", "my-site"); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv(CLOUD_DOMAIN_VAR, "enonic-dev.cloud")
+	if err := run(t, "add", "sry-kk-test"); err != nil {
+		t.Fatal(err)
+	}
+	if err := run(t, "list"); err != nil {
+		t.Fatal(err)
+	}
+	want := "* local        http://localhost:4848\n" +
+		"  my-site      https://my-site-mgmt.enonic.cloud\n" +
+		"  sry-kk-test  https://sry-kk-test-mgmt.enonic-dev.cloud\n"
+	if buf.String() != want {
+		t.Fatalf("list:\n%q\nwant\n%q", buf.String(), want)
+	}
+
+	for _, name := range []string{"my_site", "trailing-"} {
+		if err := run(t, "add", name); err == nil || !strings.Contains(err.Error(), "not an Enonic Cloud instance name") {
+			t.Errorf("%s: got %v", name, err)
+		}
 	}
 }

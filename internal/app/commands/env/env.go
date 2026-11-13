@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/urfave/cli"
 )
@@ -60,7 +62,9 @@ func parseEnvUrl(text string) (*remote.MarshalledUrl, error) {
 var Add = cli.Command{
 	Name:      "add",
 	Usage:     "Add an environment",
-	ArgsUsage: "<name> <management url>",
+	ArgsUsage: "<name> [<management url>]",
+	Description: "Without a url, the name is taken as an Enonic Cloud instance: https://<name>-mgmt.enonic.cloud. " +
+		"Set " + CLOUD_DOMAIN_VAR + " to use another cloud domain, e.g. enonic-dev.cloud.",
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "proxy",
@@ -68,37 +72,66 @@ var Add = cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		if err := expectArgs(c, 2); err != nil {
-			return err
+		if c.NArg() != 1 {
+			if err := expectArgs(c, 2); err != nil {
+				return err
+			}
 		}
 		name, rawUrl := c.Args().Get(0), c.Args().Get(1)
 		if !remote.ValidEnvName(name) {
 			return exitErrorf("Invalid environment name '%s'. Use lowercase letters, digits, '-' and '_'.", name)
 		}
-		data, err := readEnvironments()
-		if err != nil {
-			return err
-		}
-		if _, exists := data.Environments[name]; exists || name == remote.LOCAL_ENV {
-			return exitErrorf("Environment '%s' already exists.", name)
-		}
-		envUrl, err := parseEnvUrl(rawUrl)
-		if err != nil {
-			return err
-		}
-		env := remote.Environment{Url: envUrl}
-		if rawProxy := c.String("proxy"); rawProxy != "" {
-			if env.Proxy, err = parseEnvUrl(rawProxy); err != nil {
+		if rawUrl == "" {
+			var err error
+			if rawUrl, err = cloudMgmtUrl(name); err != nil {
 				return err
 			}
 		}
-		data.Environments[name] = env
-		if err := remote.WriteEnvironments(data); err != nil {
-			return exitErrorf("Could not save %s: %v", remote.EnvironmentsFile(), err)
-		}
-		fmt.Fprintf(os.Stderr, "Added environment '%s' (%s)\n", name, envUrl.String())
-		return nil
+		return addEnv(c, name, rawUrl)
 	},
+}
+
+const CLOUD_DOMAIN_VAR = "ENONIC_CLI_CLOUD_DOMAIN"
+const DEFAULT_CLOUD_DOMAIN = "enonic.cloud"
+
+var cloudInstancePattern = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`)
+
+// cloudMgmtUrl is the management endpoint of the Enonic Cloud instance with the name
+func cloudMgmtUrl(name string) (string, error) {
+	if !cloudInstancePattern.MatchString(name) {
+		return "", exitErrorf("'%s' is not an Enonic Cloud instance name. Give the management url: enonic env add %s <url>", name, name)
+	}
+	domain := strings.Trim(strings.TrimSpace(os.Getenv(CLOUD_DOMAIN_VAR)), ".")
+	if domain == "" {
+		domain = DEFAULT_CLOUD_DOMAIN
+	}
+	return fmt.Sprintf("https://%s-mgmt.%s", name, domain), nil
+}
+
+func addEnv(c *cli.Context, name, rawUrl string) error {
+	data, err := readEnvironments()
+	if err != nil {
+		return err
+	}
+	if _, exists := data.Environments[name]; exists || name == remote.LOCAL_ENV {
+		return exitErrorf("Environment '%s' already exists.", name)
+	}
+	envUrl, err := parseEnvUrl(rawUrl)
+	if err != nil {
+		return err
+	}
+	env := remote.Environment{Url: envUrl}
+	if rawProxy := c.String("proxy"); rawProxy != "" {
+		if env.Proxy, err = parseEnvUrl(rawProxy); err != nil {
+			return err
+		}
+	}
+	data.Environments[name] = env
+	if err := remote.WriteEnvironments(data); err != nil {
+		return exitErrorf("Could not save %s: %v", remote.EnvironmentsFile(), err)
+	}
+	fmt.Fprintf(os.Stderr, "Added environment '%s' (%s)\n", name, envUrl.String())
+	return nil
 }
 
 var List = cli.Command{
