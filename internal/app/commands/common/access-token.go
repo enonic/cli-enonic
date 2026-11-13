@@ -21,13 +21,29 @@ import (
 const CLI_CLIENT_ID = "enonic-cli"
 const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
 
+// OAuthEndpoints are where device login runs and where its token is refreshed
+type OAuthEndpoints struct {
+	DeviceAuthorization string
+	Token               string
+	// Resource is the management endpoint the token is asked for (RFC 8707), empty for the ID provider's
+	// default audience
+	Resource string
+}
+
+// IdProviderEndpoints are the device login endpoints of an ID provider served on a web endpoint
+func IdProviderEndpoints(webUrl, idProvider string) *OAuthEndpoints {
+	return &OAuthEndpoints{
+		DeviceAuthorization: idProviderEndpoint(webUrl, idProvider, "device/code"),
+		Token:               idProviderEndpoint(webUrl, idProvider, "token"),
+	}
+}
+
 // Access token obtained through device login, kept per management endpoint
 type AccessToken struct {
-	WebUrl       string `json:"webUrl"`
-	IdProvider   string `json:"idProvider"`
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken,omitempty"`
-	ExpiresAt    int64  `json:"expiresAt"`
+	TokenEndpoint string `json:"tokenEndpoint"`
+	AccessToken   string `json:"accessToken"`
+	RefreshToken  string `json:"refreshToken,omitempty"`
+	ExpiresAt     int64  `json:"expiresAt"`
 }
 
 func (t *AccessToken) isExpired() bool {
@@ -132,13 +148,16 @@ func postForm(client *http.Client, endpoint string, form url.Values, target inte
 	return json.NewDecoder(bytes.NewReader(body)).Decode(target)
 }
 
-func StartDeviceLogin(client *http.Client, webUrl, idProvider string) (*DeviceCode, error) {
+func StartDeviceLogin(client *http.Client, endpoints *OAuthEndpoints) (*DeviceCode, error) {
 	var res struct {
 		oauthError
 		DeviceCode
 	}
 	form := url.Values{"client_id": {CLI_CLIENT_ID}}
-	if err := postForm(client, idProviderEndpoint(webUrl, idProvider, "device/code"), form, &res); err != nil {
+	if endpoints.Resource != "" {
+		form.Set("resource", endpoints.Resource)
+	}
+	if err := postForm(client, endpoints.DeviceAuthorization, form, &res); err != nil {
 		return nil, err
 	}
 	if res.Error != "" {
@@ -151,7 +170,7 @@ func StartDeviceLogin(client *http.Client, webUrl, idProvider string) (*DeviceCo
 }
 
 // PollDeviceLogin polls the token endpoint until the user approves or denies, or the device code expires
-func PollDeviceLogin(client *http.Client, webUrl, idProvider string, code *DeviceCode) (*AccessToken, error) {
+func PollDeviceLogin(client *http.Client, endpoints *OAuthEndpoints, code *DeviceCode) (*AccessToken, error) {
 	interval := time.Duration(code.Interval) * time.Second
 	if interval <= 0 {
 		interval = defaultPollInterval
@@ -166,12 +185,12 @@ func PollDeviceLogin(client *http.Client, webUrl, idProvider string, code *Devic
 		time.Sleep(interval)
 
 		var res tokenResponse
-		if err := postForm(client, idProviderEndpoint(webUrl, idProvider, "token"), form, &res); err != nil {
+		if err := postForm(client, endpoints.Token, form, &res); err != nil {
 			return nil, err
 		}
 		switch res.Error {
 		case "":
-			return newAccessToken(webUrl, idProvider, &res)
+			return newAccessToken(endpoints.Token, &res)
 		case "authorization_pending":
 		case "slow_down":
 			interval += defaultPollInterval
@@ -192,13 +211,13 @@ func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, 
 		"client_id":     {CLI_CLIENT_ID},
 	}
 	var res tokenResponse
-	if err := postForm(client, idProviderEndpoint(token.WebUrl, token.IdProvider, "token"), form, &res); err != nil {
+	if err := postForm(client, token.TokenEndpoint, form, &res); err != nil {
 		return nil, err
 	}
 	if res.Error != "" {
 		return nil, res.asError()
 	}
-	refreshed, err := newAccessToken(token.WebUrl, token.IdProvider, &res)
+	refreshed, err := newAccessToken(token.TokenEndpoint, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -209,16 +228,15 @@ func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, 
 	return refreshed, nil
 }
 
-func newAccessToken(webUrl, idProvider string, res *tokenResponse) (*AccessToken, error) {
+func newAccessToken(tokenEndpoint string, res *tokenResponse) (*AccessToken, error) {
 	if res.AccessToken == "" {
 		return nil, errors.New("no access token in response")
 	}
 	return &AccessToken{
-		WebUrl:       webUrl,
-		IdProvider:   idProvider,
-		AccessToken:  res.AccessToken,
-		RefreshToken: res.RefreshToken,
-		ExpiresAt:    time.Now().Add(time.Duration(res.ExpiresIn) * time.Second).Unix(),
+		TokenEndpoint: tokenEndpoint,
+		AccessToken:   res.AccessToken,
+		RefreshToken:  res.RefreshToken,
+		ExpiresAt:     time.Now().Add(time.Duration(res.ExpiresIn) * time.Second).Unix(),
 	}, nil
 }
 
