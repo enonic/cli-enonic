@@ -88,6 +88,12 @@ var CLIENT_CERT_FLAG = cli.StringFlag{
 	Usage: "Specifies the client certificate file to use for authentication with the remote server. Requires --client-key to be specified as well when establishing a mutual TLS (mTLS) session.",
 }
 
+var ENV_FLAG = cli.StringFlag{
+	Name:   "env",
+	Usage:  "Environment to run the command against, instead of the active one (beta)",
+	Hidden: !util.IsBeta(),
+}
+
 var AUTH_AND_TLS_FLAGS = []cli.Flag{
 	AUTH_FLAG,
 	CRED_FILE_FLAG,

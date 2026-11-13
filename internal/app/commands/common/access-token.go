@@ -32,14 +32,6 @@ type OAuthEndpoints struct {
 	Resource string
 }
 
-// IdProviderEndpoints are the device login endpoints of an ID provider served on a web endpoint
-func IdProviderEndpoints(webUrl, idProvider string) *OAuthEndpoints {
-	return &OAuthEndpoints{
-		DeviceAuthorization: idProviderEndpoint(webUrl, idProvider, "device/code"),
-		Token:               idProviderEndpoint(webUrl, idProvider, "token"),
-	}
-}
-
 // Access token obtained through device login, kept per management endpoint
 type AccessToken struct {
 	TokenEndpoint string `json:"tokenEndpoint"`
@@ -106,15 +98,6 @@ type tokenResponse struct {
 
 // RFC 8628 default when the server gives no interval
 var defaultPollInterval = 5 * time.Second
-
-// DefaultWebUrl guesses the web endpoint from the management endpoint: same host, web port
-func DefaultWebUrl(mgmtUrl *url.URL) string {
-	return fmt.Sprintf("%s://%s:%d", mgmtUrl.Scheme, mgmtUrl.Hostname(), HTTP_PORT)
-}
-
-func idProviderEndpoint(webUrl, idProvider, function string) string {
-	return fmt.Sprintf("%s/_/idprovider/%s/%s", strings.TrimRight(webUrl, "/"), url.PathEscape(idProvider), function)
-}
 
 // OAuthClient is the client for the ID provider's OAuth endpoints, with the same proxy and client
 // certificate settings as requests to the management endpoint
