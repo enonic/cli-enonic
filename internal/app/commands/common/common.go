@@ -53,6 +53,17 @@ var spin *spinner.Spinner
 // marks a request retried with a refreshed access token, so a refused one is not refreshed again
 type tokenRefreshedKey struct{}
 
+// marks a request that carries the token from ENONIC_CLI_TOKEN
+type envTokenKey struct{}
+
+// CLI_TOKEN_ENV_VAR holds a bearer token issued elsewhere, e.g. a GitHub Actions OIDC token, that the
+// management endpoint's id provider accepts
+const CLI_TOKEN_ENV_VAR = "ENONIC_CLI_TOKEN"
+
+func envToken() string {
+	return strings.TrimSpace(os.Getenv(CLI_TOKEN_ENV_VAR))
+}
+
 func init() {
 	spin = spinner.New(spinner.CharSets[26], 300*time.Millisecond)
 	spin.Writer = os.Stderr
@@ -312,6 +323,10 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	}
 
 	if auth == "" && credFilePath == "" && isActiveRemoteUrl(url) {
+		if token := envToken(); token != "" {
+			req := doCreateRequestBearerAuthRequest(method, url, token, body)
+			return req.WithContext(context.WithValue(req.Context(), envTokenKey{}, true))
+		}
 		if accessToken := getAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
 			return doCreateRequestBearerAuthRequest(method, url, accessToken, body)
 		}
@@ -519,7 +534,17 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 			}
 		}
 	} else if res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnauthorized {
-		if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
+		if res.Request.Context().Value(envTokenKey{}) != nil {
+			// a token issued elsewhere cannot be refreshed here, and a password prompt is no use in automation
+			if res.StatusCode == http.StatusUnauthorized {
+				fmt.Fprintf(os.Stderr, "The token in %s was not accepted by %s.\n", CLI_TOKEN_ENV_VAR, remote.GetActiveRemote().Url.String())
+			} else {
+				fmt.Fprintf(os.Stderr, "The token in %s has no access to this operation.\n", CLI_TOKEN_ENV_VAR)
+			}
+			res.Body.Close()
+			exit(1)
+			return res, errors.New("token refused")
+		} else if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
 			if res.StatusCode == http.StatusUnauthorized && res.Request.Context().Value(tokenRefreshedKey{}) == nil {
 				// a refused token may still have a good refresh token, e.g. after XP restarted; try once
 				if accessToken := forceRefreshAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
