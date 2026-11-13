@@ -41,6 +41,7 @@ func IdProviderEndpoints(webUrl, idProvider string) *OAuthEndpoints {
 // Access token obtained through device login, kept per management endpoint
 type AccessToken struct {
 	TokenEndpoint string `json:"tokenEndpoint"`
+	Resource      string `json:"resource,omitempty"`
 	AccessToken   string `json:"accessToken"`
 	RefreshToken  string `json:"refreshToken,omitempty"`
 	ExpiresAt     int64  `json:"expiresAt"`
@@ -181,6 +182,9 @@ func PollDeviceLogin(client *http.Client, endpoints *OAuthEndpoints, code *Devic
 		"device_code": {code.DeviceCode},
 		"client_id":   {CLI_CLIENT_ID},
 	}
+	if endpoints.Resource != "" {
+		form.Set("resource", endpoints.Resource)
+	}
 	for time.Now().Before(deadline) {
 		time.Sleep(interval)
 
@@ -190,7 +194,7 @@ func PollDeviceLogin(client *http.Client, endpoints *OAuthEndpoints, code *Devic
 		}
 		switch res.Error {
 		case "":
-			return newAccessToken(endpoints.Token, &res)
+			return newAccessToken(endpoints, &res)
 		case "authorization_pending":
 		case "slow_down":
 			interval += defaultPollInterval
@@ -210,6 +214,9 @@ func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, 
 		"refresh_token": {token.RefreshToken},
 		"client_id":     {CLI_CLIENT_ID},
 	}
+	if token.Resource != "" {
+		form.Set("resource", token.Resource)
+	}
 	var res tokenResponse
 	if err := postForm(client, token.TokenEndpoint, form, &res); err != nil {
 		return nil, err
@@ -217,7 +224,7 @@ func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, 
 	if res.Error != "" {
 		return nil, res.asError()
 	}
-	refreshed, err := newAccessToken(token.TokenEndpoint, &res)
+	refreshed, err := newAccessToken(&OAuthEndpoints{Token: token.TokenEndpoint, Resource: token.Resource}, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -228,12 +235,13 @@ func refreshAccessToken(client *http.Client, token *AccessToken) (*AccessToken, 
 	return refreshed, nil
 }
 
-func newAccessToken(tokenEndpoint string, res *tokenResponse) (*AccessToken, error) {
+func newAccessToken(endpoints *OAuthEndpoints, res *tokenResponse) (*AccessToken, error) {
 	if res.AccessToken == "" {
 		return nil, errors.New("no access token in response")
 	}
 	return &AccessToken{
-		TokenEndpoint: tokenEndpoint,
+		TokenEndpoint: endpoints.Token,
+		Resource:      endpoints.Resource,
 		AccessToken:   res.AccessToken,
 		RefreshToken:  res.RefreshToken,
 		ExpiresAt:     time.Now().Add(time.Duration(res.ExpiresIn) * time.Second).Unix(),
