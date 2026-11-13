@@ -39,7 +39,7 @@ const SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/m
 const JSESSIONID = "JSESSIONID"
 const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
 const LATEST_VERSION_MSG = "\nLatest available version is %s. Run '%s' to update CLI"
-const SNAP_ENV_VAR = "SNAP_USER_COMMON"
+const SNAP_ENV_VAR = util.SNAP_ENV_VAR
 const FORCE_COOKIE = "forceFlag"
 const HTTP_PORT = 8080
 const INFO_PORT = 2609
@@ -145,19 +145,7 @@ type MarketResponse[K any] struct {
 }
 
 func GetInEnonicDir(children ...string) string {
-	var joinArgs []string
-	if util.GetCurrentOs() == "linux" {
-		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
-			joinArgs = []string{snapCommon, "dot-enonic"}
-		}
-	}
-	if joinArgs == nil {
-		joinArgs = []string{util.GetEnonicHome()}
-	}
-	if len(children) > 0 {
-		joinArgs = append(joinArgs, children...)
-	}
-	return filepath.Join(joinArgs...)
+	return util.GetInEnonicDir(children...)
 }
 
 func HasProjectData(prjPath string) bool {
