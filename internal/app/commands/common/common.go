@@ -305,7 +305,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	}
 
 	if auth == "" && credFilePath == "" && isActiveRemoteUrl(url) {
-		if accessToken := getAccessToken(c, &remote.GetActiveRemote().Url.URL); accessToken != "" {
+		if accessToken := getAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
 			return doCreateRequestBearerAuthRequest(method, url, accessToken, body)
 		}
 	}
@@ -470,7 +470,7 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 		if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
 			if res.StatusCode == http.StatusUnauthorized && res.Request.Context().Value(tokenRefreshedKey{}) == nil {
 				// a refused token may still have a good refresh token, e.g. after XP restarted; try once
-				if accessToken := forceRefreshAccessToken(c, &remote.GetActiveRemote().Url.URL); accessToken != "" {
+				if accessToken := forceRefreshAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
 					res.Body.Close()
 					newReq := doCreateRequestBearerAuthRequest(req.Method, req.URL.String(), accessToken, bodyCopy)
 					newReq.Header.Set("Content-Type", req.Header.Get("Content-Type"))

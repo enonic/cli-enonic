@@ -34,7 +34,8 @@ var Login = cli.Command{
 		common.CLIENT_CERT_FLAG,
 	},
 	Action: func(c *cli.Context) error {
-		mgmtUrl := remote.GetActiveRemote().Url.URL
+		target := remote.GetActiveRemote()
+		mgmtUrl := target.Url.URL
 		client := common.OAuthClient(c)
 
 		endpoints, err := loginEndpoints(c, client, &mgmtUrl)
@@ -60,7 +61,7 @@ var Login = cli.Command{
 			return cli.NewExitError(fmt.Sprintf("\nLogin failed: %v", err), 1)
 		}
 
-		if err := common.SaveAccessToken(&mgmtUrl, token); err != nil {
+		if err := common.SaveAccessToken(target, token); err != nil {
 			return cli.NewExitError(fmt.Sprintf("\nCould not save access token: %v", err), 1)
 		}
 		fmt.Fprintln(os.Stderr, "Done")
@@ -93,8 +94,9 @@ var Logout = cli.Command{
 	Name:  "logout",
 	Usage: "Forget the access token obtained with 'enonic login'",
 	Action: func(c *cli.Context) error {
-		mgmtUrl := remote.GetActiveRemote().Url.URL
-		removed, err := common.RemoveAccessToken(&mgmtUrl)
+		target := remote.GetActiveRemote()
+		mgmtUrl := target.Url.URL
+		removed, err := common.RemoveAccessToken(target)
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Could not remove access token: %v", err), 1)
 		}
