@@ -25,14 +25,20 @@ type authorizationServerMetadata struct {
 	TokenEndpoint               string `json:"token_endpoint"`
 }
 
-// DiscoverEndpoints finds where to log in for the management endpoint: its protected resource metadata
-// (RFC 9728) names the authorization server, whose metadata (RFC 8414) gives the device authorization
-// and token endpoints. The token is asked for the management endpoint itself (RFC 8707)
+// DiscoverEndpoints finds where to log in for the management endpoint the way an MCP client does: its
+// protected resource metadata (RFC 9728), from the challenge of an unauthenticated request or else the
+// well-known location, names the authorization server, whose metadata (RFC 8414 or OpenID Connect
+// Discovery) gives the device authorization and token endpoints. The token is asked for the management
+// endpoint itself (RFC 8707)
 func DiscoverEndpoints(client *http.Client, mgmtUrl *url.URL) (*OAuthEndpoints, error) {
 	resource := mgmtKey(mgmtUrl)
 
+	metadataUrl := resourceMetadataFromChallenge(client, resource)
+	if metadataUrl == "" {
+		metadataUrl = wellKnownUrl(mgmtUrl, "oauth-protected-resource")
+	}
 	var prm protectedResourceMetadata
-	found, err := getJson(client, wellKnownUrl(mgmtUrl, "oauth-protected-resource"), &prm)
+	found, err := getJson(client, metadataUrl, &prm)
 	if err != nil {
 		return nil, err
 	}
@@ -51,13 +57,9 @@ func DiscoverEndpoints(client *http.Client, mgmtUrl *url.URL) (*OAuthEndpoints, 
 	if err != nil || issuerUrl.Host == "" {
 		return nil, fmt.Errorf("invalid authorization server %q", issuer)
 	}
-	var asm authorizationServerMetadata
-	found, err = getJson(client, wellKnownUrl(issuerUrl, "oauth-authorization-server"), &asm)
+	asm, err := authorizationServerMetadataOf(client, issuerUrl)
 	if err != nil {
 		return nil, err
-	}
-	if !found {
-		return nil, fmt.Errorf("authorization server %s serves no metadata", issuer)
 	}
 	if asm.Issuer != issuer {
 		return nil, fmt.Errorf("authorization server metadata is for %q, not %q", asm.Issuer, issuer)
@@ -70,6 +72,104 @@ func DiscoverEndpoints(client *http.Client, mgmtUrl *url.URL) (*OAuthEndpoints, 
 		Token:               asm.TokenEndpoint,
 		Resource:            resource,
 	}, nil
+}
+
+// authorizationServerMetadataOf tries the locations MCP clients try, in their order: OAuth metadata, then
+// OpenID Connect Discovery with the well-known suffix inserted before the path and appended to it
+func authorizationServerMetadataOf(client *http.Client, issuer *url.URL) (*authorizationServerMetadata, error) {
+	locations := []string{wellKnownUrl(issuer, "oauth-authorization-server"), wellKnownUrl(issuer, "openid-configuration")}
+	if path := strings.TrimRight(issuer.Path, "/"); path != "" {
+		locations = append(locations, fmt.Sprintf("%s://%s%s/.well-known/openid-configuration", issuer.Scheme, issuer.Host, path))
+	}
+	for _, location := range locations {
+		var asm authorizationServerMetadata
+		found, err := getJson(client, location, &asm)
+		if err != nil {
+			return nil, err
+		}
+		if found {
+			return &asm, nil
+		}
+	}
+	return nil, fmt.Errorf("authorization server %s serves no metadata", issuer.String())
+}
+
+// resourceMetadataFromChallenge is the protected resource metadata URL in the Bearer challenge of an
+// unauthenticated request to the resource (RFC 9728 section 5.1), or empty string if there is none
+func resourceMetadataFromChallenge(client *http.Client, resource string) string {
+	res, err := client.Get(resource + "/")
+	if err != nil {
+		return ""
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusUnauthorized {
+		return ""
+	}
+	for _, header := range res.Header.Values("WWW-Authenticate") {
+		if params, ok := bearerChallengeParams(header); ok {
+			return params["resource_metadata"]
+		}
+	}
+	return ""
+}
+
+// bearerChallengeParams reads the auth-params of the Bearer challenge in a WWW-Authenticate header value,
+// which can hold several challenges
+func bearerChallengeParams(header string) (map[string]string, bool) {
+	var params map[string]string
+	rest := header
+	for rest != "" {
+		rest = strings.TrimLeft(rest, " ,")
+		name, value, next, isParam := nextAuthItem(rest)
+		rest = next
+		switch {
+		case !isParam && params != nil:
+			return params, true
+		case !isParam:
+			if strings.EqualFold(name, "Bearer") {
+				params = make(map[string]string)
+			}
+		case params != nil:
+			params[strings.ToLower(name)] = value
+		}
+	}
+	return params, params != nil
+}
+
+// nextAuthItem reads an auth-scheme or an auth-param (name=token or name="quoted string") from s
+func nextAuthItem(s string) (name, value, rest string, isParam bool) {
+	i := strings.IndexAny(s, " =,")
+	if i < 0 {
+		return s, "", "", false
+	}
+	name = s[:i]
+	afterName := strings.TrimLeft(s[i:], " ")
+	if !strings.HasPrefix(afterName, "=") || strings.HasPrefix(afterName, "==") {
+		return name, "", afterName, false
+	}
+	v := strings.TrimLeft(afterName[1:], " ")
+	if !strings.HasPrefix(v, "\"") {
+		end := strings.IndexAny(v, " ,")
+		if end < 0 {
+			return name, v, "", true
+		}
+		return name, v[:end], v[end:], true
+	}
+	var b strings.Builder
+	for j := 1; j < len(v); j++ {
+		switch v[j] {
+		case '\\':
+			if j+1 < len(v) {
+				j++
+				b.WriteByte(v[j])
+			}
+		case '"':
+			return name, b.String(), v[j+1:], true
+		default:
+			b.WriteByte(v[j])
+		}
+	}
+	return name, b.String(), "", true
 }
 
 // wellKnownUrl puts the well-known suffix between the host and the path (RFC 8414, RFC 9728)
