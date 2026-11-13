@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"cli-enonic/internal/app/commands/common"
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
@@ -9,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/pkg/browser"
@@ -21,8 +23,9 @@ var Login = cli.Command{
 	Description: "Where to log in is found through the management endpoint's OAuth discovery, unless " +
 		"--auth-server gives the authorization server.\n\n" +
 		"   Device login shows a code to confirm in a browser, which can be on another device. With --browser, " +
-		"the browser on this machine is sent back to the CLI instead (authorization code with PKCE), so there " +
-		"is no code to confirm.",
+		"the browser is sent back to the CLI instead (authorization code with PKCE), so there is no code to " +
+		"confirm. A browser on another device, or on a machine reached over SSH, cannot reach the CLI: paste the " +
+		"address of the page it lands on into the CLI.",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:  "browser",
@@ -119,7 +122,9 @@ func deviceLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*common
 	}
 	fmt.Fprintf(os.Stderr, "To log in, open the URL below in a browser and confirm the code %s\n\n", util.FormatImportant(code.UserCode))
 	fmt.Fprintf(os.Stderr, "    %s\n\n", verificationUri)
-	openBrowser(verificationUri)
+	if browserAvailable() {
+		openBrowser(verificationUri)
+	}
 
 	common.StartSpinner("Waiting for approval")
 	token, err := common.PollDeviceLogin(client, endpoints, code)
@@ -140,26 +145,77 @@ func browserLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*commo
 	if err != nil {
 		return nil, cli.NewExitError(fmt.Sprintf("Could not start login: %v", err), 1)
 	}
-	fmt.Fprintf(os.Stderr, "Opening the browser to log in. If it does not open, open this URL in a browser on this machine:\n\n")
-	fmt.Fprintf(os.Stderr, "    %s\n\n", login.AuthorizationUrl)
-	openBrowser(login.AuthorizationUrl)
 
-	common.StartSpinner("Waiting for the browser")
+	opened := false
+	if browserAvailable() {
+		opened = openBrowser(login.AuthorizationUrl) == nil
+	}
+	if opened {
+		fmt.Fprintf(os.Stderr, "Log in in the browser that opened. If it did not, open this URL:\n\n")
+	} else {
+		fmt.Fprintf(os.Stderr, "There is no browser here. Open this URL in a browser on any device:\n\n")
+	}
+	fmt.Fprintf(os.Stderr, "    %s\n\n", login.AuthorizationUrl)
+	fmt.Fprintf(os.Stderr, "After you approve, the browser comes back to this CLI. If it shows an error page instead, as it does\n"+
+		"on another device, copy the address of that page and paste it here.\n\n")
+
+	// the redirect and a pasted address race; whichever comes first is the answer
+	go readPastes(pasteInput, login)
+
 	token, err := login.Wait(client)
-	common.StopSpinner()
 	if err != nil {
 		hint := ""
 		if strings.HasPrefix(err.Error(), "unauthorized_client") {
 			hint = "\nThe ID provider does not let the Enonic CLI use browser login. Run 'enonic login' without --browser."
 		}
-		return nil, cli.NewExitError(fmt.Sprintf("\nLogin failed: %v%s", err, hint), 1)
+		return nil, cli.NewExitError(fmt.Sprintf("Login failed: %v%s", err, hint), 1)
 	}
 	return token, nil
 }
 
+// pasteInput is where pasted addresses are read from; swapped in tests
+var pasteInput io.Reader = os.Stdin
+
+// readPastes hands each line to the login until one is taken, explaining a line that is not the right address
+func readPastes(input io.Reader, login *common.BrowserLogin) {
+	scanner := bufio.NewScanner(input)
+	scanner.Buffer(make([]byte, 0, 4096), 64*1024)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		if err := login.Paste(line); err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			continue
+		}
+		return
+	}
+}
+
+// browserAvailable tells whether a browser can be opened on this machine: not in an SSH session, and on
+// Linux and the BSDs not without a display
+var browserAvailable = detectBrowser
+
+func detectBrowser() bool {
+	for _, name := range []string{"SSH_CONNECTION", "SSH_CLIENT", "SSH_TTY"} {
+		if os.Getenv(name) != "" {
+			return false
+		}
+	}
+	switch runtime.GOOS {
+	case "windows", "darwin":
+		return true
+	default:
+		return os.Getenv("DISPLAY") != "" || os.Getenv("WAYLAND_DISPLAY") != ""
+	}
+}
+
 // openBrowser opens the URL in the default browser, quietly; swapped in tests
-var openBrowser = func(u string) {
+var openBrowser = openDefaultBrowser
+
+func openDefaultBrowser(u string) error {
 	browser.Stdout = io.Discard
 	browser.Stderr = io.Discard
-	browser.OpenURL(u)
+	return browser.OpenURL(u)
 }

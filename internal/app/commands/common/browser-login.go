@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -125,6 +126,47 @@ func (l *BrowserLogin) callback(w http.ResponseWriter, r *http.Request) {
 	case l.result <- result:
 	default:
 	}
+}
+
+// ErrNotTheCallback is a pasted address that is not this login's redirect, e.g. the authorization page itself
+var ErrNotTheCallback = errors.New("that is not the address the browser was sent back to")
+
+// Paste takes the address of the page the browser was sent back to, for a browser that cannot reach the
+// CLI's loopback server, e.g. one on another device: its location bar holds the code and the state. It is
+// checked like the redirect itself; an address that is not this login's redirect is refused and the login
+// keeps waiting
+func (l *BrowserLogin) Paste(text string) error {
+	text = strings.Trim(strings.TrimSpace(text), `"'<>`)
+	pasted, err := url.Parse(text)
+	if err != nil || pasted.Path != "/callback" || pasted.Port() != l.port() {
+		return ErrNotTheCallback
+	}
+	if host := pasted.Hostname(); host != "127.0.0.1" && host != "localhost" {
+		return ErrNotTheCallback
+	}
+	query := pasted.Query()
+	if query.Get("state") != l.state {
+		return errors.New("that address belongs to another login; paste the one from this login's browser tab")
+	}
+	var result callbackResult
+	switch {
+	case query.Get("error") != "":
+		result.err = (&oauthError{Error: query.Get("error"), ErrorDescription: query.Get("error_description")}).asError()
+	case query.Get("code") == "":
+		return errors.New("that address has no code; it may be cut short, paste all of it")
+	default:
+		result.code = query.Get("code")
+	}
+	select {
+	case l.result <- result:
+	default:
+	}
+	return nil
+}
+
+func (l *BrowserLogin) port() string {
+	u, _ := url.Parse(l.redirectUri)
+	return u.Port()
 }
 
 func writeCallbackPage(w http.ResponseWriter, status int, message string) {

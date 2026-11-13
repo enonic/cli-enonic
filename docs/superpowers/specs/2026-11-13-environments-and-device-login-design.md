@@ -121,7 +121,7 @@ An alternative to device login, for when the browser runs on the same machine as
 - There is no code to confirm. A redirect with another `state` is ignored, and after 5 minutes the CLI gives up.
 - The `authorization_endpoint` comes from the same discovery as device login. If it is missing, `--browser` fails, and without the flag a server that offers only browser login points to `--browser`.
 - XP serves this when the vhost's ID provider has the `code` flow, but the client has to be allowed the `authorization_code` grant. XP registers `enonic-cli` with the `device_code` and `refresh_token` grants only, so XP answers `unauthorized_client` until the grant is added. The CLI then suggests device login.
-- There is no paste-the-code variant for an SSH or headless machine, because XP has no page that shows the code. Device login covers that case.
+- Without a browser here (an SSH session, or Linux without `DISPLAY` or `WAYLAND_DISPLAY`) or when it fails to open, the CLI prints the URL to open on any device. A browser elsewhere cannot reach `127.0.0.1` and lands on an error page whose address holds the code and the state. The user pastes that address into the CLI, which checks it like the redirect: its own host, port and path, and this login's `state`. The redirect and a paste race, so a local login needs no input. XP needs no page that shows the code.
 
 ## Using the login
 
