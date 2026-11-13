@@ -139,7 +139,6 @@ type RuntimeData struct {
 	PID               int       `toml:"PID"`
 	DockerContainerID string    `toml:"dockerContainerID"`
 	SessionID         string    `toml:sessionID`
-	SessionUrl        string    `toml:"sessionUrl"`
 	LatestVersion     string    `toml:latestVersion`
 	LatestCheck       time.Time `toml:latestCheck`
 }
@@ -318,7 +317,7 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		}
 	}
 
-	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (activeSessionId(ReadRuntimeData(), url) == "" || auth != "" || credFilePath != "") {
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (activeSessionId(ReadRuntimeData()) == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
 			return doCreateRequestBearerAuthRequest(method, url, jwtToken, body)
@@ -336,16 +335,13 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 	return doCreateBasicAuthRequest(method, url, user, pass, body, IsForceMode(c))
 }
 
-// activeSessionId is the saved session id to send with a request to reqUrl. With beta it is only sent to
-// the active instance, and only if it was issued by it
-func activeSessionId(rData RuntimeData, reqUrl string) string {
-	if !util.IsBeta() {
-		return rData.SessionID
+// activeSessionId is the saved session id to send. Sessions are not used with beta: a session cookie
+// cannot tell which environment it belongs to, so environments use device login or a password
+func activeSessionId(rData RuntimeData) string {
+	if util.IsBeta() {
+		return ""
 	}
-	if isActiveRemoteUrl(reqUrl) && rData.SessionUrl == mgmtKey(&remote.GetActiveRemote().Url.URL) {
-		return rData.SessionID
-	}
-	return ""
+	return rData.SessionID
 }
 
 // isActiveRemoteUrl reports whether a request url goes to the active management endpoint: a path relative
@@ -422,13 +418,12 @@ func doCreateBasicAuthRequest(method, reqUrl, user, pass string, body io.Reader,
 	req.AddCookie(&http.Cookie{Name: FORCE_COOKIE, Value: strconv.FormatBool(force)})
 
 	rData := ReadRuntimeData()
-	sessionId := activeSessionId(rData, reqUrl)
+	sessionId := activeSessionId(rData)
 	if user != "" {
 		req.SetBasicAuth(user, pass)
 
 		if sessionId != "" {
 			rData.SessionID = ""
-			rData.SessionUrl = ""
 			WriteRuntimeData(rData)
 		}
 	} else if sessionId != "" {
@@ -480,12 +475,10 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 
 	rData := ReadRuntimeData()
 	if res.StatusCode >= 200 && res.StatusCode < 300 {
-		if isCredFileAbsent && (!util.IsBeta() || isActiveRemoteUrl(res.Request.URL.String())) {
-			sessionUrl := mgmtKey(&remote.GetActiveRemote().Url.URL)
+		if isCredFileAbsent && !util.IsBeta() {
 			for _, cookie := range res.Cookies() {
-				if cookie.Name == JSESSIONID && (cookie.Value != rData.SessionID || sessionUrl != rData.SessionUrl) {
+				if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
 					rData.SessionID = cookie.Value
-					rData.SessionUrl = sessionUrl
 					WriteRuntimeData(rData)
 				}
 			}
@@ -510,10 +503,9 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 			}
 			os.Exit(1)
 		} else if isCredFileAbsent {
-			if activeSessionId(rData, res.Request.URL.String()) != "" {
+			if activeSessionId(rData) != "" {
 				fmt.Fprint(os.Stderr, "User session is not valid.")
 				rData.SessionID = ""
-				rData.SessionUrl = ""
 				WriteRuntimeData(rData)
 			}
 
