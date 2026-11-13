@@ -60,7 +60,7 @@ func TestDeviceLoginAndRefresh(t *testing.T) {
 	}))
 	defer server.Close()
 
-	code, err := StartDeviceLogin(http.DefaultClient, server.URL, "system")
+	code, err := StartDeviceLogin(http.DefaultClient, IdProviderEndpoints(server.URL, "system"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TestDeviceLoginAndRefresh(t *testing.T) {
 	}
 
 	code.Interval = 0
-	token, err := PollDeviceLogin(http.DefaultClient, server.URL, "system", code)
+	token, err := PollDeviceLogin(http.DefaultClient, IdProviderEndpoints(server.URL, "system"), code)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func TestDeviceLoginDenied(t *testing.T) {
 	}))
 	defer server.Close()
 
-	_, err := PollDeviceLogin(http.DefaultClient, server.URL, "system", &DeviceCode{DeviceCode: "dc", ExpiresIn: 10})
+	_, err := PollDeviceLogin(http.DefaultClient, IdProviderEndpoints(server.URL, "system"), &DeviceCode{DeviceCode: "dc", ExpiresIn: 10})
 	if err == nil || err.Error() != "access_denied: The user denied the request" {
 		t.Fatalf("unexpected error %v", err)
 	}
@@ -117,7 +117,7 @@ func TestRefreshRejectsErrorWithoutOAuthError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	token := &AccessToken{WebUrl: server.URL, IdProvider: "system", RefreshToken: "rt"}
+	token := &AccessToken{TokenEndpoint: server.URL + "/token", RefreshToken: "rt"}
 	if _, err := refreshAccessToken(http.DefaultClient, token); err == nil || !strings.Contains(err.Error(), "503") {
 		t.Fatalf("expected unexpected response error, got %v", err)
 	}
@@ -131,8 +131,8 @@ func TestRefreshKeepsLoginReplacedMeanwhile(t *testing.T) {
 	defer server.Close()
 
 	mgmtUrl, _ := url.Parse("http://localhost:4848")
-	stale := &AccessToken{WebUrl: server.URL, IdProvider: "system", AccessToken: "old", RefreshToken: "rt-old"}
-	fresh := &AccessToken{WebUrl: server.URL, IdProvider: "system", AccessToken: "new", RefreshToken: "rt-new", ExpiresAt: time.Now().Add(time.Hour).Unix()}
+	stale := &AccessToken{TokenEndpoint: server.URL + "/token", AccessToken: "old", RefreshToken: "rt-old"}
+	fresh := &AccessToken{TokenEndpoint: server.URL + "/token", AccessToken: "new", RefreshToken: "rt-new", ExpiresAt: time.Now().Add(time.Hour).Unix()}
 	SaveAccessToken(mgmtUrl, fresh)
 
 	// a refresh of the stale login fails, but must not remove the login stored meanwhile
