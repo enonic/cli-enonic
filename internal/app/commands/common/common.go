@@ -99,6 +99,7 @@ var AUTH_AND_TLS_FLAGS = []cli.Flag{
 	CRED_FILE_FLAG,
 	CLIENT_KEY_FLAG,
 	CLIENT_CERT_FLAG,
+	ENV_FLAG,
 }
 
 func IsForceMode(c *cli.Context) bool {
