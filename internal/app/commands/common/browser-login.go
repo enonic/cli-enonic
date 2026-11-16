@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"math/big"
 	"net"
 	"net/http"
 	"net/url"
@@ -30,7 +31,6 @@ type BrowserLogin struct {
 	redirectUri string
 	verifier    string
 	state       string
-	listener    net.Listener
 	server      *http.Server
 	result      chan callbackResult
 }
@@ -55,6 +55,39 @@ func pkceChallenge(verifier string) string {
 
 // StartBrowserLogin listens on a free loopback port for the redirect and builds the authorization URL
 func StartBrowserLogin(endpoints *OAuthEndpoints) (*BrowserLogin, error) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return nil, fmt.Errorf("could not listen for the browser on 127.0.0.1: %v", err)
+	}
+	login, err := newBrowserLogin(endpoints, listener.Addr().(*net.TCPAddr).Port)
+	if err != nil {
+		listener.Close()
+		return nil, err
+	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/callback", login.callback)
+	login.server = &http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}
+	go login.server.Serve(listener)
+	return login, nil
+}
+
+// StartPastedLogin builds the authorization URL for a login that only a pasted address completes: nothing
+// listens on the loopback port of its redirect URI, so the browser lands on a page that does not load
+func StartPastedLogin(endpoints *OAuthEndpoints) (*BrowserLogin, error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(unboundPortCount))
+	if err != nil {
+		return nil, err
+	}
+	return newBrowserLogin(endpoints, unboundPortFirst+int(n.Int64()))
+}
+
+// the dynamic port range (RFC 6335), for a redirect URI port nothing is bound to
+const (
+	unboundPortFirst = 49152
+	unboundPortCount = 65536 - unboundPortFirst
+)
+
+func newBrowserLogin(endpoints *OAuthEndpoints, port int) (*BrowserLogin, error) {
 	if endpoints.Authorization == "" {
 		return nil, errors.New("the authorization server does not offer browser login")
 	}
@@ -66,22 +99,16 @@ func StartBrowserLogin(endpoints *OAuthEndpoints) (*BrowserLogin, error) {
 	if err != nil {
 		return nil, err
 	}
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		return nil, fmt.Errorf("could not listen for the browser on 127.0.0.1: %v", err)
-	}
 	login := &BrowserLogin{
 		endpoints:   endpoints,
-		redirectUri: fmt.Sprintf("http://127.0.0.1:%d/callback", listener.Addr().(*net.TCPAddr).Port),
+		redirectUri: fmt.Sprintf("http://127.0.0.1:%d/callback", port),
 		verifier:    verifier,
 		state:       state,
-		listener:    listener,
 		result:      make(chan callbackResult, 1),
 	}
 
 	authorizationUrl, err := url.Parse(endpoints.Authorization)
 	if err != nil {
-		listener.Close()
 		return nil, err
 	}
 	query := authorizationUrl.Query()
@@ -96,11 +123,6 @@ func StartBrowserLogin(endpoints *OAuthEndpoints) (*BrowserLogin, error) {
 	}
 	authorizationUrl.RawQuery = query.Encode()
 	login.AuthorizationUrl = authorizationUrl.String()
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/callback", login.callback)
-	login.server = &http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}
-	go login.server.Serve(listener)
 	return login, nil
 }
 
@@ -211,6 +233,9 @@ func (l *BrowserLogin) Wait(client *http.Client) (*AccessToken, error) {
 
 // Close stops listening for the browser
 func (l *BrowserLogin) Close() {
+	if l.server == nil {
+		return
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	l.server.Shutdown(ctx)

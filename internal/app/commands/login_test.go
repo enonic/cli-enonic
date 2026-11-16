@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -69,6 +70,65 @@ func TestBrowserLoginCompletedByPaste(t *testing.T) {
 	})
 
 	token, err := browserLogin(http.DefaultClient, &common.OAuthEndpoints{Authorization: server.URL + "/authorize", Token: server.URL + "/token"})
+	if err != nil || token.AccessToken != "at" {
+		t.Fatalf("got %+v %v", token, err)
+	}
+}
+
+// Over SSH: nothing is opened or listened on; the user opens the printed URL elsewhere and pastes where it lands.
+func TestPastedLoginOpensNothing(t *testing.T) {
+	server := fakeAuthorizationServer(t)
+	reader, writer := io.Pipe()
+	defer writer.Close()
+	openBrowser = func(string) error {
+		t.Error("opened a browser")
+		return nil
+	}
+	pasteInput = reader
+	stderr, printed, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	saved := os.Stderr
+	os.Stderr = printed
+	t.Cleanup(func() {
+		openBrowser, pasteInput, os.Stderr = openDefaultBrowser, os.Stdin, saved
+		printed.Close()
+	})
+
+	go func() {
+		buf := make([]byte, 64*1024)
+		var out strings.Builder
+		for !strings.Contains(out.String(), "paste it here") {
+			n, err := stderr.Read(buf)
+			if err != nil {
+				writer.CloseWithError(err)
+				return
+			}
+			out.Write(buf[:n])
+		}
+		var authorizationUrl string
+		for _, line := range strings.Split(out.String(), "\n") {
+			if strings.HasPrefix(strings.TrimSpace(line), "http") {
+				authorizationUrl = strings.TrimSpace(line)
+			}
+		}
+		noFollow := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+		res, err := noFollow.Get(authorizationUrl)
+		if err != nil {
+			writer.CloseWithError(err)
+			return
+		}
+		res.Body.Close()
+		landed := res.Header.Get("Location")
+		if conn, err := net.DialTimeout("tcp", strings.TrimPrefix(strings.Split(landed, "/callback")[0], "http://"), time.Second); err == nil {
+			conn.Close()
+			t.Error("something listens on the redirect port")
+		}
+		io.WriteString(writer, landed+"\n")
+	}()
+
+	token, err := pastedLogin(http.DefaultClient, &common.OAuthEndpoints{Authorization: server.URL + "/authorize", Token: server.URL + "/token"})
 	if err != nil || token.AccessToken != "at" {
 		t.Fatalf("got %+v %v", token, err)
 	}

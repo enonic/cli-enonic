@@ -32,11 +32,17 @@ var Login = cli.Command{
 		"   Device login shows a code to confirm in a browser, which can be on another device. With --browser, " +
 		"the browser is sent back to the CLI instead (authorization code with PKCE), so there is no code to " +
 		"confirm. A browser on another device, or on a machine reached over SSH, cannot reach the CLI: paste the " +
-		"address of the page it lands on into the CLI.",
+		"address of the page it lands on into the CLI.\n\n" +
+		"   With --no-launch-browser, the CLI opens no browser and listens on no port: open the URL it prints in " +
+		"a browser anywhere, approve, and paste the address of the page the browser lands on, which does not load.",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:  "browser",
 			Usage: "Log in with the browser on this machine, which returns to the CLI, instead of device login",
+		},
+		cli.BoolFlag{
+			Name:  "no-launch-browser",
+			Usage: "Log in like --browser, but open no browser and listen on no port: paste the address the browser lands on",
 		},
 		cli.StringFlag{
 			Name:  "auth-server",
@@ -67,7 +73,9 @@ var Login = cli.Command{
 		}
 
 		var token *common.AccessToken
-		if c.Bool("browser") {
+		if c.Bool("no-launch-browser") {
+			token, err = pastedLogin(client, endpoints)
+		} else if c.Bool("browser") {
 			token, err = browserLogin(client, endpoints)
 		} else {
 			token, err = deviceLogin(client, endpoints)
@@ -182,7 +190,30 @@ func browserLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*commo
 
 	// the redirect and a pasted address race; whichever comes first is the answer
 	go readPastes(pasteInput, login)
+	return waitForBrowser(client, login)
+}
 
+// pastedLogin is browser login completed only by pasting the address the browser lands on: no browser is
+// opened here and no port is listened on, e.g. over SSH
+func pastedLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*common.AccessToken, error) {
+	if endpoints.Authorization == "" {
+		return nil, cli.NewExitError("The authorization server does not offer browser login. Run 'enonic login' without --no-launch-browser.", 1)
+	}
+	login, err := common.StartPastedLogin(endpoints)
+	if err != nil {
+		return nil, cli.NewExitError(fmt.Sprintf("Could not start login: %v", err), 1)
+	}
+
+	fmt.Fprintf(os.Stderr, "Open this URL in a browser on any device:\n\n")
+	fmt.Fprintf(os.Stderr, "    %s\n\n", login.AuthorizationUrl)
+	fmt.Fprintf(os.Stderr, "After you approve, the browser lands on a page that does not load. Copy the address of that page\n"+
+		"and paste it here.\n\n")
+
+	go readPastes(pasteInput, login)
+	return waitForBrowser(client, login)
+}
+
+func waitForBrowser(client *http.Client, login *common.BrowserLogin) (*common.AccessToken, error) {
 	token, err := login.Wait(client)
 	if err != nil {
 		hint := ""
