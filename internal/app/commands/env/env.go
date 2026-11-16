@@ -61,14 +61,19 @@ func parseEnvUrl(text string) (*remote.MarshalledUrl, error) {
 
 var Add = cli.Command{
 	Name:      "add",
-	Usage:     "Add an environment",
+	Usage:     "Add an environment and make it the active one",
 	ArgsUsage: "<name> [<management url>]",
 	Description: "Without a url, the name is taken as an Enonic Cloud instance: https://<name>-mgmt.enonic.cloud. " +
-		"Set " + CLOUD_DOMAIN_VAR + " to use another cloud domain, e.g. enonic-dev.cloud.",
+		"Set " + CLOUD_DOMAIN_VAR + " to use another cloud domain, e.g. enonic-dev.cloud. " +
+		"With --no-use, the active environment stays as it is.",
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "proxy",
 			Usage: "Proxy url for requests to the environment. ENONIC_CLI_HTTP_PROXY overrides it",
+		},
+		cli.BoolFlag{
+			Name:  "no-use",
+			Usage: "Keep the active environment instead of making the new one active",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -87,7 +92,13 @@ var Add = cli.Command{
 				return err
 			}
 		}
-		return addEnv(c, name, rawUrl)
+		if err := addEnv(c, name, rawUrl); err != nil {
+			return err
+		}
+		if c.Bool("no-use") {
+			return nil
+		}
+		return useEnv(name)
 	},
 }
 
@@ -188,28 +199,31 @@ var Use = cli.Command{
 		if err := expectArgs(c, 1); err != nil {
 			return err
 		}
-		name := c.Args().First()
-		data, err := readEnvironments()
-		if err != nil {
-			return err
-		}
-		if _, exists := data.Environments[name]; !exists && name != remote.LOCAL_ENV {
-			return exitError(remote.UnknownEnvError(name))
-		}
-		target, err := remote.EnvTarget(name, "")
-		if err != nil {
-			return exitError(err)
-		}
-		data.Active = name
-		if name == remote.LOCAL_ENV {
-			data.Active = ""
-		}
-		if err := remote.WriteEnvironments(data); err != nil {
-			return exitErrorf("Could not save %s: %v", remote.EnvironmentsFile(), err)
-		}
-		fmt.Fprintf(os.Stderr, "Using environment '%s' (%s)\n", name, target.Url.String())
-		return nil
+		return useEnv(c.Args().First())
 	},
+}
+
+func useEnv(name string) error {
+	data, err := readEnvironments()
+	if err != nil {
+		return err
+	}
+	if _, exists := data.Environments[name]; !exists && name != remote.LOCAL_ENV {
+		return exitError(remote.UnknownEnvError(name))
+	}
+	target, err := remote.EnvTarget(name, "")
+	if err != nil {
+		return exitError(err)
+	}
+	data.Active = name
+	if name == remote.LOCAL_ENV {
+		data.Active = ""
+	}
+	if err := remote.WriteEnvironments(data); err != nil {
+		return exitErrorf("Could not save %s: %v", remote.EnvironmentsFile(), err)
+	}
+	fmt.Fprintf(os.Stderr, "Using environment '%s' (%s)\n", name, target.Url.String())
+	return nil
 }
 
 var Current = cli.Command{

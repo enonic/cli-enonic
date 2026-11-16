@@ -127,9 +127,9 @@ func TestEnvAddCloudShortcut(t *testing.T) {
 	if err := run(t, "list"); err != nil {
 		t.Fatal(err)
 	}
-	want := "* local        http://localhost:4848\n" +
+	want := "  local        http://localhost:4848\n" +
 		"  my-site      https://my-site-mgmt.enonic.cloud\n" +
-		"  sry-kk-test  https://sry-kk-test-mgmt.enonic-dev.cloud\n"
+		"* sry-kk-test  https://sry-kk-test-mgmt.enonic-dev.cloud\n"
 	if buf.String() != want {
 		t.Fatalf("list:\n%q\nwant\n%q", buf.String(), want)
 	}
@@ -138,5 +138,34 @@ func TestEnvAddCloudShortcut(t *testing.T) {
 		if err := run(t, "add", name); err == nil || !strings.Contains(err.Error(), "not an Enonic Cloud instance name") {
 			t.Errorf("%s: got %v", name, err)
 		}
+	}
+}
+
+func TestEnvAddMakesItActive(t *testing.T) {
+	buf := setup(t)
+	if err := run(t, "add", "prod", "https://prod.example"); err != nil {
+		t.Fatal(err)
+	}
+	if err := run(t, "current"); err != nil || buf.String() != "prod (https://prod.example), selected by enonic env use\n" {
+		t.Fatalf("current after add: %q %v", buf.String(), err)
+	}
+
+	buf.Reset()
+	if err := run(t, "add", "--no-use", "test", "https://test.example"); err != nil {
+		t.Fatal(err)
+	}
+	if err := run(t, "current"); err != nil || buf.String() != "prod (https://prod.example), selected by enonic env use\n" {
+		t.Fatalf("current after add --no-use: %q %v", buf.String(), err)
+	}
+
+	buf.Reset()
+	if err := run(t, "add", "dup", "https://dup.example"); err != nil {
+		t.Fatal(err)
+	}
+	if err := run(t, "add", "dup", "https://other.example"); err == nil {
+		t.Fatal("expected duplicate to fail")
+	}
+	if err := run(t, "current"); err != nil || buf.String() != "dup (https://dup.example), selected by enonic env use\n" {
+		t.Fatalf("current after failed add: %q %v", buf.String(), err)
 	}
 }
