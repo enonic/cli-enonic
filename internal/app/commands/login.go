@@ -3,6 +3,7 @@ package commands
 import (
 	"bufio"
 	"cli-enonic/internal/app/commands/common"
+	"cli-enonic/internal/app/commands/env"
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
 	"errors"
@@ -19,9 +20,14 @@ import (
 )
 
 var Login = cli.Command{
-	Name:  "login",
-	Usage: "Log in to the environment with device login in a browser (beta, XP 8.2 and later)",
-	Description: "Where to log in is found through the management endpoint's OAuth discovery, unless " +
+	Name:      "login",
+	Usage:     "Log in to the environment with device login in a browser (beta, XP 8.2 and later)",
+	ArgsUsage: "[<environment name> | <management url>]",
+	Description: "With an environment name or a management url, that environment becomes the active one, and one " +
+		"that does not exist yet is added: a name as an Enonic Cloud instance, like 'enonic env add <name>', a url " +
+		"under the first label of its host without -mgmt, e.g. 'acme' for https://acme-mgmt.example.com. Without " +
+		"one, it logs in to the active environment.\n\n" +
+		"   Where to log in is found through the management endpoint's OAuth discovery, unless " +
 		"--auth-server gives the authorization server.\n\n" +
 		"   Device login shows a code to confirm in a browser, which can be on another device. With --browser, " +
 		"the browser is sent back to the CLI instead (authorization code with PKCE), so there is no code to " +
@@ -41,12 +47,14 @@ var Login = cli.Command{
 		common.ENV_FLAG,
 	},
 	Action: func(c *cli.Context) error {
-		target := remote.GetActiveRemote()
+		target, err := loginTarget(c)
+		if err != nil {
+			return err
+		}
 		mgmtUrl := target.Url.URL
 		client := common.OAuthClient(c)
 
 		var endpoints *common.OAuthEndpoints
-		var err error
 		if issuer := c.String("auth-server"); issuer != "" {
 			endpoints, err = common.DiscoverIssuerEndpoints(client, issuer, &mgmtUrl)
 		} else {
@@ -79,6 +87,21 @@ var Login = cli.Command{
 		}
 		return nil
 	},
+}
+
+// loginTarget is the environment named by the argument, made the active one, or else the active environment
+func loginTarget(c *cli.Context) (*remote.RemoteData, error) {
+	switch {
+	case c.NArg() > 1:
+		cli.ShowCommandHelp(c, c.Command.Name)
+		return nil, cli.NewExitError("", 1)
+	case c.NArg() == 0:
+		return remote.GetActiveRemote(), nil
+	case c.IsSet("env"):
+		return nil, cli.NewExitError("Give the environment either as an argument or with --env, not both.", 1)
+	default:
+		return env.Activate(c.Args().First())
+	}
 }
 
 var Logout = cli.Command{

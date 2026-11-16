@@ -10,10 +10,13 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/urfave/cli"
 )
 
 // fakeAuthorizationServer redirects an authorization request to its redirect URI with a code, and gives a
@@ -139,5 +142,25 @@ func TestStartBrowser(t *testing.T) {
 	start := time.Now()
 	if !startBrowser("http://x") || time.Since(start) > time.Second {
 		t.Fatal("waited for a running browser")
+	}
+}
+
+func TestLoginTargetArguments(t *testing.T) {
+	t.Setenv("ENONIC_CLI_HOME_PATH", t.TempDir())
+	app := cli.NewApp()
+	app.Commands = []cli.Command{Login}
+	app.Writer = io.Discard
+	app.ErrWriter = io.Discard
+	app.ExitErrHandler = func(*cli.Context, error) {}
+
+	err := app.Run([]string{"enonic", "login", "--env", "prod", "stage"})
+	if err == nil || !strings.Contains(err.Error(), "not both") {
+		t.Fatalf("argument with --env: %v", err)
+	}
+	if err := app.Run([]string{"enonic", "login", "prod", "stage"}); err == nil {
+		t.Fatal("expected an error for two arguments")
+	}
+	if _, err := os.Stat(filepath.Join(os.Getenv("ENONIC_CLI_HOME_PATH"), ".enonic", "environments.toml")); !os.IsNotExist(err) {
+		t.Fatalf("environments were written: %v", err)
 	}
 }
