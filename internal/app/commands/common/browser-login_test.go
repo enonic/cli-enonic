@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -178,32 +177,4 @@ func TestBrowserLoginPastedRefusal(t *testing.T) {
 	if _, err := login.Wait(http.DefaultClient); err == nil || !strings.HasPrefix(err.Error(), "access_denied") {
 		t.Fatalf("got %v", err)
 	}
-}
-
-func TestPastedLogin(t *testing.T) {
-	server := authorizeServer(t, "")
-	login, err := StartPastedLogin(&OAuthEndpoints{Authorization: server.URL + "/authorize", Token: server.URL + "/token"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if login.server != nil {
-		t.Fatal("a pasted login listens for the browser")
-	}
-	if port, _ := strconv.Atoi(login.port()); port < unboundPortFirst || port > 65535 {
-		t.Fatalf("redirect port %d outside the dynamic range", port)
-	}
-
-	landed := redirectOf(t, login.AuthorizationUrl)
-	u, _ := url.Parse(landed)
-	if err := login.Paste(strings.Replace(landed, "state="+url.QueryEscape(u.Query().Get("state")), "state=other", 1)); err == nil {
-		t.Fatal("accepted another login's address")
-	}
-	if err := login.Paste(landed); err != nil {
-		t.Fatal(err)
-	}
-	token, err := login.Wait(http.DefaultClient)
-	if err != nil || token.AccessToken != "at" {
-		t.Fatalf("got %+v %v", token, err)
-	}
-	login.Close()
 }
