@@ -81,7 +81,7 @@ func TestActivateLocal(t *testing.T) {
 
 func TestActivateRefusesTakenName(t *testing.T) {
 	setup(t)
-	if err := run(t, "add", "acme", "https://acme.example.org"); err != nil {
+	if err := run(t, "add", "--no-use", "acme", "https://acme.example.org"); err != nil {
 		t.Fatal(err)
 	}
 
