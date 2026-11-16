@@ -26,7 +26,7 @@ var Start = cli.Command{
 }
 
 func startApp(c *cli.Context, name string) {
-	req := createStartRequest(c, name)
+	req := createStartRequest(c, name, common.ServerApis(c))
 
 	res := common.SendRequest(c, req, fmt.Sprintf("Requesting start \"%s\"", name))
 
@@ -40,13 +40,17 @@ func startApp(c *cli.Context, name string) {
 	fmt.Fprintln(os.Stdout, status)
 }
 
-func createStartRequest(c *cli.Context, key string) *http.Request {
+func createStartRequest(c *cli.Context, key string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]string{
 		"key": key,
 	}
 	json.NewEncoder(body).Encode(params)
-	req := common.CreateRequest(c, "POST", "app/start", body)
+	path := "app/start"
+	if server {
+		path = common.ServerApiPath("app", "start")
+	}
+	req := common.CreateRequest(c, "POST", path, body)
 
 	return req
 }

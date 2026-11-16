@@ -66,7 +66,15 @@ func printApplications(out io.Writer, apps []Application) {
 }
 
 func listApps(c *cli.Context) *ApplicationsResult {
-	// XP has no endpoint that returns the applications, they only arrive as the first event on this stream
+	if common.ServerApis(c) {
+		res := common.SendRequest(c, common.CreateRequest(c, "GET", common.ServerApiPath("app"), nil), "Loading applications")
+		var infos ApplicationInfos
+		common.ParseResponse(res, &infos)
+		fmt.Fprintln(os.Stderr, "Done")
+		return infos.result()
+	}
+
+	// the legacy REST has no endpoint that returns the applications, they only arrive as the first event on this stream
 	req := common.CreateRequest(c, "GET", "app/events", nil)
 	req.Header.Set("Accept", common.SSE_CONTENT_TYPE)
 
@@ -130,4 +138,30 @@ type Application struct {
 	Url              string    `json:"url,omitempty"`
 	VendorName       string    `json:"vendorName,omitempty"`
 	VendorUrl        string    `json:"vendorUrl,omitempty"`
+}
+
+// ApplicationInfos is how the management API lists applications: an application's name is its title
+type ApplicationInfos struct {
+	Applications []ApplicationInfo `json:"applications"`
+}
+
+type ApplicationInfo struct {
+	Application
+	Title string `json:"title,omitempty"`
+}
+
+func (info ApplicationInfo) application() Application {
+	app := info.Application
+	if app.DisplayName == "" {
+		app.DisplayName = info.Title
+	}
+	return app
+}
+
+func (infos ApplicationInfos) result() *ApplicationsResult {
+	apps := make([]Application, len(infos.Applications))
+	for i, info := range infos.Applications {
+		apps[i] = info.application()
+	}
+	return &ApplicationsResult{Applications: apps}
 }

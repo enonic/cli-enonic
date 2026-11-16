@@ -54,7 +54,7 @@ func decodeJSONBody(t *testing.T, r io.Reader) map[string]interface{} {
 func TestCreateNewRequest_EmptyRepo(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newSnapCtx("", "")
-	req := createNewRequest(c)
+	req := createNewRequest(c, false)
 	params := decodeJSONBody(t, req.Body)
 
 	if _, ok := params["repositoryId"]; ok {
@@ -65,7 +65,7 @@ func TestCreateNewRequest_EmptyRepo(t *testing.T) {
 func TestCreateNewRequest_WithRepo(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newSnapCtx("", "com.enonic.cms.default")
-	req := createNewRequest(c)
+	req := createNewRequest(c, false)
 	params := decodeJSONBody(t, req.Body)
 
 	if params["repositoryId"] != "com.enonic.cms.default" {

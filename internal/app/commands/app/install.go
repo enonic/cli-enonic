@@ -44,12 +44,19 @@ var Install = cli.Command{
 }
 
 func installApp(c *cli.Context, file, url string) InstallResult {
-	req := createInstallRequest(c, file, url)
+	server := common.ServerApis(c)
+	req := createInstallRequest(c, file, url, server)
 
 	resp := common.SendRequest(c, req, fmt.Sprintf("Installing \"%s\"", file))
 
 	var result InstallResult
-	common.ParseResponse(resp, &result)
+	if server {
+		var info ApplicationInfo
+		common.ParseResponse(resp, &info)
+		result.ApplicationInstalledJson.Application = info.installed()
+	} else {
+		common.ParseResponse(resp, &result)
+	}
 	if fail := result.Failure; fail != "" {
 		fmt.Fprintln(os.Stderr, fail)
 	} else {
@@ -108,12 +115,15 @@ func ensureFileFlag(c *cli.Context) string {
 	return util.PromptProjectJar(c.String("file"), common.IsForceMode(c))
 }
 
-func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Request {
+func createInstallRequest(c *cli.Context, filePath, urlParam string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	var baseUrl, contentType string
 
 	if filePath != "" {
 		baseUrl = "app/install"
+		if server {
+			baseUrl = common.ServerApiPath("app", "install")
+		}
 
 		file, err := os.Open(filePath)
 		util.Fatal(err, "Error opening file:")
@@ -126,6 +136,9 @@ func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Reque
 		writer.Close()
 	} else if urlParam != "" {
 		baseUrl = "app/installUrl"
+		if server {
+			baseUrl = common.ServerApiPath("app", "pull")
+		}
 		contentType = "application/json"
 		params := map[string]string{
 			"URL": urlParam,
@@ -142,21 +155,40 @@ func createInstallRequest(c *cli.Context, filePath, urlParam string) *http.Reque
 
 type InstallResult struct {
 	ApplicationInstalledJson struct {
-		Application struct {
-			DisplayName      string
-			Key              string
-			Deletable        bool
-			Editable         bool
-			Local            bool
-			MaxSystemVersion string
-			MinSystemVersion string
-			ModifiedTime     time.Time
-			State            string
-			Url              string
-			VendorName       string
-			VendorUrl        string
-			Version          string
-		}
+		Application InstalledApplication
 	}
 	Failure string
+}
+
+type InstalledApplication struct {
+	DisplayName      string
+	Key              string
+	Deletable        bool
+	Editable         bool
+	Local            bool
+	MaxSystemVersion string
+	MinSystemVersion string
+	ModifiedTime     time.Time
+	State            string
+	Url              string
+	VendorName       string
+	VendorUrl        string
+	Version          string
+}
+
+func (info ApplicationInfo) installed() InstalledApplication {
+	app := info.application()
+	return InstalledApplication{
+		DisplayName:      app.DisplayName,
+		Key:              app.Key,
+		Local:            app.Local,
+		MaxSystemVersion: app.MaxSystemVersion,
+		MinSystemVersion: app.MinSystemVersion,
+		ModifiedTime:     app.ModifiedTime,
+		State:            app.State,
+		Url:              app.Url,
+		VendorName:       app.VendorName,
+		VendorUrl:        app.VendorUrl,
+		Version:          app.Version,
+	}
 }

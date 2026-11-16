@@ -32,7 +32,11 @@ var List = cli.Command{
 }
 
 func fetchDumpList(c *cli.Context) *DumpList {
-	req := common.CreateRequest(c, "GET", "system/dump", nil)
+	path := "system/dump"
+	if common.ServerApis(c) {
+		path = common.ServerApiPath("dump")
+	}
+	req := common.CreateRequest(c, "GET", path, nil)
 	resp := common.SendRequest(c, req, "Loading dumps")
 
 	var list DumpList

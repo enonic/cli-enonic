@@ -41,7 +41,7 @@ var Load = cli.Command{
 
 			name := ensureNameFlag(c, false, force)
 
-			req := createLoadRequest(c, name)
+			req := createLoadRequest(c, name, common.ServerApis(c))
 			var result LoadDumpResponse
 
 			var status *common.TaskStatus
@@ -69,9 +69,13 @@ var Load = cli.Command{
 	},
 }
 
-func createLoadRequest(c *cli.Context, name string) *http.Request {
+func createLoadRequest(c *cli.Context, name string, server bool) *http.Request {
 	body := new(bytes.Buffer)
-	json.NewEncoder(body).Encode(buildLoadParams(c, name))
+	params := buildLoadParams(c, name)
+	json.NewEncoder(body).Encode(params)
+	if server {
+		return common.CreateRequest(c, "POST", common.ServerApiPath("dump", params["name"].(string), "load"), body)
+	}
 	return common.CreateRequest(c, "POST", "system/load", body)
 }
 

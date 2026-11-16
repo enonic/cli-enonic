@@ -40,7 +40,7 @@ func TestCreateUpgradeRequest_StripsZipSuffix(t *testing.T) {
 	// the upgrade request must send the bare name so the server does not
 	// append a second .zip extension.
 	isolateEnonicHome(t)
-	req := createUpgradeRequest(nil, "mydump.zip")
+	req := createUpgradeRequest(nil, "mydump.zip", false)
 
 	if req.URL.Path != "system/upgrade" && req.URL.Path != "/system/upgrade" {
 		t.Errorf("unexpected path: %s", req.URL.Path)
@@ -54,7 +54,7 @@ func TestCreateUpgradeRequest_StripsZipSuffix(t *testing.T) {
 
 func TestCreateUpgradeRequest_PassesBareNameThrough(t *testing.T) {
 	isolateEnonicHome(t)
-	req := createUpgradeRequest(nil, "mydump")
+	req := createUpgradeRequest(nil, "mydump", false)
 	params := decodeBody(t, req.Body)
 	if params["name"] != "mydump" {
 		t.Errorf("expected name=mydump, got %q", params["name"])

@@ -41,7 +41,13 @@ var Reindex = cli.Command{
 		ensureRepoFlag(c)
 		ensureBranchesFlag(c)
 
-		req := createReindexRequest(c, "repo/index/reindexTask")
+		server := common.ServerApis(c)
+		var req *http.Request
+		if server {
+			req = createServerReindexRequest(c)
+		} else {
+			req = createReindexRequest(c, "repo/index/reindexTask")
+		}
 		res, err := common.SendRequestCustom(c, req, "", 3)
 		util.Fatal(err, "Reindex request error")
 
@@ -56,7 +62,7 @@ var Reindex = cli.Command{
 				}
 			}
 
-			if enonicErr.Status == http.StatusNotFound {
+			if enonicErr.Status == http.StatusNotFound && !server {
 				// Async endpoint was not found, most likely XP version < 7.2 so trying synchronous endpoint
 				newReq := createReindexRequest(c, "repo/index/reindex")
 				resp := common.SendRequest(c, newReq, requestLabel)
@@ -142,6 +148,17 @@ func createReindexRequest(c *cli.Context, url string) *http.Request {
 	json.NewEncoder(body).Encode(params)
 
 	return common.CreateRequest(c, "POST", url, body)
+}
+
+func createServerReindexRequest(c *cli.Context) *http.Request {
+	body := new(bytes.Buffer)
+	params := map[string]interface{}{
+		"branches":   strings.Split(c.String("b"), ","),
+		"initialize": c.Bool("i"),
+	}
+	json.NewEncoder(body).Encode(params)
+
+	return common.CreateRequest(c, "POST", common.ServerApiPath("index", c.String("r"), "reindex"), body)
 }
 
 type ReindexResponse struct {
