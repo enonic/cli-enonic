@@ -86,7 +86,7 @@ var FORCE_FLAG = cli.BoolFlag{
 
 var COMPAT_FLAG = cli.StringFlag{
 	Name:  "compat",
-	Usage: "XP version compatibility mode. Value must be in the form \"X\" or \"X.Y\" (e.g. \"7\" or \"7.16\"). Use a value starting with \"7\" to use the legacy XP 7 API format, \"8.0\" or \"8.1\" for the XP 8 REST API, \"8.2\" or later for the XP management APIs. Without it, the CLI checks the server once: it uses the management APIs if the server has /server:repo/, and the XP 8 REST API otherwise.",
+	Usage: "XP version compatibility mode. Value must be in the form \"X\" or \"X.Y\" (e.g. \"7\" or \"7.16\"). Use a value starting with \"7\" to use the legacy XP 7 API format, \"8.0\" or \"8.1\" for the XP 8 REST API, \"8.2\" or later for the XP management APIs. Without it, the CLI detects the XP version automatically. XP 7 cannot be detected: use \"7\" for it.",
 }
 
 var CLIENT_KEY_FLAG = cli.StringFlag{
