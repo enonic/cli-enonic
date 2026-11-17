@@ -249,7 +249,7 @@ func TestTokenFileOfCloudEnvironment(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if path != filepath.Join(util.GetInEnonicDir("tokens"), "sry%2Fee%2Ftest.json") {
+	if path != filepath.Join(util.GetInEnonicDir("tokens"), "sry-ee-test.json") {
 		t.Fatalf("got %q", path)
 	}
 	if err := SaveAccessToken(cloud, validToken("c")); err != nil {

@@ -65,6 +65,28 @@ func ValidEnvName(name string) bool {
 	return IsCloudEnvName(name) || envNamePattern.MatchString(name) && !strings.HasPrefix(name, ONE_OFF_TOKEN_PREFIX)
 }
 
+// TokenKey is the name of an environment's login file, without .json: an Enonic Cloud name with its '/' as '-'
+func TokenKey(name string) string {
+	return strings.ReplaceAll(name, "/", "-")
+}
+
+// LoginClash is the other environment whose login would share a file with an environment of this name, or empty
+// string if there is none
+func (data *EnvironmentsData) LoginClash(name string) string {
+	key := TokenKey(name)
+	for other := range data.Environments {
+		if other != name && TokenKey(other) == key {
+			return other
+		}
+	}
+	return ""
+}
+
+// LoginClashError tells that two environments would share a login file
+func LoginClashError(name, other string) error {
+	return fmt.Errorf("Environment '%s' would share its login with '%s'. Choose another name.", name, other)
+}
+
 // INVALID_ENV_NAME_HINT says what an environment name may be
 const INVALID_ENV_NAME_HINT = "Use <account>/<solution>/<environment> for Enonic Cloud, or lowercase letters, digits, '-' and '_', not starting with '" + ONE_OFF_TOKEN_PREFIX + "'."
 
@@ -97,6 +119,13 @@ func ReadEnvironments() (*EnvironmentsData, error) {
 	for name, env := range data.Environments {
 		if !ValidEnvName(name) || name == LOCAL_ENV {
 			return nil, fmt.Errorf("Invalid environment name '%s' in %s", name, path)
+		}
+		if other := data.LoginClash(name); other != "" {
+			first, second := name, other
+			if second < first {
+				first, second = second, first
+			}
+			return nil, fmt.Errorf("Environments '%s' and '%s' in %s would share a login. Rename one of them.", first, second, path)
 		}
 		if !ValidEnvUrl(env.Url) {
 			return nil, fmt.Errorf("Invalid url for environment '%s' in %s", name, path)

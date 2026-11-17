@@ -125,6 +125,9 @@ func addEnv(c *cli.Context, name, rawUrl string) error {
 	if _, exists := data.Environments[name]; exists || name == remote.LOCAL_ENV {
 		return exitErrorf("Environment '%s' already exists.", name)
 	}
+	if other := data.LoginClash(name); other != "" {
+		return exitError(remote.LoginClashError(name, other))
+	}
 	envUrl, err := parseEnvUrl(rawUrl)
 	if err != nil {
 		return err

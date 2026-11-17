@@ -232,7 +232,7 @@ func newAccessToken(endpoints *OAuthEndpoints, res *tokenResponse) (*AccessToken
 }
 
 // Each login is kept in its own file under tokens/: <environment>.json, with the '/' of an Enonic Cloud name
-// escaped as %2F, or url-<host>-<port>.json for a one-off ENONIC_CLI_REMOTE_URL
+// as '-', or url-<host>-<port>.json for a one-off ENONIC_CLI_REMOTE_URL. No two environments may share a file
 
 var unsafeHostChars = regexp.MustCompile(`[^a-z0-9.-]`)
 
@@ -241,7 +241,7 @@ func tokenFile(target *remote.RemoteData) (string, error) {
 		if !remote.ValidEnvName(target.Name) {
 			return "", fmt.Errorf("invalid environment name '%s'", target.Name)
 		}
-		return util.GetInEnonicDir("tokens", url.PathEscape(target.Name)+".json"), nil
+		return util.GetInEnonicDir("tokens", remote.TokenKey(target.Name)+".json"), nil
 	}
 	host := unsafeHostChars.ReplaceAllString(strings.ToLower(target.Url.Hostname()), "_")
 	return util.GetInEnonicDir("tokens", fmt.Sprintf("%s%s-%s.json", remote.ONE_OFF_TOKEN_PREFIX, host, effectivePort(&target.Url.URL))), nil

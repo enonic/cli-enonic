@@ -47,6 +47,9 @@ func Activate(arg string) (*remote.RemoteData, error) {
 	}
 
 	if envUrl != nil {
+		if other := data.LoginClash(name); other != "" {
+			return nil, exitError(remote.LoginClashError(name, other))
+		}
 		data.Environments[name] = remote.Environment{Url: envUrl}
 		fmt.Fprintf(os.Stderr, "Added environment '%s' (%s)\n", name, envUrl.String())
 	}

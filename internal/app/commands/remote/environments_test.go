@@ -141,6 +141,7 @@ func TestReadEnvironmentsRejectsCorruptFile(t *testing.T) {
 		"url prefix":             "[environments.url-x]\nurl = \"https://x.example\"\n",
 		"local":                  "[environments.local]\nurl = \"https://x.example\"\n",
 		"bad active":             "active = \"../x\"\n",
+		"shared login":           "[environments.\"sry/ee/test\"]\nurl = \"https://a.example\"\n[environments.sry-ee-test]\nurl = \"https://b.example\"\n",
 	}
 	for name, content := range cases {
 		t.Run(name, func(t *testing.T) {

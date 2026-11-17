@@ -129,3 +129,17 @@ func TestActivateRefusesInvalidName(t *testing.T) {
 		t.Fatalf("added %d environments", count)
 	}
 }
+
+func TestActivateRefusesSharedLogin(t *testing.T) {
+	setup(t)
+	t.Setenv(CLOUD_DOMAIN_VAR, "enonic-dev.cloud")
+	if err := run(t, "add", "--no-use", "sry-ee-test", "https://other.example"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Activate("sry/ee/test"); err == nil || !strings.Contains(err.Error(), "'sry-ee-test'") {
+		t.Fatalf("got %v", err)
+	}
+	if active, count := activeEnv(t); active != "" || count != 1 {
+		t.Fatalf("active %q of %d", active, count)
+	}
+}

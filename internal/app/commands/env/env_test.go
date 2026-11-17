@@ -188,3 +188,23 @@ func TestEnvAddMakesItActive(t *testing.T) {
 		t.Fatalf("current after failed add: %q %v", buf.String(), err)
 	}
 }
+
+func TestEnvAddRefusesSharedLogin(t *testing.T) {
+	setup(t)
+	t.Setenv(CLOUD_DOMAIN_VAR, "enonic-dev.cloud")
+	if err := run(t, "add", "--no-use", "sry/ee/test"); err != nil {
+		t.Fatal(err)
+	}
+	err := run(t, "add", "--no-use", "sry-ee-test", "https://other.example")
+	if err == nil || !strings.Contains(err.Error(), "'sry-ee-test'") || !strings.Contains(err.Error(), "'sry/ee/test'") {
+		t.Fatalf("got %v", err)
+	}
+
+	setup(t)
+	if err := run(t, "add", "--no-use", "sry-ee-test", "https://other.example"); err != nil {
+		t.Fatal(err)
+	}
+	if err := run(t, "add", "--no-use", "sry/ee/test"); err == nil {
+		t.Fatal("expected an error for a name sharing a login")
+	}
+}
