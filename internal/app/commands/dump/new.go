@@ -44,7 +44,7 @@ var Create = cli.Command{
 
 		name := ensureNameFlag(c, true, common.IsForceMode(c))
 
-		req := createNewRequest(c, name)
+		req := createNewRequest(c, name, common.ServerApis(c))
 
 		var result NewDumpResponse
 		var status *common.TaskStatus
@@ -70,10 +70,14 @@ var Create = cli.Command{
 	},
 }
 
-func createNewRequest(c *cli.Context, name string) *http.Request {
+func createNewRequest(c *cli.Context, name string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	json.NewEncoder(body).Encode(buildNewParams(c, name))
-	return common.CreateRequest(c, "POST", "system/dump", body)
+	path := "system/dump"
+	if server {
+		path = common.ServerApiPath("dump")
+	}
+	return common.CreateRequest(c, "POST", path, body)
 }
 
 func buildNewParams(c *cli.Context, name string) map[string]interface{} {

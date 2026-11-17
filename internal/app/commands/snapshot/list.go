@@ -23,7 +23,11 @@ var List = cli.Command{
 }
 
 func listSnapshots(c *cli.Context) *SnapshotList {
-	req := common.CreateRequest(c, "GET", "repo/snapshot/list", nil)
+	path := "repo/snapshot/list"
+	if common.ServerApis(c) {
+		path = common.ServerApiPath("snapshot")
+	}
+	req := common.CreateRequest(c, "GET", path, nil)
 
 	resp := common.SendRequest(c, req, "Loading snapshots")
 

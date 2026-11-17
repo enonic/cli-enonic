@@ -77,7 +77,7 @@ func assertKeys(t *testing.T, params map[string]interface{}, want []string) {
 func TestCreateNewRequest_XP8OmitsLegacyFields(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newCtx(t, "", map[string]bool{"skip-ids": true, "skip-versions": true, "dry": true})
-	params := decodeJSONBody(t, createNewRequest(c).Body)
+	params := decodeJSONBody(t, createNewRequest(c, false).Body)
 
 	assertKeys(t, params, []string{"exportName", "sourceRepoPath"})
 	if params["exportName"] != "myExport" || params["sourceRepoPath"] != "com.enonic.cms.default:draft:/content" {
@@ -88,7 +88,7 @@ func TestCreateNewRequest_XP8OmitsLegacyFields(t *testing.T) {
 func TestCreateNewRequest_CompatDefaults(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newCtx(t, "7", nil)
-	params := decodeJSONBody(t, createNewRequest(c).Body)
+	params := decodeJSONBody(t, createNewRequest(c, false).Body)
 
 	assertKeys(t, params, []string{"exportName", "sourceRepoPath", "exportWithIds", "includeVersions", "dryRun"})
 	if params["exportWithIds"] != true || params["includeVersions"] != true || params["dryRun"] != false {
@@ -99,7 +99,7 @@ func TestCreateNewRequest_CompatDefaults(t *testing.T) {
 func TestCreateNewRequest_CompatFlags(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newCtx(t, "7.16", map[string]bool{"skip-ids": true, "skip-versions": true, "dry": true})
-	params := decodeJSONBody(t, createNewRequest(c).Body)
+	params := decodeJSONBody(t, createNewRequest(c, false).Body)
 
 	if params["exportWithIds"] != false || params["includeVersions"] != false || params["dryRun"] != true {
 		t.Errorf("unexpected compat payload %v", params)
@@ -111,7 +111,7 @@ func TestCreateNewRequest_CompatFlags(t *testing.T) {
 func TestCreateLoadRequest_XP8OmitsDryRun(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newCtx(t, "", map[string]bool{"skip-ids": true, "dry": true})
-	params := decodeJSONBody(t, createLoadRequest(c).Body)
+	params := decodeJSONBody(t, createLoadRequest(c, false).Body)
 
 	assertKeys(t, params, []string{"exportName", "targetRepoPath", "importWithIds", "importWithPermissions"})
 	if params["importWithIds"] != false || params["importWithPermissions"] != true {
@@ -122,7 +122,7 @@ func TestCreateLoadRequest_XP8OmitsDryRun(t *testing.T) {
 func TestCreateLoadRequest_CompatIncludesDryRun(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newCtx(t, "7", map[string]bool{"dry": true})
-	params := decodeJSONBody(t, createLoadRequest(c).Body)
+	params := decodeJSONBody(t, createLoadRequest(c, false).Body)
 
 	assertKeys(t, params, []string{"exportName", "targetRepoPath", "importWithIds", "importWithPermissions", "dryRun"})
 	if params["dryRun"] != true {

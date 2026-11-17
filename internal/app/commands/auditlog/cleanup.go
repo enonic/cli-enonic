@@ -28,7 +28,7 @@ var Cleanup = cli.Command{
 
 		age := ensureAgeParam(c)
 
-		req := createCleanRequest(c, age)
+		req := createCleanRequest(c, age, common.ServerApis(c))
 
 		var result CleanAuditlogResponse
 
@@ -68,14 +68,18 @@ func ensureAgeParam(c *cli.Context) string {
 	})
 }
 
-func createCleanRequest(c *cli.Context, age string) *http.Request {
+func createCleanRequest(c *cli.Context, age string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"ageThreshold": age,
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "auditlog/cleanup", body)
+	path := "auditlog/cleanup"
+	if server {
+		path = common.ServerApiPath("auditlog", "prune")
+	}
+	return common.CreateRequest(c, "POST", path, body)
 }
 
 type CleanAuditlogResponse struct {

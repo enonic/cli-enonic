@@ -47,7 +47,7 @@ var Export = cli.Command{
 		ensureNameFlag(c)
 		ensurePathFlag(c)
 
-		req := createNewRequest(c)
+		req := createNewRequest(c, common.ServerApis(c))
 		var result NewExportResponse
 		status := common.RunTask(c, req, "Exporting data", &result)
 
@@ -63,7 +63,7 @@ var Export = cli.Command{
 	},
 }
 
-func createNewRequest(c *cli.Context) *http.Request {
+func createNewRequest(c *cli.Context, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"exportName":     c.String("t"),
@@ -80,7 +80,11 @@ func createNewRequest(c *cli.Context) *http.Request {
 
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "repo/export", body)
+	path := "repo/export"
+	if server {
+		path = common.ServerApiPath("export")
+	}
+	return common.CreateRequest(c, "POST", path, body)
 }
 
 type NewExportResponse struct {

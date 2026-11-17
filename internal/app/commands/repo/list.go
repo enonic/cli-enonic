@@ -15,17 +15,25 @@ var List = cli.Command{
 	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
-		req := common.CreateRequest(c, "GET", "repo/list", nil)
-		res := common.SendRequest(c, req, "Loading")
-
-		var result RepositoriesResult
-		common.ParseResponse(res, &result)
+		result := listRepositories(c, "Loading")
 
 		fmt.Fprintln(os.Stderr, "Done")
 		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
 		return nil
 	},
+}
+
+func listRepositories(c *cli.Context, message string) *RepositoriesResult {
+	path := "repo/list"
+	if common.ServerApis(c) {
+		path = common.ServerApiPath("repo")
+	}
+	res := common.SendRequest(c, common.CreateRequest(c, "GET", path, nil), message)
+
+	var result RepositoriesResult
+	common.ParseResponse(res, &result)
+	return &result
 }
 
 type RepositoriesResult struct {

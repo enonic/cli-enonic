@@ -86,7 +86,7 @@ var FORCE_FLAG = cli.BoolFlag{
 
 var COMPAT_FLAG = cli.StringFlag{
 	Name:  "compat",
-	Usage: "XP version compatibility mode. Value must be in the form \"X\" or \"X.Y\" (e.g. \"7\" or \"7.16\"). Use a value starting with \"7\" to use the legacy XP 7 API format. Default uses the XP 8 API format.",
+	Usage: "XP version compatibility mode. Value must be in the form \"X\" or \"X.Y\" (e.g. \"7\" or \"7.16\"). Use a value starting with \"7\" to use the legacy XP 7 API format, \"8.0\" or \"8.1\" for the XP 8 REST API, \"8.2\" or later for the XP management APIs. Default is XP 8.2 or later. Use \"8.1\" for XP 8.0 and 8.1, and \"7\" for XP 7.",
 }
 
 var CLIENT_KEY_FLAG = cli.StringFlag{
@@ -438,8 +438,8 @@ func resolveRequestUrl(reqUrl string) (*url.URL, error) {
 	}
 	resolved := remote.GetActiveRemote().Url.URL
 	resolved.User = nil
+	resolved.RawPath = strings.TrimRight(resolved.EscapedPath(), "/") + "/" + strings.TrimLeft(parsedUrl.EscapedPath(), "/")
 	resolved.Path = strings.TrimRight(resolved.Path, "/") + "/" + strings.TrimLeft(parsedUrl.Path, "/")
-	resolved.RawPath = ""
 	resolved.RawQuery = parsedUrl.RawQuery
 	resolved.Fragment = ""
 	return &resolved, nil
@@ -703,8 +703,9 @@ func ParseResponse(resp *http.Response, target interface{}) {
 func ParseResponseCustom(resp *http.Response, target interface{}) (*EnonicError, error) {
 	defer resp.Body.Close()
 	decoder := json.NewDecoder(resp.Body)
-	if resp.StatusCode == http.StatusOK {
-		if err := decoder.Decode(target); err != nil {
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		// a management API answers a long-running command with 202 Accepted and the task to poll
+		if err := decoder.Decode(target); err != nil && !(err == io.EOF && resp.StatusCode == http.StatusNoContent) {
 			return nil, err
 		}
 	} else {
