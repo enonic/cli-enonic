@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -48,29 +47,6 @@ type AccessToken struct {
 
 func (t *AccessToken) isExpired() bool {
 	return time.Now().Add(time.Minute).Unix() > t.ExpiresAt
-}
-
-// UserLogin is the login of the user the access token was issued for, read from its subject
-// (user:<id provider>:<login>), or empty string if it cannot be read
-func (t *AccessToken) UserLogin() string {
-	parts := strings.Split(t.AccessToken, ".")
-	if len(parts) != 3 {
-		return ""
-	}
-	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
-	if err != nil {
-		return ""
-	}
-	var claims struct {
-		Sub string `json:"sub"`
-	}
-	if json.Unmarshal(payload, &claims) != nil {
-		return ""
-	}
-	if subject := strings.SplitN(claims.Sub, ":", 3); len(subject) == 3 {
-		return subject[2]
-	}
-	return claims.Sub
 }
 
 type DeviceCode struct {

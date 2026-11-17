@@ -80,11 +80,7 @@ var Login = cli.Command{
 			return cli.NewExitError(fmt.Sprintf("\nCould not save access token: %v", err), 1)
 		}
 		fmt.Fprintln(os.Stderr, "Done")
-		if user := token.UserLogin(); user != "" {
-			fmt.Fprintf(os.Stderr, "Logged in to %s as %s\n", common.TargetLabel(target), user)
-		} else {
-			fmt.Fprintf(os.Stderr, "Logged in to %s\n", common.TargetLabel(target))
-		}
+		fmt.Fprintf(os.Stderr, "Logged in to %s\n", common.TargetLabel(target))
 		return nil
 	},
 }

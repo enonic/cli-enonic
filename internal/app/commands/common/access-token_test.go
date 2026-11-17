@@ -3,7 +3,6 @@ package common
 import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
-	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -205,16 +204,6 @@ func TestIsActiveRemoteUrl(t *testing.T) {
 		if got := isActiveRemoteUrl(reqUrl); got != want {
 			t.Errorf("isActiveRemoteUrl(%q) = %v, want %v", reqUrl, got, want)
 		}
-	}
-}
-
-func TestUserLogin(t *testing.T) {
-	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"user:system:su"}`))
-	if got := (&AccessToken{AccessToken: "h." + payload + ".s"}).UserLogin(); got != "su" {
-		t.Fatalf("expected su, got %q", got)
-	}
-	if got := (&AccessToken{AccessToken: "opaque"}).UserLogin(); got != "" {
-		t.Fatalf("expected empty, got %q", got)
 	}
 }
 
