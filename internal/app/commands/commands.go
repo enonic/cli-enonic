@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/commands/cloud"
 	"cli-enonic/internal/app/commands/cms"
 	"cli-enonic/internal/app/commands/dump"
+	"cli-enonic/internal/app/commands/env"
 	"cli-enonic/internal/app/commands/export"
 	"cli-enonic/internal/app/commands/project"
 	"cli-enonic/internal/app/commands/repo"
@@ -17,6 +18,10 @@ import (
 )
 
 func All() []cli.Command {
+	return wireEnvFlag(gateBeta(all(), "env", "login", "logout"))
+}
+
+func all() []cli.Command {
 	return []cli.Command{
 		Create,
 		Dev,
@@ -85,6 +90,14 @@ func All() []cli.Command {
 			HelpName:    "Cloud",
 			Category:    "CLOUD COMMANDS",
 		},
+		{
+			Name:        "env",
+			Usage:       "Manage environments: the XP instances commands run against (beta)",
+			Subcommands: env.All(),
+			HelpName:    "Env",
+		},
+		Login,
+		Logout,
 		system.Latest,
 		system.Upgrade,
 		system.Uninstall,

@@ -5,6 +5,7 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"cli-enonic/internal/app/util"
 	"cli-enonic/internal/app/util/system"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
@@ -38,7 +39,7 @@ const SCOOP_MANIFEST_URL = "https://raw.githubusercontent.com/enonic/cli-scoop/m
 const JSESSIONID = "JSESSIONID"
 const LATEST_CHECK_MSG = "Last version check was %d days ago. Run 'enonic latest' to check for newer CLI version"
 const LATEST_VERSION_MSG = "\nLatest available version is %s. Run '%s' to update CLI"
-const SNAP_ENV_VAR = "SNAP_USER_COMMON"
+const SNAP_ENV_VAR = util.SNAP_ENV_VAR
 const FORCE_COOKIE = "forceFlag"
 const HTTP_PORT = 8080
 const INFO_PORT = 2609
@@ -48,6 +49,20 @@ const MODE_DEFAULT = "default"
 const RESTART_ALL_RUNNING_INSTANCES_MSG = "Please restart all running instances of XP."
 
 var spin *spinner.Spinner
+
+// marks a request retried with a refreshed access token, so a refused one is not refreshed again
+type tokenRefreshedKey struct{}
+
+// marks a request that carries the token from ENONIC_CLI_TOKEN
+type envTokenKey struct{}
+
+// CLI_TOKEN_ENV_VAR holds a bearer token issued elsewhere, e.g. a GitHub Actions OIDC token, that the
+// management endpoint's id provider accepts. Beta: without ENONIC_CLI_BETA=true it is refused
+const CLI_TOKEN_ENV_VAR = "ENONIC_CLI_TOKEN"
+
+func envToken() string {
+	return strings.TrimSpace(os.Getenv(CLI_TOKEN_ENV_VAR))
+}
 
 func init() {
 	spin = spinner.New(spinner.CharSets[26], 300*time.Millisecond)
@@ -84,11 +99,18 @@ var CLIENT_CERT_FLAG = cli.StringFlag{
 	Usage: "Specifies the client certificate file to use for authentication with the remote server. Requires --client-key to be specified as well when establishing a mutual TLS (mTLS) session.",
 }
 
+var ENV_FLAG = cli.StringFlag{
+	Name:   "env",
+	Usage:  "Environment to run the command against, instead of the active one (beta)",
+	Hidden: !util.IsBeta(),
+}
+
 var AUTH_AND_TLS_FLAGS = []cli.Flag{
 	AUTH_FLAG,
 	CRED_FILE_FLAG,
 	CLIENT_KEY_FLAG,
 	CLIENT_CERT_FLAG,
+	ENV_FLAG,
 }
 
 func IsForceMode(c *cli.Context) bool {
@@ -141,19 +163,7 @@ type MarketResponse[K any] struct {
 }
 
 func GetInEnonicDir(children ...string) string {
-	var joinArgs []string
-	if util.GetCurrentOs() == "linux" {
-		if snapCommon, snapExists := os.LookupEnv(SNAP_ENV_VAR); snapExists {
-			joinArgs = []string{snapCommon, "dot-enonic"}
-		}
-	}
-	if joinArgs == nil {
-		joinArgs = []string{util.GetEnonicHome()}
-	}
-	if len(children) > 0 {
-		joinArgs = append(joinArgs, children...)
-	}
-	return filepath.Join(joinArgs...)
+	return util.GetInEnonicDir(children...)
 }
 
 func HasProjectData(prjPath string) bool {
@@ -312,7 +322,23 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 		credFilePath = resolveCredFilePath(c.String("cred-file"))
 	}
 
-	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (ReadRuntimeData().SessionID == "" || auth != "" || credFilePath != "") {
+	if auth == "" && credFilePath == "" && isActiveRemoteUrl(url) {
+		if token := envToken(); token != "" {
+			if !util.IsBeta() {
+				// refused rather than ignored, so a job that sets it does not fall back to a password prompt
+				fmt.Fprintln(os.Stderr, CLI_TOKEN_ENV_VAR+": "+util.BETA_MESSAGE)
+				exit(1)
+				return nil
+			}
+			req := doCreateRequestBearerAuthRequest(method, url, token, body)
+			return req.WithContext(context.WithValue(req.Context(), envTokenKey{}, true))
+		}
+		if accessToken := getAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
+			return doCreateRequestBearerAuthRequest(method, url, accessToken, body)
+		}
+	}
+
+	if url != MARKET_URL && url != SCOOP_MANIFEST_URL && (activeSessionId(ReadRuntimeData()) == "" || auth != "" || credFilePath != "") {
 		if credFilePath != "" {
 			jwtToken := generateServiceAccountJwtToken(credFilePath)
 			return doCreateRequestBearerAuthRequest(method, url, jwtToken, body)
@@ -323,46 +349,117 @@ func CreateRequest(c *cli.Context, method, url string, body io.Reader) *http.Req
 					auth = fmt.Sprintf("%s:%s", activeRemote.User, activeRemote.Pass)
 				}
 			}
-			user, pass = EnsureAuth(auth, IsForceMode(c))
+			prompted := auth == ""
+			if prompted {
+				auth = rememberedAuth(url)
+			}
+			user, pass = promptAuth(auth, IsForceMode(c))
+			if prompted {
+				rememberAuth(url, user, pass)
+			}
 		}
 	}
 
 	return doCreateBasicAuthRequest(method, url, user, pass, body, IsForceMode(c))
 }
 
-func doCreateSimpleRequest(method, reqUrl string, body io.Reader) *http.Request {
-	var (
-		host, scheme, port, restPath string
-	)
+// promptAuth asks for the user and password unless auth has them, swapped in tests
+var promptAuth = EnsureAuth
 
-	parsedUrl, err := url.Parse(reqUrl)
+// promptedAuth keeps the user and password typed at the prompt for the rest of the command, by management
+// endpoint, because with beta there is no session to carry the login from one request to the next, e.g.
+// while polling a task
+var promptedAuth = map[string]string{}
+
+// rememberedAuth is the user:password typed earlier in this command for the target of the request, or empty
+func rememberedAuth(reqUrl string) string {
+	if !util.IsBeta() || !isActiveRemoteUrl(reqUrl) {
+		return ""
+	}
+	return promptedAuth[mgmtKey(&remote.GetActiveRemote().Url.URL)]
+}
+
+func rememberAuth(reqUrl, user, pass string) {
+	if util.IsBeta() && isActiveRemoteUrl(reqUrl) && user != "" {
+		promptedAuth[mgmtKey(&remote.GetActiveRemote().Url.URL)] = fmt.Sprintf("%s:%s", user, pass)
+	}
+}
+
+func forgetAuth(reqUrl string) {
+	if util.IsBeta() && isActiveRemoteUrl(reqUrl) {
+		delete(promptedAuth, mgmtKey(&remote.GetActiveRemote().Url.URL))
+	}
+}
+
+// activeSessionId is the saved session id to send. Sessions are not used with beta: a session cookie
+// cannot tell which environment it belongs to, so environments use device login or a password
+func activeSessionId(rData RuntimeData) string {
+	if util.IsBeta() {
+		return ""
+	}
+	return rData.SessionID
+}
+
+// isActiveRemoteUrl reports whether a request url, once resolved, goes to the active management endpoint
+func isActiveRemoteUrl(reqUrl string) bool {
+	resolved, err := resolveRequestUrl(reqUrl)
+	return err == nil && withinManagement(resolved)
+}
+
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	if strings.EqualFold(u.Scheme, "https") {
+		return "443"
+	}
+	return "80"
+}
+
+func doCreateSimpleRequest(method, reqUrl string, body io.Reader) *http.Request {
+	resolved, err := resolveRequestUrl(reqUrl)
 	util.Fatal(err, fmt.Sprintf("Not a valid url: %s", reqUrl))
 
-	if parsedUrl.IsAbs() {
-		host = parsedUrl.Hostname()
-		port = parsedUrl.Port()
-		scheme = parsedUrl.Scheme
-		restPath = parsedUrl.Path
-	} else {
-		activeRemote := remote.GetActiveRemote()
-		host = activeRemote.Url.Hostname()
-		port = activeRemote.Url.Port()
-		scheme = activeRemote.Url.Scheme
-
-		runeUrl := []rune(reqUrl)
-		if runeUrl[0] == '/' {
-			// absolute path
-			restPath = reqUrl
-		} else {
-			// relative path
-			restPath = activeRemote.Url.Path + "/" + reqUrl
-		}
-	}
-
-	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s:%s%s", scheme, host, port, restPath), body)
+	req, err := http.NewRequest(method, resolved.String(), body)
 	util.Fatal(err, "Params error: ")
 
 	return req
+}
+
+// resolveRequestUrl resolves a request url: an absolute one as it is, a path, with or without a leading slash,
+// under the management endpoint's path, joined with a single slash
+func resolveRequestUrl(reqUrl string) (*url.URL, error) {
+	parsedUrl, err := url.Parse(reqUrl)
+	if err != nil {
+		return nil, err
+	}
+	if parsedUrl.IsAbs() {
+		return parsedUrl, nil
+	}
+	resolved := remote.GetActiveRemote().Url.URL
+	resolved.User = nil
+	resolved.Path = strings.TrimRight(resolved.Path, "/") + "/" + strings.TrimLeft(parsedUrl.Path, "/")
+	resolved.RawPath = ""
+	resolved.RawQuery = parsedUrl.RawQuery
+	resolved.Fragment = ""
+	return &resolved, nil
+}
+
+// withinManagement reports whether the url is the active management endpoint or under it: its scheme, host
+// and port, and a path at or below the endpoint's path
+func withinManagement(u *url.URL) bool {
+	mgmtUrl := remote.GetActiveRemote().Url.URL
+	if !strings.EqualFold(u.Scheme, mgmtUrl.Scheme) || !strings.EqualFold(u.Hostname(), mgmtUrl.Hostname()) ||
+		effectivePort(u) != effectivePort(&mgmtUrl) {
+		return false
+	}
+	for _, segment := range strings.Split(u.Path, "/") {
+		if segment == ".." {
+			return false
+		}
+	}
+	base := strings.TrimRight(mgmtUrl.Path, "/")
+	return base == "" || u.Path == base || strings.HasPrefix(u.Path, base+"/")
 }
 
 func doCreateRequestBearerAuthRequest(method, url, jwtToken string, body io.Reader) *http.Request {
@@ -379,17 +476,18 @@ func doCreateBasicAuthRequest(method, reqUrl, user, pass string, body io.Reader,
 	req.AddCookie(&http.Cookie{Name: FORCE_COOKIE, Value: strconv.FormatBool(force)})
 
 	rData := ReadRuntimeData()
+	sessionId := activeSessionId(rData)
 	if user != "" {
 		req.SetBasicAuth(user, pass)
 
-		if rData.SessionID != "" {
+		if sessionId != "" {
 			rData.SessionID = ""
 			WriteRuntimeData(rData)
 		}
-	} else if rData.SessionID != "" {
+	} else if sessionId != "" {
 		req.AddCookie(&http.Cookie{
 			Name:  JSESSIONID,
-			Value: rData.SessionID,
+			Value: sessionId,
 		})
 	}
 
@@ -411,46 +509,11 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 		isCredFileAbsent = resolveCredFilePath(c.String("cred-file")) == ""
 	}
 
-	tlsKey := getValueOrDefault(c.String(CLIENT_KEY_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_KEY"))
-	tlsCert := getValueOrDefault(c.String(CLIENT_CERT_FLAG.Name), os.Getenv("ENONIC_CLI_CLIENT_CERT"))
-
-	var tlsConfig *tls.Config
-	if tlsKey != "" && tlsCert != "" {
-		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
-			os.Exit(1)
-		}
-
-		tlsConfig = &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-	}
-
-	var transport *http.Transport
-
-	activeRemote := remote.GetActiveRemote()
-
 	client := &http.Client{
-		Timeout: timeoutMin * time.Minute,
+		Timeout:       timeoutMin * time.Minute,
+		CheckRedirect: checkRedirect,
 	}
-	if activeRemote.Proxy != nil {
-		transport = &http.Transport{
-			Proxy: http.ProxyURL(&activeRemote.Proxy.URL),
-		}
-		if tlsConfig != nil {
-			transport.TLSClientConfig = tlsConfig
-		}
-		client.Transport = transport
-	} else {
-		if tlsConfig != nil {
-			transport = &http.Transport{
-				TLSClientConfig: tlsConfig,
-			}
-		}
-	}
-
-	if transport != nil {
+	if transport := newHttpTransport(c); transport != nil {
 		client.Transport = transport
 	}
 
@@ -471,7 +534,7 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 
 	rData := ReadRuntimeData()
 	if res.StatusCode >= 200 && res.StatusCode < 300 {
-		if isCredFileAbsent {
+		if isCredFileAbsent && !util.IsBeta() {
 			for _, cookie := range res.Cookies() {
 				if cookie.Name == JSESSIONID && cookie.Value != rData.SessionID {
 					rData.SessionID = cookie.Value
@@ -480,8 +543,36 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 			}
 		}
 	} else if res.StatusCode == http.StatusForbidden || res.StatusCode == http.StatusUnauthorized {
-		if isCredFileAbsent {
-			if rData.SessionID != "" {
+		if res.Request.Context().Value(envTokenKey{}) != nil {
+			// a token issued elsewhere cannot be refreshed here, and a password prompt is no use in automation
+			if res.StatusCode == http.StatusUnauthorized {
+				fmt.Fprintf(os.Stderr, "The token in %s was not accepted by %s.\n", CLI_TOKEN_ENV_VAR, remote.GetActiveRemote().Url.String())
+			} else {
+				fmt.Fprintf(os.Stderr, "The token in %s has no access to this operation.\n", CLI_TOKEN_ENV_VAR)
+			}
+			res.Body.Close()
+			exit(1)
+			return res, errors.New("token refused")
+		} else if isCredFileAbsent && strings.HasPrefix(res.Request.Header.Get("Authorization"), "Bearer ") {
+			if res.StatusCode == http.StatusUnauthorized && res.Request.Context().Value(tokenRefreshedKey{}) == nil {
+				// a refused token may still have a good refresh token, e.g. after XP restarted; try once
+				if accessToken := forceRefreshAccessToken(c, remote.GetActiveRemote()); accessToken != "" {
+					res.Body.Close()
+					// keep every header, e.g. Accept: text/event-stream, and only replace the token
+					newReq := req.Clone(context.WithValue(req.Context(), tokenRefreshedKey{}, true))
+					newReq.Body = bodyCopy
+					newReq.Header.Set("Authorization", "Bearer "+accessToken)
+					return SendRequestCustom(c, newReq, message, timeoutMin)
+				}
+				os.Exit(1)
+			} else if res.StatusCode == http.StatusUnauthorized {
+				fmt.Fprintln(os.Stderr, "Access token was not accepted. Run 'enonic login' to log in again, or 'enonic logout' to use password authentication.")
+			} else {
+				fmt.Fprintln(os.Stderr, "Logged in user has no access. Run 'enonic logout' to use password authentication.")
+			}
+			os.Exit(1)
+		} else if isCredFileAbsent {
+			if activeSessionId(rData) != "" {
 				fmt.Fprint(os.Stderr, "User session is not valid.")
 				rData.SessionID = ""
 				WriteRuntimeData(rData)
@@ -515,7 +606,10 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 				os.Exit(1)
 			}
 
-			user, pass = EnsureAuth(auth, forceBool)
+			// the remembered password was refused; with beta, the one typed now is used for the retry and after
+			forgetAuth(req.URL.String())
+			user, pass = promptAuth(auth, forceBool)
+			rememberAuth(req.URL.String(), user, pass)
 			fmt.Fprintln(os.Stderr, "")
 
 			newReq := CreateRequest(c, req.Method, req.URL.String(), bodyCopy)
@@ -526,6 +620,54 @@ func SendRequestCustom(c *cli.Context, req *http.Request, message string, timeou
 	}
 
 	return res, err
+}
+
+// checkRedirect follows redirects as http.Client does by default, but with beta, credentials meant for the
+// management endpoint are not taken outside it: such a redirect, e.g. to another port of the same host or to a
+// subdomain, which the default would follow with the Authorization header, is refused
+func checkRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) >= 10 {
+		return errors.New("stopped after 10 redirects")
+	}
+	first := via[0]
+	if util.IsBeta() && first.Header.Get("Authorization") != "" && withinManagement(first.URL) && !withinManagement(req.URL) {
+		return fmt.Errorf("refusing to follow a redirect from %s to %s, which is outside the management endpoint", first.URL.Redacted(), req.URL.Redacted())
+	}
+	return nil
+}
+
+// newHttpTransport returns a transport with the remote's proxy and the client certificate from flags or
+// environment, or nil if neither is configured
+func newHttpTransport(c *cli.Context) *http.Transport {
+	var keyFlag, certFlag string
+	if c != nil {
+		keyFlag, certFlag = c.String(CLIENT_KEY_FLAG.Name), c.String(CLIENT_CERT_FLAG.Name)
+	}
+	tlsKey := getValueOrDefault(keyFlag, os.Getenv("ENONIC_CLI_CLIENT_KEY"))
+	tlsCert := getValueOrDefault(certFlag, os.Getenv("ENONIC_CLI_CLIENT_CERT"))
+
+	var tlsConfig *tls.Config
+	if tlsKey != "" && tlsCert != "" {
+		cert, err := tls.LoadX509KeyPair(tlsCert, tlsKey)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to load client certificate: ", err)
+			os.Exit(1)
+		}
+
+		tlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+	}
+
+	activeRemote := remote.GetActiveRemote()
+	if activeRemote.Proxy == nil && tlsConfig == nil {
+		return nil
+	}
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	if activeRemote.Proxy != nil {
+		transport.Proxy = http.ProxyURL(&activeRemote.Proxy.URL)
+	}
+	return transport
 }
 
 func StartSpinner(message string) {
