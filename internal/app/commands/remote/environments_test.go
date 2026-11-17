@@ -131,14 +131,16 @@ func TestResolveDefaultsToLocalWithoutFile(t *testing.T) {
 
 func TestReadEnvironmentsRejectsCorruptFile(t *testing.T) {
 	cases := map[string]string{
-		"bad toml":   "not = [toml",
-		"bad url":    "[environments.prod]\nurl = \"::\"\n",
-		"no host":    "[environments.prod]\nurl = \"ftp:x\"\n",
-		"bad name":   "[environments.\"Bad/Name\"]\nurl = \"https://x.example\"\n",
-		"bad proxy":  "[environments.prod]\nurl = \"https://x.example\"\nproxy = \"not-a-url\"\n",
-		"url prefix": "[environments.url-x]\nurl = \"https://x.example\"\n",
-		"local":      "[environments.local]\nurl = \"https://x.example\"\n",
-		"bad active": "active = \"../x\"\n",
+		"bad toml":               "not = [toml",
+		"bad url":                "[environments.prod]\nurl = \"::\"\n",
+		"no host":                "[environments.prod]\nurl = \"ftp:x\"\n",
+		"bad name":               "[environments.\"Bad/Name\"]\nurl = \"https://x.example\"\n",
+		"bad proxy":              "[environments.prod]\nurl = \"https://x.example\"\nproxy = \"not-a-url\"\n",
+		"no hostname":            "[environments.prod]\nurl = \"http://:4848\"\n",
+		"proxy without hostname": "[environments.prod]\nurl = \"https://x.example\"\nproxy = \"http://:3128\"\n",
+		"url prefix":             "[environments.url-x]\nurl = \"https://x.example\"\n",
+		"local":                  "[environments.local]\nurl = \"https://x.example\"\n",
+		"bad active":             "active = \"../x\"\n",
 	}
 	for name, content := range cases {
 		t.Run(name, func(t *testing.T) {

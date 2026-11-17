@@ -56,9 +56,9 @@ func ValidEnvName(name string) bool {
 	return envNamePattern.MatchString(name) && !strings.HasPrefix(name, ONE_OFF_TOKEN_PREFIX)
 }
 
-// ValidEnvUrl reports whether the url is an http(s) url with a host
+// ValidEnvUrl reports whether the url is an http(s) url with a host name, so not e.g. http://:4848
 func ValidEnvUrl(u *MarshalledUrl) bool {
-	return u != nil && (u.Scheme == "http" || u.Scheme == "https") && u.Host != ""
+	return u != nil && (u.Scheme == "http" || u.Scheme == "https") && u.Hostname() != ""
 }
 
 func UnknownEnvError(name string) error {

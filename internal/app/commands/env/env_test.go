@@ -87,7 +87,9 @@ func TestEnvAddRejects(t *testing.T) {
 		"Environment 'local' already exists.":                {"add", "local", "https://x.example"},
 		"Environment 'prod' already exists.":                 {"add", "prod", "https://x.example"},
 		"Invalid url 'ftp://x'.":                             {"add", "x", "ftp://x"},
+		"Invalid url 'http://:4848'.":                        {"add", "x", "http://:4848"},
 		"Invalid url 'nohost'.":                              {"add", "x", "https://x.example", "--proxy", "nohost"},
+		"Invalid url 'http://:3128'.":                        {"add", "x", "https://x.example", "--proxy", "http://:3128"},
 		"The local environment cannot be removed.":           {"remove", "local"},
 		"Unknown environment 'nope'. Run 'enonic env list'.": {"use", "nope"},
 	}
