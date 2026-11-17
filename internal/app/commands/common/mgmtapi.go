@@ -1,45 +1,23 @@
 package common
 
 import (
-	"cli-enonic/internal/app/commands/remote"
-	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/urfave/cli"
 )
 
-// SERVER_API_PROBE is answered by XP 8.2 and later, which serve the management APIs as /server:<api>; older XP
-// answers it with 404
-const SERVER_API_PROBE = "/server:repo/"
-
-var serverApis = struct {
-	sync.Mutex
-	byEndpoint map[string]bool
-}{byEndpoint: map[string]bool{}}
-
 // ServerApis reports whether commands call XP's management APIs (/server:<api>, XP 8.2 and later) rather than
-// the legacy REST resources, which a management endpoint can switch off. --compat decides when it is given;
-// otherwise the endpoint is asked once per run
+// the legacy REST resources, which a management endpoint can switch off. --compat decides; without it the
+// management APIs are used
 func ServerApis(c *cli.Context) bool {
 	if c != nil {
 		if compat := c.String("compat"); compat != "" {
 			return compatAtLeast(compat, 8, 2)
 		}
 	}
-
-	endpoint := remote.GetActiveRemote().Url.String()
-	serverApis.Lock()
-	defer serverApis.Unlock()
-	if known, ok := serverApis.byEndpoint[endpoint]; ok {
-		return known
-	}
-	res := SendRequest(c, CreateRequest(c, "GET", SERVER_API_PROBE, nil), "")
-	res.Body.Close()
-	served := res.StatusCode != http.StatusNotFound
-	serverApis.byEndpoint[endpoint] = served
-	return served
+	return true
 }
 
 func compatAtLeast(compat string, major, minor int) bool {
@@ -55,7 +33,12 @@ func compatAtLeast(compat string, major, minor int) bool {
 	return y >= minor
 }
 
-// ServerApiPath is the path of a management API, e.g. ServerApiPath("dump", name, "load") is /server:dump/<name>/load
+// ServerApiPath is the path of a management API, e.g. ServerApiPath("dump", name, "load") is /server:dump/<name>/load.
+// Each segment is escaped, so a name with '/', '#', '?' or '%' stays one segment
 func ServerApiPath(api string, segments ...string) string {
-	return "/server:" + api + "/" + strings.Join(segments, "/")
+	escaped := make([]string, len(segments))
+	for i, segment := range segments {
+		escaped[i] = url.PathEscape(segment)
+	}
+	return "/server:" + api + "/" + strings.Join(escaped, "/")
 }

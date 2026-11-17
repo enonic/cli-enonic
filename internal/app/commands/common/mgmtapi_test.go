@@ -4,7 +4,6 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -21,53 +20,47 @@ func TestCompatAtLeast(t *testing.T) {
 	}
 }
 
-func TestServerApisFollowsCompatWithoutAsking(t *testing.T) {
-	setupTokenTest(t, false)
-	requests := 0
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { requests++ }))
-	defer server.Close()
-	t.Setenv(remote.CLI_REMOTE_URL, server.URL)
-
-	if ServerApis(newCompatCtx("8.1", true)) || !ServerApis(newCompatCtx("8.2", true)) || ServerApis(newCompatCtx("7", true)) {
-		t.Fatal("--compat not followed")
-	}
-	if requests != 0 {
-		t.Fatalf("asked the endpoint %d times", requests)
+func TestServerApisFollowsCompat(t *testing.T) {
+	cases := []struct {
+		compat string
+		set    bool
+		want   bool
+	}{{"", false, true}, {"8.2", true, true}, {"9", true, true}, {"8.1", true, false}, {"8", true, false}, {"7", true, false}}
+	for _, tc := range cases {
+		if got := ServerApis(newCompatCtx(tc.compat, tc.set)); got != tc.want {
+			t.Errorf("--compat %q: got %v", tc.compat, got)
+		}
 	}
 }
 
-func TestServerApisAsksOncePerEndpoint(t *testing.T) {
-	setupTokenTest(t, false)
-	t.Setenv(remote.CLI_REMOTE_USER, "su")
-	t.Setenv(remote.CLI_REMOTE_PASS, "pw")
-
-	probes := map[string]int{}
-	endpoint := func(serves bool) *httptest.Server {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			probes[r.Host+r.URL.Path]++
-			if !serves || r.URL.Path != SERVER_API_PROBE {
-				http.NotFound(w, r)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			io.WriteString(w, `{"repositories":[]}`)
-		}))
-		t.Cleanup(server.Close)
-		return server
+func TestServerApiPathEscapesSegments(t *testing.T) {
+	cases := map[string]string{
+		"release#1": "/server:export/release%231/load",
+		"a%b":       "/server:export/a%25b/load",
+		"a/b":       "/server:export/a%2Fb/load",
+		"a?b c":     "/server:export/a%3Fb%20c/load",
 	}
-
-	for _, tc := range []struct {
-		server *httptest.Server
-		want   bool
-	}{{endpoint(true), true}, {endpoint(false), false}} {
-		t.Setenv(remote.CLI_REMOTE_URL, tc.server.URL)
-		for i := 0; i < 2; i++ {
-			if got := ServerApis(newCompatCtx("", false)); got != tc.want {
-				t.Fatalf("%s: got %v", tc.server.URL, got)
-			}
+	for name, want := range cases {
+		if got := ServerApiPath("export", name, "load"); got != want {
+			t.Errorf("%s: got %s", name, got)
 		}
-		if n := probes[strings.TrimPrefix(tc.server.URL, "http://")+SERVER_API_PROBE]; n != 1 {
-			t.Fatalf("%s: asked %d times", tc.server.URL, n)
+	}
+}
+
+func TestRequestKeepsEscapedSegments(t *testing.T) {
+	setupTokenTest(t, false)
+	t.Setenv(remote.CLI_REMOTE_URL, "https://xp.example/mgmt")
+	for name, want := range map[string]string{
+		"release#1": "https://xp.example/mgmt/server:export/release%231/load",
+		"a%b":       "https://xp.example/mgmt/server:export/a%25b/load",
+		"a/b":       "https://xp.example/mgmt/server:export/a%2Fb/load",
+	} {
+		resolved, err := resolveRequestUrl(ServerApiPath("export", name, "load"))
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if got := resolved.String(); got != want {
+			t.Errorf("%s: got %s", name, got)
 		}
 	}
 }

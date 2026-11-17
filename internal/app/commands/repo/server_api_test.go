@@ -69,7 +69,7 @@ func TestCreateReplicasRequest(t *testing.T) {
 	}
 }
 
-// the endpoint is asked once whether it serves the management APIs, then the list comes from /server:repo/
+// without --compat the list comes from /server:repo/
 func TestListRepositoriesFromServerApi(t *testing.T) {
 	isolateEnonicHome(t)
 	t.Setenv("HOME", t.TempDir())
@@ -98,7 +98,7 @@ func TestListRepositoriesFromServerApi(t *testing.T) {
 	if len(result.Repositories) != 1 || result.Repositories[0].Id != "system.app" {
 		t.Fatalf("unexpected result %+v", result)
 	}
-	if len(paths) != 2 || paths[0] != "GET /server:repo/" || paths[1] != "GET /server:repo/" {
+	if len(paths) != 1 || paths[0] != "GET /server:repo/" {
 		t.Fatalf("unexpected requests %v", paths)
 	}
 }
