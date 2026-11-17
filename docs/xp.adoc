@@ -510,9 +510,9 @@ $ enonic app install --cred-file path\to\cred-file.json --file /Users/nerd/Dev/a
 
 === List
 
-List the applications installed on the instance, sorted by application key.
+List the applications installed on the instance, sorted by application key. On XP 8.2 and later, XP's own system applications are left out unless `--all` is given.
 
- $ enonic app list [--json] [-a <value>] [--cred-file <value>] [-f]
+ $ enonic app list [--json] [--all] [-a <value>] [--cred-file <value>] [-f]
 
 Options:
 [cols="1,3", options="header"]
@@ -522,6 +522,9 @@ Options:
 
 |`--json`
 |print the full details of every application as JSON instead of a table
+
+|`--all`
+|include XP's system applications and mark them in a `SYSTEM` column. XP 8.2 and later; older XP always lists them
 
 include::.snippets.adoc[tag=credentials-flags]
 

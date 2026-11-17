@@ -27,11 +27,21 @@ var List = cli.Command{
 			Name:  "json",
 			Usage: "Print the full application details as JSON",
 		},
+		cli.BoolFlag{
+			Name:  "all",
+			Usage: "Include XP's system applications (XP 8.2 and later; older XP lists them anyway)",
+		},
 		common.FORCE_FLAG,
 	}, common.AUTH_AND_TLS_FLAGS...),
 	Action: func(c *cli.Context) error {
 
 		apps := listApps(c)
+		// only the management APIs of XP 8.2 and later tell system applications apart
+		knowsSystem := common.ServerApis(c)
+		all := c.Bool("all")
+		if knowsSystem && !all {
+			apps.Applications = withoutSystem(apps.Applications)
+		}
 
 		sort.Slice(apps.Applications, func(i, j int) bool {
 			return apps.Applications[i].Key < apps.Applications[j].Key
@@ -40,29 +50,57 @@ var List = cli.Command{
 		if c.Bool("json") {
 			fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(apps))
 		} else {
-			printApplications(os.Stdout, apps.Applications)
+			printApplications(os.Stdout, apps.Applications, knowsSystem, all)
 		}
 
 		return nil
 	},
 }
 
-func printApplications(out io.Writer, apps []Application) {
+func withoutSystem(apps []Application) []Application {
+	kept := make([]Application, 0, len(apps))
+	for _, app := range apps {
+		if !app.System {
+			kept = append(kept, app)
+		}
+	}
+	return kept
+}
+
+// printApplications lists the applications; knowsSystem tells whether system applications can be told apart,
+// all whether they are included and marked
+func printApplications(out io.Writer, apps []Application, knowsSystem, all bool) {
+	showSystem := knowsSystem && all
 	if len(apps) == 0 {
-		fmt.Fprintln(os.Stderr, "No applications installed")
+		if knowsSystem && !all {
+			fmt.Fprintln(os.Stderr, "No applications installed. Use --all to include system applications")
+		} else {
+			fmt.Fprintln(os.Stderr, "No applications installed")
+		}
 		return
 	}
 
+	columns := []string{"KEY", "NAME", "VERSION", "STATE", "LOCAL"}
+	if showSystem {
+		columns = append(columns, "SYSTEM")
+	}
 	writer := tabwriter.NewWriter(out, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(writer, strings.Join([]string{"KEY", "NAME", "VERSION", "STATE", "LOCAL"}, "\t"))
+	fmt.Fprintln(writer, strings.Join(columns, "\t"))
 	for _, app := range apps {
-		local := ""
-		if app.Local {
-			local = "yes"
+		row := []string{app.Key, app.DisplayName, app.Version, app.State, yes(app.Local)}
+		if showSystem {
+			row = append(row, yes(app.System))
 		}
-		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\n", app.Key, app.DisplayName, app.Version, app.State, local)
+		fmt.Fprintln(writer, strings.Join(row, "\t"))
 	}
 	writer.Flush()
+}
+
+func yes(value bool) string {
+	if value {
+		return "yes"
+	}
+	return ""
 }
 
 func listApps(c *cli.Context) *ApplicationsResult {
@@ -132,6 +170,7 @@ type Application struct {
 	Version          string    `json:"version"`
 	State            string    `json:"state"`
 	Local            bool      `json:"local"`
+	System           bool      `json:"system"`
 	ModifiedTime     time.Time `json:"modifiedTime"`
 	MinSystemVersion string    `json:"minSystemVersion,omitempty"`
 	MaxSystemVersion string    `json:"maxSystemVersion,omitempty"`
