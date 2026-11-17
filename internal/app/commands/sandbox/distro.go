@@ -17,6 +17,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
@@ -98,7 +99,7 @@ func filterVersions(versions []string, minDistro string, includeMinVer, includeU
 		minDistroVer, _ = semver.NewVersion(minDistro)
 	}
 
-	var filteredVersions []string
+	var filteredVersions semver.Collection
 	var latestVersionResult string
 	var latestVersion *semver.Version
 	for _, version := range versions {
@@ -115,7 +116,7 @@ func filterVersions(versions []string, minDistro string, includeMinVer, includeU
 			strings.ToUpper(tempVersion.Prerelease()) != "SNAPSHOT" &&
 			(includeUnstable || tempVersion.Prerelease() == "") {
 
-			filteredVersions = append(filteredVersions, version)
+			filteredVersions = append(filteredVersions, tempVersion)
 			if latestVersion == nil || latestVersion.LessThan(tempVersion) {
 				latestVersion = tempVersion
 				latestVersionResult = version
@@ -123,7 +124,16 @@ func filterVersions(versions []string, minDistro string, includeMinVer, includeU
 		}
 	}
 
-	return filteredVersions, latestVersionResult
+	// Sort versions in ascending semver order so the list is presented
+	// predictably (oldest first) with the latest version appearing last.
+	sort.Sort(filteredVersions)
+
+	var result []string
+	for _, v := range filteredVersions {
+		result = append(result, v.Original())
+	}
+
+	return result, latestVersionResult
 }
 
 func findLatestVersion(versions []string) string {
