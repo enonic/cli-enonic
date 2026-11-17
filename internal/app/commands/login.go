@@ -17,6 +17,7 @@ import (
 
 	"github.com/pkg/browser"
 	"github.com/urfave/cli"
+	"golang.org/x/term"
 )
 
 var Login = cli.Command{
@@ -142,10 +143,17 @@ func deviceLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*common
 	if verificationUri == "" {
 		return nil, cli.NewExitError(fmt.Sprintf("No verification url in the response from %s", endpoints.DeviceAuthorization), 1)
 	}
-	fmt.Fprintf(os.Stderr, "To log in, open the URL below in a browser and confirm the code %s\n\n", util.FormatImportant(code.UserCode))
-	fmt.Fprintf(os.Stderr, "    %s\n\n", verificationUri)
-	if browserAvailable() {
-		startBrowser(verificationUri)
+	if canPrompt() {
+		fmt.Fprintf(os.Stderr, "One-time code %s\n", util.FormatImportant(code.UserCode))
+		fmt.Fprintf(os.Stderr, "Press Enter to open %s in your browser...\n\n", verificationUri)
+		start := browserStarter()
+		go readLines(loginInput, func(string) bool {
+			start(verificationUri)
+			return true
+		})
+	} else {
+		fmt.Fprintf(os.Stderr, "To log in, open the URL below in a browser and confirm the code %s\n\n", util.FormatImportant(code.UserCode))
+		fmt.Fprintf(os.Stderr, "    %s\n\n", verificationUri)
 	}
 
 	common.StartSpinner("Waiting for approval")
@@ -168,18 +176,37 @@ func browserLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*commo
 		return nil, cli.NewExitError(fmt.Sprintf("Could not start login: %v", err), 1)
 	}
 
-	opened := browserAvailable() && startBrowser(login.AuthorizationUrl)
-	if opened {
-		fmt.Fprintf(os.Stderr, "Log in in the browser that opened. If it did not, open this URL:\n\n")
+	prompt := canPrompt()
+	if prompt {
+		fmt.Fprintf(os.Stderr, "To log in, open this URL:\n\n")
 	} else {
-		fmt.Fprintf(os.Stderr, "There is no browser here. Open this URL in a browser on any device:\n\n")
+		fmt.Fprintf(os.Stderr, "Open this URL in a browser on any device:\n\n")
 	}
 	fmt.Fprintf(os.Stderr, "    %s\n\n", login.AuthorizationUrl)
 	fmt.Fprintf(os.Stderr, "After you approve, the browser comes back to this CLI. If it shows an error page instead, as it does\n"+
 		"on another device, copy the address of that page and paste it here.\n\n")
+	if prompt {
+		fmt.Fprintf(os.Stderr, "Press Enter to open it in your browser...\n\n")
+	}
 
-	// the redirect and a pasted address race; whichever comes first is the answer
-	go readPastes(pasteInput, login)
+	// the redirect and a pasted address race; whichever comes first is the answer. An empty line opens the
+	// browser, once
+	start := browserStarter()
+	opened := false
+	go readLines(loginInput, func(line string) bool {
+		if line == "" {
+			if prompt && !opened {
+				opened = true
+				start(login.AuthorizationUrl)
+			}
+			return false
+		}
+		if err := login.Paste(line); err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			return false
+		}
+		return true
+	})
 
 	token, err := login.Wait(client)
 	if err != nil {
@@ -192,24 +219,31 @@ func browserLogin(client *http.Client, endpoints *common.OAuthEndpoints) (*commo
 	return token, nil
 }
 
-// pasteInput is where pasted addresses are read from; swapped in tests
-var pasteInput io.Reader = os.Stdin
+// loginInput is where Enter and pasted addresses are read from; swapped in tests
+var loginInput io.Reader = os.Stdin
 
-// readPastes hands each line to the login until one is taken, explaining a line that is not the right address
-func readPastes(input io.Reader, login *common.BrowserLogin) {
+// readLines hands each trimmed line to handle until it reports that it is done
+func readLines(input io.Reader, handle func(line string) bool) {
 	scanner := bufio.NewScanner(input)
 	scanner.Buffer(make([]byte, 0, 4096), 64*1024)
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
+		if handle(strings.TrimSpace(scanner.Text())) {
+			return
 		}
-		if err := login.Paste(line); err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-			continue
-		}
-		return
 	}
+}
+
+// canPrompt tells whether to ask for Enter before opening the browser: a browser can be opened here and
+// someone types at the terminal
+func canPrompt() bool {
+	return browserAvailable() && interactive()
+}
+
+// interactive tells whether standard input is a terminal; swapped in tests
+var interactive = isTerminal
+
+func isTerminal() bool {
+	return term.IsTerminal(int(os.Stdin.Fd()))
 }
 
 // browserAvailable tells whether a browser can be opened on this machine: not in an SSH session, and on
@@ -234,13 +268,22 @@ func detectBrowser() bool {
 // the foreground (xdg-open with BROWSER, for one), and the login must not wait for it to exit. It waits a moment
 // for an opener that fails at once, e.g. none installed, and reports false then
 func startBrowser(u string) bool {
-	failed := make(chan error, 1)
-	go func() { failed <- openBrowser(u) }()
-	select {
-	case err := <-failed:
-		return err == nil
-	case <-time.After(browserStartWait):
-		return true
+	return browserStarter()(u)
+}
+
+// browserStarter is startBrowser with the opener and the wait taken now, for a caller that opens the browser
+// later from another goroutine
+func browserStarter() func(u string) bool {
+	opener, wait := openBrowser, browserStartWait
+	return func(u string) bool {
+		failed := make(chan error, 1)
+		go func() { failed <- opener(u) }()
+		select {
+		case err := <-failed:
+			return err == nil
+		case <-time.After(wait):
+			return true
+		}
 	}
 }
 

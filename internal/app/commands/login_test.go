@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"cli-enonic/internal/app/commands/common"
 	"crypto/sha256"
 	"encoding/base64"
@@ -13,6 +14,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -63,10 +65,12 @@ func TestBrowserLoginCompletedByPaste(t *testing.T) {
 		}()
 		return nil
 	}
-	pasteInput = reader
+	loginInput = reader
+	interactive = func() bool { return true }
 	t.Cleanup(func() {
-		browserAvailable, openBrowser, pasteInput = detectBrowser, openDefaultBrowser, os.Stdin
+		browserAvailable, openBrowser, loginInput, interactive = detectBrowser, openDefaultBrowser, os.Stdin, isTerminal
 	})
+	go io.WriteString(writer, "\n")
 
 	token, err := browserLogin(http.DefaultClient, &common.OAuthEndpoints{Authorization: server.URL + "/authorize", Token: server.URL + "/token"})
 	if err != nil || token.AccessToken != "at" {
@@ -105,9 +109,10 @@ func TestBrowserLoginWhileTheBrowserRuns(t *testing.T) {
 		<-stop         // and keeps running
 		return nil
 	}
-	pasteInput = strings.NewReader("")
+	loginInput = strings.NewReader("\n")
+	interactive = func() bool { return true }
 	t.Cleanup(func() {
-		browserAvailable, openBrowser, pasteInput, browserStartWait = detectBrowser, openDefaultBrowser, os.Stdin, time.Second
+		browserAvailable, openBrowser, loginInput, interactive, browserStartWait = detectBrowser, openDefaultBrowser, os.Stdin, isTerminal, time.Second
 	})
 
 	done := make(chan error, 1)
@@ -163,4 +168,172 @@ func TestLoginTargetArguments(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(os.Getenv("ENONIC_CLI_HOME_PATH"), ".enonic", "environments.toml")); !os.IsNotExist(err) {
 		t.Fatalf("environments were written: %v", err)
 	}
+}
+
+// fakeDeviceServer gives a device code and answers the token request once approved() is true
+func fakeDeviceServer(t *testing.T, approved func() bool) *common.OAuthEndpoints {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/device/code":
+			json.NewEncoder(w).Encode(map[string]interface{}{"device_code": "dc", "user_code": "BCDF-GHJK",
+				"verification_uri": "https://idp.example/device", "verification_uri_complete": "https://idp.example/device?user_code=BCDF-GHJK",
+				"expires_in": 60, "interval": 1})
+		case "/token":
+			if !approved() {
+				w.WriteHeader(400)
+				json.NewEncoder(w).Encode(map[string]string{"error": "authorization_pending"})
+				return
+			}
+			json.NewEncoder(w).Encode(map[string]interface{}{"access_token": "at", "expires_in": 60})
+		}
+	}))
+	t.Cleanup(server.Close)
+	return &common.OAuthEndpoints{DeviceAuthorization: server.URL + "/device/code", Token: server.URL + "/token"}
+}
+
+// openedUrls records what the browser was asked to open
+type openedUrls struct {
+	mu   sync.Mutex
+	urls []string
+}
+
+func (o *openedUrls) open(u string) error {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	o.urls = append(o.urls, u)
+	return nil
+}
+
+func (o *openedUrls) list() []string {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return append([]string(nil), o.urls...)
+}
+
+func promptSetup(t *testing.T, input io.Reader, browser, terminal bool) *openedUrls {
+	opened := &openedUrls{}
+	browserAvailable = func() bool { return browser }
+	interactive = func() bool { return terminal }
+	openBrowser = opened.open
+	loginInput = input
+	t.Cleanup(func() {
+		browserAvailable, openBrowser, loginInput, interactive = detectBrowser, openDefaultBrowser, os.Stdin, isTerminal
+	})
+	return opened
+}
+
+// Enter opens the browser at the complete verification URL, once, and the approval there ends the login.
+func TestDeviceLoginEnterOpensBrowserOnce(t *testing.T) {
+	opened := promptSetup(t, strings.NewReader("\n\n"), true, true)
+	endpoints := fakeDeviceServer(t, func() bool { return len(opened.list()) > 0 })
+
+	token, err := deviceLogin(http.DefaultClient, endpoints)
+	if err != nil || token.AccessToken != "at" {
+		t.Fatalf("got %+v %v", token, err)
+	}
+	if got := opened.list(); len(got) != 1 || got[0] != "https://idp.example/device?user_code=BCDF-GHJK" {
+		t.Fatalf("opened %v", got)
+	}
+}
+
+// Approval on another device ends the login without anyone pressing Enter.
+func TestDeviceLoginApprovedBeforeEnter(t *testing.T) {
+	reader, writer := io.Pipe()
+	defer writer.Close()
+	opened := promptSetup(t, reader, true, true)
+	endpoints := fakeDeviceServer(t, func() bool { return true })
+
+	token, err := deviceLogin(http.DefaultClient, endpoints)
+	if err != nil || token.AccessToken != "at" {
+		t.Fatalf("got %+v %v", token, err)
+	}
+	if got := opened.list(); len(got) != 0 {
+		t.Fatalf("opened %v", got)
+	}
+}
+
+// Without a browser here, or without a terminal, nothing is opened, whatever is read.
+func TestDeviceLoginWithoutPrompt(t *testing.T) {
+	for _, c := range []struct{ browser, terminal bool }{{false, true}, {true, false}} {
+		opened := promptSetup(t, strings.NewReader("\n"), c.browser, c.terminal)
+		endpoints := fakeDeviceServer(t, func() bool { return true })
+
+		token, err := deviceLogin(http.DefaultClient, endpoints)
+		if err != nil || token.AccessToken != "at" {
+			t.Fatalf("%+v: got %+v %v", c, token, err)
+		}
+		if got := opened.list(); len(got) != 0 {
+			t.Fatalf("%+v: opened %v", c, got)
+		}
+	}
+}
+
+// Without a terminal an empty line opens nothing, and a pasted address still logs in.
+func TestBrowserLoginWithoutTerminalPasteOnly(t *testing.T) {
+	server := fakeAuthorizationServer(t)
+	reader, writer := io.Pipe()
+	defer writer.Close()
+	opened := promptSetup(t, reader, true, false)
+	urls := printedUrls(t)
+
+	done := make(chan error, 1)
+	go func() {
+		token, err := browserLogin(http.DefaultClient, &common.OAuthEndpoints{Authorization: server.URL + "/authorize", Token: server.URL + "/token"})
+		if err == nil && token.AccessToken != "at" {
+			err = io.ErrUnexpectedEOF
+		}
+		done <- err
+	}()
+
+	io.WriteString(writer, "\n")
+	var authorizationUrl string
+	select {
+	case authorizationUrl = <-urls:
+	case <-time.After(5 * time.Second):
+		t.Fatal("no URL printed")
+	}
+	noFollow := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	res, err := noFollow.Get(authorizationUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	io.WriteString(writer, res.Header.Get("Location")+"\n")
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("login did not finish")
+	}
+	if got := opened.list(); len(got) != 0 {
+		t.Fatalf("opened %v", got)
+	}
+}
+
+// printedUrls sends each indented URL written to stderr, the way the login shows the address to open
+func printedUrls(t *testing.T) <-chan string {
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stderr := os.Stderr
+	os.Stderr = writer
+	t.Cleanup(func() {
+		os.Stderr = stderr
+		writer.Close()
+	})
+	urls := make(chan string, 4)
+	go func() {
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			if line := strings.TrimSpace(scanner.Text()); strings.HasPrefix(line, "http") {
+				urls <- line
+			}
+		}
+	}()
+	return urls
 }

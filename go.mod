@@ -47,7 +47,7 @@ require (
 	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/term v0.47.0 // indirect
+	golang.org/x/term v0.47.0
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
