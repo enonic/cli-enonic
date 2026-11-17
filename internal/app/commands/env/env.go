@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -63,7 +62,8 @@ var Add = cli.Command{
 	Name:      "add",
 	Usage:     "Add an environment and make it the active one",
 	ArgsUsage: "<name> [<management url>]",
-	Description: "Without a url, the name is taken as an Enonic Cloud instance: https://<name>-mgmt.enonic.cloud. " +
+	Description: "Without a url, the name is an Enonic Cloud environment, <account>/<solution>/<environment>: " +
+		"https://<account>-<solution>-<environment>-mgmt.enonic.cloud. " +
 		"Set " + CLOUD_DOMAIN_VAR + " to use another cloud domain, e.g. enonic-dev.cloud. " +
 		"With --no-use, the active environment stays as it is.",
 	Flags: []cli.Flag{
@@ -84,7 +84,7 @@ var Add = cli.Command{
 		}
 		name, rawUrl := c.Args().Get(0), c.Args().Get(1)
 		if !remote.ValidEnvName(name) {
-			return exitErrorf("Invalid environment name '%s'. Use lowercase letters, digits, '-' and '_', not starting with '%s'.", name, remote.ONE_OFF_TOKEN_PREFIX)
+			return exitErrorf("Invalid environment name '%s'. %s", name, remote.INVALID_ENV_NAME_HINT)
 		}
 		if rawUrl == "" {
 			var err error
@@ -105,18 +105,16 @@ var Add = cli.Command{
 const CLOUD_DOMAIN_VAR = "ENONIC_CLI_CLOUD_DOMAIN"
 const DEFAULT_CLOUD_DOMAIN = "enonic.cloud"
 
-var cloudInstancePattern = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`)
-
-// cloudMgmtUrl is the management endpoint of the Enonic Cloud instance with the name
+// cloudMgmtUrl is the management endpoint of the Enonic Cloud environment <account>/<solution>/<environment>
 func cloudMgmtUrl(name string) (string, error) {
-	if !cloudInstancePattern.MatchString(name) {
-		return "", exitErrorf("'%s' is not an Enonic Cloud instance name. Give the management url: enonic env add %s <url>", name, name)
+	if !remote.IsCloudEnvName(name) {
+		return "", exitErrorf("'%s' is not an Enonic Cloud environment. Give <account>/<solution>/<environment>, or the management url: enonic env add %s <url>", name, name)
 	}
 	domain := strings.Trim(strings.TrimSpace(os.Getenv(CLOUD_DOMAIN_VAR)), ".")
 	if domain == "" {
 		domain = DEFAULT_CLOUD_DOMAIN
 	}
-	return fmt.Sprintf("https://%s-mgmt.%s", name, domain), nil
+	return fmt.Sprintf("https://%s-mgmt.%s", strings.ReplaceAll(name, "/", "-"), domain), nil
 }
 
 func addEnv(c *cli.Context, name, rawUrl string) error {

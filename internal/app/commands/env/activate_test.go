@@ -2,6 +2,7 @@ package env
 
 import (
 	"cli-enonic/internal/app/commands/remote"
+	"strings"
 	"testing"
 )
 
@@ -18,14 +19,38 @@ func TestActivateAddsCloudInstanceByName(t *testing.T) {
 	setup(t)
 	t.Setenv(CLOUD_DOMAIN_VAR, "enonic-dev.cloud")
 
-	target, err := Activate("acme-shop-prod")
+	target, err := Activate("acme/shop/prod")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if target.Name != "acme-shop-prod" || target.Url.String() != "https://acme-shop-prod-mgmt.enonic-dev.cloud" {
+	if target.Name != "acme/shop/prod" || target.Url.String() != "https://acme-shop-prod-mgmt.enonic-dev.cloud" {
 		t.Fatalf("unexpected target %+v", target)
 	}
-	if active, count := activeEnv(t); active != "acme-shop-prod" || count != 1 {
+	if active, count := activeEnv(t); active != "acme/shop/prod" || count != 1 {
+		t.Fatalf("active %q of %d", active, count)
+	}
+
+	if _, err := Activate("acme-shop-prod"); err == nil || !strings.Contains(err.Error(), "<account>/<solution>/<environment>") {
+		t.Fatalf("a plain name without a url: %v", err)
+	}
+}
+
+func TestActivateNamesCloudUrlBySlashes(t *testing.T) {
+	setup(t)
+
+	target, err := Activate("https://sry-ee-test-mgmt.enonic-dev.cloud")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if target.Name != "sry/ee/test" || target.Url.String() != "https://sry-ee-test-mgmt.enonic-dev.cloud" {
+		t.Fatalf("unexpected target %+v", target)
+	}
+
+	again, err := Activate("sry/ee/test")
+	if err != nil || again.Name != "sry/ee/test" {
+		t.Fatalf("by name: %+v %v", again, err)
+	}
+	if active, count := activeEnv(t); active != "sry/ee/test" || count != 1 {
 		t.Fatalf("active %q of %d", active, count)
 	}
 }

@@ -214,3 +214,42 @@ func TestBetaOffIgnoresEnvironments(t *testing.T) {
 		t.Fatalf("got %s", got)
 	}
 }
+
+func TestCloudEnvironmentNames(t *testing.T) {
+	setupEnvTest(t, true)
+	err := WriteEnvironments(&EnvironmentsData{
+		Active: "sry/ee/test",
+		Environments: map[string]Environment{
+			"sry/ee/test": {Url: mustUrl(t, "https://sry-ee-test-mgmt.enonic-dev.cloud")},
+			"prod":        {Url: mustUrl(t, "https://prod.example")},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	content, _ := os.ReadFile(EnvironmentsFile())
+	if !strings.Contains(string(content), `"sry/ee/test"`) {
+		t.Fatalf("slash name not quoted:\n%s", content)
+	}
+	data, err := ReadEnvironments()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Active != "sry/ee/test" || data.Environments["sry/ee/test"].Url.String() != "https://sry-ee-test-mgmt.enonic-dev.cloud" {
+		t.Fatalf("round trip lost the slash name: %+v", data)
+	}
+
+	t.Setenv(CLI_ENV, "sry/ee/test")
+	if target, err := EnvTarget("sry/ee/test", SOURCE_ENV_VAR); err != nil || target.Name != "sry/ee/test" {
+		t.Fatalf("got %+v %v", target, err)
+	}
+
+	for name, want := range map[string]bool{
+		"sry/ee/test": true, "a1/b2/c3": true, "prod": true,
+		"a/b": false, "a/b/c/d": false, "a-b/c/d": false, "A/b/c": false, "a//c": false, "/a/b": false, "url-x": false,
+	} {
+		if got := ValidEnvName(name); got != want {
+			t.Errorf("ValidEnvName(%q) = %v, want %v", name, got, want)
+		}
+	}
+}

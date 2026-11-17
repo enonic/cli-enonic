@@ -82,16 +82,18 @@ func TestEnvAddRejects(t *testing.T) {
 		t.Fatal(err)
 	}
 	cases := map[string][]string{
-		"Invalid environment name 'Prod'. Use lowercase letters, digits, '-' and '_', not starting with 'url-'.":               {"add", "Prod", "https://x.example"},
-		"Invalid environment name 'url-localhost-4848'. Use lowercase letters, digits, '-' and '_', not starting with 'url-'.": {"add", "url-localhost-4848", "https://x.example"},
-		"Environment 'local' already exists.":                {"add", "local", "https://x.example"},
-		"Environment 'prod' already exists.":                 {"add", "prod", "https://x.example"},
-		"Invalid url 'ftp://x'.":                             {"add", "x", "ftp://x"},
-		"Invalid url 'http://:4848'.":                        {"add", "x", "http://:4848"},
-		"Invalid url 'nohost'.":                              {"add", "x", "https://x.example", "--proxy", "nohost"},
-		"Invalid url 'http://:3128'.":                        {"add", "x", "https://x.example", "--proxy", "http://:3128"},
-		"The local environment cannot be removed.":           {"remove", "local"},
-		"Unknown environment 'nope'. Run 'enonic env list'.": {"use", "nope"},
+		"Invalid environment name 'Prod'. " + remote.INVALID_ENV_NAME_HINT:               {"add", "Prod", "https://x.example"},
+		"Invalid environment name 'url-localhost-4848'. " + remote.INVALID_ENV_NAME_HINT: {"add", "url-localhost-4848", "https://x.example"},
+		"Invalid environment name 'a/b'. " + remote.INVALID_ENV_NAME_HINT:                {"add", "a/b", "https://x.example"},
+		"Invalid environment name 'a/b-c/d'. " + remote.INVALID_ENV_NAME_HINT:            {"add", "a/b-c/d"},
+		"Environment 'local' already exists.":                                            {"add", "local", "https://x.example"},
+		"Environment 'prod' already exists.":                                             {"add", "prod", "https://x.example"},
+		"Invalid url 'ftp://x'.":                                                         {"add", "x", "ftp://x"},
+		"Invalid url 'http://:4848'.":                                                    {"add", "x", "http://:4848"},
+		"Invalid url 'nohost'.":                                                          {"add", "x", "https://x.example", "--proxy", "nohost"},
+		"Invalid url 'http://:3128'.":                                                    {"add", "x", "https://x.example", "--proxy", "http://:3128"},
+		"The local environment cannot be removed.":                                       {"remove", "local"},
+		"Unknown environment 'nope'. Run 'enonic env list'.":                             {"use", "nope"},
 	}
 	for want, args := range cases {
 		if err := run(t, args...); err == nil || err.Error() != want {
@@ -119,27 +121,42 @@ func TestEnvListWithUnknownActive(t *testing.T) {
 func TestEnvAddCloudShortcut(t *testing.T) {
 	buf := setup(t)
 	t.Setenv(CLOUD_DOMAIN_VAR, "")
-	if err := run(t, "add", "my-site"); err != nil {
+	if err := run(t, "add", "acme/shop/prod"); err != nil {
 		t.Fatal(err)
 	}
 	t.Setenv(CLOUD_DOMAIN_VAR, "enonic-dev.cloud")
-	if err := run(t, "add", "sry-kk-test"); err != nil {
+	if err := run(t, "add", "sry/kk/test"); err != nil {
 		t.Fatal(err)
 	}
+	if err := run(t, "add", "staging/x/y", "https://staging.example"); err != nil {
+		t.Fatal(err)
+	}
+	if err := run(t, "use", "sry/kk/test"); err != nil {
+		t.Fatal(err)
+	}
+	buf.Reset()
 	if err := run(t, "list"); err != nil {
 		t.Fatal(err)
 	}
-	want := "  local        http://localhost:4848\n" +
-		"  my-site      https://my-site-mgmt.enonic.cloud\n" +
-		"* sry-kk-test  https://sry-kk-test-mgmt.enonic-dev.cloud\n"
+	want := "  local           http://localhost:4848\n" +
+		"  acme/shop/prod  https://acme-shop-prod-mgmt.enonic.cloud\n" +
+		"* sry/kk/test     https://sry-kk-test-mgmt.enonic-dev.cloud\n" +
+		"  staging/x/y     https://staging.example\n"
 	if buf.String() != want {
 		t.Fatalf("list:\n%q\nwant\n%q", buf.String(), want)
 	}
 
-	for _, name := range []string{"my_site", "trailing-"} {
-		if err := run(t, "add", name); err == nil || !strings.Contains(err.Error(), "not an Enonic Cloud instance name") {
+	for _, name := range []string{"my-site", "my_site", "a/b"} {
+		if err := run(t, "add", name); err == nil || !strings.Contains(err.Error(), "<account>/<solution>/<environment>") {
 			t.Errorf("%s: got %v", name, err)
 		}
+	}
+
+	if err := run(t, "remove", "acme/shop/prod"); err != nil {
+		t.Fatal(err)
+	}
+	if _, count := activeEnv(t); count != 2 {
+		t.Fatalf("expected 2 environments after remove, got %d", count)
 	}
 }
 

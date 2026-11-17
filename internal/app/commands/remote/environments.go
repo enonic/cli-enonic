@@ -25,6 +25,13 @@ const (
 
 var envNamePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]*$`)
 
+var cloudEnvNamePattern = regexp.MustCompile(`^[a-z0-9]+/[a-z0-9]+/[a-z0-9]+$`)
+
+// IsCloudEnvName reports whether the name is an Enonic Cloud environment: <account>/<solution>/<environment>
+func IsCloudEnvName(name string) bool {
+	return cloudEnvNamePattern.MatchString(name)
+}
+
 // Environment is a named instance, kept in environments.toml
 type Environment struct {
 	Url   *MarshalledUrl `toml:"url"`
@@ -52,9 +59,14 @@ func EnvironmentsFile() string {
 // environment name may start with it
 const ONE_OFF_TOKEN_PREFIX = "url-"
 
+// ValidEnvName reports whether the name can name an environment: an Enonic Cloud name, or lowercase letters,
+// digits, '-' and '_' not starting with ONE_OFF_TOKEN_PREFIX
 func ValidEnvName(name string) bool {
-	return envNamePattern.MatchString(name) && !strings.HasPrefix(name, ONE_OFF_TOKEN_PREFIX)
+	return IsCloudEnvName(name) || envNamePattern.MatchString(name) && !strings.HasPrefix(name, ONE_OFF_TOKEN_PREFIX)
 }
+
+// INVALID_ENV_NAME_HINT says what an environment name may be
+const INVALID_ENV_NAME_HINT = "Use <account>/<solution>/<environment> for Enonic Cloud, or lowercase letters, digits, '-' and '_', not starting with '" + ONE_OFF_TOKEN_PREFIX + "'."
 
 // ValidEnvUrl reports whether the url is an http(s) url with a host name, so not e.g. http://:4848
 func ValidEnvUrl(u *MarshalledUrl) bool {

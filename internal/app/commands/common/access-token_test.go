@@ -242,6 +242,27 @@ func TestTokenFilePerEnvironment(t *testing.T) {
 	}
 }
 
+func TestTokenFileOfCloudEnvironment(t *testing.T) {
+	setupTokenTest(t, true)
+	cloud := envTarget(t, "sry/ee/test", "https://sry-ee-test-mgmt.enonic-dev.cloud")
+	path, err := tokenFile(cloud)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != filepath.Join(util.GetInEnonicDir("tokens"), "sry%2Fee%2Ftest.json") {
+		t.Fatalf("got %q", path)
+	}
+	if err := SaveAccessToken(cloud, validToken("c")); err != nil {
+		t.Fatal(err)
+	}
+	if got := getAccessToken(nil, cloud); got != "c" {
+		t.Fatalf("got %q", got)
+	}
+	if removed, err := RemoveAccessToken(cloud); !removed || err != nil {
+		t.Fatalf("got %v %v", removed, err)
+	}
+}
+
 func TestTokenNotSentToOtherUrl(t *testing.T) {
 	setupTokenTest(t, true)
 	if err := SaveAccessToken(envTarget(t, "prod", "https://a.example"), validToken("a")); err != nil {

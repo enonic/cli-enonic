@@ -24,8 +24,10 @@ var Login = cli.Command{
 	Usage:     "Log in to the environment with device login in a browser (beta, XP 8.2 and later)",
 	ArgsUsage: "[<environment name> | <management url>]",
 	Description: "With an environment name or a management url, that environment becomes the active one, and one " +
-		"that does not exist yet is added: a name as an Enonic Cloud instance, like 'enonic env add <name>', a url " +
-		"under the first label of its host without -mgmt, e.g. 'acme' for https://acme-mgmt.example.com. Without " +
+		"that does not exist yet is added: a name as an Enonic Cloud environment, like 'enonic env add " +
+		"<account>/<solution>/<environment>', a url of an Enonic Cloud management host as " +
+		"<account>/<solution>/<environment>, any other url under the first label of its host without -mgmt, " +
+		"e.g. 'acme' for https://acme-mgmt.example.com. Without " +
 		"one, it logs in to the active environment.\n\n" +
 		"   Where to log in is found through the management endpoint's OAuth discovery, unless " +
 		"--auth-server gives the authorization server.\n\n" +

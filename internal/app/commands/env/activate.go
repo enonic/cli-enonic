@@ -4,13 +4,14 @@ import (
 	"cli-enonic/internal/app/commands/remote"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
 // Activate makes the environment that arg names the active one and returns it as a target. arg is an
 // environment name or a management url. An environment it does not name yet is added first: a name as
-// an Enonic Cloud instance, like 'enonic env add <name>', a url under the first label of its host
-// without a trailing -mgmt
+// an Enonic Cloud environment, like 'enonic env add <account>/<solution>/<environment>', a url under the
+// name nameFromUrl gives it
 func Activate(arg string) (*remote.RemoteData, error) {
 	data, err := readEnvironments()
 	if err != nil {
@@ -34,7 +35,7 @@ func Activate(arg string) (*remote.RemoteData, error) {
 		}
 	} else if _, exists := data.Environments[name]; !exists && name != remote.LOCAL_ENV {
 		if !remote.ValidEnvName(name) {
-			return nil, exitErrorf("Invalid environment name '%s'. Use lowercase letters, digits, '-' and '_', not starting with '%s'.", name, remote.ONE_OFF_TOKEN_PREFIX)
+			return nil, exitErrorf("Invalid environment name '%s'. %s", name, remote.INVALID_ENV_NAME_HINT)
 		}
 		rawUrl, err := cloudMgmtUrl(name)
 		if err != nil {
@@ -81,8 +82,15 @@ func sameUrl(a, b *remote.MarshalledUrl) bool {
 	return a != nil && b != nil && strings.TrimRight(a.String(), "/") == strings.TrimRight(b.String(), "/")
 }
 
-// nameFromUrl is the first label of the url's host without a trailing -mgmt: https://acme-mgmt.enonic.cloud is acme
+var cloudMgmtLabel = regexp.MustCompile(`^([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-mgmt$`)
+
+// nameFromUrl names the environment of a url: an Enonic Cloud management host <account>-<solution>-<environment>-mgmt
+// is <account>/<solution>/<environment>, any other host the first label without a trailing -mgmt, e.g.
+// https://acme-mgmt.example.com is acme
 func nameFromUrl(u *remote.MarshalledUrl) string {
 	label := strings.ToLower(strings.SplitN(u.Hostname(), ".", 2)[0])
+	if parts := cloudMgmtLabel.FindStringSubmatch(label); parts != nil {
+		return strings.Join(parts[1:], "/")
+	}
 	return strings.TrimSuffix(label, "-mgmt")
 }
