@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -117,7 +118,7 @@ func TestPrintApplications(t *testing.T) {
 	}
 
 	var out strings.Builder
-	printApplications(&out, result.Applications)
+	printApplications(&out, result.Applications, false, false)
 
 	expected := "KEY                        NAME        VERSION          STATE     LOCAL\n" +
 		"com.enonic.app.superhero   Superhero   2.0.5            started   \n" +
@@ -130,9 +131,49 @@ func TestPrintApplications(t *testing.T) {
 
 func TestPrintApplicationsEmpty(t *testing.T) {
 	var out strings.Builder
-	printApplications(&out, nil)
+	printApplications(&out, nil, false, false)
 
 	if out.String() != "" {
 		t.Errorf("expected nothing on stdout, got %q", out.String())
+	}
+}
+
+func TestServerApiListHidesSystemApplications(t *testing.T) {
+	var infos ApplicationInfos
+	if err := json.Unmarshal([]byte(`{"applications":[
+		{"key":"com.enonic.xp.app.main","title":"Main","version":"8.2.0","state":"started","system":true},
+		{"key":"com.enonic.app.superhero","title":"Superhero","version":"2.0.5","state":"started"}]}`), &infos); err != nil {
+		t.Fatal(err)
+	}
+	apps := infos.result().Applications
+
+	kept := withoutSystem(apps)
+	if len(kept) != 1 || kept[0].Key != "com.enonic.app.superhero" {
+		t.Fatalf("unexpected applications %+v", kept)
+	}
+
+	var out strings.Builder
+	printApplications(&out, kept, true, false)
+	expected := "KEY                        NAME        VERSION   STATE     LOCAL\n" +
+		"com.enonic.app.superhero   Superhero   2.0.5     started   \n"
+	if out.String() != expected {
+		t.Errorf("unexpected table:\n%s\nwant:\n%s", out.String(), expected)
+	}
+
+	out.Reset()
+	printApplications(&out, apps, true, true)
+	expected = "KEY                        NAME        VERSION   STATE     LOCAL   SYSTEM\n" +
+		"com.enonic.xp.app.main     Main        8.2.0     started           yes\n" +
+		"com.enonic.app.superhero   Superhero   2.0.5     started           \n"
+	if out.String() != expected {
+		t.Errorf("unexpected table with --all:\n%s\nwant:\n%s", out.String(), expected)
+	}
+}
+
+func TestLegacyListHasNoSystemColumn(t *testing.T) {
+	var out strings.Builder
+	printApplications(&out, []Application{{Key: "com.enonic.app.a", Version: "1.0.0", State: "started"}}, false, true)
+	if strings.Contains(out.String(), "SYSTEM") {
+		t.Errorf("legacy list shows a SYSTEM column:\n%s", out.String())
 	}
 }

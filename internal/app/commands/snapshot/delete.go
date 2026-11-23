@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -20,7 +21,7 @@ var Delete = cli.Command{
 	Name:    "delete",
 	Aliases: []string{"del"},
 	Usage:   "Deletes snapshots, either before a given timestamp or by name.",
-	Flags: append([]cli.Flag{
+	Flags: common.WithBetaCompat(append([]cli.Flag{
 		cli.StringFlag{
 			Name:  "before, b",
 			Usage: "Delete snapshots before this timestamp",
@@ -30,12 +31,12 @@ var Delete = cli.Command{
 			Usage: "The name of the snapshot to delete",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		snapshot, before := ensureSnapshotOrBeforeFlag(c)
 
-		req := createDeleteRequest(c, snapshot, before)
+		req := createDeleteRequest(c, snapshot, before, common.ServerApis(c))
 
 		resp := common.SendRequest(c, req, "Deleting snapshot(s)")
 
@@ -105,7 +106,19 @@ func ensureBeforeFlag(c *cli.Context) string {
 	return before
 }
 
-func createDeleteRequest(c *cli.Context, snapshot, before string) *http.Request {
+func createDeleteRequest(c *cli.Context, snapshot, before string, server bool) *http.Request {
+	if server && snapshot != "" {
+		return common.CreateRequest(c, "DELETE", common.ServerApiPath("snapshot", snapshot), nil)
+	} else if server {
+		parsedTime, err := time.Parse(DATE_FORMAT, before)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Parsing failed %v\n", before)
+			os.Exit(1)
+		}
+		query := url.Values{"before": {parsedTime.Format(time.RFC3339)}}
+		return common.CreateRequest(c, "DELETE", common.ServerApiPath("snapshot")+"?"+query.Encode(), nil)
+	}
+
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{}
 	if snapshot != "" {
@@ -126,4 +139,5 @@ func createDeleteRequest(c *cli.Context, snapshot, before string) *http.Request 
 
 type DeleteResult struct {
 	DeletedSnapshots []string `json:"deletedSnapshots"`
+	FailedSnapshots  []string `json:"failedSnapshots,omitempty"`
 }

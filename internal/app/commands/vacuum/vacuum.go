@@ -15,7 +15,7 @@ import (
 var Vacuum = cli.Command{
 	Name:  "vacuum",
 	Usage: "Removes old version history and segments from content storage",
-	Flags: append([]cli.Flag{
+	Flags: common.WithBetaCompat(append([]cli.Flag{
 		cli.BoolFlag{
 			Name:  "blob, b",
 			Usage: "Also removes unused blobs from the blobstore",
@@ -26,9 +26,9 @@ var Vacuum = cli.Command{
 				"PnDTnHnMn.nS with days considered to be exactly 24 hours",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
-		req := createVacuumRequest(c)
+		req := createVacuumRequest(c, common.ServerApis(c))
 
 		var result VacuumResponse
 		status := common.RunTask(c, req, "Vacuuming", &result)
@@ -45,7 +45,7 @@ var Vacuum = cli.Command{
 	},
 }
 
-func createVacuumRequest(c *cli.Context) *http.Request {
+func createVacuumRequest(c *cli.Context, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{}
 	if c.Bool("blob") {
@@ -60,7 +60,11 @@ func createVacuumRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "system/vacuum", body)
+	path := "system/vacuum"
+	if server {
+		path = common.ServerApiPath("system", "prune")
+	}
+	return common.CreateRequest(c, "POST", path, body)
 }
 
 type VacuumResponse struct {

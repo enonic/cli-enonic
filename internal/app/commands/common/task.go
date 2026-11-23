@@ -144,7 +144,7 @@ func doDisplayTaskProgress(c *cli.Context, taskId, msg string, doneCh chan<- *Ta
 }
 
 func fetchTaskStatus(c *cli.Context, taskId string) (*TaskStatus, bool) {
-	req := CreateRequest(c, "GET", "/task/"+taskId, nil)
+	req := CreateRequest(c, "GET", taskPath(c, taskId), nil)
 	resp := SendRequest(c, req, "")
 	var taskStatus TaskStatus
 	ParseResponse(resp, &taskStatus)
@@ -154,7 +154,7 @@ func fetchTaskStatus(c *cli.Context, taskId string) (*TaskStatus, bool) {
 func fetchTaskStatusWithRetry(c *cli.Context, taskId string) (*TaskStatus, bool) {
 	maxRetries := 10
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		req := CreateRequest(c, "GET", "/task/"+taskId, nil)
+		req := CreateRequest(c, "GET", taskPath(c, taskId), nil)
 		resp := SendRequest(c, req, "")
 		if resp.StatusCode == http.StatusOK {
 			var taskStatus TaskStatus
@@ -170,6 +170,13 @@ func fetchTaskStatusWithRetry(c *cli.Context, taskId string) (*TaskStatus, bool)
 		}
 	}
 	return nil, false
+}
+
+func taskPath(c *cli.Context, taskId string) string {
+	if ServerApis(c) {
+		return ServerApiPath("task", taskId)
+	}
+	return "/task/" + taskId
 }
 
 type TaskResponse struct {

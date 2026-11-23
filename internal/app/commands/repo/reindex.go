@@ -18,7 +18,7 @@ import (
 var Reindex = cli.Command{
 	Name:  "reindex",
 	Usage: "Reindex content in search indices for the given repository and branches.",
-	Flags: append([]cli.Flag{
+	Flags: common.WithBetaCompat(append([]cli.Flag{
 		cli.StringFlag{
 			Name:  "b",
 			Usage: "A comma-separated list of branches to be reindexed.",
@@ -32,7 +32,7 @@ var Reindex = cli.Command{
 			Usage: "If true, the indices will be deleted before recreated.",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		var result ReindexResponse
@@ -41,7 +41,13 @@ var Reindex = cli.Command{
 		ensureRepoFlag(c)
 		ensureBranchesFlag(c)
 
-		req := createReindexRequest(c, "repo/index/reindexTask")
+		server := common.ServerApis(c)
+		var req *http.Request
+		if server {
+			req = createServerReindexRequest(c)
+		} else {
+			req = createReindexRequest(c, "repo/index/reindexTask")
+		}
 		res, err := common.SendRequestCustom(c, req, "", 3)
 		util.Fatal(err, "Reindex request error")
 
@@ -56,7 +62,7 @@ var Reindex = cli.Command{
 				}
 			}
 
-			if enonicErr.Status == http.StatusNotFound {
+			if enonicErr.Status == http.StatusNotFound && !server {
 				// Async endpoint was not found, most likely XP version < 7.2 so trying synchronous endpoint
 				newReq := createReindexRequest(c, "repo/index/reindex")
 				resp := common.SendRequest(c, newReq, requestLabel)
@@ -142,6 +148,17 @@ func createReindexRequest(c *cli.Context, url string) *http.Request {
 	json.NewEncoder(body).Encode(params)
 
 	return common.CreateRequest(c, "POST", url, body)
+}
+
+func createServerReindexRequest(c *cli.Context) *http.Request {
+	body := new(bytes.Buffer)
+	params := map[string]interface{}{
+		"branches":   strings.Split(c.String("b"), ","),
+		"initialize": c.Bool("i"),
+	}
+	json.NewEncoder(body).Encode(params)
+
+	return common.CreateRequest(c, "POST", common.ServerApiPath("index", c.String("r"), "reindex"), body)
 }
 
 type ReindexResponse struct {

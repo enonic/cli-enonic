@@ -12,7 +12,7 @@ var List = cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "Returns a list of existing snapshots with name and status.",
-	Flags:   append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
+	Flags:   common.WithBetaCompat(append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		snapshots := listSnapshots(c)
@@ -23,7 +23,11 @@ var List = cli.Command{
 }
 
 func listSnapshots(c *cli.Context) *SnapshotList {
-	req := common.CreateRequest(c, "GET", "repo/snapshot/list", nil)
+	path := "repo/snapshot/list"
+	if common.ServerApis(c) {
+		path = common.ServerApiPath("snapshot")
+	}
+	req := common.CreateRequest(c, "GET", path, nil)
 
 	resp := common.SendRequest(c, req, "Loading snapshots")
 

@@ -14,7 +14,7 @@ var Stop = cli.Command{
 	Name:      "stop",
 	Usage:     "Stop an application",
 	ArgsUsage: "<app key>",
-	Flags:     append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
+	Flags:     common.WithBetaCompat(append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		key := ensureAppKeyArg(c)
@@ -26,7 +26,7 @@ var Stop = cli.Command{
 }
 
 func stopApp(c *cli.Context, name string) {
-	req := createStopRequest(c, name)
+	req := createStopRequest(c, name, common.ServerApis(c))
 
 	res := common.SendRequest(c, req, fmt.Sprintf("Requesting stop \"%s\"", name))
 
@@ -40,13 +40,17 @@ func stopApp(c *cli.Context, name string) {
 	fmt.Fprintln(os.Stdout, status)
 }
 
-func createStopRequest(c *cli.Context, key string) *http.Request {
+func createStopRequest(c *cli.Context, key string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]string{
 		"key": key,
 	}
 	json.NewEncoder(body).Encode(params)
-	req := common.CreateRequest(c, "POST", "app/stop", body)
+	path := "app/stop"
+	if server {
+		path = common.ServerApiPath("app", "stop")
+	}
+	req := common.CreateRequest(c, "POST", path, body)
 
 	return req
 }

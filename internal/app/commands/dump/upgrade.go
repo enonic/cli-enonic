@@ -16,18 +16,18 @@ var Upgrade = cli.Command{
 	Name:    "upgrade",
 	Aliases: []string{"up"},
 	Usage:   "Upgrade a dump.",
-	Flags: append([]cli.Flag{
+	Flags: common.WithBetaCompat(append([]cli.Flag{
 		cli.StringFlag{
 			Name:  "d",
 			Usage: "Dump name.",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		name := ensureNameFlag(c, false, common.IsForceMode(c))
 
-		req := createUpgradeRequest(c, name)
+		req := createUpgradeRequest(c, name, common.ServerApis(c))
 		var result UpgradeResult
 		status := common.RunTask(c, req, "Upgrading dump", &result)
 
@@ -47,9 +47,12 @@ var Upgrade = cli.Command{
 	},
 }
 
-func createUpgradeRequest(c *cli.Context, name string) *http.Request {
+func createUpgradeRequest(c *cli.Context, name string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	normalizedName, _ := normalizeName(name)
+	if server {
+		return common.CreateRequest(c, "POST", common.ServerApiPath("dump", normalizedName, "upgrade"), body)
+	}
 	params := map[string]string{
 		"name": normalizedName,
 	}

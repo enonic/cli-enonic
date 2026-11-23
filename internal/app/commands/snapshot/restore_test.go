@@ -35,7 +35,7 @@ func newRestoreCtx(compat, snap, repo string, latest, clean bool) *cli.Context {
 func TestCreateRestoreRequest_Latest(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newRestoreCtx("", "", "", true, false)
-	req := createRestoreRequest(c)
+	req := createRestoreRequest(c, false)
 	params := decodeJSONBody(t, req.Body)
 
 	if params["latest"] != true {
@@ -49,7 +49,7 @@ func TestCreateRestoreRequest_Latest(t *testing.T) {
 func TestCreateRestoreRequest_BySnapshotName(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newRestoreCtx("", "my-snap", "", false, false)
-	req := createRestoreRequest(c)
+	req := createRestoreRequest(c, false)
 	params := decodeJSONBody(t, req.Body)
 
 	if params["snapshotName"] != "my-snap" {
@@ -63,7 +63,7 @@ func TestCreateRestoreRequest_BySnapshotName(t *testing.T) {
 func TestCreateRestoreRequest_Clean(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newRestoreCtx("", "my-snap", "", false, true)
-	req := createRestoreRequest(c)
+	req := createRestoreRequest(c, false)
 	params := decodeJSONBody(t, req.Body)
 
 	if params["force"] != true {
@@ -74,7 +74,7 @@ func TestCreateRestoreRequest_Clean(t *testing.T) {
 func TestCreateRestoreRequest_Repository(t *testing.T) {
 	isolateEnonicHome(t)
 	c := newRestoreCtx("", "my-snap", "my-repo", false, false)
-	req := createRestoreRequest(c)
+	req := createRestoreRequest(c, false)
 	params := decodeJSONBody(t, req.Body)
 
 	if params["repository"] != "my-repo" {
