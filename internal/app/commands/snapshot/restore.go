@@ -38,7 +38,7 @@ var Restore = cli.Command{
 
 		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
 
-		req := createRestoreRequest(c)
+		req := createRestoreRequest(c, common.ServerApis(c))
 		var result RestoreResult
 
 		if common.IsCompatMode(c) {
@@ -107,14 +107,16 @@ func ensureSnapshotFlagWithMessage(c *cli.Context, message string) string {
 	return snapshotList.Results[pos].Name
 }
 
-func createRestoreRequest(c *cli.Context) *http.Request {
+func createRestoreRequest(c *cli.Context, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{}
 
+	var snapshotName string
 	if c.Bool("latest") {
 		params["latest"] = true
 	} else {
-		params["snapshotName"] = ensureSnapshotFlag(c)
+		snapshotName = ensureSnapshotFlag(c)
+		params["snapshotName"] = snapshotName
 	}
 
 	if c.Bool("clean") {
@@ -126,6 +128,11 @@ func createRestoreRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
+	if server && snapshotName != "" {
+		return common.CreateRequest(c, "POST", common.ServerApiPath("snapshot", snapshotName, "restore"), body)
+	} else if server {
+		return common.CreateRequest(c, "POST", common.ServerApiPath("snapshot", "restore"), body)
+	}
 	return common.CreateRequest(c, "POST", "repo/snapshot/restore", body)
 }
 

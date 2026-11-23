@@ -17,18 +17,18 @@ import (
 var Cleanup = cli.Command{
 	Name:  "cleanup",
 	Usage: "Deletes records from audit log repository.",
-	Flags: append([]cli.Flag{
+	Flags: common.WithBetaCompat(append([]cli.Flag{
 		cli.StringFlag{
 			Name:  "age",
 			Usage: "Age of records to be removed. The format based on the ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours.",
 		},
 		common.FORCE_FLAG,
-	}, common.AUTH_AND_TLS_FLAGS...),
+	}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		age := ensureAgeParam(c)
 
-		req := createCleanRequest(c, age)
+		req := createCleanRequest(c, age, common.ServerApis(c))
 
 		var result CleanAuditlogResponse
 
@@ -68,14 +68,18 @@ func ensureAgeParam(c *cli.Context) string {
 	})
 }
 
-func createCleanRequest(c *cli.Context, age string) *http.Request {
+func createCleanRequest(c *cli.Context, age string, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"ageThreshold": age,
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "auditlog/cleanup", body)
+	path := "auditlog/cleanup"
+	if server {
+		path = common.ServerApiPath("auditlog", "prune")
+	}
+	return common.CreateRequest(c, "POST", path, body)
 }
 
 type CleanAuditlogResponse struct {

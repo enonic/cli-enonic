@@ -16,17 +16,25 @@ import (
 var Replicas = cli.Command{
 	Name:  "replicas",
 	Usage: "Set the number of replicas in the cluster.",
-	Flags: append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...),
+	Flags: common.WithBetaCompat(append([]cli.Flag{common.FORCE_FLAG}, common.AUTH_AND_TLS_FLAGS...)),
 	Action: func(c *cli.Context) error {
 
 		replicasNum := ensureReplicasNumberArg(c)
-
-		req := createReprocessRequest(c, replicasNum)
-
-		res := common.SendRequest(c, req, fmt.Sprintf("Setting replicas number to %d", replicasNum))
+		message := fmt.Sprintf("Setting replicas number to %d", replicasNum)
 
 		var result ReplicasResponse
-		common.ParseResponse(res, &result)
+		if common.ServerApis(c) {
+			result.Repositories = map[string]map[string]string{}
+			for _, repository := range listRepositories(c, "Loading repositories").Repositories {
+				res := common.SendRequest(c, createReplicasRequest(c, repository.Id, replicasNum), fmt.Sprintf("%s in %s", message, repository.Id))
+				var replicas IndexReplicas
+				common.ParseResponse(res, &replicas)
+				result.Repositories[repository.Id] = replicas.Replicas
+			}
+		} else {
+			res := common.SendRequest(c, createReprocessRequest(c, replicasNum), message)
+			common.ParseResponse(res, &result)
+		}
 		fmt.Fprintln(os.Stderr, "Done")
 		fmt.Fprintln(os.Stdout, util.PrettyPrintJSON(result))
 
@@ -48,6 +56,14 @@ func createReprocessRequest(c *cli.Context, replicasNum int) *http.Request {
 	return common.CreateRequest(c, "POST", "repo/index/updateSettings", body)
 }
 
+// createReplicasRequest sets the replicas of a repository's search and storage indices
+func createReplicasRequest(c *cli.Context, repository string, replicasNum int) *http.Request {
+	body := new(bytes.Buffer)
+	count := strconv.Itoa(replicasNum)
+	json.NewEncoder(body).Encode(IndexReplicas{Replicas: map[string]string{"search": count, "storage": count}})
+	return common.CreateRequest(c, "PUT", common.ServerApiPath("index", repository), body)
+}
+
 func ensureReplicasNumberArg(c *cli.Context) int {
 	var numValidator = func(val interface{}) error {
 		if val == "" {
@@ -66,5 +82,10 @@ func ensureReplicasNumberArg(c *cli.Context) int {
 }
 
 type ReplicasResponse struct {
-	UpdatedIndexes []string `json:"updatedIndexes"`
+	UpdatedIndexes []string                     `json:"updatedIndexes,omitempty"`
+	Repositories   map[string]map[string]string `json:"repositories,omitempty"`
+}
+
+type IndexReplicas struct {
+	Replicas map[string]string `json:"replicas"`
 }

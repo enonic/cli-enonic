@@ -25,7 +25,7 @@ var Create = cli.Command{
 
 		util.Fatal(common.ValidateCompatFlag(c), "Invalid argument")
 
-		req := createNewRequest(c)
+		req := createNewRequest(c, common.ServerApis(c))
 		var snap Snapshot
 
 		if common.IsCompatMode(c) {
@@ -58,7 +58,7 @@ var Create = cli.Command{
 	},
 }
 
-func createNewRequest(c *cli.Context) *http.Request {
+func createNewRequest(c *cli.Context, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{}
 	if repo := c.String("repo"); repo != "" {
@@ -66,5 +66,9 @@ func createNewRequest(c *cli.Context) *http.Request {
 	}
 	json.NewEncoder(body).Encode(params)
 
-	return common.CreateRequest(c, "POST", "repo/snapshot", body)
+	path := "repo/snapshot"
+	if server {
+		path = common.ServerApiPath("snapshot")
+	}
+	return common.CreateRequest(c, "POST", path, body)
 }

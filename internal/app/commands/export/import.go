@@ -45,7 +45,7 @@ var Import = cli.Command{
 		ensureNameFlag(c)
 		ensurePathFlag(c)
 
-		req := createLoadRequest(c)
+		req := createLoadRequest(c, common.ServerApis(c))
 
 		var result LoadDumpResponse
 		status := common.RunTask(c, req, "Importing data", &result)
@@ -62,7 +62,7 @@ var Import = cli.Command{
 	},
 }
 
-func createLoadRequest(c *cli.Context) *http.Request {
+func createLoadRequest(c *cli.Context, server bool) *http.Request {
 	body := new(bytes.Buffer)
 	params := map[string]interface{}{
 		"exportName":     c.String("t"),
@@ -75,6 +75,13 @@ func createLoadRequest(c *cli.Context) *http.Request {
 
 	if common.IsCompatMode(c) {
 		params["dryRun"] = c.Bool("dry")
+	}
+
+	if server {
+		// the export is named by the path, and the body takes nothing else
+		delete(params, "exportName")
+		json.NewEncoder(body).Encode(params)
+		return common.CreateRequest(c, "POST", common.ServerApiPath("export", c.String("t"), "load"), body)
 	}
 
 	json.NewEncoder(body).Encode(params)
