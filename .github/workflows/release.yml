@@ -1,15 +1,10 @@
 name: Release
+run-name: Release ${{ github.ref_name }}
 
 on:
   push:
     tags:
       - 'v*'
-  # publishes a released tag to npm only, e.g. when the release's own npm publish failed
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Released tag to publish to npm, e.g. v4.2.0-B1'
-        required: true
 
 concurrency: release
 
@@ -20,7 +15,6 @@ permissions:
 jobs:
 
   release:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
@@ -32,6 +26,21 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      # vX.Y.Z is a final release; anything else (v4.2.0-B1, v4.2.0-RC1) is a prerelease
+      - name: Detect prerelease
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "npm-tag=latest" >> "$GITHUB_OUTPUT"
+            echo "### Final release $VERSION" >> "$GITHUB_STEP_SUMMARY"
+            echo "GitHub Latest, npm \`latest\`, Snap \`stable\`, Homebrew, Scoop" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "npm-tag=beta" >> "$GITHUB_OUTPUT"
+            echo "### Prerelease $VERSION" >> "$GITHUB_STEP_SUMMARY"
+            echo "GitHub prerelease, npm \`beta\`, Snap \`beta\`. Homebrew and Scoop are skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -57,66 +66,12 @@ jobs:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Set npm tag
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "NPM_TAG=latest" >> $GITHUB_ENV
-          else
-            echo "NPM_TAG=beta" >> $GITHUB_ENV
-          fi
-
-      - name: Publish
+      # npm stages a CI publish until a maintainer approves it on npmjs.com;
+      # rerunning this step after that fails with 409 Conflict
+      - name: Publish to npm
         run: |
           npm install -g npm@latest
           npm ci
           # set the version before npm publish, which reads package.json before prepublishOnly runs
           node setversion.js
-          npm publish --tag $NPM_TAG
-
-  npm:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    env:
-      # setversion.js takes the version from the tag
-      GITHUB_REF_NAME: ${{ inputs.tag }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          ref: refs/tags/${{ inputs.tag }}
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@v7
-        with:
-          go-version: 1.26.0
-
-      - name: Build
-        uses: goreleaser/goreleaser-action@v7
-        with:
-          args: build --clean --parallelism=1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Set npm tag
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "NPM_TAG=latest" >> $GITHUB_ENV
-          else
-            echo "NPM_TAG=beta" >> $GITHUB_ENV
-          fi
-
-      - name: Publish
-        run: |
-          npm install -g npm@latest
-          npm ci
-          node setversion.js
-          npm publish --tag $NPM_TAG
+          npm publish --tag ${{ steps.version.outputs.npm-tag }}
