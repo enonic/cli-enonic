@@ -109,6 +109,24 @@ func TestFilterVersionsSkipsUnparsable(t *testing.T) {
 	}
 }
 
+// TestFilterVersionsSortsAscending verifies that versions are returned in
+// ascending semver order, with the latest version appearing last, regardless
+// of the order they were received from the remote metadata (#707).
+func TestFilterVersionsSortsAscending(t *testing.T) {
+	unordered := []string{"8.0.4", "7.14.0", "8.1.0", "7.16.8", "8.0.0"}
+	got, latest := filterVersions(unordered, "", false, false)
+	want := []string{"7.14.0", "7.16.8", "8.0.0", "8.0.4", "8.1.0"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("versions = %v, want %v", got, want)
+	}
+	if latest != "8.1.0" {
+		t.Errorf("latest = %q, want 8.1.0", latest)
+	}
+	if got[len(got)-1] != latest {
+		t.Errorf("latest %q should be last in %v", latest, got)
+	}
+}
+
 func serveMavenMetadata(t *testing.T, versions []string) func() {
 	t.Helper()
 	var sb strings.Builder
