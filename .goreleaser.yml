@@ -107,9 +107,9 @@ release:
   # Default is false.
   draft: false
 
-  # If set to true, will mark the release as not ready for production.
-  # Default is false.
-  prerelease: false
+  # Marks a version with a prerelease suffix (e.g. 4.2.0-B1) as not ready for production, so it is not
+  # the latest release.
+  prerelease: auto
 
   # You can change the name of the GitHub release.
   # Default is ``
@@ -124,7 +124,8 @@ release:
 
 scoops:
 -
-  skip_upload: false
+  # A prerelease is not pushed to the bucket, so scoop users stay on the latest release.
+  skip_upload: auto
   # Template for the url.
   # Default is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
   url_template: https://repo.enonic.com/public/com/enonic/cli/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}
@@ -160,7 +161,8 @@ scoops:
 
 homebrew_casks:
 
-  - skip_upload: false
+  - # A prerelease is not pushed to the tap, so brew users stay on the latest release.
+    skip_upload: auto
 
     # Repository to push the tap to.
     repository:
@@ -257,6 +259,9 @@ snapcrafts:
     # Remember you need to `snapcraft login` first.
     # Defaults to false.
     publish: true
+    # A prerelease goes to the beta channel only, so snap users on stable stay on the latest release.
+    channel_templates:
+      - '{{ if .Prerelease }}beta{{ else }}stable{{ end }}'
 
     # Single-line elevator pitch for your amazing snap.
     # 79 char long at most.
