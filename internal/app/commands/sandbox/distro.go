@@ -243,7 +243,7 @@ func startDistro(distroName, sandbox string, detach, devMode, debug bool) *exec.
 	args := appendRunModeArgs(nil, devMode, debug)
 	args = append(args, fmt.Sprintf(homeTemplate, homePath))
 
-	if proxy := remote.GetActiveRemote().Proxy; proxy != nil {
+	if proxy := remote.ProxyFromEnv(); proxy != nil {
 		args = append(args,
 			fmt.Sprintf(`-Dhttp.proxyHost=%s`, proxy.Hostname()),
 			fmt.Sprintf(`-Dhttp.proxyPort=%s`, proxy.Port()),

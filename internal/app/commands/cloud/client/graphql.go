@@ -201,7 +201,8 @@ func (c *GQLClient) runWithPostFields(ctx context.Context, req *GQLRequest, resp
 
 // WithHTTPClient specifies the underlying http.Client to use when
 // making requests.
-//  NewClient(endpoint, WithHTTPClient(specificHTTPClient))
+//
+//	NewClient(endpoint, WithHTTPClient(specificHTTPClient))
 func WithHTTPClient(httpclient *http.Client) ClientOption {
 	return func(client *GQLClient) {
 		client.httpClient = httpclient
@@ -216,7 +217,7 @@ func UseMultipartForm() ClientOption {
 	}
 }
 
-//ImmediatelyCloseReqBody will close the req body immediately after each request body is ready
+// ImmediatelyCloseReqBody will close the req body immediately after each request body is ready
 func ImmediatelyCloseReqBody() ClientOption {
 	return func(client *GQLClient) {
 		client.closeReq = true
