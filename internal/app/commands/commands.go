@@ -6,6 +6,7 @@ import (
 	"cli-enonic/internal/app/commands/cloud"
 	"cli-enonic/internal/app/commands/cms"
 	"cli-enonic/internal/app/commands/dump"
+	"cli-enonic/internal/app/commands/env"
 	"cli-enonic/internal/app/commands/export"
 	"cli-enonic/internal/app/commands/project"
 	"cli-enonic/internal/app/commands/repo"
@@ -13,10 +14,18 @@ import (
 	"cli-enonic/internal/app/commands/snapshot"
 	"cli-enonic/internal/app/commands/system"
 	"cli-enonic/internal/app/commands/vacuum"
+	"cli-enonic/internal/app/util"
 	"github.com/urfave/cli"
 )
 
 func All() []cli.Command {
+	if !util.IsBeta() {
+		return withoutEnvFlag(without(all(), "env", "login", "logout"))
+	}
+	return wireEnvFlag(all())
+}
+
+func all() []cli.Command {
 	return []cli.Command{
 		Create,
 		Dev,
@@ -85,6 +94,14 @@ func All() []cli.Command {
 			HelpName:    "Cloud",
 			Category:    "CLOUD COMMANDS",
 		},
+		{
+			Name:        "env",
+			Usage:       "Manage environments: the XP instances commands run against (beta)",
+			Subcommands: env.All(),
+			HelpName:    "Env",
+		},
+		Login,
+		Logout,
 		system.Latest,
 		system.Upgrade,
 		system.Uninstall,

@@ -40,7 +40,7 @@ var Add = cli.Command{
 		}
 
 		data := readRemotesData()
-		data.Remotes[name] = RemoteData{remoteUrl, userName, userPass, proxyUrl}
+		data.Remotes[name] = RemoteData{Url: remoteUrl, User: userName, Pass: userPass, Proxy: proxyUrl}
 		writeRemotesData(data)
 
 		fmt.Fprintf(os.Stdout, "Remote '%s' created.", name)
