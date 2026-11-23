@@ -1,5 +1,20 @@
 = Release notes
 
+== CLI v4.2.0
+
+=== Features
+
+* Environments: named XP instances that commands run against, managed with `enonic env add`, `list`, `use`, `current` and `remove`. An Enonic Cloud environment is added by its name, `<account>/<solution>/<environment>`. Every command that talks to XP takes `--env`, and `ENONIC_CLI_ENV` selects an environment too. See <<xp#environments, Environments>>.
+* `enonic login` and `enonic logout`: log in to an environment with device login, or with `--browser`, using XP's own access tokens. Each environment keeps its own login, which is refreshed before it expires. Requires XP 8.2 or later.
+* `ENONIC_CLI_TOKEN`: authenticate with a bearer token issued elsewhere, such as a GitHub Actions OIDC token, so a workflow needs no stored secret. Requires XP 8.2 or later. See <<xp#github_actions, GitHub Actions without a stored secret>>.
+* Commands call XP's management APIs (`/server:<api>`, XP 8.2 and later), which work on management hosts that switch the REST API off. Use `--compat 8.1` for XP 8.0 and 8.1, and `--compat 7` for XP 7. Every such command takes `--compat`, and `ENONIC_CLI_COMPAT` sets it for all of them.
+* `app list` leaves XP's system applications out on XP 8.2 and later. Use `--all` to include them.
+
+=== Changes
+
+* `repo replicas` prints the replicas of each repository on XP 8.2 and later.
+* A password session cookie is no longer stored or sent: a password is sent with every request, and one typed at the prompt is asked once per command.
+
 == CLI v4.1.4
 
 === Bug fixes
