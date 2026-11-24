@@ -18,7 +18,7 @@ func authorizeServer(t *testing.T, deny string) *httptest.Server {
 		case "/authorize":
 			q := r.URL.Query()
 			redirectUri, challenge, resource = q.Get("redirect_uri"), q.Get("code_challenge"), q.Get("resource")
-			if q.Get("response_type") != "code" || q.Get("client_id") != CLI_CLIENT_ID || q.Get("code_challenge_method") != "S256" ||
+			if q.Get("response_type") != "code" || q.Get("client_id") != CLI_CLIENT_ID || q.Get("scope") != CLI_SCOPE || q.Get("code_challenge_method") != "S256" ||
 				!strings.HasPrefix(redirectUri, "http://127.0.0.1:") || challenge == "" || q.Get("state") == "" {
 				http.Error(w, "bad authorization request "+q.Encode(), http.StatusBadRequest)
 				return

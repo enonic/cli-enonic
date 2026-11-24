@@ -87,6 +87,7 @@ func StartBrowserLogin(endpoints *OAuthEndpoints) (*BrowserLogin, error) {
 	query := authorizationUrl.Query()
 	query.Set("response_type", "code")
 	query.Set("client_id", CLI_CLIENT_ID)
+	query.Set("scope", CLI_SCOPE)
 	query.Set("redirect_uri", login.redirectUri)
 	query.Set("code_challenge", pkceChallenge(verifier))
 	query.Set("code_challenge_method", "S256")

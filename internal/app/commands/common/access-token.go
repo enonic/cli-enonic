@@ -20,6 +20,10 @@ import (
 
 // XP registers the Enonic CLI under this client id with the system ID provider (XP 8.2+)
 const CLI_CLIENT_ID = "enonic-cli"
+
+// CLI_SCOPE is the scope the CLI asks for when it logs in: XP's scope for everything, which its management APIs accept
+// for every operation. A token without a scope is refused there.
+const CLI_SCOPE = "admin"
 const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
 
 // OAuthEndpoints are where device login runs and where its token is refreshed
@@ -120,7 +124,7 @@ func StartDeviceLogin(client *http.Client, endpoints *OAuthEndpoints) (*DeviceCo
 		oauthError
 		DeviceCode
 	}
-	form := url.Values{"client_id": {CLI_CLIENT_ID}}
+	form := url.Values{"client_id": {CLI_CLIENT_ID}, "scope": {CLI_SCOPE}}
 	if endpoints.Resource != "" {
 		form.Set("resource", endpoints.Resource)
 	}
