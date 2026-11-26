@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -98,6 +99,8 @@ func ensureSnapshotFlagWithMessage(c *cli.Context, message string) string {
 		os.Exit(1)
 	}
 
+	sortNewestFirst(snapshotList)
+
 	_, pos, err := util.PromptSelect(&util.SelectOptions{
 		Message: message,
 		Options: getSnapshotDisplayNames(snapshotList),
@@ -134,6 +137,14 @@ func createRestoreRequest(c *cli.Context, server bool) *http.Request {
 		return common.CreateRequest(c, "POST", common.ServerApiPath("snapshot", "restore"), body)
 	}
 	return common.CreateRequest(c, "POST", "repo/snapshot/restore", body)
+}
+
+// sortNewestFirst orders snapshots by timestamp, latest on top, so that the most
+// commonly picked ones are reachable without scrolling through the whole list.
+func sortNewestFirst(list *SnapshotList) {
+	slices.SortStableFunc(list.Results, func(a, b Snapshot) int {
+		return b.Timestamp.Compare(a.Timestamp)
+	})
 }
 
 func getSnapshotDisplayNames(list *SnapshotList) []string {
