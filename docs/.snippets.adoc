@@ -10,12 +10,15 @@
 
 |`--client-cert`
 |Specifies the client certificate file to use for authentication with the remote server. Requires `--client-key` to be specified as well when establishing a mutual TLS (mTLS) session.
+
+|`--env`
+|name of the <<environments,environment>> to run the command against, instead of the active one
 // end::credentials-flags[]
 
 // tag::credentials-flags-notes[]
 [NOTE]
 ====
-* if the `auth` param is missing and there is no valid session, CLI will look for `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables. See <<environment_variables, configuration section.>>
+* CLI authenticates with the first of: `cred-file` (or `ENONIC_CLI_CRED_FILE`), `auth`, `ENONIC_CLI_TOKEN`, the login stored by `enonic login` for the environment, and the `ENONIC_CLI_REMOTE_USER` and `ENONIC_CLI_REMOTE_PASS` environment variables or a password prompt. See <<environment_variables, configuration section.>>
 
 * if the `cred-file` param is missing, CLI will look for the `ENONIC_CLI_CRED_FILE` environment variable. If this environment variable is also missing, then CLI will fall back to the `auth` param. See <<environment_variables, configuration section.>>
 
