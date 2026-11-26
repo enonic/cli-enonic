@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli"
 	"net/http"
 	"os"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -142,8 +142,8 @@ func createRestoreRequest(c *cli.Context, server bool) *http.Request {
 // sortNewestFirst orders snapshots by timestamp, latest on top, so that the most
 // commonly picked ones are reachable without scrolling through the whole list.
 func sortNewestFirst(list *SnapshotList) {
-	sort.SliceStable(list.Results, func(i, j int) bool {
-		return list.Results[i].Timestamp.After(list.Results[j].Timestamp)
+	slices.SortStableFunc(list.Results, func(a, b Snapshot) int {
+		return b.Timestamp.Compare(a.Timestamp)
 	})
 }
 
