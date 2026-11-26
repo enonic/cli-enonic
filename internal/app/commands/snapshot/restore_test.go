@@ -3,6 +3,7 @@ package snapshot
 import (
 	"flag"
 	"testing"
+	"time"
 
 	"github.com/urfave/cli"
 )
@@ -85,5 +86,23 @@ func TestCreateRestoreRequest_Repository(t *testing.T) {
 func TestRestoreCommand_HasCompatFlag(t *testing.T) {
 	if !commandHasFlag(Restore.Flags, "compat") {
 		t.Error("snapshot restore command must register --compat flag")
+	}
+}
+
+func TestSortNewestFirst(t *testing.T) {
+	base := time.Date(2025, 7, 1, 12, 0, 0, 0, time.UTC)
+	list := &SnapshotList{Results: []Snapshot{
+		{Name: "oldest", Timestamp: base},
+		{Name: "newest", Timestamp: base.Add(48 * time.Hour)},
+		{Name: "middle", Timestamp: base.Add(24 * time.Hour)},
+	}}
+
+	sortNewestFirst(list)
+
+	expected := []string{"newest", "middle", "oldest"}
+	for i, name := range expected {
+		if list.Results[i].Name != name {
+			t.Errorf("position %d: expected %s, got %s", i, name, list.Results[i].Name)
+		}
 	}
 }
