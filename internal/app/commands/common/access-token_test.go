@@ -77,6 +77,10 @@ func TestDeviceLoginAndRefresh(t *testing.T) {
 		}
 		switch r.URL.Path {
 		case "/_/idprovider/system/device/code":
+			if r.Form.Get("scope") != CLI_SCOPE {
+				jsonResponse(w, 400, map[string]string{"error": "invalid_scope"})
+				return
+			}
 			jsonResponse(w, 200, map[string]interface{}{
 				"device_code": "dc", "user_code": "BCDF-GHJK", "verification_uri_complete": "http://x/device?user_code=BCDF-GHJK",
 				"expires_in": 10, "interval": 0,
